@@ -90,6 +90,7 @@
 
 % Image block size relative to text block...
 %
+% XXX not yet used...
 % XXX better name...
 \DeclareStringOption[0.85]{imageblockwidth}[1]
 \DeclareStringOption[0.85]{imageblockheight}[1]
@@ -128,6 +129,7 @@
 		\photobook@innerbleed
 	\fi }
 
+
 \newlength\bindingoffset
 \setlength\bindingoffset{\photobook@bindingoffset}
 
@@ -136,11 +138,11 @@
 %----------------------------------------------------------------------
 % Commands...
 
-\newcommand\Keywords[1]{%
+\newcommand\keywords[1]{%
 	\def\@keywords{#1}}
 
 
-\newcommand\Subject[1]{%
+\newcommand\subject[1]{%
 	\def\@subject{#1}}
 
 
