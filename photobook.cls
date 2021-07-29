@@ -28,50 +28,87 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % options...
-%
-% XXX handle options:
-%	- image block (w, h)
-%		...should this be a global setting or a template thing???
 
 % pdf layout...
+%
 % see: hyperref's pdfpagelayout for more options...
 \DeclareStringOption[TwoPageRight]{pdfpagelayout}
 
 
 % page geometry...
 %
-%												<---> bindingoffset
-%	<---> bleed 							<---> innerbleed
+%	<---> bleed 								<---> innerbleed
 %
-%	+-----------------------------------------------+	^
-%	|  											|	|	| bleed
-%	|	+-----------------------------------+	|	|	v
-%	|	|							^		|	|	|
-%	|	|							|		|	|	|
-%	|	|<-- pagewidth -------------------->|	|	|
-%	|	|							|		|	|	|
-%	|	|							|		|	|	|
-%	|	|							|		|	|	|
-%	|	|						pageheight	|	|	|
-%	|	|							|		|	|	|
-%	|	|							|		|	|	|
-%	|	|							|		|	|	|
-%	|	|							v		|	|	|
-%	|	+-----------------------------------+	|	|
-%	|  											|	|
-%	+-----------------------------------------------+ 
+%	+ - - - - - - - - - - - - - - - - - - - - - + - +	^
+%	.  											.	.	| bleed
+%	.	+---------------------------------------+	.	v	.	.  ---
+%	.	|							^		.	|	.
+%	.	|	.	.	.	.	.	.	|	.	.	|	.   			^
+%	.	|<-- pagewidth ------------------------>|	.				|
+%	.	|	.						|	.	.	|	.				|
+%	.	|	 						|		.	|	.		textheight
+%	.	|	.						|	.	.	|	.				|
+%	.	|	 					pageheight	.	|	.				|
+%	.	|	.						|	.	.	|	.				|
+%	.	|	 						|		<---> bindingoffset		|
+%	.	|	.	.	.	.	.	.	|	.	.	|	.				v
+%	.	|							v		.	|	.
+%	.	+---------------------------------------+	.	^	.	.  ---
+%	.	.										.	.	| bleed
+%	+ - - - - - - - - - - - - - - - - - - - - - + - +	v
+%		.										.
+%		|	<-- textwidth -------------->	.	|
+%												^ binding line
 %
-\DeclareStringOption[5mm]{bleed}
+% NOTE: if pagewidth/pageheight are set they will force recalculations 
+%		and overriding of the paperwidth/paperheight if they were changed
+%		by the user code anywhere between \documentclass[..]{photobook}
+%		and \begin{document}...
+\DeclareStringOption[5mm]{bleed}[5mm]
 \DeclareStringOption{innerbleed}
 \DeclareStringOption{pagewidth}
 \DeclareStringOption{pageheight}
-\DeclareStringOption[0]{bindingoffset}
+\DeclareStringOption[0]{bindingoffset}[10mm]
+
+% XXX handle options:
+%	- image block (w, h)
+%		...should this be a global setting or a template thing???
 
 \DeclareDefaultOption{\PassOptionsToClass{\CurrentOption}{book}}
 \ProcessKeyvalOptions*
 
 
+% Parent class...
+%
 \LoadClass[9pt, final, openany]{book}
+
+
+
+%----------------------------------------------------------------------
+% Globals...
+
+% NOTE: page and bleed block sizes are set via \RecalculatePageLengths
+\newlength\pagewidth
+\newlength\pageheight
+% NOTE: these are equivalent to \paperwidth and \paperheight but are 
+%		independent of them...
+\newlength\bleedblockwidth
+\newlength\bleedblockheight
+
+
+\newlength\bleed
+\setlength\bleed{\photobook@bleed}
+
+\newlength\innerbleed
+\setlength\innerbleed{
+	\ifx\photobook@innerbleed\empty
+		\bleed
+	\else
+		\photobook@innerbleed
+	\fi }
+
+\newlength\bindingoffset
+\setlength\bindingoffset{\photobook@bindingoffset}
 
 
 
@@ -112,33 +149,6 @@
 		\relax} }
 
 
-
-%----------------------------------------------------------------------
-% Globals...
-
-\newlength\pagewidth
-\newlength\pageheight
-% NOTE: these are equivalent to \paperwidth and \paperheight but are 
-%		independent of them...
-\newlength\bleedblockwidth
-\newlength\bleedblockheight
-
-\newlength\bleed
-\setlength\bleed{\photobook@bleed}
-
-\newlength\innerbleed
-\setlength\innerbleed{
-	\ifx\photobook@innerbleed\empty
-		\bleed
-	\else
-		\photobook@innerbleed
-	\fi }
-
-\newlength\bindingoffset
-\setlength\bindingoffset{\photobook@bindingoffset}
-
-
-
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % update global values...
 
@@ -147,10 +157,18 @@
 
 
 %----------------------------------------------------------------------
+% page / spread templates...
+
+% XXX
+
+
+
+
+%----------------------------------------------------------------------
 \AtEndPreamble{
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% pdf metadata...
+% Metadata...
 
 \hypersetup{
 	pdfinfo={
@@ -171,19 +189,20 @@
 \geometry{
 	% paper size (incl. bleeds)...
 	paperwidth=\bleedblockwidth, paperheight=\bleedblockheight,
+	bindingoffset=\bindingoffset,
+
+	% XXX these should be overridable...
 	% include header/footer/margin notes in printed area
 	twoside, includeall, nomarginpar,
 	ignorehead=false, ignorefoot=false, ignoremp=false,
 	% center printed area on page
-	vcentering, hcentering,
-	bindingoffset=\bindingoffset}
+	vcentering, hcentering, }
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % pdf boxes...
 
 % calculate pdf box dimensions in pt...
-% XXX should these be local or global???
 \edef\@pdfWidthPt{\strip@pt\dimexpr 
 	0.996264009963\bleedblockwidth \relax}
 \edef\@pdfHeightPt{\strip@pt\dimexpr 
