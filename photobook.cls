@@ -17,6 +17,7 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \RequirePackage{calc}
+\RequirePackage{xargs}
 \RequirePackage{iftex}
 \RequirePackage{kvoptions}
 \RequirePackage{etoolbox}
@@ -24,6 +25,7 @@
 \RequirePackage[unicode]{hyperref}
 \RequirePackage{graphicx}
 \RequirePackage{geometry}
+\RequirePackage{eso-pic}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -56,17 +58,17 @@
 %   + - - - - - - - - - - - - - - - - - - - - - + - +   ^
 %   .                                           .   .   | bleed
 %   .   +---------------------------------------+   .   v   .   .  ---
-%   .   |                           ^       .   |   .
-%   .   |   .   .   .   .   .   .   |   .   .   |   .               ^
-%   .   |<-- pagewidth ------------------------>|   .               |
-%   .   |   .                       |   .   .   |   .               |
-%   .   |                           |       .   |   .       textheight
-%   .   |   .                       |   .   .   |   .               |
-%   .   |                       pageheight  .   |   .               |
-%   .   |   .                       |   .   .   |   .               |
+%   .   |                           ^       .   =   .
+%   .   |   .   .   .   .   .   .   |   .   .   =   .               ^
+%   .   |<-- pagewidth ------------------------>=   .               |
+%   .   |   .                       |   .   .   =   .               |
+%   .   |                           |       .   =   .       textheight
+%   .   |   .                       |   .   .   =   .               |
+%   .   |                       pageheight  .   =   .               |
+%   .   |   .                       |   .   .   =   .               |
 %   .   |                           |       <---> bindingoffset     |
-%   .   |   .   .   .   .   .   .   |   .   .   |   .               v
-%   .   |                           v       .   |   .
+%   .   |   .   .   .   .   .   .   |   .   .   =   .               v
+%   .   |                           v       .   =   .
 %   .   +---------------------------------------+   .   ^   .   .  ---
 %   .   .                                       .   .   | bleed
 %   + - - - - - - - - - - - - - - - - - - - - - + - +   v
@@ -74,19 +76,24 @@
 %       |   <-- textwidth -------------->   .   |
 %                                               ^ binding line
 %
+% NOTE: innerbleed defaults to bleed...
 % NOTE: if pagewidth/pageheight are set they will force recalculations 
 %		and overriding of the paperwidth/paperheight if they were changed
 %		by the user code anywhere between \documentclass[..]{photobook}
 %		and \begin{document}...
 \DeclareStringOption[5mm]{bleed}[5mm]
 \DeclareStringOption{innerbleed}
+% XXX do we need to rename these??? (used by lualatex??)
 \DeclareStringOption{pagewidth}
 \DeclareStringOption{pageheight}
 \DeclareStringOption[0]{bindingoffset}[10mm]
 
-% XXX handle options:
-%	- image block (w, h)
-%		...should this be a global setting or a template thing???
+% Image block size relative to text block...
+%
+% XXX better name...
+\DeclareStringOption[0.85]{imageblockwidth}[1]
+\DeclareStringOption[0.85]{imageblockheight}[1]
+\DeclareStringOption[-0.05]{imageblockoffsettop}[0]
 
 \DeclareDefaultOption{\PassOptionsToClass{\CurrentOption}{book}}
 \ProcessKeyvalOptions*
@@ -174,6 +181,7 @@
 % page / spread templates...
 
 % XXX
+
 
 
 
