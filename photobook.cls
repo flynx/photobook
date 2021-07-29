@@ -1,131 +1,227 @@
 %----------------------------------------------------------------------
 %
+%
+% This does the following:
+%	- sets up the document/pdf for viewing as a book
+%	- adds support for page bleeds
+%	- adds basic templates for image pages (XXX)
+%
 %----------------------------------------------------------------------
 
 \NeedsTeXFormat{LaTeX2e}
+
 % XXX set release date...
 \ProvidesClass{photobook}[2021/07/28 Photo book Latex class]
 
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\RequirePackage{calc}
+\RequirePackage{iftex}
+\RequirePackage{kvoptions}
+\RequirePackage{etoolbox}
+\RequirePackage{atbegshi}
+\RequirePackage[unicode]{hyperref}
+\RequirePackage{graphicx}
+\RequirePackage{geometry}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % options...
 %
 % XXX handle options:
-%	- page size (w, h)
 %	- image block (w, h)
-%	- bleed size
-%	- 
-%	- 
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{book}}
-\ProcessOptions\relax
+%		...should this be a global setting or a template thing???
 
-% XXX load defauls...
-\LoadClass[9pt,final,openany]{book}
+% pdf layout...
+% see: hyperref's pdfpagelayout for more options...
+\DeclareStringOption[TwoPageRight]{pdfpagelayout}
 
 
-\RequirePackage{etoolbox}
-\RequirePackage{atbegshi}
-
-% pdf config...
+% page geometry...
 %
-% XXX make this configurable from options...
-\RequirePackage[
-	pdfpagelayout=TwoPageRight]{hyperref}
+%												<---> bindingoffset
+%	<---> bleed 							<---> innerbleed
+%
+%	+-----------------------------------------------+	^
+%	|  											|	|	| bleed
+%	|	+-----------------------------------+	|	|	v
+%	|	|							^		|	|	|
+%	|	|							|		|	|	|
+%	|	|<-- pagewidth -------------------->|	|	|
+%	|	|							|		|	|	|
+%	|	|							|		|	|	|
+%	|	|							|		|	|	|
+%	|	|						pageheight	|	|	|
+%	|	|							|		|	|	|
+%	|	|							|		|	|	|
+%	|	|							|		|	|	|
+%	|	|							v		|	|	|
+%	|	+-----------------------------------+	|	|
+%	|  											|	|
+%	+-----------------------------------------------+ 
+%
+\DeclareStringOption[5mm]{bleed}
+\DeclareStringOption{innerbleed}
+\DeclareStringOption{pagewidth}
+\DeclareStringOption{pageheight}
+\DeclareStringOption[0]{bindingoffset}
+
+\DeclareDefaultOption{\PassOptionsToClass{\CurrentOption}{book}}
+\ProcessKeyvalOptions*
+
+
+\LoadClass[9pt, final, openany]{book}
 
 
 
+%----------------------------------------------------------------------
+% Commands...
+
+\newcommand\Keywords[1]{%
+	\def\@keywords{#1}}
+
+
+\newcommand\Subject[1]{%
+	\def\@subject{#1}}
+
+
+\newcommand\RecalculatePageLengths{
+	% final page size...
+	\setlength\pagewidth{
+		\ifx\photobook@pagewidth\empty
+			\dimexpr \paperwidth - \bleed - \innerbleed \relax
+		\else
+			\photobook@pagewidth
+		\fi}
+	\setlength\pageheight{
+		\ifx\photobook@pageheight\empty
+			\dimexpr \paperheight - 2\bleed \relax
+		\else
+			\photobook@pageheight
+		\fi }
+	% page with bleeds...
+	% NOTE: this is essentially \paperwidth and \paperheight but we do 
+	%		not rely on them being defined -- photobook settings take 
+	%		priority over \paperwidth and \paperwidth...
+	\setlength\bleedblockwidth{\dimexpr 
+		\bleed + \pagewidth + \innerbleed 
+		\relax}
+	\setlength\bleedblockheight{\dimexpr 
+		2\bleed + \pageheight 
+		\relax} }
 
 
 
+%----------------------------------------------------------------------
+% Globals...
+
+\newlength\pagewidth
+\newlength\pageheight
+% NOTE: these are equivalent to \paperwidth and \paperheight but are 
+%		independent of them...
+\newlength\bleedblockwidth
+\newlength\bleedblockheight
+
+\newlength\bleed
+\setlength\bleed{\photobook@bleed}
+
+\newlength\innerbleed
+\setlength\innerbleed{
+	\ifx\photobook@innerbleed\empty
+		\bleed
+	\else
+		\photobook@innerbleed
+	\fi }
+
+\newlength\bindingoffset
+\setlength\bindingoffset{\photobook@bindingoffset}
+
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% update global values...
+
+\RecalculatePageLengths
 
 
 
 %----------------------------------------------------------------------
 \AtEndPreamble{
 
-% Geometry... (???)
-%
-% XXX
-
-
-% pdf boxes...
-%
-% calculate pdf box dimensions in pt...
-% XXX this depends on:
-%		\bleedblockwidth		= \bleedsize + \paperwidth + \bleedbindsize
-%		\bleedblockheight		= 2\bleedsize + \paperheight
-%		\bleedsize				= 4mm (default)
-%		\bleedbindsize			= \bleedsize (default)
-%%\edef\pdfW{\strip@pt\dimexpr 0.996264009963\bleedblockwidth \relax}
-%%\edef\pdfH{\strip@pt\dimexpr 0.996264009963\bleedblockheight \relax}
-%%\edef\pdfBleed{\strip@pt\dimexpr 0.996264009963\bleedsize \relax}
-%%\edef\pdfTop{\strip@pt\dimexpr 0.996264009963\dimexpr \bleedblockheight-\bleedsize \relax \relax}
-%%\edef\pdfRight{\strip@pt\dimexpr 0.996264009963\dimexpr \bleedblockwidth-\bleedsize \relax \relax}
-%%
-%%\ifxetex
-%%	% XXX not tested...
-%%	\AtBeginShipout{\AtBeginShipoutAddToBox{
-%%		\special{pdf:put @thispage <<
-%%			/MediaBox [0 0 \pdfW\space\pdfH]
-%%			/BleedBox [0 0 \pdfW\space\pdfH]
-%%			/ArtBox [\pdfBleed\space\pdfBleed\space\pdfRight\space\pdfTop]
-%%			/TrimBox [\pdfBleed\space\pdfBleed\space\pdfRight\space\pdfTop]
-%%			/CropBox [\pdfBleed\space\pdfBleed\space\pdfRight\space\pdfTop]
-%%		>>} }} 
-%%
-%%\else
-%%	\edef\pdfboxes{
-%%		/MediaBox [0 0 \pdfW\space\pdfH]
-%%		/BleedBox [0 0 \pdfW\space\pdfH]
-%%		/ArtBox [\pdfBleed\space\pdfBleed\space\pdfRight\space\pdfTop]
-%%		/TrimBox [\pdfBleed\space\pdfBleed\space\pdfRight\space\pdfTop]
-%%		/CropBox [\pdfBleed\space\pdfBleed\space\pdfRight\space\pdfTop]
-%%	}
-%%	\expandafter\pdfpageattr\expandafter{\pdfboxes}
-%%\fi
-
-
-
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % pdf metadata...
-%
-% XXX use \@author and \@title instead of \ProjectTitle or \ProjectAuthor
-% XXX need an equivalet for pdflatex...
-% XXX not tested...
+
+\hypersetup{
+	pdfinfo={
+		Title={\@title},
+		Subject={\@subject},
+		Author={\@author},
+		Keywords={\@keywords},
+	},
+	pdfpagelayout=\photobook@pdfpagelayout,
+}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% Geometry...
+
+\RecalculatePageLengths
+
+\geometry{
+	% paper size (incl. bleeds)...
+	paperwidth=\bleedblockwidth, paperheight=\bleedblockheight,
+	% include header/footer/margin notes in printed area
+	twoside, includeall, nomarginpar,
+	ignorehead=false, ignorefoot=false, ignoremp=false,
+	% center printed area on page
+	vcentering, hcentering,
+	bindingoffset=\bindingoffset}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% pdf boxes...
+
+% calculate pdf box dimensions in pt...
+% XXX should these be local or global???
+\edef\@pdfWidthPt{\strip@pt\dimexpr 
+	0.996264009963\bleedblockwidth \relax}
+\edef\@pdfHeightPt{\strip@pt\dimexpr 
+	0.996264009963\bleedblockheight \relax}
+\edef\@pdfBleedPt{\strip@pt\dimexpr 
+	0.996264009963\bleed \relax}
+\edef\@pdfTopPt{\strip@pt\dimexpr 
+	0.996264009963\dimexpr 
+		\bleedblockheight - \bleed \relax \relax}
+\edef\@pdfRightPt{\strip@pt\dimexpr 
+	0.996264009963\dimexpr 
+		\bleedblockwidth - \bleed \relax \relax}
+
+% set the boxes...
 \ifxetex
-	%%% PDF/X-3 stuff, necessary for Blurb IF USING pdflatex
-	%% \pdfinfo{
-	%% /Title (\ProjectTitle)
-	%% /Author (\ProjectAuthor, \ProjectEditor)
-	%% /Subject (\ProjectTitle)
-	%% /Keywords (history, black-and-white, bw, people, photography, USSR, Russia, Moscow, 1991)
-	%% }
-	%% \pdfminorversion=4
-	%% \pdfcatalog{
-	%% /OutputIntents [ <<
-	%% /Info (none)
-	%% /Type /OutputIntent
-	%% /OutputConditionIdentifier (Web use)
-	%% /RegistryName (http://www.color.org/)
-	%% >> ]
-	%% }
-	\special{pdf:docinfo <<
-		/Title (\ProjectTitle)
-		/Author (\ProjectAuthor)
-		/Subject (\ProjectTitle)
-		/Keywords (\ProjectKeywords)
-	>>}
+	% XXX not tested...
+	\AtBeginShipout{\AtBeginShipoutAddToBox{
+		\special{pdf:put @thispage <<
+			/MediaBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
+			/BleedBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
+			/ArtBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+			/TrimBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+			/CropBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+		>>} }} 
+
+\else
+	\edef\pdfboxes{
+		/MediaBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
+		/BleedBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
+		/ArtBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+		/TrimBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+		/CropBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+	}
+	\expandafter\pdfpageattr\expandafter{\pdfboxes}
 \fi
-\ifluatex
-	% XXX this does not convert encoding...
-	\directlua0{
-		pdf.setinfo(
-			"/Title (\ProjectTitle) "
-			.."/Author (\ProjectAuthor) "
-			.."/Subject (\ProjectTitle) "
-			.."/Keywords (\ProjectKeywords) ") }
-\fi
+
+
 
 } % \AtEndPreamble{..}
-
-
-
 %----------------------------------------------------------------------
 %                                                  vim:set ts=4 sw=4 :
