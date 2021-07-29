@@ -27,12 +27,26 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% Helpers...
+
+\newcommand\@DeclareLiteralOptionTo[2]{%
+	\DeclareVoidOption{#2}{%
+		\expandafter\edef\csname photobook@#1\endcsname{#2}}}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % options...
 
 % pdf layout...
 %
 % see: hyperref's pdfpagelayout for more options...
-\DeclareStringOption[TwoPageRight]{pdfpagelayout}
+\DeclareStringOption[TwoPageRight]{pdfpagelayout}[TwoPageRight]
+\@DeclareLiteralOptionTo{pdfpagelayout}{SinglePage}
+\@DeclareLiteralOptionTo{pdfpagelayout}{OneColumn}
+\@DeclareLiteralOptionTo{pdfpagelayout}{TwoColumnRight}
+\@DeclareLiteralOptionTo{pdfpagelayout}{TwoColumnLeft}
+\@DeclareLiteralOptionTo{pdfpagelayout}{TwoPageRight}
+\@DeclareLiteralOptionTo{pdfpagelayout}{TwoPageLeft}
 
 
 % page geometry...
@@ -190,13 +204,12 @@
 	% paper size (incl. bleeds)...
 	paperwidth=\bleedblockwidth, paperheight=\bleedblockheight,
 	bindingoffset=\bindingoffset,
-
 	% XXX these should be overridable...
 	% include header/footer/margin notes in printed area
 	twoside, includeall, nomarginpar,
 	ignorehead=false, ignorefoot=false, ignoremp=false,
 	% center printed area on page
-	vcentering, hcentering, }
+	vcentering, hcentering}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
