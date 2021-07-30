@@ -60,11 +60,11 @@
 %   .   +---------------------------------------+   .   v   .   .  ---
 %   .   |                           ^       .   =   .
 %   .   |   .   .   .   .   .   .   |   .   .   =   .               ^
-%   .   |<-- pagewidth ------------------------>=   .               |
+%   .   |<-- blockwidth ------------------------>=   .               |
 %   .   |   .                       |   .   .   =   .               |
 %   .   |                           |       .   =   .       textheight
 %   .   |   .                       |   .   .   =   .               |
-%   .   |                       pageheight  .   =   .               |
+%   .   |                       blockheight  .   =   .               |
 %   .   |   .                       |   .   .   =   .               |
 %   .   |                           |       <---> bindingoffset     |
 %   .   |   .   .   .   .   .   .   |   .   .   =   .               v
@@ -77,15 +77,15 @@
 %                                               ^ binding line
 %
 % NOTE: innerbleed defaults to bleed...
-% NOTE: if pagewidth/pageheight are set they will force recalculations 
+% NOTE: if blockwidth/blockheight are set they will force recalculations 
 %		and overriding of the paperwidth/paperheight if they were changed
 %		by the user code anywhere between \documentclass[..]{photobook}
 %		and \begin{document}...
 \DeclareStringOption[5mm]{bleed}[5mm]
 \DeclareStringOption{innerbleed}
 % XXX do we need to rename these??? (used by lualatex??)
-\DeclareStringOption{pagewidth}
-\DeclareStringOption{pageheight}
+\DeclareStringOption{blockwidth}
+\DeclareStringOption{blockheight}
 \DeclareStringOption[0]{bindingoffset}[10mm]
 
 % Image block size relative to text block...
@@ -110,8 +110,8 @@
 % Globals...
 
 % NOTE: page and bleed block sizes are set via \RecalculatePageLengths
-\newlength\pagewidth
-\newlength\pageheight
+\newlength\blockwidth
+\newlength\blockheight
 % NOTE: these are equivalent to \paperwidth and \paperheight but are 
 %		independent of them...
 \newlength\bleedblockwidth
@@ -156,27 +156,27 @@
 
 \newcommand\RecalculatePageLengths{
 	% final page size...
-	\setlength\pagewidth{
-		\ifx\photobook@pagewidth\empty
+	\setlength\blockwidth{
+		\ifx\photobook@blockwidth\empty
 			\dimexpr \paperwidth - \bleed - \innerbleed \relax
 		\else
-			\photobook@pagewidth
+			\photobook@blockwidth
 		\fi}
-	\setlength\pageheight{
-		\ifx\photobook@pageheight\empty
+	\setlength\blockheight{
+		\ifx\photobook@blockheight\empty
 			\dimexpr \paperheight - 2\bleed \relax
 		\else
-			\photobook@pageheight
+			\photobook@blockheight
 		\fi }
 	% page with bleeds...
 	% NOTE: this is essentially \paperwidth and \paperheight but we do 
 	%		not rely on them being defined -- photobook settings take 
 	%		priority over \paperwidth and \paperwidth...
 	\setlength\bleedblockwidth{\dimexpr 
-		\bleed + \pagewidth + \innerbleed 
+		\bleed + \blockwidth + \innerbleed 
 		\relax}
 	\setlength\bleedblockheight{\dimexpr 
-		2\bleed + \pageheight 
+		2\bleed + \blockheight 
 		\relax} }
 
 
@@ -323,7 +323,7 @@
 	\end{flushright}}
 
 
-% XXX \pagewidth
+% XXX \blockwidth
 % XXX \nudgeimageby
 % \captionsidebox[offset]{imagebox}{text}
 %
@@ -332,10 +332,10 @@
 			% caption-image distance...
 			-1em
 			-\clearimage 
-			+\pagewidth
+			+\blockwidth
 			-(\wd#2 - #1)
 			+(\nudgeimageby)
-			-(0.5\pagewidth - 0.5\textwidth) \relax}
+			-(0.5\blockwidth - 0.5\textwidth) \relax}
 		{ \captionsize #3 }
 	\end{minipage}}
 
@@ -494,7 +494,7 @@
 
 
 % XXX
-% XXX \OFFSETFIX
+% XXX captions wrong... 
 % \imagepagefit[clearence]{caption}{image}
 %
 %	+---------------+
@@ -510,37 +510,31 @@
 %	+---------------+
 %
 % NOTE: this is like \imagepage but will fit an image into page...
-% XXX captions untested... 
 \newcommand\imagepagefit[3][\clearimage]{
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
-			width=\dimexpr \pagewidth - ((#1) * 2) \relax,
-			height=\dimexpr \pageheight - ((#1) * 2) \relax]{#3} }
+			width=\dimexpr \blockwidth - ((#1) * 2) \relax,
+			height=\dimexpr \blockheight - ((#1) * 2) \relax]{#3} }
 	%\clearpage
 	\null
-	\captionboxright[-#1]{\photobook@imagebox}{#2}
+	% XXX misaligned...
+	\captionboxright{\photobook@imagebox}{#2}
 	\ShipoutPicture{
 		\AtPageLowerLeft{
 			\hspace*{\dimexpr 
-					+0.5\pagewidth 
+					+0.5\blockwidth 
 					-0.5\wd\photobook@imagebox 
-					-\bleed
-					% XXX
-					-0.5\OFFSETFIX 
 				\relax}{
-			% XXX this is not correct...
 			\raisebox{\dimexpr 
-					+0.5\pageheight 
+					+0.5\blockheight 
 					-0.5\ht\photobook@imagebox 
-					%+#1 
-					%-\bleed 
 				\relax}{
 				\usebox\photobook@imagebox } } } }
 	\newpage }
 
 
-% XXX
+% XXX does not work...
 % XXX \OFFSETFIX
 % \imagepagefill[clearence]{caption}{image}
 %
@@ -563,16 +557,16 @@
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
-			width=\dimexpr \pagewidth - ((#1) * 2) \relax,
+			width=\dimexpr \blockwidth - ((#1) * 2) \relax,
 			% XXX make this use the minumum dimention and not width...
-			%height=\dimexpr \pageheight - ((#1) * 2) \relax
+			%height=\dimexpr \blockheight - ((#1) * 2) \relax
 			]{#3} }
 	\clearpage
 	\captionboxright[-#1]{\photobook@imagebox}{#2}
 	\ShipoutPicture{
 		\AtPageLowerLeft{
 			\hspace*{\dimexpr 
-					+0.5\pagewidth 
+					+0.5\blockwidth 
 					-0.5\wd\photobook@imagebox 
 					-\bleed
 					% XXX
@@ -606,7 +600,7 @@
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
-			height=\dimexpr \pageheight - ((#1) * 2) \relax]{#3} }
+			height=\dimexpr \blockheight - ((#1) * 2) \relax]{#3} }
 	\clearpage
 	\captionboxright[-#1]{\photobook@imagebox}{#2}
 	\ShipoutPicture{
@@ -637,14 +631,14 @@
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
-			height=\dimexpr \pageheight - ((#1) * 2) \relax]{#3} }
+			height=\dimexpr \blockheight - ((#1) * 2) \relax]{#3} }
 	\clearpage
 	\captionboxleft[-#1]{\photobook@imagebox}{#2}
 	\ShipoutPicture{
 		\AtPageLowerLeft{
 			\hspace*{\dimexpr 
 				-#1 
-				+\pagewidth 
+				+\blockwidth 
 				-\wd\photobook@imagebox \relax}{
 			\raisebox{\dimexpr #1 + \bleed \relax}{
 				\usebox\photobook@imagebox } } } }
@@ -655,7 +649,370 @@
 %----------------------------------------------------------------------
 % Spread Templates...
 
+\newlength{\photobook@tmpnudgeimageby}
+\newlength{\photobook@tmpvnudgeimageby}
+\newlength{\photobook@tmpvgrowimageby}
 
+\newlength{\nudgeimageby}
+\setlength{\nudgeimageby}{0mm}
+
+\newlength{\vnudgeimageby}
+\setlength{\vnudgeimageby}{0mm}
+
+\newlength{\vgrowimageby}
+\setlength{\vgrowimageby}{0mm}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+% nudgeimage{amount}
+%
+% NOTE: in addition to spread commands below this is also used by 
+%		\captionsidebox
+\newcommand\nudgeimage[1]{%
+	\setlength{\nudgeimageby}{#1}}
+
+% vnudgeimage{amount}
+%
+% offset image vertically within bleeds.
+%
+% NOTE: this should not be used in conjunction with \vgrowimage{..} and 
+%		should not exceed 1/2 of the amount given to \vgrowimage{..}
+\newcommand\vnudgeimage[1]{%
+	\setlength{\vnudgeimageby}{#1}}
+
+% vgrowimage{amount}
+%
+% This will effectively add to 1/2 amount to top bleed and the same to 
+% bottom bleed.
+\newcommand\vgrowimage[1]{%
+	\setlength{\vgrowimageby}{#1}}
+
+
+% resetnudgeimage
+%
+% NOTE: when working with shipout place this after \newpage as when 
+%		placed before this will reset the \nudgeimageby BEFORE the image
+%		placing commands have a chance to execute.
+% XXX rename
+\newcommand\resetnudgeimage{%
+	\setlength{\vgrowimageby}{0mm}%
+	\setlength{\vnudgeimageby}{0mm}%
+	\setlength{\nudgeimageby}{0mm}}
+
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+% XXX
+% portraitspreadbleedleft[clearence]{caption}{image}
+%
+%	+---------------+---------------+
+%	|	|.		   .|				|
+%	|	| .		  .	|				|
+%	|	|  .	 .	|				|
+%	|	|	.	.	|				|
+%	|	|	image	|				|
+%	|	|	.	.	|				|
+%	|	|  .	 .	|				|
+%	|	| .		  .	|				|
+%	|	|.		   .| c				|
+%	+---------------+---------------+
+%
+\newcommand\portraitspreadbleedleft[3][\clearimage]{
+	\cleartoleftpage
+	% style the caption...
+	\null
+	\vfill
+	\begin{flushright}
+		#2%
+	\end{flushright}
+	\newpage
+	% XXX add \bleed
+	\portraitimagepageleft[#1]{}{#3} }
+
+
+% XXX
+% portraitspreadbleedright[clearence]{caption}{image}
+%
+%	+---------------+---------------+
+%	|				|.		   .|	|
+%	|				| .		  .	|	|
+%	|				|  .	 .	|	|
+%	|				|	.	.	|	|
+%	|				|	image	|	|
+%	|				|	.	.	|	|
+%	|				|  .	 .	|	|
+%	|				| .		  .	|	|
+%	|			  c	|.		   .|	|
+%	+---------------+---------------+
+%
+\newcommand\portraitspreadbleedright[3][\clearimage]{
+	\cleartoleftpage
+	% style the caption...
+	% XXX add \bleed
+	\portraitimagepageright[#1]{}{#3} 
+	\null
+	\vfill
+	\begin{flushleft}
+		#2%
+	\end{flushleft}
+	\newpage }
+
+
+% XXX
+% XXX \OFFSETFIX
+% imagespreadleft[clearence]{caption}{image}
+%
+% 	Image spread aligned left (with bleed)...
+%
+%	+---------------+---------------+
+%	| .			 	. 		  .	|	|
+%	|    .			.	   .	|	|
+%	|	    .		.	.		|	|
+%	|		   .	..			|	|
+%	|			image			|	|
+%	|		   .	..			|	|
+%	|	    .		.	.		|	|
+%	|    .			.	   .	|	|
+%	| .			 	. 		  .	| c	|
+%	+---------------+---------------+
+%
+%
+% XXX might be a good idea to do a version of this with min/max width of 
+%		the caption block...
+\newcommand\imagespreadleft[3][\clearimage]{
+	\sbox{\imagebox}{
+		\includegraphics[
+			keepaspectratio, 
+			height=\dimexpr \blockheight - ((#1) * 2) + \vgrowimageby \relax]{#3} }
+	% left page...
+	% XXX BUG: this in some cases creates an extra empty spread before this...
+	%		...appears to be a problem where we have a tweak.tex
+	%\cleartoleftpage
+	\null
+	\ShipoutPicture{
+		\AtPageLowerLeft{
+			\hspace*{\dimexpr 
+					\OFFSETFIX 
+					-(\nudgeimageby)
+					+#1 
+					+\bleed 
+				\relax}{
+			\raisebox{\dimexpr 
+						#1 
+						+ \bleed 
+						- 0.5\vgrowimageby 
+						- \vnudgeimageby 
+					\relax}{
+				\usebox\imagebox } } } }
+	\newpage
+	% right page...
+	\captionboxright[\blockwidth]{\imagebox}{#2}
+	\ShipoutPicture{
+		\AtPageLowerLeft{
+			\hspace*{\dimexpr 
+					\OFFSETFIX 
+					-(\nudgeimageby)
+					+#1 
+					-\blockwidth 
+					+\innerbleed 
+				\relax}{
+			\raisebox{\dimexpr 
+						#1 
+						+ \bleed 
+						- 0.5\vgrowimageby 
+						- \vnudgeimageby 
+					\relax}{
+				\usebox\imagebox } } } }
+	\newpage 
+	\resetnudgeimage }
+
+
+% XXX
+% imagespreadright[clearence]{caption}{image}
+%
+% 	Image spread aligned right (with bleed)...
+%
+%	+---------------+---------------+
+%	|	| .			.	 		  .	|
+%	|	|    .		.		   .	|
+%	|	|	    .	.		.		|
+%	|	|		   ..	.			|
+%	|	|		   image			|
+%	|	|		   ..	.			|
+%	|	|	    .	.		.		|
+%	|	|    .		.		   .	|
+%	| c	| .			.	 		  .	|
+%	+---------------+---------------+
+%
+\newcommand\imagespreadright[3][\clearimage]{
+	\sbox{\imagebox}{
+		\includegraphics[
+			keepaspectratio, 
+			height=\dimexpr \blockheight - ((#1) * 2) + \vgrowimageby \relax]{#3} }
+	% left page...
+	%\cleartoleftpage
+	\null
+	\captionboxleft[\blockwidth]{\imagebox}{#2}
+	\ShipoutPicture{
+		\AtPageLowerLeft{
+			\hspace*{\dimexpr 
+				-#1
+				+(\nudgeimageby)
+				+2\blockwidth
+				+\bleed
+				-\wd\imagebox \relax}{
+			\raisebox{\dimexpr 
+					#1 + \bleed 
+					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
+				\usebox\imagebox } } } }
+	\newpage
+	% right page...
+	\null
+	\ShipoutPicture{
+		\AtPageLowerLeft{
+			\hspace*{\dimexpr 
+				-#1
+				+(\nudgeimageby)
+				+\blockwidth
+				+\innerbleed
+				-\wd\imagebox \relax}{
+			\raisebox{\dimexpr 
+					#1 + \bleed 
+					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
+				\usebox\imagebox } } } }
+	\newpage 
+	\resetnudgeimage }
+
+
+% XXX
+% XXX \OFFSETFIX
+% imageleftspreadfullbleed[vertical-offset]{caption}{image}
+%
+%	Image spread with full bleed...
+%
+%	+---------------+
+%	|	.			.
+%	|	   .		.
+%	|		  .		.
+%	|			 .	.
+%	|			  ima
+%	|			 .	.
+%	|		  .		.
+%	|	   .		.
+%	|	.		  c	.
+%	+---------------+
+%
+\newcommand\imageleftspreadfullbleed[3][0mm]{
+	\sbox{\imagebox}{
+		\includegraphics[
+			keepaspectratio, 
+			width=\dimexpr 
+				2\blockwidth - 2\clearimage + \vgrowimageby \relax]{#3} }
+	\clearpage
+	\null
+	\vfill
+	\begin{flushright}
+		#2
+	\end{flushright}
+	\ShipoutPicture{
+		\AtPageCenter{
+			\hspace{\dimexpr 
+				\OFFSETFIX
+				-(\nudgeimageby)
+				+\clearimage
+				-0.5\blockwidth \relax}{
+			\raisebox{\dimexpr
+					(#1)
+					+\clearimage
+					-(0.5\blockheight
+						+(0.5\ht\imagebox - 0.5\blockheight)) 
+					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
+				\usebox\imagebox } } } }
+	\newpage 
+	\resetnudgeimage }
+
+
+% XXX
+% XXX \OFFSETFIX
+% imagerightspreadfullbleed[vertical-offset]{caption}{image}
+%
+%	Image spread with full bleed...
+%
+%	+---------------+
+%	.			.	|
+%	.		 .		|
+%	.	  .			|
+%	.  .			|
+%	age				|
+%	.  .			|
+%	.	  .			|
+%	.		 .		|
+%	.			. c	|
+%	+---------------+
+%
+\newcommand\imagerightspreadfullbleed[3][0mm]{
+	\sbox{\imagebox}{
+		\includegraphics[
+			keepaspectratio, 
+			width=\dimexpr 
+				2\blockwidth - 2\clearimage + \vgrowimageby \relax]{#3} }
+	\clearpage
+	\null
+	\vfill
+	% XXX for some reason the last line here is a bit off...
+	% XXX do we need to restrict caption width here??? ...0.5\textwidth??
+	% XXX make caption sizing a bit more flexible...
+	\begin{flushright}
+		\captionsize #2
+	\end{flushright}
+	\ShipoutPicture{
+		\AtPageCenter{
+			\hspace{\dimexpr 
+				\OFFSETFIX
+				-(\nudgeimageby)
+				+\clearimage
+				-1.5\blockwidth \relax}{
+			\raisebox{\dimexpr
+					(#1)
+					+\clearimage
+					-(0.5\blockheight
+						+(0.5\ht\imagebox - 0.5\blockheight))
+					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
+				\usebox\imagebox } } } }
+	\newpage 
+	\resetnudgeimage }
+
+
+% XXX
+% imagespreadfullbleed[vertical-offset]{caption}{image}
+%
+%	Image spread with full bleed...
+%
+%	+---------------+---------------+
+%	|	.			.			.	|
+%	|	   .		.		 .		|
+%	|		  .		.	  .			|
+%	|			 .	.  .			|
+%	|			  image				|
+%	|			 .	.  .			|
+%	|		  .		.	  .			|
+%	|	   .		.		 .		|
+%	|	.			.			. c	|
+%	+---------------+---------------+
+%
+% XXX do we need the same thing but with a left caption???
+\newcommand\imagespreadfullbleed[3][0mm]{
+	\setlength{\photobook@tmpnudgeimageby}{\nudgeimageby}
+	\setlength{\photobook@tmpvnudgeimageby}{\vnudgeimageby}
+	\setlength{\photobook@tmpvgrowimageby}{\vgrowimageby}
+	\cleartoleftpage
+	\imageleftspreadfullbleed[#1]{}{#3}
+	\nudgeimage{\photobook@tmpnudgeimageby}
+	\vnudgeimage{\photobook@tmpvnudgeimageby}
+	\vgrowimage{\photobook@tmpvgrowimageby}
+	\imagerightspreadfullbleed[#1]{#2}{#3} }
 
 
 
