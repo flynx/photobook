@@ -6,6 +6,12 @@
 %	- adds support for page bleeds
 %	- adds basic templates for image pages (XXX)
 %
+%
+% XXX BUG: fix \OFFSETFIX
+% XXX BUG: fix \CAPTIONWIDTHFIX
+% XXX BUG: there seems to be a slight offset bias...
+%
+%
 %----------------------------------------------------------------------
 
 \NeedsTeXFormat{LaTeX2e}
@@ -291,6 +297,35 @@
 
 
 
+% XXX workaround a problem with xelatex vs. lualatex...
+\ifxetex
+	\newcommand\ShipoutPicture[1]{
+		\AddToShipoutPicture*{#1}}
+
+\else
+	% XXX for some reason in pdflatex and lualatex \pagecolor{..} and 
+	%		\AddToShipoutPicture*{..} start fighting over space...
+	% XXX this draws over page numbers...
+	\newcommand\ShipoutPicture[1]{
+		\AddToShipoutPictureFG*{#1}}
+\fi
+
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% XXX HACKS...
+
+% XXX for some reason we are pushed away from the left edge...
+\newlength{\OFFSETFIX}
+\setlength{\OFFSETFIX}{-4mm}
+
+% This compensates for caption width being miscalcualted for right 
+% alingned captions...
+\newlength{\CAPTIONWIDTHFIX}
+\setlength{\CAPTIONWIDTHFIX}{-5mm}
+
+
+
 %----------------------------------------------------------------------
 % Captions...
 % XXX need to be able to configure/pass/override:
@@ -519,16 +554,26 @@
 	%\clearpage
 	\null
 	% XXX misaligned...
-	\captionboxright{\photobook@imagebox}{#2}
-	\ShipoutPicture{
-		\AtPageLowerLeft{
+	\captionboxright{\photobook@imagebox}{#2}%
+	\ShipoutPicture{%
+		%\AtPageCenter{%
+		% XXX this for some reason not at -\bleed horizontally...
+		\AtPageLowerLeft{%
 			\hspace*{\dimexpr 
-					+0.5\blockwidth 
+					% XXX need to set this to bleed or innerbleed depending on page...
+					% XXX when \AtPageCenter{ .. }for some reason -\bleed puts 
+					%		the image in the center but adding -0.5\ht\photobook@imagebox 
+					%		to it offsets the image to the left -- scaling????!!
+					%-\bleed
+					+0.5\OFFSETFIX
+					+0.5\blockwidth
 					-0.5\wd\photobook@imagebox 
+					+\bleed
 				\relax}{
 			\raisebox{\dimexpr 
-					+0.5\blockheight 
+					+0.5\blockheight
 					-0.5\ht\photobook@imagebox 
+					+\bleed
 				\relax}{
 				\usebox\photobook@imagebox } } } }
 	\newpage }
