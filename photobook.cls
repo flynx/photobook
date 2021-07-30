@@ -370,7 +370,7 @@
 			+\blockwidth
 			-(\wd#2 - #1)
 			+(\nudgeimageby)
-			-(0.5\blockwidth - 0.5\textwidth) \relax}
+			-(0.5\blockwidth - 0.5\textwidth) \relax}%
 		{ \captionsize #3 }
 	\end{minipage}}
 
@@ -382,7 +382,7 @@
 	\null
 	\vfill
 	\begin{flushleft}
-	\captionsidebox[#1]{#2}{
+	\captionsidebox[#1]{#2}{%
 		\begin{flushright}
 			#3
 		\end{flushright}}
@@ -391,7 +391,7 @@
 	\null
 	\vfill
 	\begin{flushright}
-	\captionsidebox[#1]{#2}{
+	\captionsidebox[#1]{#2}{%
 		\begin{flushleft}
 			#3
 		\end{flushleft}}
@@ -827,7 +827,7 @@
 % XXX might be a good idea to do a version of this with min/max width of 
 %		the caption block...
 \newcommand\imagespreadleft[3][\clearimage]{
-	\sbox{\imagebox}{
+	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
 			height=\dimexpr \blockheight - ((#1) * 2) + \vgrowimageby \relax]{#3} }
@@ -850,10 +850,10 @@
 						- 0.5\vgrowimageby 
 						- \vnudgeimageby 
 					\relax}{
-				\usebox\imagebox } } } }
+				\usebox\photobook@imagebox } } } }
 	\newpage
 	% right page...
-	\captionboxright[\blockwidth]{\imagebox}{#2}
+	\captionboxright[\blockwidth]{\photobook@imagebox}{#2}
 	\ShipoutPicture{
 		\AtPageLowerLeft{
 			\hspace*{\dimexpr 
@@ -869,7 +869,7 @@
 						- 0.5\vgrowimageby 
 						- \vnudgeimageby 
 					\relax}{
-				\usebox\imagebox } } } }
+				\usebox\photobook@imagebox } } } }
 	\newpage 
 	\resetnudgeimage }
 
@@ -892,26 +892,27 @@
 %	+---------------+---------------+
 %
 \newcommand\imagespreadright[3][\clearimage]{
-	\sbox{\imagebox}{
+	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
 			height=\dimexpr \blockheight - ((#1) * 2) + \vgrowimageby \relax]{#3} }
 	% left page...
 	%\cleartoleftpage
 	\null
-	\captionboxleft[\blockwidth]{\imagebox}{#2}
+	\captionboxleft[\blockwidth]{\photobook@imagebox}{#2}
 	\ShipoutPicture{
 		\AtPageLowerLeft{
 			\hspace*{\dimexpr 
 				-#1
+				+0.5\OFFSETFIX
 				+(\nudgeimageby)
 				+2\blockwidth
 				+\bleed
-				-\wd\imagebox \relax}{
+				-\wd\photobook@imagebox \relax}{
 			\raisebox{\dimexpr 
 					#1 + \bleed 
 					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
-				\usebox\imagebox } } } }
+				\usebox\photobook@imagebox } } } }
 	\newpage
 	% right page...
 	\null
@@ -919,14 +920,15 @@
 		\AtPageLowerLeft{
 			\hspace*{\dimexpr 
 				-#1
+				+0.5\OFFSETFIX
 				+(\nudgeimageby)
 				+\blockwidth
 				+\innerbleed
-				-\wd\imagebox \relax}{
+				-\wd\photobook@imagebox \relax}{
 			\raisebox{\dimexpr 
 					#1 + \bleed 
 					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
-				\usebox\imagebox } } } }
+				\usebox\photobook@imagebox } } } }
 	\newpage 
 	\resetnudgeimage }
 
@@ -950,7 +952,7 @@
 %	+---------------+
 %
 \newcommand\imageleftspreadfullbleed[3][0mm]{
-	\sbox{\imagebox}{
+	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
 			width=\dimexpr 
@@ -972,9 +974,9 @@
 					(#1)
 					+\clearimage
 					-(0.5\blockheight
-						+(0.5\ht\imagebox - 0.5\blockheight)) 
+						+(0.5\ht\photobook@imagebox - 0.5\blockheight)) 
 					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
-				\usebox\imagebox } } } }
+				\usebox\photobook@imagebox } } } }
 	\newpage 
 	\resetnudgeimage }
 
@@ -998,7 +1000,7 @@
 %	+---------------+
 %
 \newcommand\imagerightspreadfullbleed[3][0mm]{
-	\sbox{\imagebox}{
+	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
 			width=\dimexpr 
@@ -1023,9 +1025,9 @@
 					(#1)
 					+\clearimage
 					-(0.5\blockheight
-						+(0.5\ht\imagebox - 0.5\blockheight))
+						+(0.5\ht\photobook@imagebox - 0.5\blockheight))
 					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
-				\usebox\imagebox } } } }
+				\usebox\photobook@imagebox } } } }
 	\newpage 
 	\resetnudgeimage }
 
