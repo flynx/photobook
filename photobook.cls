@@ -180,7 +180,88 @@
 
 
 %----------------------------------------------------------------------
-% page / spread templates...
+% Setup...
+
+\AtEndPreamble{
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% Metadata...
+
+	\hypersetup{
+		pdfinfo={
+			Title={\@title},
+			Subject={\@subject},
+			Author={\@author},
+			Keywords={\@keywords},
+		},
+		pdfpagelayout=\photobook@pdfpagelayout,
+	}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% Geometry...
+
+	\RecalculatePageLengths
+
+	\geometry{
+		% paper size (incl. bleeds)...
+		paperwidth=\bleedblockwidth, paperheight=\bleedblockheight,
+		bindingoffset=\bindingoffset,
+		% XXX these should be overridable...
+		% include header/footer/margin notes in printed area
+		twoside, includeall, nomarginpar,
+		ignorehead=false, ignorefoot=false, ignoremp=false,
+		% center printed area on page
+		vcentering, hcentering}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% pdf boxes...
+
+	% calculate pdf box dimensions in pt...
+	\edef\@pdfWidthPt{\strip@pt\dimexpr 
+		0.996264009963\bleedblockwidth \relax}
+	\edef\@pdfHeightPt{\strip@pt\dimexpr 
+		0.996264009963\bleedblockheight \relax}
+	\edef\@pdfBleedPt{\strip@pt\dimexpr 
+		0.996264009963\bleed \relax}
+	\edef\@pdfTopPt{\strip@pt\dimexpr 
+		0.996264009963\dimexpr 
+			\bleedblockheight - \bleed \relax \relax}
+	\edef\@pdfRightPt{\strip@pt\dimexpr 
+		0.996264009963\dimexpr 
+			\bleedblockwidth - \bleed \relax \relax}
+
+	% set the boxes...
+	\ifxetex
+		% XXX not tested...
+		\AtBeginShipout{\AtBeginShipoutAddToBox{
+			\special{pdf:put @thispage <<
+				/MediaBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
+				/BleedBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
+				/ArtBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+				/TrimBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+				/CropBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+			>>} }} 
+
+	\else
+		\edef\pdfboxes{
+			/MediaBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
+			/BleedBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
+			/ArtBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+			/TrimBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+			/CropBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
+		}
+		\expandafter\pdfpageattr\expandafter{\pdfboxes}
+	\fi
+
+} % \AtEndPreamble{..}
+
+
+
+
+%----------------------------------------------------------------------
+% Templates...
 
 % XXX
 
@@ -188,82 +269,5 @@
 
 
 
-%----------------------------------------------------------------------
-\AtEndPreamble{
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% Metadata...
-
-\hypersetup{
-	pdfinfo={
-		Title={\@title},
-		Subject={\@subject},
-		Author={\@author},
-		Keywords={\@keywords},
-	},
-	pdfpagelayout=\photobook@pdfpagelayout,
-}
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% Geometry...
-
-\RecalculatePageLengths
-
-\geometry{
-	% paper size (incl. bleeds)...
-	paperwidth=\bleedblockwidth, paperheight=\bleedblockheight,
-	bindingoffset=\bindingoffset,
-	% XXX these should be overridable...
-	% include header/footer/margin notes in printed area
-	twoside, includeall, nomarginpar,
-	ignorehead=false, ignorefoot=false, ignoremp=false,
-	% center printed area on page
-	vcentering, hcentering}
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% pdf boxes...
-
-% calculate pdf box dimensions in pt...
-\edef\@pdfWidthPt{\strip@pt\dimexpr 
-	0.996264009963\bleedblockwidth \relax}
-\edef\@pdfHeightPt{\strip@pt\dimexpr 
-	0.996264009963\bleedblockheight \relax}
-\edef\@pdfBleedPt{\strip@pt\dimexpr 
-	0.996264009963\bleed \relax}
-\edef\@pdfTopPt{\strip@pt\dimexpr 
-	0.996264009963\dimexpr 
-		\bleedblockheight - \bleed \relax \relax}
-\edef\@pdfRightPt{\strip@pt\dimexpr 
-	0.996264009963\dimexpr 
-		\bleedblockwidth - \bleed \relax \relax}
-
-% set the boxes...
-\ifxetex
-	% XXX not tested...
-	\AtBeginShipout{\AtBeginShipoutAddToBox{
-		\special{pdf:put @thispage <<
-			/MediaBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
-			/BleedBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
-			/ArtBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-			/TrimBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-			/CropBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-		>>} }} 
-
-\else
-	\edef\pdfboxes{
-		/MediaBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
-		/BleedBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
-		/ArtBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-		/TrimBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-		/CropBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-	}
-	\expandafter\pdfpageattr\expandafter{\pdfboxes}
-\fi
-
-
-
-} % \AtEndPreamble{..}
 %----------------------------------------------------------------------
 %                                                  vim:set ts=4 sw=4 :
