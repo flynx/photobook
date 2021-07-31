@@ -80,18 +80,18 @@
 %
 %          blockwidth            blockwidth
 %       <--------------->     <--------------->
-%     <-> coverboerdgrow                      <-> coverboerdgrow
+%     <-> coverboardgrow                      <-> coverboardgrow
 %   <-> coverflap                             . <-> coverflap
 %   . . .                                     . . .
 %   +-------------------++---++-------------------+    ---
 %   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --^ coverflap                
-%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --^ coverboerdgrow  
+%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --^ coverboardgrow  
 %   | . .               ..   ..               . . |     ^                  
 %   | . .               ..   ..               . . |     | blockheight      
 %   | . .     Back      ..   ..     Front     . . |     |                  
 %   | . .               ..   ..               . . |     |                  
 %   | . .               ..   ..               . . |     v                  
-%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --v coverboerdgrow  
+%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --v coverboardgrow  
 %   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --v coverflap                 
 %   +-------------------++---++-------------------+    ---
 %                        .   .
@@ -106,16 +106,16 @@
 %   .   .                                           .   .
 %   .   .     blockwidth            blockwidth      .   .
 %   .   .  <--------------->     <--------------->  .   .
-%   .   .<-> coverboerdgrow                      <-> coverboerdgrow
+%   .   .<-> coverboardgrow                      <-> coverboardgrow
 %   .   .  .                                     .  .   .
 %   +---++-----------------++---++-----------------++---+    ---
-%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --^ coverboerdgrow
+%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --^ coverboardgrow
 %   |   .. .               ..   ..               . ..   |     ^
 %   |   .. .               ..   ..               . ..   |     | blockheight
 %   |   .. .     Back      ..   ..     Front     . ..   |     |
 %   |   .. .               ..   ..               . ..   |     |
 %   |   .. .               ..   ..               . ..   |     v
-%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --v coverboerdgrow
+%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --v coverboardgrow
 %   +---++-----------------++---++-----------------++---+    --- 
 %       ..                  .   .                  ..
 %       ^ jacketwrap        .   .                  ^ jacketwrap
@@ -150,7 +150,7 @@
 %			layoutmode=		hardcover	softcover
 %		should also set: 
 %			spinefold=		5mm			5mm
-%			coverwrap=		17mm		0mm
+%			coverflap=		17mm		0mm
 %			bleed=			0mm			5mm
 \@DeclareLiteralOptionTo{layoutmode}{cover}
 %\@DeclareLiteralOptionTo{layoutmode}{hardcover}
@@ -164,15 +164,15 @@
 %
 % NOTE: this is only used when layoutmode=cover
 \DeclareStringOption[0]{spinewidth}[0]
-\DeclareStringOption[0]{spinefold}[5mm]
-\DeclareStringOption[0]{coverboerdgrow}[3mm]
+\DeclareStringOption[0]{spinefold}[7mm]
+\DeclareStringOption[0]{coverboardgrow}[3mm]
 % XXX defaults should depend on cover type...
 % XXX not implemented...
-\DeclareStringOption[0]{coverwrap}[17mm]
-\DeclareStringOption[0]{jacketwrap}[1mm]
+\DeclareStringOption[0]{coverflap}[17mm]
+\DeclareStringOption[0]{jacketwrap}[2mm]
 \DeclareStringOption[0]{jacketflap}[50mm]
-\DeclareStringOption{jacketflapfront}
-\DeclareStringOption{jacketflapback}
+%\DeclareStringOption{jacketflapfront}
+%\DeclareStringOption{jacketflapback}
 
 
 % pdf layout...
@@ -250,8 +250,8 @@
 \newlength\spinefold
 \setlength\spinefold{\photobook@spinefold}
 
-\newlength\coverboerdgrow
-\setlength\coverboerdgrow{\photobook@coverboerdgrow}
+\newlength\coverboardgrow
+\setlength\coverboardgrow{\photobook@coverboardgrow}
 
 % NOTE: page and bleed block sizes are set via \RecalculatePageLengths
 \newlength\blockwidth
@@ -308,9 +308,20 @@
 			\setlength\blockwidth{
 				\dimexpr 
 					2\blockwidth 
-					+ 2\spinefold
 					+ \spinewidth 
-					+ 2\coverboerdgrow
+					+ 2\spinefold
+					+ 2\coverboardgrow
+					+ 2\coverflap
+				\relax } }{}
+		% layout: jacket...
+		\ifdefstring{\layoutmode}{jacket}{
+			\setlength\blockwidth{
+				\dimexpr 
+					2\blockwidth 
+					+ \spinewidth
+					+ 2\spinefold
+					+ 2\jacketwrap
+					+ 2\jacketflap
 				\relax } }{}
 		% layout: endpaper...
 		\ifdefstring{\layoutmode}{endpaper}{
@@ -329,7 +340,15 @@
 			\setlength\blockheight{
 				\dimexpr 
 					\blockheight
-					+ 2\coverboerdgrow
+					+ 2\coverboardgrow
+				\relax } }{}
+		% layout: jacket...
+		\ifdefstring{\layoutmode}{jacket}{
+			\setlength\blockheight{
+				\dimexpr 
+					\blockheight
+					+ 2\coverboardgrow
+					+ 2\coverflap
 				\relax } }{}
 	\fi
 	% page with bleeds...
