@@ -50,56 +50,66 @@
 %
 % - block (default):
 %
-%		blockwidth
-%	<--------------->
+%       blockwidth
+%   <--------------->
 %
-%	+---------------+
-%	|				|
-%	|				|
-%	|				|
-%	|				|
-%	+---------------+
-%
-%
-% - endpaper:
-%
-%		blockwidth 2x
-%	<------------------------------->
-%
-%	+---------------+---------------+
-%	|				.				|
-%	|				.				|
-%	|				.				|
-%	|				.				|
-%	+---------------+---------------+
+%   +---------------+
+%   |               |
+%   |               |
+%   |               |
+%   |               |
+%   +---------------+
 %
 %
 % - endpaper:
 %
-%		blockwidth			blockwidth
-%	<--------------->     <--------------->
+%       blockwidth 2x
+%   <------------------------------->
 %
-%	+---------------++---++---------------+
-%	|				..	 ..				  |
-%	|				..	 ..				  |
-%	|				..	 ..				  |
-%	|				.. 	 ..				  |
-%	+---------------++---++---------------+
-%					 .	 .
-%					^.	 .^ spine fold
-%					 .	 .
-%					 <---> spinewidth
+%   +---------------+---------------+
+%   |               .               |
+%   |               .               |
+%   |               .               |
+%   |               .               |
+%   +---------------+---------------+
+%	
+%
+% - endpaper:
+%
+%       blockwidth          blockwidth
+%   <--------------->     <--------------->
+%
+%   +---------------++---++---------------+
+%   |               ..   ..               |
+%   |               ..   ..               |
+%   |               ..   ..               |
+%   |               ..   ..               |
+%   +---------------++---++---------------+
+%                    .   .
+%                   ^.   .^ spine fold
+%                    .   .
+%                    <---> spinewidth
 %
 %
-% XXX how dow we separate \blockwidth and \paperwidth and still allow 
-%		the user to use all the macros??
-%		...implement separate cover templates???	
-%		the obvious way is just set \blockwidth to the new size, but this
-%		will not help orient the layout correctly...
+% NOTE: in endpaper and cover modes \innerbleed value is ignored and
+%		\bleed is used instead...
+%		...setting \innerbleed manually mid-document will lead to 
+%		inconsistent results.
+%
+% XXX EXPERIMENTAL...
+% XXX need to force \innerbleed to be eqal to \bleed...
+% XXX also need a way to:
+%			- setup front-cover
+%			- setup pine
+%			- setup back-cover
+%		...envs??
 % XXX do we need to implement cover fold over???
+% XXX not yet sure how to go about this -- should we update \blockwidth 
+%		or should we define a new length and let some templates 
+%		use one and some use the other???
+%		...I'm leaning towards the later...
 % XXX fold/cut marks???
-% XXX write all the dimensions to the comment...
-% XXX not implemented yet...
+% XXX write all the dimensions to pdf comment...
 \DeclareStringOption[block]{layoutmode}[block]
 \@DeclareLiteralOptionTo{layoutmode}{block}
 \@DeclareLiteralOptionTo{layoutmode}{endpaper}
@@ -134,11 +144,11 @@
 %   .   +---------------------------------------+   .   v   .   .  ---
 %   .   |                           ^       .   =   .
 %   .   |   .   .   .   .   .   .   |   .   .   =   .               ^
-%   .   |<-- blockwidth ------------------------>=   .               |
+%   .   |<-- blockwidth ----------------------->=   .               |
 %   .   |   .                       |   .   .   =   .               |
 %   .   |                           |       .   =   .       textheight
 %   .   |   .                       |   .   .   =   .               |
-%   .   |                       blockheight  .   =   .               |
+%   .   |                      blockheight  .   =   .               |
 %   .   |   .                       |   .   .   =   .               |
 %   .   |                           |       <---> bindingoffset     |
 %   .   |   .   .   .   .   .   .   |   .   .   =   .               v
@@ -157,7 +167,6 @@
 %		and \begin{document}...
 \DeclareStringOption[5mm]{bleed}[5mm]
 \DeclareStringOption{innerbleed}
-% XXX do we need to rename these??? (used by lualatex??)
 \DeclareStringOption{blockwidth}
 \DeclareStringOption{blockheight}
 \DeclareStringOption[0]{bindingoffset}[10mm]
@@ -249,14 +258,9 @@
 			\else
 				\photobook@blockwidth
 			\fi} 
-
-		% XXX EXPERIMENTAL...
-		% XXX not yet sure how to go about this -- should we update \blockwidth 
-		%		or should we define a new length and let some templates 
-		%		use one and some use the other???
-		%		...I'm leaning towards the second...
 		% layout: cover...
 		\ifdefstring{\layoutmode}{cover}{
+			\setlength\innerbleed{\bleed}
 			\setlength\blockwidth{
 				\dimexpr 
 					2\blockwidth 
@@ -264,6 +268,7 @@
 					+ \spinewidth \relax } }{}
 		% layout: endpaper...
 		\ifdefstring{\layoutmode}{endpaper}{
+			\setlength\innerbleed{\bleed}
 			\setlength\blockwidth{
 				2\blockwidth } }{}
 	\fi
