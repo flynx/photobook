@@ -24,6 +24,7 @@
 
 \RequirePackage{calc}
 \RequirePackage{xargs}
+\RequirePackage{ifthen}
 \RequirePackage{iftex}
 \RequirePackage{kvoptions}
 \RequirePackage{etoolbox}
@@ -44,6 +45,73 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % options...
+
+% mode...
+%
+% - block (default):
+%
+%		blockwidth
+%	<--------------->
+%
+%	+---------------+
+%	|				|
+%	|				|
+%	|				|
+%	|				|
+%	+---------------+
+%
+%
+% - endpaper:
+%
+%		blockwidth 2x
+%	<------------------------------->
+%
+%	+---------------+---------------+
+%	|				.				|
+%	|				.				|
+%	|				.				|
+%	|				.				|
+%	+---------------+---------------+
+%
+%
+% - endpaper:
+%
+%		blockwidth			blockwidth
+%	<--------------->     <--------------->
+%
+%	+---------------++---++---------------+
+%	|				..	 ..				  |
+%	|				..	 ..				  |
+%	|				..	 ..				  |
+%	|				.. 	 ..				  |
+%	+---------------++---++---------------+
+%					 .	 .
+%					^.	 .^ spine fold
+%					 .	 .
+%					 <---> spinewidth
+%
+%
+% XXX how dow we separate \blockwidth and \paperwidth and still allow 
+%		the user to use all the macros??
+%		...implement separate cover templates???	
+%		the obvious way is just set \blockwidth to the new size, but this
+%		will not help orient the layout correctly...
+% XXX do we need to implement cover fold over???
+% XXX fold/cut marks???
+% XXX write all the dimensions to the comment...
+% XXX not implemented yet...
+\DeclareStringOption[block]{layoutmode}[block]
+\@DeclareLiteralOptionTo{layoutmode}{block}
+\@DeclareLiteralOptionTo{layoutmode}{endpaper}
+\@DeclareLiteralOptionTo{layoutmode}{cover}
+
+
+% spine width and spine fold...
+%
+% NOTE: this is only used when layoutmode=cover
+\DeclareStringOption[0]{spinewidth}[0]
+\DeclareStringOption[0]{spinefold}[0]
+
 
 % pdf layout...
 %
@@ -115,6 +183,14 @@
 %----------------------------------------------------------------------
 % Globals...
 
+\edef\layoutmode{\photobook@layoutmode}
+
+\newlength\spinewidth
+\setlength\spinewidth{\photobook@spinewidth}
+
+\newlength\spinefold
+\setlength\spinefold{\photobook@spinefold}
+
 % NOTE: page and bleed block sizes are set via \RecalculatePageLengths
 \newlength\blockwidth
 \newlength\blockheight
@@ -161,19 +237,43 @@
 % Commands...
 
 \newcommand\RecalculatePageLengths{
-	% final page size...
-	\setlength\blockwidth{
-		\ifx\photobook@blockwidth\empty
-			\dimexpr \paperwidth - \bleed - \innerbleed \relax
-		\else
-			\photobook@blockwidth
-		\fi}
-	\setlength\blockheight{
-		\ifx\photobook@blockheight\empty
-			\dimexpr \paperheight - 2\bleed \relax
-		\else
-			\photobook@blockheight
-		\fi }
+	% block size...
+	\ifnum\blockwidth=0
+		% layout: block...
+		\setlength\blockwidth{
+			\ifx\photobook@blockwidth\empty
+				\dimexpr 
+					\paperwidth 
+					- \bleed 
+					- \innerbleed \relax
+			\else
+				\photobook@blockwidth
+			\fi} 
+
+		% XXX EXPERIMENTAL...
+		% XXX not yet sure how to go about this -- should we update \blockwidth 
+		%		or should we define a new length and let some templates 
+		%		use one and some use the other???
+		%		...I'm leaning towards the second...
+		% layout: cover...
+		\ifdefstring{\layoutmode}{cover}{
+			\setlength\blockwidth{
+				\dimexpr 
+					2\blockwidth 
+					+ 2\spinefold
+					+ \spinewidth \relax } }{}
+		% layout: endpaper...
+		\ifdefstring{\layoutmode}{endpaper}{
+			\setlength\blockwidth{
+				2\blockwidth } }{}
+	\fi
+	\ifnum\blockheight=0
+		\setlength\blockheight{
+			\ifx\photobook@blockheight\empty
+				\dimexpr \paperheight - 2\bleed \relax
+			\else
+				\photobook@blockheight
+			\fi} \fi
 	% page with bleeds...
 	% NOTE: this is essentially \paperwidth and \paperheight but we do 
 	%		not rely on them being defined -- photobook settings take 
@@ -358,8 +458,6 @@
 	\end{flushright}}
 
 
-% XXX \blockwidth
-% XXX \nudgeimageby
 % \captionsidebox[offset]{imagebox}{text}
 %
 \newcommand\captionsidebox[3][0mm]{
@@ -458,6 +556,8 @@
 %			\hspace{\dimexpr -(\bleed - \innerbleed) \relax}{\usebox\photobook@imagebox}
 %		- do the same for caption...
 % XXX BUG: vertical alignment falls apart if page head is changed...
+% XXX replace \ifthenelse\isodd .. with etoolbox equivalent....
+%		...this is the only dependency on \RequirePackage{ifthen}
 \newcommand\imagepagefitWH[4]{
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
