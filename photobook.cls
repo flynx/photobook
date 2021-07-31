@@ -58,6 +58,7 @@
 %   |               |
 %   |               |
 %   |               |
+%   |               |
 %   +---------------+
 %
 %
@@ -71,33 +72,61 @@
 %   |               .               |
 %   |               .               |
 %   |               .               |
+%   |               .               |
 %   +---------------+---------------+
 %	
 %
-% - endpaper:
+% - cover:
 %
-%       blockwidth          blockwidth
-%   <--------------->     <--------------->
+%          blockwidth            blockwidth
+%       <--------------->     <--------------->
+%     <-> coverboerdgrow                      <-> coverboerdgrow
+%   <-> coverflap                             . <-> coverflap
+%   . . .                                     . . .
+%   +-------------------++---++-------------------+    ---
+%   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --^ coverflap                
+%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --^ coverboerdgrow  
+%   | . .               ..   ..               . . |     ^                  
+%   | . .               ..   ..               . . |     | blockheight      
+%   | . .     Back      ..   ..     Front     . . |     |                  
+%   | . .               ..   ..               . . |     |                  
+%   | . .               ..   ..               . . |     v                  
+%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --v coverboerdgrow  
+%   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --v coverflap                 
+%   +-------------------++---++-------------------+    ---
+%                        .   .
+%                       ^.   .^ spinefold
+%                        .   .
+%                        <---> spinewidth
 %
-%   +---------------++---++---------------+
-%   |               ..   ..               |
-%   |               ..   ..               |
-%   |               ..   ..               |
-%   |               ..   ..               |
-%   +---------------++---++---------------+
-%                    .   .
-%                   ^.   .^ spine fold
-%                    .   .
-%                    <---> spinewidth
+%
+% - jacket: (XXX)
+%
+%   <---> jaketflap/jacketflapback                  <---> jaketflap/jacketflapback
+%   .   .                                           .   .
+%   .   .     blockwidth            blockwidth      .   .
+%   .   .  <--------------->     <--------------->  .   .
+%   .   .<-> coverboerdgrow                      <-> coverboerdgrow
+%   .   .  .                                     .  .   .
+%   +---++-----------------++---++-----------------++---+    ---
+%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --^ coverboerdgrow
+%   |   .. .               ..   ..               . ..   |     ^
+%   |   .. .               ..   ..               . ..   |     | blockheight
+%   |   .. .     Back      ..   ..     Front     . ..   |     |
+%   |   .. .               ..   ..               . ..   |     |
+%   |   .. .               ..   ..               . ..   |     v
+%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --v coverboerdgrow
+%   +---++-----------------++---++-----------------++---+    --- 
+%       ..                  .   .                  ..
+%       ^ jacketwrap        .   .                  ^ jacketwrap
+%                          ^.   .^ spinefold
+%                           .   .
+%                           <---> spinewidth
 %
 %
-% NOTE: in endpaper and cover modes \innerbleed value is ignored and
-%		\bleed is used instead...
-%		...setting \innerbleed manually mid-document will lead to 
-%		inconsistent results.
-%
-% XXX EXPERIMENTAL...
-% XXX need to force \innerbleed to be eqal to \bleed...
+% XXX in cover layout setup pdf boxes in a way to use \bleed as foldover...
+% 		...see hyperref docs to set pdf view/print area (???)
+%		.....should also set \bleed default to something like 17mm
 % XXX also need a way to:
 %			- setup front-cover
 %			- setup pine
@@ -110,17 +139,40 @@
 %		...I'm leaning towards the later...
 % XXX fold/cut marks???
 % XXX write all the dimensions to pdf comment...
+% XXX EXPERIMENTAL...
 \DeclareStringOption[block]{layoutmode}[block]
 \@DeclareLiteralOptionTo{layoutmode}{block}
+%\@DeclareLiteralOptionTo{layoutmode}{web}
 \@DeclareLiteralOptionTo{layoutmode}{endpaper}
+% XXX add overhang...
+% XXX minght be a good idea to add cover types as separate values and 
+%		preset defeaults per type, e.g:
+%			layoutmode=		hardcover	softcover
+%		should also set: 
+%			spinefold=		5mm			5mm
+%			coverwrap=		17mm		0mm
+%			bleed=			0mm			5mm
 \@DeclareLiteralOptionTo{layoutmode}{cover}
+%\@DeclareLiteralOptionTo{layoutmode}{hardcover}
+%\@DeclareLiteralOptionTo{layoutmode}{softcover}
+% XXX add flap sizes...
+% XXX not implemented...
+\@DeclareLiteralOptionTo{layoutmode}{jacket}
 
 
 % spine width and spine fold...
 %
 % NOTE: this is only used when layoutmode=cover
 \DeclareStringOption[0]{spinewidth}[0]
-\DeclareStringOption[0]{spinefold}[0]
+\DeclareStringOption[0]{spinefold}[5mm]
+\DeclareStringOption[0]{coverboerdgrow}[3mm]
+% XXX defaults should depend on cover type...
+% XXX not implemented...
+\DeclareStringOption[0]{coverwrap}[17mm]
+\DeclareStringOption[0]{jacketwrap}[1mm]
+\DeclareStringOption[0]{jacketflap}[50mm]
+\DeclareStringOption{jacketflapfront}
+\DeclareStringOption{jacketflapback}
 
 
 % pdf layout...
@@ -137,7 +189,7 @@
 
 % page geometry...
 %
-%   <---> bleed                                 <---> innerbleed
+%   <---> bleed                                 <---> bleed
 %
 %   + - - - - - - - - - - - - - - - - - - - - - + - +   ^
 %   .                                           .   .   | bleed
@@ -160,13 +212,11 @@
 %       |   <-- textwidth -------------->   .   |
 %                                               ^ binding line
 %
-% NOTE: innerbleed defaults to bleed...
 % NOTE: if blockwidth/blockheight are set they will force recalculations 
 %		and overriding of the paperwidth/paperheight if they were changed
 %		by the user code anywhere between \documentclass[..]{photobook}
 %		and \begin{document}...
 \DeclareStringOption[5mm]{bleed}[5mm]
-\DeclareStringOption{innerbleed}
 \DeclareStringOption{blockwidth}
 \DeclareStringOption{blockheight}
 \DeclareStringOption[0]{bindingoffset}[10mm]
@@ -200,6 +250,9 @@
 \newlength\spinefold
 \setlength\spinefold{\photobook@spinefold}
 
+\newlength\coverboerdgrow
+\setlength\coverboerdgrow{\photobook@coverboerdgrow}
+
 % NOTE: page and bleed block sizes are set via \RecalculatePageLengths
 \newlength\blockwidth
 \newlength\blockheight
@@ -210,14 +263,6 @@
 
 \newlength\bleed
 \setlength\bleed{\photobook@bleed}
-
-\newlength\innerbleed
-\setlength\innerbleed{
-	\ifx\photobook@innerbleed\empty
-		\bleed
-	\else
-		\photobook@innerbleed
-	\fi }
 
 \newlength\bindingoffset
 \setlength\bindingoffset{\photobook@bindingoffset}
@@ -253,22 +298,22 @@
 			\ifx\photobook@blockwidth\empty
 				\dimexpr 
 					\paperwidth 
-					- \bleed 
-					- \innerbleed \relax
+					- 2\bleed 
+				\relax
 			\else
 				\photobook@blockwidth
 			\fi} 
 		% layout: cover...
 		\ifdefstring{\layoutmode}{cover}{
-			\setlength\innerbleed{\bleed}
 			\setlength\blockwidth{
 				\dimexpr 
 					2\blockwidth 
 					+ 2\spinefold
-					+ \spinewidth \relax } }{}
+					+ \spinewidth 
+					+ 2\coverboerdgrow
+				\relax } }{}
 		% layout: endpaper...
 		\ifdefstring{\layoutmode}{endpaper}{
-			\setlength\innerbleed{\bleed}
 			\setlength\blockwidth{
 				2\blockwidth } }{}
 	\fi
@@ -278,16 +323,24 @@
 				\dimexpr \paperheight - 2\bleed \relax
 			\else
 				\photobook@blockheight
-			\fi} \fi
+			\fi} 
+		% layout: cover...
+		\ifdefstring{\layoutmode}{cover}{
+			\setlength\blockheight{
+				\dimexpr 
+					\blockheight
+					+ 2\coverboerdgrow
+				\relax } }{}
+	\fi
 	% page with bleeds...
 	% NOTE: this is essentially \paperwidth and \paperheight but we do 
 	%		not rely on them being defined -- photobook settings take 
 	%		priority over \paperwidth and \paperwidth...
 	\setlength\bleedblockwidth{\dimexpr 
-		\bleed + \blockwidth + \innerbleed 
+			2\bleed + \blockwidth 
 		\relax}
 	\setlength\bleedblockheight{\dimexpr 
-		2\bleed + \blockheight 
+			2\bleed + \blockheight 
 		\relax} }
 
 
@@ -535,6 +588,13 @@
 
 
 %----------------------------------------------------------------------
+% Cover/endpaper Templates...
+
+% XXX
+
+
+
+%----------------------------------------------------------------------
 % Page Templates...
 
 \newsavebox\photobook@imagebox
@@ -553,13 +613,6 @@
 % XXX broblems with captions:
 %		- vertical offset is floating depending on image proportions...
 %		- width is a bit off...
-% XXX this does not account for \innerbleed...
-%		- image: 
-%			% odd/left 
-%			\hspace{\dimexpr \bleed - \innerbleed \relax}{\usebox\photobook@imagebox}
-%			% even/right
-%			\hspace{\dimexpr -(\bleed - \innerbleed) \relax}{\usebox\photobook@imagebox}
-%		- do the same for caption...
 % XXX BUG: vertical alignment falls apart if page head is changed...
 % XXX replace \ifthenelse\isodd .. with etoolbox equivalent....
 %		...this is the only dependency on \RequirePackage{ifthen}
@@ -665,7 +718,6 @@
 		% XXX this for some reason not at -\bleed horizontally...
 		\AtPageLowerLeft{%
 			\hspace*{\dimexpr 
-					% XXX need to set this to bleed or innerbleed depending on page...
 					% XXX when \AtPageCenter{ .. }for some reason -\bleed puts 
 					%		the image in the center but adding -0.5\ht\photobook@imagebox 
 					%		to it offsets the image to the left -- scaling????!!
@@ -966,7 +1018,7 @@
 					-(\nudgeimageby)
 					+#1 
 					-\blockwidth 
-					+\innerbleed 
+					+\bleed 
 				\relax}{
 			\raisebox{\dimexpr 
 						#1 
@@ -1028,7 +1080,7 @@
 				+0.5\OFFSETFIX
 				+(\nudgeimageby)
 				+\blockwidth
-				+\innerbleed
+				+\bleed
 				-\wd\photobook@imagebox \relax}{
 			\raisebox{\dimexpr 
 					#1 + \bleed 
