@@ -329,6 +329,7 @@
 				2\blockwidth } }{}
 	\fi
 	\ifnum\blockheight=0
+		% layout: block / endpaper...
 		\setlength\blockheight{
 			\ifx\photobook@blockheight\empty
 				\dimexpr \paperheight - 2\bleed \relax
@@ -341,6 +342,7 @@
 				\dimexpr 
 					\blockheight
 					+ 2\coverboardgrow
+					+ 2\coverflap
 				\relax } }{}
 		% layout: jacket...
 		\ifdefstring{\layoutmode}{jacket}{
@@ -348,7 +350,6 @@
 				\dimexpr 
 					\blockheight
 					+ 2\coverboardgrow
-					+ 2\coverflap
 				\relax } }{}
 	\fi
 	% page with bleeds...
