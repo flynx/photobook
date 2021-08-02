@@ -216,18 +216,38 @@
 %		and overriding of the paperwidth/paperheight if they were changed
 %		by the user code anywhere between \documentclass[..]{photobook}
 %		and \begin{document}...
-\DeclareStringOption[5mm]{bleed}[5mm]
 \DeclareStringOption{blockwidth}
 \DeclareStringOption{blockheight}
 \DeclareStringOption[0]{bindingoffset}[10mm]
+\DeclareStringOption[5mm]{bleed}[5mm]
+
+% Distance from image to paper border (clearence) for full-page images.
+%
+% this can be:
+% - negative value set image bleed, 
+% - positive value set distance frome paper edge to image.
+%
+\DeclareStringOption{clearimage}[-5mm]
 
 % Image block size relative to text block...
 %
-% XXX not yet used...
 % XXX better name...
 \DeclareStringOption[0.85]{imageblockwidth}[1]
 \DeclareStringOption[0.85]{imageblockheight}[1]
 \DeclareStringOption[-0.05]{imageblockoffsettop}[0]
+
+% let the user set geometry defaults.
+%
+% NOTE: if this is not set any options set by the uset intersecting with
+%		options set in the class will get overriden by class options...
+% NOTE: this does not affect the following: 
+%			paperwidth=\bleedblockwidth
+%			paperheight=\bleedblockheight
+%			bindingoffset=\bindingoffset
+%
+% XXX better name...
+\DeclareBoolOption{geometrynodefaults}
+
 
 \DeclareDefaultOption{\PassOptionsToClass{\CurrentOption}{book}}
 \ProcessKeyvalOptions*
@@ -267,23 +287,18 @@
 \newlength\bindingoffset
 \setlength\bindingoffset{\photobook@bindingoffset}
 
+% NOTE: since this can be any number but we need to detect if it was set 
+%		manually we'll set it to a really big and random not so random 
+%		prime and hope no will print something big enough and dare to use 
+%		it as image clearence...
+\newlength{\clearimage}
+\setlength\clearimage{32553}
+
 \edef\imageblockwidth{\photobook@imageblockwidth}
 
 \edef\imageblockheight{\photobook@imageblockheight}
 
 \edef\imageblockoffsettop{\photobook@imageblockoffsettop}
-
-% distance from image to paper border (clearence) for full-page images.
-%
-% - negative value set bleed siae, 
-% - positive value set distance frome paper edge to image.
-%
-% XXX for some reason this is not even around the page and is less on 
-%	the left -- \OFFSETFIX is used to compensate for this effect...
-%	...need to find a real fix...
-% XXX make configurable...
-\newlength{\clearimage}
-\setlength{\clearimage}{-4mm}
 
 
 
@@ -352,6 +367,14 @@
 					+ 2\coverboardgrow
 				\relax } }{}
 	\fi
+	% default image clearence...
+	\ifdim\clearimage=32553
+		\ifx\photobook@clearimage\empty
+			\setlength\clearimage{-\bleed}
+		\else
+			\setlength\clearimage{\photobook@clearimage}
+		\fi
+	\fi
 	% page with bleeds...
 	% NOTE: this is essentially \paperwidth and \paperheight but we do 
 	%		not rely on them being defined -- photobook settings take 
@@ -395,16 +418,24 @@
 
 	\RecalculatePageLengths
 
-	\geometry{
-		% paper size (incl. bleeds)...
-		paperwidth=\bleedblockwidth, paperheight=\bleedblockheight,
-		bindingoffset=\bindingoffset,
-		% XXX these should be overridable...
-		% include header/footer/margin notes in printed area
-		twoside, includeall, nomarginpar,
-		ignorehead=false, ignorefoot=false, ignoremp=false,
-		% center printed area on page
-		vcentering, hcentering}
+	% no-defaults -- the user is expected to set things up...
+	\ifphotobook@geometrynodefaults
+		\geometry{
+			% paper size (incl. bleeds)...
+			paperwidth=\bleedblockwidth, paperheight=\bleedblockheight,
+			bindingoffset=\bindingoffset}
+	% normal mode...
+	\else
+		\geometry{
+			% paper size (incl. bleeds)...
+			paperwidth=\bleedblockwidth, paperheight=\bleedblockheight,
+			bindingoffset=\bindingoffset,
+			% include header/footer/margin notes in printed area
+			twoside, includeall, nomarginpar,
+			ignorehead=false, ignorefoot=false, ignoremp=false,
+			% center printed area on page
+			vcentering, hcentering}
+	\fi
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -609,6 +640,11 @@
 
 %----------------------------------------------------------------------
 % Cover/endpaper Templates...
+%
+% XXX need:
+%		\begin{front} ...
+%		\begin{spine} ...
+%		\begin{spine} ...
 
 % XXX
 
@@ -634,8 +670,7 @@
 %		- vertical offset is floating depending on image proportions...
 %		- width is a bit off...
 % XXX BUG: vertical alignment falls apart if page head is changed...
-% XXX replace \ifthenelse\isodd .. with etoolbox equivalent....
-%		...this is the only dependency on \RequirePackage{ifthen}
+% XXX replace \ifthenelse\isodd .. with etoolbox equivalent.... (???)
 \newcommand\imagepagefitWH[4]{
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
@@ -791,7 +826,6 @@
 					+0.5\blockwidth 
 					-0.5\wd\photobook@imagebox 
 					-\bleed
-					% XXX
 					-0.5\OFFSETFIX 
 				\relax}{
 			\raisebox{\dimexpr 
@@ -1209,6 +1243,7 @@
 	\resetnudgeimage }
 
 
+% XXX BUG?: this is not centered vertically...
 % XXX
 % imagespreadfullbleed[vertical-offset]{caption}{image}
 %
