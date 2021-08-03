@@ -35,6 +35,11 @@
 \RequirePackage{graphicx}
 \RequirePackage{geometry}
 \RequirePackage{eso-pic}
+\RequirePackage[
+	overlay,absolute,
+	%showboxes,
+	]{textpos}
+
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
