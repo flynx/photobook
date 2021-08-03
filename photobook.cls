@@ -109,7 +109,7 @@
 %
 % - jacket: (XXX)
 %
-%   <---> jaketflap/jacketflapback                  <---> jaketflap/jacketflapback
+%   <---> jaketflap/jacketflapback                  <---> jaketflap/jacketflapfront
 %   .   .                                           .   .
 %   .   .     blockwidth            blockwidth      .   .
 %   .   .  <--------------->     <--------------->  .   .
@@ -288,6 +288,9 @@
 \newlength\bleedblockwidth
 \newlength\bleedblockheight
 
+\newlength\pageblockwidth
+\newlength\pageblockheight
+
 \newlength\bleed
 \setlength\bleed{\photobook@bleed}
 
@@ -325,6 +328,7 @@
 			\else
 				\photobook@blockwidth
 			\fi} 
+		\setlength\pageblockwidth{\blockwidth}
 		% layout: cover...
 		\ifdefstring{\layoutmode}{cover}{
 			\setlength\blockwidth{
@@ -358,6 +362,7 @@
 			\else
 				\photobook@blockheight
 			\fi} 
+		\setlength\pageblockheight{\blockheight}
 		% layout: cover...
 		\ifdefstring{\layoutmode}{cover}{
 			\setlength\blockheight{
@@ -381,6 +386,13 @@
 		\else
 			\setlength\clearimage{\photobook@clearimage}
 		\fi
+	\fi
+	% flaps...
+	\ifnum\jacketflapfront=0
+		\setlength\jacketflapfront{\jacketflap}
+	\fi
+	\ifnum\jacketflapback=0
+		\setlength\jacketflapback{\jacketflap}
 	\fi
 	% page with bleeds...
 	% NOTE: this is essentially \paperwidth and \paperheight but we do 
@@ -649,33 +661,111 @@
 % Cover/endpaper Templates...
 %
 % XXX need a way to place images / templates into these...
-% XXX should these only be visible in respective modes???
+% XXX should these only be visible in respective modes or for non-zero widths???
 
-% XXX
-\newenvironment{front}
-	{}
-	{}
-% XXX
-\newenvironment{front-flap}
-	{}
-	{}
+% XXX this may span more than one page if there is enoug stuff packed 
+%		into it...
+\newenvironment{page}{}{%
+	\null
+	\clearpage }
+
+% XXX TEST...
+% XXX should this be full size of block or \textwidth???
+% XXX make minipage cetering configurable...
+% XXX need to reserve the page for these, i.e. add:
+%			\null
+%			\clearpage
+%		but only once...
+%		...see: \begin{page} ... above
+\newenvironment{frontcover}{%
+	\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
+			\bleed 
+				+ \jacketflapback 
+				+ \coverflap 
+				+ \jacketwrap 
+				+ \coverboardgrow 
+				+ \pageblockwidth 
+				+ 2\spinefold 
+				+ \spinewidth,
+			\bleed 
+				+ \coverflap )%
+	\begin{minipage}%
+			[c][\dimexpr \pageblockheight + 2\coverboardgrow \relax][c]%
+			{\dimexpr \pageblockwidth + \coverboardgrow \relax}% 
+}{% 
+	\end{minipage}%
+	\end{textblock*} }
+
+% XXX TEST...
+\newenvironment{frontflap}{%
+	\begin{textblock*}{\jacketflapfront}(
+		\bleed 
+			+ \jacketflapback 
+			+ \coverflap 
+			+ 2\jacketwrap 
+			+ 2\coverboardgrow 
+			+ 2\pageblockwidth 
+			+ 2\spinefold 
+			+ \spinewidth,
+		\bleed 
+			+ \coverflap )% 
+	\begin{minipage}%
+			[c][\dimexpr \pageblockheight + 2\coverboardgrow \relax][c]%
+			{\jacketflapfront}% 
+}{%
+	\end{minipage}%
+	\end{textblock*} }
 
 
 % XXX
 % XXX should this be hirizontaly or vertically oriented???
 %		...options, different envs???
-\newenvironment{spine}
-	{}
-	{}
+\newenvironment{spine}{%
+	\begin{textblock*}{\spinewidth}(
+		\bleed 
+			+ \jacketflapback 
+			+ \coverflap 
+			+ \jacketwrap 
+			+ \coverboardgrow 
+			+ \pageblockwidth 
+			+ \spinefold,
+		\bleed 
+			+ \coverflap )%
+	\begin{minipage}%
+			[c][\dimexpr \pageblockheight + 2\coverboardgrow \relax][c]%
+			{\spinewidth}% 
+}{% 
+	\end{minipage}%
+	\end{textblock*} }
 
 % XXX
-\newenvironment{back}
-	{}
-	{}
+\newenvironment{backcover}{%
+	\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
+		\bleed 
+			+ \jacketflapback 
+			+ \coverflap 
+			+ \jacketwrap,
+		\bleed 
+			+ \coverflap )%
+	\begin{minipage}%
+			[c][\dimexpr \pageblockheight + 2\coverboardgrow \relax][c]%
+			{\dimexpr \pageblockwidth + \coverboardgrow \relax}%
+}{% 
+	\end{minipage}%
+	\end{textblock*} }
+
 % XXX
-\newenvironment{back-flap}
-	{}
-	{}
+\newenvironment{backflap}{%
+	\begin{textblock*}{\jacketflapback}(
+		\bleed,
+		\bleed 
+			+ \coverflap )%
+	\begin{minipage}%
+			[c][\dimexpr \pageblockheight + 2\coverboardgrow \relax][c]%
+			{\jacketflapback}%
+}{%
+	\end{minipage}%
+	\end{textblock*} } 
 
 
 % XXX might be a good idea to have an ability to just render a template...
