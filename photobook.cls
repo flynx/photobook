@@ -11,6 +11,8 @@
 % XXX BUG: fix \CAPTIONWIDTHFIX
 % XXX BUG: there seems to be a slight offset bias...
 %
+% XXX might be a good idea to add a spine calculator...
+%
 %
 %----------------------------------------------------------------------
 
@@ -641,12 +643,41 @@
 %----------------------------------------------------------------------
 % Cover/endpaper Templates...
 %
-% XXX need:
-%		\begin{front} ...
-%		\begin{spine} ...
-%		\begin{spine} ...
+% XXX need a way to place images / templates into these...
+% XXX should these only be visible in respective modes???
 
 % XXX
+\newenvironment{front}
+	{}
+	{}
+% XXX
+\newenvironment{front-flap}
+	{}
+	{}
+
+
+% XXX
+% XXX should this be hirizontaly or vertically oriented???
+%		...options, different envs???
+\newenvironment{spine}
+	{}
+	{}
+
+% XXX
+\newenvironment{back}
+	{}
+	{}
+% XXX
+\newenvironment{back-flap}
+	{}
+	{}
+
+
+% XXX might be a good idea to have an ability to just render a template...
+%		...guides and stuff with placeholders...
+% XXX this should simply figure out the current mode from setup options...
+\newcommand\GenerateTemplate{}
+
 
 
 
