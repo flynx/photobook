@@ -23,23 +23,9 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% Class/package options...
 
-\RequirePackage{calc}
-\RequirePackage{xargs}
-\RequirePackage{ifthen}
-\RequirePackage{iftex}
 \RequirePackage{kvoptions}
-\RequirePackage{etoolbox}
-\RequirePackage{atbegshi}
-\RequirePackage[unicode]{hyperref}
-\RequirePackage{graphicx}
-\RequirePackage{geometry}
-\RequirePackage{eso-pic}
-\RequirePackage[
-	overlay,absolute,
-	%showboxes,
-	]{textpos}
-
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -51,9 +37,8 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% options...
 
-% mode...
+% layout mode...
 %
 % - block (default):
 %
@@ -170,22 +155,25 @@
 % spine width and spine fold...
 %
 % NOTE: this is only used when layoutmode=cover
-\DeclareStringOption[0]{spinewidth}[0]
-\DeclareStringOption[0]{spinefold}[7mm]
-\DeclareStringOption[0]{coverboardgrow}[3mm]
+\DeclareStringOption[0pt]{spinewidth}[0pt]
+\DeclareStringOption[0pt]{spinefold}[7mm]
+\DeclareStringOption[0pt]{coverboardgrow}[3mm]
 % XXX defaults should depend on cover type...
-% XXX not implemented...
-\DeclareStringOption[0]{coverflap}[17mm]
-\DeclareStringOption[0]{jacketwrap}[2mm]
-\DeclareStringOption[0]{jacketflap}[50mm]
-%\DeclareStringOption{jacketflapfront}
-%\DeclareStringOption{jacketflapback}
+\DeclareStringOption[0pt]{coverflap}[17mm]
+\DeclareStringOption[0pt]{jacketwrap}[2mm]
+\DeclareStringOption[0pt]{jacketflap}[50mm]
+\DeclareStringOption[0pt]{jacketflapfront}[50mm]
+\DeclareStringOption[0pt]{jacketflapback}[50mm]
 
 
 % pdf layout...
 %
+% defaults:
+%	- TwoColumnLeft (for layoutmode=block)
+%	- SinglePage
+%
 % see: hyperref's pdfpagelayout for more options...
-\DeclareStringOption[TwoPageRight]{pdfpagelayout}[TwoPageRight]
+\DeclareStringOption{pdfpagelayout}
 \@DeclareLiteralOptionTo{pdfpagelayout}{SinglePage}
 \@DeclareLiteralOptionTo{pdfpagelayout}{OneColumn}
 \@DeclareLiteralOptionTo{pdfpagelayout}{TwoColumnRight}
@@ -260,6 +248,7 @@
 \ProcessKeyvalOptions*
 
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % Parent class...
 %
 \LoadClass[9pt, final, openany]{book}
@@ -267,9 +256,56 @@
 
 
 %----------------------------------------------------------------------
+% Packages...
+%
+% NOTE: imports are after \LoadClass{ .. } to avoid figting over macro
+%		names...
+
+\RequirePackage{calc}
+\RequirePackage{xargs}
+\RequirePackage{ifthen}
+\RequirePackage{iftex}
+\RequirePackage{etoolbox}
+\RequirePackage{atbegshi}
+\RequirePackage[unicode]{hyperref}
+\RequirePackage{eso-pic}
+\RequirePackage{graphicx}
+\RequirePackage[
+	overlay,absolute,
+	%showboxes,
+]{textpos}
+\RequirePackage[linewidth=1pt]{mdframed}
+
+
+
+%----------------------------------------------------------------------
 % Globals...
 
 \edef\layoutmode{\photobook@layoutmode}
+
+
+% layout modes...
+%
+\newif\ifcoverlayout
+\coverlayoutfalse
+
+\newif\ifhardcoverlayout
+\hardcoverlayoutfalse
+
+\newif\ifsoftcoverlayout
+\softcoverlayoutfalse
+
+\newif\ifendpaperlayout
+\endpaperlayoutfalse
+
+\newif\ifjacketlayout
+\jacketlayoutfalse
+
+% agrigate...
+\newif\ifcoverlikelayout
+\coverlikelayoutfalse
+
+
 
 \newlength\spinewidth
 \setlength\spinewidth{\photobook@spinewidth}
@@ -280,6 +316,18 @@
 \newlength\coverboardgrow
 \setlength\coverboardgrow{\photobook@coverboardgrow}
 
+\newlength\coverflap
+
+\newlength\jacketwrap
+
+\newlength\jacketflap
+
+\newlength\jacketflapfront
+\setlength\jacketflapfront{\photobook@jacketflapfront}
+
+\newlength\jacketflapback
+\setlength\jacketflapback{\photobook@jacketflapback}
+
 % NOTE: page and bleed block sizes are set via \RecalculatePageLengths
 \newlength\blockwidth
 \newlength\blockheight
@@ -288,6 +336,11 @@
 \newlength\bleedblockwidth
 \newlength\bleedblockheight
 
+% original page block size...
+%
+% for the block layout these are the same as \blockwidth and \blockheight
+% for other layouts these are the original page layout size while the 
+% \blockwidth are set tho the current layout visible size...
 \newlength\pageblockwidth
 \newlength\pageblockheight
 
@@ -298,11 +351,10 @@
 \setlength\bindingoffset{\photobook@bindingoffset}
 
 % NOTE: since this can be any number but we need to detect if it was set 
-%		manually we'll set it to a really big and random not so random 
-%		prime and hope no will print something big enough and dare to use 
-%		it as image clearence...
+%		manually we'll set it to \maxdimen and hope noe will print 
+%		something big enough and dare to use it as image clearence...
 \newlength{\clearimage}
-\setlength\clearimage{32553}
+\setlength\clearimage{\maxdimen}
 
 \edef\imageblockwidth{\photobook@imageblockwidth}
 
@@ -316,6 +368,43 @@
 % Commands...
 
 \newcommand\RecalculatePageLengths{
+	% layout bools...
+	\ifdefstring{\layoutmode}{cover}{ 
+		\coverlayouttrue
+		\coverlikelayouttrue }{}
+	\ifdefstring{\layoutmode}{hardcover}{ 
+		\hardcoverlayouttrue
+		\coverlikelayouttrue }{}
+	\ifdefstring{\layoutmode}{softcover}{ 
+		\softcoverlayouttrue
+		\coverlikelayouttrue }{}
+	\ifdefstring{\layoutmode}{jacket}{%
+		\jacketlayouttrue
+		\coverlikelayouttrue }{}
+	\ifdefstring{\layoutmode}{endpaper}{ 
+		\endpaperlayouttrue }
+	% pdf layout...
+	\ifx\photobook@pdfpagelayout\empty
+		\ifcoverlikelayout
+			\def\photobook@pdfpagelayout{SinglePage}
+		\else
+			\def\photobook@pdfpagelayout{TwoPageRight}
+		\fi
+	\fi
+	% items to ignore in different layouts...
+	% XXX is this the correct way to go???
+	\ifcoverlayout
+		\setlength\coverflap{\photobook@coverflap}
+	\else
+		\setlength\coverflap{0pt}
+	\fi
+	\ifjacketlayout
+		\setlength\jacketwrap{\photobook@jacketwrap}
+		\setlength\jacketflap{\photobook@jacketflap}
+	\else
+		\setlength\jacketwrap{0pt}
+		\setlength\jacketflap{0pt}
+	\fi
 	% block size...
 	\ifnum\blockwidth=0
 		% layout: block...
@@ -330,7 +419,7 @@
 			\fi} 
 		\setlength\pageblockwidth{\blockwidth}
 		% layout: cover...
-		\ifdefstring{\layoutmode}{cover}{
+		\ifcoverlayout
 			\setlength\blockwidth{
 				\dimexpr 
 					2\blockwidth 
@@ -338,9 +427,9 @@
 					+ 2\spinefold
 					+ 2\coverboardgrow
 					+ 2\coverflap
-				\relax } }{}
+				\relax } \fi
 		% layout: jacket...
-		\ifdefstring{\layoutmode}{jacket}{
+		\ifjacketlayout
 			\setlength\blockwidth{
 				\dimexpr 
 					2\blockwidth 
@@ -348,11 +437,11 @@
 					+ 2\spinefold
 					+ 2\jacketwrap
 					+ 2\jacketflap
-				\relax } }{}
+				\relax } \fi
 		% layout: endpaper...
-		\ifdefstring{\layoutmode}{endpaper}{
+		\ifendpaperlayout
 			\setlength\blockwidth{
-				2\blockwidth } }{}
+				2\blockwidth } \fi
 	\fi
 	\ifnum\blockheight=0
 		% layout: block / endpaper...
@@ -364,23 +453,23 @@
 			\fi} 
 		\setlength\pageblockheight{\blockheight}
 		% layout: cover...
-		\ifdefstring{\layoutmode}{cover}{
+		\ifcoverlayout
 			\setlength\blockheight{
 				\dimexpr 
 					\blockheight
 					+ 2\coverboardgrow
 					+ 2\coverflap
-				\relax } }{}
+				\relax } \fi
 		% layout: jacket...
-		\ifdefstring{\layoutmode}{jacket}{
+		\ifjacketlayout
 			\setlength\blockheight{
 				\dimexpr 
 					\blockheight
 					+ 2\coverboardgrow
-				\relax } }{}
+				\relax } \fi
 	\fi
 	% default image clearence...
-	\ifdim\clearimage=32553
+	\ifdim\clearimage=\maxdimen
 		\ifx\photobook@clearimage\empty
 			\setlength\clearimage{-\bleed}
 		\else
@@ -406,16 +495,23 @@
 		\relax} }
 
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% update global values...
 
+%----------------------------------------------------------------------
+% Setup...
+
+% init lengths...
 \RecalculatePageLengths
+
+% minimal geometry setup...
+\RequirePackage[
+	% paper size (incl. bleeds)...
+	paperwidth=\bleedblockwidth, paperheight=\bleedblockheight,
+]{geometry}
 
 
 
 %----------------------------------------------------------------------
 % Setup...
-
 \AtEndPreamble{
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -504,9 +600,13 @@
 %----------------------------------------------------------------------
 % Generic Commands....
 
+\def\@keywords{}
+
 \newcommand\keywords[1]{%
 	\def\@keywords{#1}}
 
+
+\def\@subject{}
 
 \newcommand\subject[1]{%
 	\def\@subject{#1}}
@@ -669,109 +769,176 @@
 	\null
 	\clearpage }
 
-% XXX TEST...
+
+% cover-like layout components...
+%
+% XXX BUG: when \jacketwrap is 0 flaps ans covers overlap...
+% XXX BUG: the visible page height seems to be a bit less than \cellheight...
+%
 % XXX should this be full size of block or \textwidth???
 % XXX make minipage cetering configurable...
-% XXX need to reserve the page for these, i.e. add:
-%			\null
-%			\clearpage
-%		but only once...
-%		...see: \begin{page} ... above
-\newenvironment{frontcover}{%
-	\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
+\ifcoverlikelayout
+
+	\newlength\cellwidth
+	\newlength\cellheight
+
+	% front cover...
+	%
+	\newenvironment{frontcover}{%
+		\setlength\cellwidth{\dimexpr
+			\pageblockwidth 
+			+ \coverboardgrow \relax }
+		\setlength\cellheight{\dimexpr
+			\pageblockheight 
+			+ 2\coverboardgrow \relax }
+		\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
+				\bleed 
+					+ \jacketflapback 
+					+ \coverflap 
+					+ \jacketwrap 
+					+ \coverboardgrow 
+					+ \pageblockwidth 
+					+ 2\spinefold 
+					+ \spinewidth,
+				\bleed 
+					+ \coverflap )%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	}{% 
+		\end{minipage}%
+		\end{textblock*} }
+
+	% back cover...
+	%
+	\newenvironment{backcover}{%
+		\setlength\cellwidth{\dimexpr
+			\pageblockwidth 
+			+ \coverboardgrow \relax }
+		\setlength\cellheight{\dimexpr
+			\pageblockheight 
+			+ 2\coverboardgrow \relax }
+		\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
+			\bleed 
+				+ \jacketflapback 
+				+ \coverflap 
+				+ \jacketwrap,
+			\bleed 
+				+ \coverflap )%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	}{% 
+		\end{minipage}%
+		\end{textblock*} }
+
+	% spine...
+	%
+	% XXX should this be hirizontaly or vertically oriented???
+	%		...options, different envs???
+	\newenvironment{spine}{%
+		\setlength\cellwidth{\dimexpr
+			\spinewidth \relax }
+		\setlength\cellheight{\dimexpr
+			\pageblockheight 
+			+ 2\coverboardgrow \relax }
+		\begin{textblock*}{\spinewidth}(
 			\bleed 
 				+ \jacketflapback 
 				+ \coverflap 
 				+ \jacketwrap 
 				+ \coverboardgrow 
 				+ \pageblockwidth 
+				+ \spinefold,
+			\bleed 
+				+ \coverflap )%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	}{% 
+		\end{minipage}%
+		\end{textblock*} }
+\fi
+
+
+% jacket components...
+%
+% NOTE: jacket is part of cover-like layouts...
+\ifjacketlayout
+	% front flap...
+	%
+	\newenvironment{frontflap}{%
+		\setlength\cellwidth{\dimexpr
+			\jacketflapfront \relax }
+		\setlength\cellheight{\dimexpr 
+			\pageblockheight 
+			+ 2\coverboardgrow \relax }
+		\begin{textblock*}{\jacketflapfront}(
+			\bleed 
+				+ \jacketflapback 
+				+ \coverflap 
+				+ 2\jacketwrap 
+				+ 2\coverboardgrow 
+				+ 2\pageblockwidth 
 				+ 2\spinefold 
 				+ \spinewidth,
 			\bleed 
+				+ \coverflap )% 
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	}{%
+		\end{minipage}%
+		\end{textblock*} }
+
+	% back flap...
+	%
+	\newenvironment{backflap}{%
+		\setlength\cellwidth{\dimexpr
+			\jacketflapback \relax }
+		\setlength\cellheight{\dimexpr 
+			\pageblockheight 
+			+ 2\coverboardgrow
+		\relax }
+		\begin{textblock*}{\jacketflapback}(
+			\bleed,
+			\bleed 
 				+ \coverflap )%
-	\begin{minipage}%
-			[c][\dimexpr \pageblockheight + 2\coverboardgrow \relax][c]%
-			{\dimexpr \pageblockwidth + \coverboardgrow \relax}% 
-}{% 
-	\end{minipage}%
-	\end{textblock*} }
-
-% XXX TEST...
-\newenvironment{frontflap}{%
-	\begin{textblock*}{\jacketflapfront}(
-		\bleed 
-			+ \jacketflapback 
-			+ \coverflap 
-			+ 2\jacketwrap 
-			+ 2\coverboardgrow 
-			+ 2\pageblockwidth 
-			+ 2\spinefold 
-			+ \spinewidth,
-		\bleed 
-			+ \coverflap )% 
-	\begin{minipage}%
-			[c][\dimexpr \pageblockheight + 2\coverboardgrow \relax][c]%
-			{\jacketflapfront}% 
-}{%
-	\end{minipage}%
-	\end{textblock*} }
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	}{%
+		\end{minipage}%
+		\end{textblock*} } 
+\fi
 
 
-% XXX
-% XXX should this be hirizontaly or vertically oriented???
-%		...options, different envs???
-\newenvironment{spine}{%
-	\begin{textblock*}{\spinewidth}(
-		\bleed 
-			+ \jacketflapback 
-			+ \coverflap 
-			+ \jacketwrap 
-			+ \coverboardgrow 
-			+ \pageblockwidth 
-			+ \spinefold,
-		\bleed 
-			+ \coverflap )%
-	\begin{minipage}%
-			[c][\dimexpr \pageblockheight + 2\coverboardgrow \relax][c]%
-			{\spinewidth}% 
-}{% 
-	\end{minipage}%
-	\end{textblock*} }
-
-% XXX
-\newenvironment{backcover}{%
-	\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
-		\bleed 
-			+ \jacketflapback 
-			+ \coverflap 
-			+ \jacketwrap,
-		\bleed 
-			+ \coverflap )%
-	\begin{minipage}%
-			[c][\dimexpr \pageblockheight + 2\coverboardgrow \relax][c]%
-			{\dimexpr \pageblockwidth + \coverboardgrow \relax}%
-}{% 
-	\end{minipage}%
-	\end{textblock*} }
-
-% XXX
-\newenvironment{backflap}{%
-	\begin{textblock*}{\jacketflapback}(
-		\bleed,
-		\bleed 
-			+ \coverflap )%
-	\begin{minipage}%
-			[c][\dimexpr \pageblockheight + 2\coverboardgrow \relax][c]%
-			{\jacketflapback}%
-}{%
-	\end{minipage}%
-	\end{textblock*} } 
+\newcommand\photobook@TemplateCell[1]{
+	\fbox{\parbox[t][\cellheight][t]{\cellwidth}{%
+		\begin{center}
+			\vfill
+			#1 \\
+			(\the\cellwidth \space x \the\cellheight)
+			\vfill
+		\end{center} }} }
 
 
-% XXX might be a good idea to have an ability to just render a template...
-%		...guides and stuff with placeholders...
-% XXX this should simply figure out the current mode from setup options...
-\newcommand\GenerateTemplate{}
+% XXX centering seems to be off...
+% XXX guides...
+\newcommand\GenerateTemplate{
+	%\TPoptions{showboxes=true}
+	\begin{page}
+		\setlength{\parindent}{0em}
+		\ifcoverlikelayout
+			\begin{frontcover}
+				\photobook@TemplateCell{FRONT COVER}
+			\end{frontcover}
+			\begin{spine}
+				\photobook@TemplateCell{SPINE}
+			\end{spine}
+			\begin{backcover}
+				\photobook@TemplateCell{BACK COVER}
+			\end{backcover}
+		\fi
+		\ifjacketlayout
+			\begin{frontflap}
+				\photobook@TemplateCell{FRONT FLAP}
+			\end{frontflap}
+			\begin{backflap}
+				\photobook@TemplateCell{BACK FLAP}
+			\end{backflap}
+		\fi
+	\end{page} }
 
 
 
