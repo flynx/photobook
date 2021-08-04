@@ -275,6 +275,7 @@
 	%showboxes,
 ]{textpos}
 \RequirePackage[linewidth=1pt]{mdframed}
+\RequirePackage{rotating}
 
 
 
@@ -323,10 +324,8 @@
 \newlength\jacketflap
 
 \newlength\jacketflapfront
-\setlength\jacketflapfront{\photobook@jacketflapfront}
 
 \newlength\jacketflapback
-\setlength\jacketflapback{\photobook@jacketflapback}
 
 % NOTE: page and bleed block sizes are set via \RecalculatePageLengths
 \newlength\blockwidth
@@ -405,6 +404,13 @@
 		\setlength\jacketwrap{0pt}
 		\setlength\jacketflap{0pt}
 	\fi
+	% flaps...
+	\ifnum\jacketflapfront=0
+		\setlength\jacketflapfront{\jacketflap}
+	\fi
+	\ifnum\jacketflapback=0
+		\setlength\jacketflapback{\jacketflap}
+	\fi
 	% block size...
 	\ifnum\blockwidth=0
 		% layout: block...
@@ -429,6 +435,7 @@
 					+ 2\coverflap
 				\relax } \fi
 		% layout: jacket...
+		% XXX this seems to be about 6mm off -- what are we missing here???
 		\ifjacketlayout
 			\setlength\blockwidth{
 				\dimexpr 
@@ -436,7 +443,8 @@
 					+ \spinewidth
 					+ 2\spinefold
 					+ 2\jacketwrap
-					+ 2\jacketflap
+					+ \jacketflapfront
+					+ \jacketflapback
 				\relax } \fi
 		% layout: endpaper...
 		\ifendpaperlayout
@@ -476,13 +484,6 @@
 			\setlength\clearimage{\photobook@clearimage}
 		\fi
 	\fi
-	% flaps...
-	\ifnum\jacketflapfront=0
-		\setlength\jacketflapfront{\jacketflap}
-	\fi
-	\ifnum\jacketflapback=0
-		\setlength\jacketflapback{\jacketflap}
-	\fi
 	% page with bleeds...
 	% NOTE: this is essentially \paperwidth and \paperheight but we do 
 	%		not rely on them being defined -- photobook settings take 
@@ -497,9 +498,9 @@
 
 
 %----------------------------------------------------------------------
-% Setup...
+% Setup (early)...
 
-% init lengths...
+% init/update lengths...
 \RecalculatePageLengths
 
 % minimal geometry setup...
@@ -511,7 +512,7 @@
 
 
 %----------------------------------------------------------------------
-% Setup...
+% Setup (late)...
 \AtEndPreamble{
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -772,9 +773,6 @@
 
 % cover-like layout components...
 %
-% XXX BUG: when \jacketwrap is 0 flaps ans covers overlap...
-% XXX BUG: the visible page height seems to be a bit less than \cellheight...
-%
 % XXX should this be full size of block or \textwidth???
 % XXX make minipage cetering configurable...
 \ifcoverlikelayout
@@ -791,6 +789,7 @@
 		\setlength\cellheight{\dimexpr
 			\pageblockheight 
 			+ 2\coverboardgrow \relax }
+		%
 		\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
 				\bleed 
 					+ \jacketflapback 
@@ -816,6 +815,7 @@
 		\setlength\cellheight{\dimexpr
 			\pageblockheight 
 			+ 2\coverboardgrow \relax }
+		%
 		\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
 			\bleed 
 				+ \jacketflapback 
@@ -838,6 +838,7 @@
 		\setlength\cellheight{\dimexpr
 			\pageblockheight 
 			+ 2\coverboardgrow \relax }
+		%
 		\begin{textblock*}{\spinewidth}(
 			\bleed 
 				+ \jacketflapback 
@@ -852,6 +853,34 @@
 	}{% 
 		\end{minipage}%
 		\end{textblock*} }
+
+	% XXX make args be up or down...
+	\newenvironment{vspine}[1][270]{%
+		\setlength\cellwidth{\dimexpr
+			\spinewidth \relax }
+		\setlength\cellheight{\dimexpr
+			\pageblockheight 
+			+ 2\coverboardgrow \relax }
+		%
+		\begin{textblock*}{\spinewidth}(
+			\bleed 
+				+ \jacketflapback 
+				+ \coverflap 
+				+ \jacketwrap 
+				+ \coverboardgrow 
+				+ \pageblockwidth 
+				+ \spinefold,
+			\bleed 
+				+ \coverflap )%
+		%\begin{turn}{270}
+		% XXX this does not work for some reason...
+		%\begin{turn}{ \ifthenelse{\equal{#1}{up}}{270}{90} }%
+		\begin{turn}{#1}
+		\begin{minipage}[t][\cellwidth][t]{\cellheight}% 
+	}{% 
+		\end{minipage}%
+		\end{turn}
+		\end{textblock*} }
 \fi
 
 
@@ -862,15 +891,14 @@
 	% front flap...
 	%
 	\newenvironment{frontflap}{%
-		\setlength\cellwidth{\dimexpr
-			\jacketflapfront \relax }
+		\setlength\cellwidth{\jacketflapfront }
 		\setlength\cellheight{\dimexpr 
 			\pageblockheight 
 			+ 2\coverboardgrow \relax }
+		%
 		\begin{textblock*}{\jacketflapfront}(
 			\bleed 
 				+ \jacketflapback 
-				+ \coverflap 
 				+ 2\jacketwrap 
 				+ 2\coverboardgrow 
 				+ 2\pageblockwidth 
@@ -886,12 +914,11 @@
 	% back flap...
 	%
 	\newenvironment{backflap}{%
-		\setlength\cellwidth{\dimexpr
-			\jacketflapback \relax }
+		\setlength\cellwidth{\jacketflapback}
 		\setlength\cellheight{\dimexpr 
 			\pageblockheight 
-			+ 2\coverboardgrow
-		\relax }
+			+ 2\coverboardgrow \relax }
+		%
 		\begin{textblock*}{\jacketflapback}(
 			\bleed,
 			\bleed 
@@ -904,28 +931,30 @@
 
 
 \newcommand\photobook@TemplateCell[1]{
-	\fbox{\parbox[t][\cellheight][t]{\cellwidth}{%
-		\begin{center}
-			\vfill
-			#1 \\
-			(\the\cellwidth \space x \the\cellheight)
-			\vfill
-		\end{center} }} }
+	% XXX this seems to be bigger than the size given...
+	%\fbox{\parbox[t][\cellheight][t]{\cellwidth}{%
+	\begin{center}
+		\vfill
+		#1 \\
+		(\the\cellwidth \space x \the\cellheight)
+		\vfill
+	\end{center} }
+	%\end{center} }} }
 
 
-% XXX centering seems to be off...
-% XXX guides...
 \newcommand\GenerateTemplate{
-	%\TPoptions{showboxes=true}
+	% XXX undo this after...
+	\TPoptions{showboxes=true}
 	\begin{page}
 		\setlength{\parindent}{0em}
 		\ifcoverlikelayout
 			\begin{frontcover}
 				\photobook@TemplateCell{FRONT COVER}
 			\end{frontcover}
-			\begin{spine}
+			%\begin{vspine}[90]
+			\begin{vspine}
 				\photobook@TemplateCell{SPINE}
-			\end{spine}
+			\end{vspine}
 			\begin{backcover}
 				\photobook@TemplateCell{BACK COVER}
 			\end{backcover}
