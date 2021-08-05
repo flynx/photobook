@@ -302,10 +302,12 @@
 \newif\ifjacketlayout
 \jacketlayoutfalse
 
-% agrigate...
+% agrigates...
 \newif\ifcoverlikelayout
 \coverlikelayoutfalse
 
+\newif\ifblocklayout
+\blocklayoutfalse
 
 
 \newlength\spinewidth
@@ -368,6 +370,8 @@
 
 \newcommand\RecalculatePageLengths{
 	% layout bools...
+	\ifdefstring{\layoutmode}{block}{
+		\blocklayouttrue }{}
 	\ifdefstring{\layoutmode}{cover}{ 
 		\coverlayouttrue
 		\coverlikelayouttrue }{}
@@ -381,13 +385,13 @@
 		\jacketlayouttrue
 		\coverlikelayouttrue }{}
 	\ifdefstring{\layoutmode}{endpaper}{ 
-		\endpaperlayouttrue }
+		\endpaperlayouttrue }{}
 	% pdf layout...
 	\ifx\photobook@pdfpagelayout\empty
-		\ifcoverlikelayout
-			\def\photobook@pdfpagelayout{SinglePage}
-		\else
+		\ifblocklayout
 			\def\photobook@pdfpagelayout{TwoPageRight}
+		\else
+			\def\photobook@pdfpagelayout{SinglePage}
 		\fi
 	\fi
 	% items to ignore in different layouts...
@@ -448,8 +452,7 @@
 				\relax } \fi
 		% layout: endpaper...
 		\ifendpaperlayout
-			\setlength\blockwidth{
-				2\blockwidth } \fi
+			\setlength\blockwidth{ 2\blockwidth } \fi
 	\fi
 	\ifnum\blockheight=0
 		% layout: block / endpaper...
@@ -771,6 +774,37 @@
 	\clearpage }
 
 
+\ifendpaperlayout
+
+	\newlength\cellwidth
+	\newlength\cellheight
+
+	% XXX for some reason this breaks...
+	\newenvironment{leftside}{%
+		\setlength\cellwidth{\pageblockwidth}
+		\setlength\cellheight{\pageblockheight}
+		%
+		\begin{textblock*}{\pageblockwidth}(\bleed, \bleed)%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	}{% 
+		\end{minipage}%
+		\end{textblock*} }
+
+	\newenvironment{rightside}{%
+		\setlength\cellwidth{\pageblockwidth}
+		\setlength\cellheight{\pageblockheight}
+		%
+		\begin{textblock*}{\pageblockwidth}(
+			\bleed 
+				+ \pageblockwidth, 
+			\bleed )%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	}{% 
+		\end{minipage}%
+		\end{textblock*} }
+\fi
+
+
 % cover-like layout components...
 %
 % XXX should this be full size of block or \textwidth???
@@ -947,6 +981,14 @@
 	\TPoptions{showboxes=true}
 	\begin{page}
 		\setlength{\parindent}{0em}
+		\ifendpaperlayout
+			\begin{leftside}
+				\photobook@TemplateCell{ENDPAPER LEFT}
+			\end{leftside}
+			\begin{rightside}
+				\photobook@TemplateCell{ENDPAPER RIGHT}
+			\end{rightside}
+		\fi
 		\ifcoverlikelayout
 			\begin{frontcover}
 				\photobook@TemplateCell{FRONT COVER}
