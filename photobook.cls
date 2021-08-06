@@ -269,6 +269,7 @@
 \RequirePackage{atbegshi}
 \RequirePackage[unicode]{hyperref}
 \RequirePackage{eso-pic}
+\RequirePackage{environ}
 \RequirePackage{graphicx}
 \RequirePackage[
 	overlay,absolute,
