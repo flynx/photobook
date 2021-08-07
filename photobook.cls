@@ -267,44 +267,41 @@
 \RequirePackage{iftex}
 \RequirePackage{etoolbox}
 \RequirePackage{atbegshi}
+%\RequirePackage{afterpage}
+%\RequirePackage{changepage}
 \RequirePackage[unicode]{hyperref}
+%\RequirePackage{pdfcomment}
 \RequirePackage{eso-pic}
 \RequirePackage{environ}
+\RequirePackage{xcolor}
+\RequirePackage{colorspace}
 \RequirePackage{graphicx}
-\RequirePackage[
-	overlay,absolute,
-	%showboxes,
-]{textpos}
+\RequirePackage[overlay,absolute]{textpos}
 \RequirePackage[linewidth=1pt]{mdframed}
 \RequirePackage{rotating}
+% XXX flow text frames...
+\RequirePackage{flowfram}
 
 
 
 %----------------------------------------------------------------------
 % Globals...
+%
+% NOTE: most of these are setup in \InitPageLengths...
 
 \edef\layoutmode{\photobook@layoutmode}
 
-\edef\pdfpagelayout{\photobook@pdfpagelayout}
-
-
-% layout modes...
-%
+% layout mode tests...
 \newif\ifcoverlayout
-
 \newif\ifhardcoverlayout
-
 \newif\ifsoftcoverlayout
-
 \newif\ifendpaperlayout
-
 \newif\ifjacketlayout
-
 % agrigates...
 \newif\ifcoverlikelayout
-
 \newif\ifblocklayout
 
+\edef\pdfpagelayout{\photobook@pdfpagelayout}
 
 \newlength\spinewidth
 \setlength\spinewidth{\photobook@spinewidth}
@@ -316,16 +313,11 @@
 \setlength\coverboardgrow{\photobook@coverboardgrow}
 
 \newlength\coverflap
-
 \newlength\jacketwrap
-
 \newlength\jacketflap
-
 \newlength\jacketflapfront
-
 \newlength\jacketflapback
-
-% NOTE: page and bleed block sizes are set via \RecalculatePageLengths
+% NOTE: page and bleed block sizes are set via \InitPageLengths
 \newlength\blockwidth
 \newlength\blockheight
 % NOTE: these are equivalent to \paperwidth and \paperheight but are 
@@ -362,10 +354,10 @@
 
 
 %----------------------------------------------------------------------
-% Commands...
+% Init / reset...
 
-\newcommand\RecalculatePageLengths{
-	% layout bools...
+\newcommand\InitPageLengths{
+	% layout bools/tests...
 	\coverlayoutfalse
 	\hardcoverlayoutfalse
 	\softcoverlayoutfalse
@@ -509,15 +501,17 @@
 	\setlength\blockheight{0mm}
 	\edef\pdfpagelayout{}
 	%
-	\RecalculatePageLengths }
+	\InitPageLengths }
+
+
 
 
 
 %----------------------------------------------------------------------
-% Setup (early)...
+% Setup...
 
 % init/update lengths...
-\RecalculatePageLengths
+\InitPageLengths
 
 % minimal geometry setup...
 \RequirePackage[
@@ -528,7 +522,8 @@
 
 
 %----------------------------------------------------------------------
-% Setup (late)...
+% Setup (pre-document)...
+
 \AtEndPreamble{
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -548,7 +543,7 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % Geometry...
 
-	\RecalculatePageLengths
+	\InitPageLengths
 
 	% no-defaults -- the user is expected to set things up...
 	\ifphotobook@geometrynodefaults
@@ -640,6 +635,32 @@
 		\fi
 	\fi }
 
+
+\newcommand\pdfpagecount[1]{
+	\ifpdftex
+		\pdfximage{#1}
+    	\number\pdflastximagepages%
+	\else\ifxetex
+		\number\XeTeXpdfpagecount"#1"%
+	\else\ifluatex
+		\number\directlua{%
+			local pages = 0
+			local doc = pdfe.open("\luaescapestring{#1}")
+			if doc then
+				pages = pdfe.getnofpages(doc)
+				pdfe.close(doc)
+			end
+			tex.write(pages) } \fi\fi }
+
+
+% \pdfspinewidth{paper-thikness}{cover-thikness}{block-pdf}
+%
+% NOTE: really "like" how LaTeX overcomplicats simple math...
+\newcommand\pdfspinewidth[3]{%
+	\setlength\spinewidth{\dimexpr
+			(#1 mm) * \numexpr \pdfpagecount{#3} / 2 \relax
+			+ ((#2 mm) * 2) 
+		\relax} }
 
 
 % XXX workaround a problem with xelatex vs. lualatex...
@@ -775,10 +796,20 @@
 
 
 %----------------------------------------------------------------------
-% Cover/endpaper Templates...
+% Envs...
 %
 % XXX need a way to place images / templates into these...
 % XXX should these only be visible in respective modes or for non-zero widths???
+
+
+% within a block/cell env these store the cell width and height...
+\newlength\cellwidth
+\newlength\cellheight
+
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% Generic...
 
 % XXX this may span more than one page if there is enoug stuff packed 
 %		into it...
@@ -787,211 +818,185 @@
 	\clearpage }
 
 
-%%% \photobook@newtemplatecell{name}{x}{y}{width}{heigth}
-%%%
-%%% XXX need to quote arguments to make them eval on env expansion and not 
-%%%		on command expansion....
-%%\newcommand\photobook@newtemplatecell[5]{
-%%	\newenvironment{#1}{%
-%%		\setlength\cellwidth{#4}
-%%		\setlength\cellheight{#5}
-%%		%
-%%		\begin{textblock*}{\pageblockwidth}(#2, #3)%
-%%		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-%%	}{% 
-%%		\end{minipage}%
-%%		\end{textblock*} } }
-
-
-\newlength\cellwidth
-\newlength\cellheight
-
-
-
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% Covers, Jackets and endpapers...
+
 % endpaper...
 %
 % XXX for some reason naming this anything starting with endpaper will
 %		make LaTeX complain that that is already defined...
 
-\newenvironment{leftside}{%
-	\setlength\cellwidth{\pageblockwidth}
-	\setlength\cellheight{\pageblockheight}
-	%
-	\begin{textblock*}{\pageblockwidth}(\bleed, \bleed)%
-	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-}{% 
-	\end{minipage}%
-	\end{textblock*} }
+\NewEnviron{leftside}{%
+	\ifendpaperlayout
+		\setlength\cellwidth{\pageblockwidth}
+		\setlength\cellheight{\pageblockheight}
+		%
+		\begin{textblock*}{\pageblockwidth}(\bleed, \bleed)%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+			\BODY%
+		\end{minipage}%
+		\end{textblock*} \fi }
+
+\NewEnviron{rightside}{%
+	\ifendpaperlayout
+		\setlength\cellwidth{\pageblockwidth}
+		\setlength\cellheight{\pageblockheight}
+		%
+		\begin{textblock*}{\pageblockwidth}(
+			\bleed 
+				+ \pageblockwidth, 
+			\bleed )%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+			\BODY%
+		\end{minipage}%
+		\end{textblock*} \fi }
 
 
-\newenvironment{rightside}{%
-	\setlength\cellwidth{\pageblockwidth}
-	\setlength\cellheight{\pageblockheight}
-	%
-	\begin{textblock*}{\pageblockwidth}(
-		\bleed 
-			+ \pageblockwidth, 
-		\bleed )%
-	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-}{% 
-	\end{minipage}%
-	\end{textblock*} }
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% cover-like layout components...
-
-% front cover...
+% front/back covers...
 %
-\newenvironment{frontcover}{%
-	\setlength\cellwidth{\dimexpr
-		\pageblockwidth 
-		+ \coverboardgrow \relax }
-	\setlength\cellheight{\dimexpr
-		\pageblockheight 
-		+ 2\coverboardgrow \relax }
-	%
-	\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
+\NewEnviron{frontcover}{%
+	\ifcoverlikelayout
+		\setlength\cellwidth{\dimexpr
+			\pageblockwidth 
+			+ \coverboardgrow \relax }
+		\setlength\cellheight{\dimexpr
+			\pageblockheight 
+			+ 2\coverboardgrow \relax }
+		%
+		\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
+				\bleed 
+					+ \jacketflapback 
+					+ \coverflap 
+					+ \jacketwrap 
+					+ \coverboardgrow 
+					+ \pageblockwidth 
+					+ 2\spinefold 
+					+ \spinewidth,
+				\bleed 
+					+ \coverflap )%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+			\BODY%
+		\end{minipage}%
+		\end{textblock*} \fi }
+
+\NewEnviron{backcover}{%
+	\ifcoverlikelayout
+		\setlength\cellwidth{\dimexpr
+			\pageblockwidth 
+			+ \coverboardgrow \relax }
+		\setlength\cellheight{\dimexpr
+			\pageblockheight 
+			+ 2\coverboardgrow \relax }
+		%
+		\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
+			\bleed 
+				+ \jacketflapback 
+				+ \coverflap 
+				+ \jacketwrap,
+			\bleed 
+				+ \coverflap )%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+			\BODY%
+		\end{minipage}%
+		\end{textblock*} \fi }
+
+
+% spines...
+%
+\NewEnviron{spine}{%
+	\ifcoverlikelayout
+		\setlength\cellwidth{\dimexpr
+			\spinewidth \relax }
+		\setlength\cellheight{\dimexpr
+			\pageblockheight 
+			+ 2\coverboardgrow \relax }
+		%
+		\begin{textblock*}{\spinewidth}(
 			\bleed 
 				+ \jacketflapback 
 				+ \coverflap 
 				+ \jacketwrap 
 				+ \coverboardgrow 
 				+ \pageblockwidth 
+				+ \spinefold,
+			\bleed 
+				+ \coverflap )%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+			\BODY%
+		\end{minipage}%
+		\end{textblock*} \fi }
+
+% XXX make args be up or down...
+\NewEnviron{vspine}[1][270]{%
+	\ifcoverlikelayout
+		\setlength\cellwidth{\dimexpr
+			\spinewidth \relax }
+		\setlength\cellheight{\dimexpr
+			\pageblockheight 
+			+ 2\coverboardgrow \relax }
+		%
+		\begin{textblock*}{\spinewidth}(
+			\bleed 
+				+ \jacketflapback 
+				+ \coverflap 
+				+ \jacketwrap 
+				+ \coverboardgrow 
+				+ \pageblockwidth 
+				+ \spinefold,
+			\bleed 
+				+ \coverflap )%
+		% XXX this does not work for some reason...
+		%\begin{turn}{\ifdefstring{#1}{up}{270}{90}}
+		\begin{turn}{#1}
+		\begin{minipage}[t][\cellwidth][t]{\cellheight}% 
+			\BODY%
+		\end{minipage}%
+		\end{turn}
+		\end{textblock*} \fi }
+
+
+% jackets flaps...
+%
+\NewEnviron{frontflap}{%
+	\ifjacketlayout
+		\setlength\cellwidth{\jacketflapfront }
+		\setlength\cellheight{\dimexpr 
+			\pageblockheight 
+			+ 2\coverboardgrow \relax }
+		%
+		\begin{textblock*}{\jacketflapfront}(
+			\bleed 
+				+ \jacketflapback 
+				+ 2\jacketwrap 
+				+ 2\coverboardgrow 
+				+ 2\pageblockwidth 
 				+ 2\spinefold 
 				+ \spinewidth,
 			\bleed 
+				+ \coverflap )% 
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+			\BODY%
+		\end{minipage}%
+		\end{textblock*} \fi }
+
+\NewEnviron{backflap}{%
+	\ifjacketlayout
+		\setlength\cellwidth{\jacketflapback}
+		\setlength\cellheight{\dimexpr 
+			\pageblockheight 
+			+ 2\coverboardgrow \relax }
+		%
+		\begin{textblock*}{\jacketflapback}(
+			\bleed,
+			\bleed 
 				+ \coverflap )%
-	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-}{% 
-	\end{minipage}%
-	\end{textblock*} }
-
-
-% back cover...
-%
-\newenvironment{backcover}{%
-	\setlength\cellwidth{\dimexpr
-		\pageblockwidth 
-		+ \coverboardgrow \relax }
-	\setlength\cellheight{\dimexpr
-		\pageblockheight 
-		+ 2\coverboardgrow \relax }
-	%
-	\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
-		\bleed 
-			+ \jacketflapback 
-			+ \coverflap 
-			+ \jacketwrap,
-		\bleed 
-			+ \coverflap )%
-	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-}{% 
-	\end{minipage}%
-	\end{textblock*} }
-
-
-% spine...
-%
-\newenvironment{spine}{%
-	\setlength\cellwidth{\dimexpr
-		\spinewidth \relax }
-	\setlength\cellheight{\dimexpr
-		\pageblockheight 
-		+ 2\coverboardgrow \relax }
-	%
-	\begin{textblock*}{\spinewidth}(
-		\bleed 
-			+ \jacketflapback 
-			+ \coverflap 
-			+ \jacketwrap 
-			+ \coverboardgrow 
-			+ \pageblockwidth 
-			+ \spinefold,
-		\bleed 
-			+ \coverflap )%
-	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-}{% 
-	\end{minipage}%
-	\end{textblock*} }
-
-
-% vertical spine...
-%
-% XXX make args be up or down...
-\newenvironment{vspine}[1][270]{%
-	\setlength\cellwidth{\dimexpr
-		\spinewidth \relax }
-	\setlength\cellheight{\dimexpr
-		\pageblockheight 
-		+ 2\coverboardgrow \relax }
-	%
-	\begin{textblock*}{\spinewidth}(
-		\bleed 
-			+ \jacketflapback 
-			+ \coverflap 
-			+ \jacketwrap 
-			+ \coverboardgrow 
-			+ \pageblockwidth 
-			+ \spinefold,
-		\bleed 
-			+ \coverflap )%
-	% XXX this does not work for some reason...
-	%\begin{turn}{\ifdefstring{#1}{up}{270}{90}}
-	\begin{turn}{#1}
-	\begin{minipage}[t][\cellwidth][t]{\cellheight}% 
-}{% 
-	\end{minipage}%
-	\end{turn}
-	\end{textblock*} }
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+			\BODY%
+		\end{minipage}%
+		\end{textblock*} \fi } 
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% jacket components...
-
-
-% front flap...
-%
-\newenvironment{frontflap}{%
-	\setlength\cellwidth{\jacketflapfront }
-	\setlength\cellheight{\dimexpr 
-		\pageblockheight 
-		+ 2\coverboardgrow \relax }
-	%
-	\begin{textblock*}{\jacketflapfront}(
-		\bleed 
-			+ \jacketflapback 
-			+ 2\jacketwrap 
-			+ 2\coverboardgrow 
-			+ 2\pageblockwidth 
-			+ 2\spinefold 
-			+ \spinewidth,
-		\bleed 
-			+ \coverflap )% 
-	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-}{%
-	\end{minipage}%
-	\end{textblock*} }
-
-
-% back flap...
-%
-\newenvironment{backflap}{%
-	\setlength\cellwidth{\jacketflapback}
-	\setlength\cellheight{\dimexpr 
-		\pageblockheight 
-		+ 2\coverboardgrow \relax }
-	%
-	\begin{textblock*}{\jacketflapback}(
-		\bleed,
-		\bleed 
-			+ \coverflap )%
-	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-}{%
-	\end{minipage}%
-	\end{textblock*} } 
-
 
 \newcommand\photobook@TemplateCell[1]{
 	% XXX this seems to be bigger than the size given...
@@ -1010,35 +1015,42 @@
 	\TPoptions{showboxes=true}
 	\begin{page}
 		\setlength{\parindent}{0em}
-		\ifendpaperlayout
-			\begin{leftside}
-				\photobook@TemplateCell{ENDPAPER LEFT}
-			\end{leftside}
-			\begin{rightside}
-				\photobook@TemplateCell{ENDPAPER RIGHT}
-			\end{rightside}
-		\fi
-		\ifcoverlikelayout
-			\begin{frontcover}
-				\photobook@TemplateCell{FRONT COVER}
-			\end{frontcover}
-			%\begin{vspine}[90]
-			\begin{vspine}%[down]
-				\photobook@TemplateCell{SPINE}
-			\end{vspine}
-			\begin{backcover}
-				\photobook@TemplateCell{BACK COVER}
-			\end{backcover}
-		\fi
-		\ifjacketlayout
-			\begin{frontflap}
-				\photobook@TemplateCell{FRONT FLAP}
-			\end{frontflap}
-			\begin{backflap}
-				\photobook@TemplateCell{BACK FLAP}
-			\end{backflap}
-		\fi
+		% NOTE: only the relevant blocks will be visible...
+		\begin{leftside}
+			\photobook@TemplateCell{ENDPAPER LEFT}
+		\end{leftside}
+		\begin{rightside}
+			\photobook@TemplateCell{ENDPAPER RIGHT}
+		\end{rightside}
+		\begin{frontcover}
+			\photobook@TemplateCell{FRONT COVER}
+		\end{frontcover}
+		%\begin{vspine}[90]
+		%\begin{vspine}[down]
+		\begin{vspine}
+			\photobook@TemplateCell{SPINE}
+		\end{vspine}
+		\begin{backcover}
+			\photobook@TemplateCell{BACK COVER}
+		\end{backcover}
+		\begin{frontflap}
+			\photobook@TemplateCell{FRONT FLAP}
+		\end{frontflap}
+		\begin{backflap}
+			\photobook@TemplateCell{BACK FLAP}
+		\end{backflap}
 	\end{page} }
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% pages...
+
+% XXX
+
+
+
+
+
 
 
 
@@ -1668,12 +1680,11 @@
 
 
 
-
-
 %----------------------------------------------------------------------
 %%% XXX DEBUG...
 %%\AtBeginDocument{
 %%}
+
 
 
 %----------------------------------------------------------------------
