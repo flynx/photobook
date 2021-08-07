@@ -13,17 +13,44 @@
 %
 % XXX might be a good idea to add a spine calculator...
 %
+%----------------------------------------------------------------------
+%
+%% \documentclass{ltxdoc}
+%%
+%% \usepackage[a4paper,margin=25mm,left=50mm,nohead]{geometry}
+%% \usepackage[numbered]{hypdoc}
+%%% \usepackage{verbatimbox}
+%%
+%%
+%% \begin{document}
+%%
+%% \GetFileInfo{\jobname.cls}
+%%
+%% \title{\textsf{photobook} --- A new LaTeX class\thanks{This file
+%% 		describes version \fileversion, last revised \filedate.}}
+%%
+%% \author{Alex A. Naanou\thanks{E-mail: alex.nanou@gmail.com}}
+%%
+%% \date{Released \filedate}
+%%
+%% \maketitle
+%%
+%%%% Usage
+%%
+%%	>> \documentclass[<options>]{photobook}
+%%
 %
 %----------------------------------------------------------------------
 
 \NeedsTeXFormat{LaTeX2e}
 
 % XXX set release date...
-\ProvidesClass{photobook}[2021/07/28 Photo book Latex class]
+\ProvidesClass{photobook}[2021/07/28 v0.1 Photo book document class]
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% Class/package options...
+%%%% Options
+%%
 
 \RequirePackage{kvoptions}
 
@@ -38,83 +65,106 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-% layout mode...
+%%%%% layout
 %
-% - block (default):
-%
-%       blockwidth
-%   <--------------->
-%
-%   +---------------+
-%   |               |
-%   |               |
-%   |               |
-%   |               |
-%   |               |
-%   +---------------+
-%
-%
-% - endpaper:
-%
-%       blockwidth 2x
-%   <------------------------------->
-%
-%   +---------------+---------------+
-%   |               .               |
-%   |               .               |
-%   |               .               |
-%   |               .               |
-%   |               .               |
-%   +---------------+---------------+
-%	
-%
-% - cover:
-%
-%          blockwidth            blockwidth
-%       <--------------->     <--------------->
-%     <-> coverboardgrow                      <-> coverboardgrow
-%   <-> coverflap                             . <-> coverflap
-%   . . .                                     . . .
-%   +-------------------++---++-------------------+    ---
-%   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --^ coverflap                
-%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --^ coverboardgrow  
-%   | . .               ..   ..               . . |     ^                  
-%   | . .               ..   ..               . . |     | blockheight      
-%   | . .     Back      ..   ..     Front     . . |     |                  
-%   | . .               ..   ..               . . |     |                  
-%   | . .               ..   ..               . . |     v                  
-%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --v coverboardgrow  
-%   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --v coverflap                 
-%   +-------------------++---++-------------------+    ---
-%                        .   .
-%                       ^.   .^ spinefold
-%                        .   .
-%                        <---> spinewidth
-%
-%
-% - jacket: (XXX)
-%
-%   <---> jaketflap/jacketflapback                  <---> jaketflap/jacketflapfront
-%   .   .                                           .   .
-%   .   .     blockwidth            blockwidth      .   .
-%   .   .  <--------------->     <--------------->  .   .
-%   .   .<-> coverboardgrow                      <-> coverboardgrow
-%   .   .  .                                     .  .   .
-%   +---++-----------------++---++-----------------++---+    ---
-%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --^ coverboardgrow
-%   |   .. .               ..   ..               . ..   |     ^
-%   |   .. .               ..   ..               . ..   |     | blockheight
-%   |   .. .     Back      ..   ..     Front     . ..   |     |
-%   |   .. .               ..   ..               . ..   |     |
-%   |   .. .               ..   ..               . ..   |     v
-%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --v coverboardgrow
-%   +---++-----------------++---++-----------------++---+    --- 
-%       ..                  .   .                  ..
-%       ^ jacketwrap        .   .                  ^ jacketwrap
-%                          ^.   .^ spinefold
-%                           .   .
-%                           <---> spinewidth
-%
+%% \DescribeMacro{layoutmode=<layout>}
+%% \DescribeMacro{block}
+%% \DescribeMacro{endpaper}
+%% \DescribeMacro{cover}
+%% \DescribeMacro{jacket}
+%%
+%%	>> layoutmode=<option>
+%%
+%% |block| (default)
+%%
+%%% \begin{figure}[h]
+%% \begin{verbatim}
+%%       blockwidth
+%%   <--------------->
+%%
+%%   +---------------+
+%%   |               |
+%%   |               |
+%%   |               |
+%%   |               |
+%%   |               |
+%%   +---------------+
+%% \end{verbatim}
+%%% \end{figure}
+%%
+%%
+%% |endpaper|:
+%%
+%%% \begin{figure}[h]
+%% \begin{verbatim}
+%%       blockwidth 2x
+%%   <------------------------------->
+%%
+%%   +---------------+---------------+
+%%   |               .               |
+%%   |               .               |
+%%   |               .               |
+%%   |               .               |
+%%   |               .               |
+%%   +---------------+---------------+
+%% \end{verbatim}
+%%% \end{figure}
+%%	
+%%
+%% |cover|:
+%%
+%%% \begin{figure}[h]
+%% \begin{verbatim}
+%%          blockwidth            blockwidth
+%%       <--------------->     <--------------->
+%%     <-> coverboardgrow                      <-> coverboardgrow
+%%   <-> coverflap                             . <-> coverflap
+%%   . . .                                     . . .
+%%   +-------------------++---++-------------------+    ---
+%%   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --^ coverflap                
+%%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --^ coverboardgrow  
+%%   | . .               ..   ..               . . |     ^                  
+%%   | . .               ..   ..               . . |     | blockheight      
+%%   | . .     Back      ..   ..     Front     . . |     |                  
+%%   | . .               ..   ..               . . |     |                  
+%%   | . .               ..   ..               . . |     v                  
+%%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --v coverboardgrow  
+%%   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --v coverflap                 
+%%   +-------------------++---++-------------------+    ---
+%%                        .   .
+%%                       ^.   .^ spinefold
+%%                        .   .
+%%                        <---> spinewidth
+%% \end{verbatim}
+%%% \end{figure}
+%%
+%%
+%% |jacket|:
+%%
+%%% \begin{figure}[h]
+%% \begin{verbatim}
+%%   <---> jaketflap/jacketflapback                  <---> jaketflap/jacketflapfront
+%%   .   .                                           .   .
+%%   .   .     blockwidth            blockwidth      .   .
+%%   .   .  <--------------->     <--------------->  .   .
+%%   .   .<-> coverboardgrow                      <-> coverboardgrow
+%%   .   .  .                                     .  .   .
+%%   +---++-----------------++---++-----------------++---+    ---
+%%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --^ coverboardgrow
+%%   |   .. .               ..   ..               . ..   |     ^
+%%   |   .. .               ..   ..               . ..   |     | blockheight
+%%   |   .. .     Back      ..   ..     Front     . ..   |     |
+%%   |   .. .               ..   ..               . ..   |     |
+%%   |   .. .               ..   ..               . ..   |     v
+%%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --v coverboardgrow
+%%   +---++-----------------++---++-----------------++---+    --- 
+%%       ..                  .   .                  ..
+%%       ^ jacketwrap        .   .                  ^ jacketwrap
+%%                          ^.   .^ spinefold
+%%                           .   .
+%%                           <---> spinewidth
+%% \end{verbatim}
+%%% \end{figure}
 %
 % XXX in cover layout setup pdf boxes in a way to use \bleed as foldover...
 % 		...see hyperref docs to set pdf view/print area (???)
@@ -166,7 +216,86 @@
 \DeclareStringOption[0pt]{jacketflapback}[50mm]
 
 
-% pdf layout...
+%%%%% Page geometry
+%
+%% \DescribeMacro{blockwidth=<len>}
+%% \DescribeMacro{blockheight=<len>}
+%% \DescribeMacro{bindingoffset=<len>}
+%% \DescribeMacro{bleed=<len>}
+%
+%%% \begin{figure}[h]
+%% \begin{verbatim}
+%%   <---> bleed                                 <---> bleed
+%%
+%%   + - - - - - - - - - - - - - - - - - - - - - + - +   ^
+%%   .                                           .   .   | bleed
+%%   .   +---------------------------------------+   .   v   .   .  ---
+%%   .   |                           ^       .   =   .
+%%   .   |   .   .   .   .   .   .   |   .   .   =   .               ^
+%%   .   |<-- blockwidth ----------------------->=   .               |
+%%   .   |   .                       |   .   .   =   .               |
+%%   .   |                           |       .   =   .       textheight
+%%   .   |   .                       |   .   .   =   .               |
+%%   .   |                      blockheight  .   =   .               |
+%%   .   |   .                       |   .   .   =   .               |
+%%   .   |                           |       <---> bindingoffset     |
+%%   .   |   .   .   .   .   .   .   |   .   .   =   .               v
+%%   .   |                           v       .   =   .
+%%   .   +---------------------------------------+   .   ^   .   .  ---
+%%   .   .                                       .   .   | bleed
+%%   + - - - - - - - - - - - - - - - - - - - - - + - +   v
+%%       .                                       .
+%%       |   <-- textwidth -------------->   .   |
+%%                                               ^ binding line
+%% \end{verbatim}
+%%% \end{figure}
+%%
+%
+% NOTE: if blockwidth/blockheight are set they will force recalculations 
+%		and overriding of the paperwidth/paperheight if they were changed
+%		by the user code anywhere between \documentclass[..]{photobook}
+%		and \begin{document}...
+\DeclareStringOption{blockwidth}
+\DeclareStringOption{blockheight}
+\DeclareStringOption[0]{bindingoffset}[10mm]
+\DeclareStringOption[5mm]{bleed}[5mm]
+
+
+%%%%% Image clearance
+%
+%% \DescribeMacro{clearimage=<len>}
+%
+%% Distance from image to paper border (clearance) for full-page images.
+%%
+%% this can be:
+%% - negative value set image bleed, 
+%% - positive value set distance from paper edge to image.
+%
+\DeclareStringOption{clearimage}[-5mm]
+
+
+%%%%% Image block layout
+%
+%% \DescribeMacro{imageblockwidth=<len>}
+%% \DescribeMacro{imageblockheight=<len>}
+%% \DescribeMacro{imageblockoffsettop=<len>}
+%
+%% Image block size relative to text block.
+%
+% XXX better name...
+\DeclareStringOption[0.85]{imageblockwidth}[1]
+\DeclareStringOption[0.85]{imageblockheight}[1]
+\DeclareStringOption[-0.05]{imageblockoffsettop}[0]
+
+%%%%% PDF Viewer layout
+%
+%% \DescribeMacro{pdfpagelayout=<mode>}
+%% \DescribeMacro{SinglePage}
+%% \DescribeMacro{OneColumn}
+%% \DescribeMacro{TwoColumnLeft}
+%% \DescribeMacro{TwoColumnRight}
+%% \DescribeMacro{TwoPageLeft}
+%% \DescribeMacro{TwoPageRight}
 %
 % defaults:
 %	- TwoColumnLeft (for layoutmode=block)
@@ -182,56 +311,11 @@
 \@DeclareLiteralOptionTo{pdfpagelayout}{TwoPageLeft}
 
 
-% page geometry...
+%%%%% Other options
 %
-%   <---> bleed                                 <---> bleed
+%% \DescribeMacro{geometrynodefaults}
 %
-%   + - - - - - - - - - - - - - - - - - - - - - + - +   ^
-%   .                                           .   .   | bleed
-%   .   +---------------------------------------+   .   v   .   .  ---
-%   .   |                           ^       .   =   .
-%   .   |   .   .   .   .   .   .   |   .   .   =   .               ^
-%   .   |<-- blockwidth ----------------------->=   .               |
-%   .   |   .                       |   .   .   =   .               |
-%   .   |                           |       .   =   .       textheight
-%   .   |   .                       |   .   .   =   .               |
-%   .   |                      blockheight  .   =   .               |
-%   .   |   .                       |   .   .   =   .               |
-%   .   |                           |       <---> bindingoffset     |
-%   .   |   .   .   .   .   .   .   |   .   .   =   .               v
-%   .   |                           v       .   =   .
-%   .   +---------------------------------------+   .   ^   .   .  ---
-%   .   .                                       .   .   | bleed
-%   + - - - - - - - - - - - - - - - - - - - - - + - +   v
-%       .                                       .
-%       |   <-- textwidth -------------->   .   |
-%                                               ^ binding line
-%
-% NOTE: if blockwidth/blockheight are set they will force recalculations 
-%		and overriding of the paperwidth/paperheight if they were changed
-%		by the user code anywhere between \documentclass[..]{photobook}
-%		and \begin{document}...
-\DeclareStringOption{blockwidth}
-\DeclareStringOption{blockheight}
-\DeclareStringOption[0]{bindingoffset}[10mm]
-\DeclareStringOption[5mm]{bleed}[5mm]
-
-% Distance from image to paper border (clearence) for full-page images.
-%
-% this can be:
-% - negative value set image bleed, 
-% - positive value set distance frome paper edge to image.
-%
-\DeclareStringOption{clearimage}[-5mm]
-
-% Image block size relative to text block...
-%
-% XXX better name...
-\DeclareStringOption[0.85]{imageblockwidth}[1]
-\DeclareStringOption[0.85]{imageblockheight}[1]
-\DeclareStringOption[-0.05]{imageblockoffsettop}[0]
-
-% let the user set geometry defaults.
+%% let the user set geometry defaults.
 %
 % NOTE: if this is not set any options set by the uset intersecting with
 %		options set in the class will get overriden by class options...
@@ -240,7 +324,7 @@
 %			paperheight=\bleedblockheight
 %			bindingoffset=\bindingoffset
 %
-% XXX better name...
+% XXX better name..
 \DeclareBoolOption{geometrynodefaults}
 
 
@@ -285,10 +369,14 @@
 
 
 %----------------------------------------------------------------------
-% Globals...
+%%%% Globals
 %
-% NOTE: most of these are setup in \InitPageLengths...
+% NOTE: most of these are setup in \InitPage...
 
+%% \DescribeMacro{\layoutmode}
+%
+%%	Layout mode
+%%
 \edef\layoutmode{\photobook@layoutmode}
 
 % layout mode tests...
@@ -301,62 +389,129 @@
 \newif\ifcoverlikelayout
 \newif\ifblocklayout
 
+%% \DescribeMacro{\pdfpagelayout}
+%
+%%	Controls the default layout in the pdf viewer.
+%%
 \edef\pdfpagelayout{\photobook@pdfpagelayout}
 
+%% \DescribeMacro{\spinewidth}
+%
+%%	Spine width
+%%
 \newlength\spinewidth
 \setlength\spinewidth{\photobook@spinewidth}
 
+%% \DescribeMacro{\spinefold}
+%
+%%	Spine fold width
+%%
 \newlength\spinefold
 \setlength\spinefold{\photobook@spinefold}
 
+%% \DescribeMacro{\coverboardgrow}
+%
+%%	Controls how much biger the cover board is than the page block
+%%
 \newlength\coverboardgrow
 \setlength\coverboardgrow{\photobook@coverboardgrow}
 
+%% \DescribeMacro{\coverflap}
+%
+%%	Cover flap
+%%
 \newlength\coverflap
+
+%% \DescribeMacro{\jacketwrap}
+%% \DescribeMacro{\jacketflap}
+%% \DescribeMacro{\jacketflapfront}
+%% \DescribeMacro{\jacketflapback}
+%
+%%	Jacker configuration
+%%
 \newlength\jacketwrap
 \newlength\jacketflap
 \newlength\jacketflapfront
 \newlength\jacketflapback
-% NOTE: page and bleed block sizes are set via \InitPageLengths
+
+%% \DescribeMacro{\blockwidth}
+%% \DescribeMacro{\blockheight}
+%
+%%	Page block size
+%%
+% NOTE: page and bleed block sizes are set via \InitPage
 \newlength\blockwidth
 \newlength\blockheight
-% NOTE: these are equivalent to \paperwidth and \paperheight but are 
-%		independent of them...
+
+%% \DescribeMacro{\bleedblockwidth}
+%% \DescribeMacro{\bleedblockheight}
+%
+%%	Page block size with bleeds
+%%
+%%	These are equivalent to |\paperwidth| and |\paperheight| but are 
+%%	independent of them...
 \newlength\bleedblockwidth
 \newlength\bleedblockheight
 
-% original page block size...
+%% \DescribeMacro{\pageblockwidth}
+%% \DescribeMacro{\pageblockheight}
 %
-% for the block layout these are the same as \blockwidth and \blockheight
-% for other layouts these are the original page layout size while the 
-% \blockwidth are set tho the current layout visible size...
+%% Original page block size
+%%
+%% for the block layout these are the same as |\blockwidth| and |\blockheight|
+%% for other layouts these are the original page layout size while the 
+%% |\blockwidth| are set tho the current layout visible size.
 \newlength\pageblockwidth
 \newlength\pageblockheight
 
+%% \DescribeMacro{\bleed}
+%
+%%	Page bleed size
+%%
 \newlength\bleed
 \setlength\bleed{\photobook@bleed}
 
+%% \DescribeMacro{\bindingoffset}
+%
+%%	Binding offset
+%%
 \newlength\bindingoffset
 \setlength\bindingoffset{\photobook@bindingoffset}
 
+%% \DescribeMacro{\clearimage}
+%
+%%	Image clearence
+%%
 % NOTE: since this can be any number but we need to detect if it was set 
 %		manually we'll set it to \maxdimen and hope noe will print 
 %		something big enough and dare to use it as image clearence...
 \newlength{\clearimage}
 \setlength\clearimage{\maxdimen}
 
+%% \DescribeMacro{\imageblockwidth}
+%% \DescribeMacro{\imageblockheight}
+%
+%%	Image block width relative to |\textwidth|
+%%
 \edef\imageblockwidth{\photobook@imageblockwidth}
-
 \edef\imageblockheight{\photobook@imageblockheight}
 
+%% \DescribeMacro{\imageblockoffsettop}
+%
+%%
+%%
 \edef\imageblockoffsettop{\photobook@imageblockoffsettop}
 
 
 
 %----------------------------------------------------------------------
-% Init / reset...
-
-\newcommand\InitPageLengths{
+%%%% Initialization
+%%
+%% \DescribeMacro{\InitPage}
+%
+%%	Initialize page dimentions.
+%%
+\newcommand\InitPage{
 	% layout bools/tests...
 	\coverlayoutfalse
 	\hardcoverlayoutfalse
@@ -496,12 +651,16 @@
 		\relax} }
 
 
-\newcommand\ResetPageLengths{
+%% \DescribeMacro{\ResetPage}
+%
+%%	Reset and re-initialize page dimentions.
+%%
+\newcommand\ResetPage{
 	\setlength\blockwidth{0mm}
 	\setlength\blockheight{0mm}
 	\edef\pdfpagelayout{}
 	%
-	\InitPageLengths }
+	\InitPage}
 
 
 
@@ -511,7 +670,7 @@
 % Setup...
 
 % init/update lengths...
-\InitPageLengths
+\InitPage
 
 % minimal geometry setup...
 \RequirePackage[
@@ -543,7 +702,7 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % Geometry...
 
-	\InitPageLengths
+	\InitPage
 
 	% no-defaults -- the user is expected to set things up...
 	\ifphotobook@geometrynodefaults
@@ -610,32 +769,52 @@
 
 
 %----------------------------------------------------------------------
-% Generic Commands....
+%%%% Generic commands
+%%
 
+%% \DescribeMacro{\keywords}
+%
+%%	Set pdf metadata keywords
+%%
+%%	>>	\keywords{<keywords>}
+%%
 \def\@keywords{}
 
 \newcommand\keywords[1]{%
 	\def\@keywords{#1}}
 
 
+%% \DescribeMacro{\subject}
+%
+%%	Set pdf metadata subject
+%%
+%%	>>	\subject{<subject>}
+%%
 \def\@subject{}
 
 \newcommand\subject[1]{%
 	\def\@subject{#1}}
 
 
+%% \DescribeMacro{\cleartoleftpage}
+%
+%%	Forces content to left page
+%%
 \newcommand*{\cleartoleftpage}{%
 	\clearpage
 	\if@twoside
 		\ifodd\c@page
 			\hbox{}\newpage
 			\if@twocolumn
-				\hbox{}\newpage
-			\fi
-		\fi
-	\fi }
+				\hbox{}\newpage \fi\fi\fi }
 
 
+%% \DescribeMacro{\pdfpagecount}
+%
+%%	Get pdf page count
+%%
+%%	>>	\pdfpagecount{<file.pdf>}
+%%
 \newcommand\pdfpagecount[1]{
 	\ifpdftex
 		\pdfximage{#1}
@@ -653,8 +832,12 @@
 			tex.write(pages) } \fi\fi }
 
 
-% \pdfspinewidth{paper-thikness}{cover-thikness}{block-pdf}
+%% \DescribeMacro{\pdfspinewidth}
 %
+%%	Calculate spine thickness
+%%
+%%	>>	\pdfspinewidth{<paper-thikness>}{<cover-thikness>}{<block-pdf>}
+%%
 % NOTE: really "like" how LaTeX overcomplicats simple math...
 \newcommand\pdfspinewidth[3]{%
 	\setlength\spinewidth{\dimexpr
@@ -693,110 +876,7 @@
 
 
 %----------------------------------------------------------------------
-% Captions...
-% XXX need to be able to configure/pass/override:
-%		- size / \captionsize...
-%		- color...
-% XXX captions seem not to account for \imageblockoffsettop...
-
-%\newcommand\captionsize{\scriptsize}
-\newcommand\captionsize{\fontsize{6.5pt}{8pt}\selectfont}
-
-
-% \imagecaption{caption}{location-date}
-%
-\newcommand\imagecaption[2]{
-	{\captionsize%
-		#1 %
-		\par\vspace{-\parskip}%
-		#2}}
-
-
-% \overlaycaption{caption}{location-date}
-%
-\newcommand\overlaycaption[2]{
-	\begin{flushright}
-		\captionsize%
-		\color{black}{%
-			\colorbox{white}{ #1 }%
-			\par\vspace{-\parskip}%
-			\colorbox{white}{ #2 }}
-	\end{flushright}}
-
-
-% \captionsidebox[offset]{imagebox}{text}
-%
-\newcommand\captionsidebox[3][0mm]{
-	\begin{minipage}{\dimexpr 
-			% caption-image distance...
-			-1em
-			-\clearimage 
-			+\blockwidth
-			-(\wd#2 - #1)
-			+(\nudgeimageby)
-			-(0.5\blockwidth - 0.5\textwidth) \relax}%
-		{ \captionsize #3 }
-	\end{minipage}}
-
-
-% \captionboxleft[offset]{imagebox}{text}
-% \captionboxright[offset]{imagebox}{text}
-%
-\newcommand\captionboxleft[3][0mm]{
-	\null
-	\vfill
-	\begin{flushleft}
-	\captionsidebox[#1]{#2}{%
-		\begin{flushright}
-			#3
-		\end{flushright}}
-	\end{flushleft}}
-\newcommand\captionboxright[3][0mm]{
-	\null
-	\vfill
-	\begin{flushright}
-	\captionsidebox[#1]{#2}{%
-		\begin{flushleft}
-			#3
-		\end{flushleft}}
-	\end{flushright}}
-
-
-% XXX \CAPTIONWIDTHFIX
-% \captionbottombox[offset]{imagebox}{text}
-%
-% XXX for some reason the width is wrong here...
-\newcommand\captionbottombox[3][0mm]{
-	\hspace{ #1 }{
-		% XXX the \CAPTIONWIDTHFIX factor is compensating for an odd alignment error...
-		\begin{minipage}{\dimexpr \CAPTIONWIDTHFIX + \wd#2 \relax}
-			{ \captionsize #3 }
-		\end{minipage}}}
-
-
-% \graycaptionpage{text}
-%
-% XXX should this be \captionsize or \scriptsize
-\newcommand\graycaptionpage[1]{
-	\pagestyle{empty}
-	\pagecolor{normgray}
-	\color{white}
-	\null
-	\vfill
-	\hspace{0.66\textwidth}{%
-		\begin{minipage}{0.33\textwidth}
-			\setlength{\parskip}{0.5em}%
-			\captionsize\it%
-			#1
-		\end{minipage} }
-	\newpage
-	\nopagecolor
-	\color{black} }
-
-
-
-%----------------------------------------------------------------------
-% Envs...
+%%%% Environments
 %
 % XXX need a way to place images / templates into these...
 % XXX should these only be visible in respective modes or for non-zero widths???
@@ -1056,7 +1136,123 @@
 
 
 %----------------------------------------------------------------------
-% Page Templates...
+%%%% Captions
+% XXX need to be able to configure/pass/override:
+%		- size / \captionsize...
+%		- color...
+% XXX captions seem not to account for \imageblockoffsettop...
+
+%\newcommand\captionsize{\scriptsize}
+\newcommand\captionsize{\fontsize{6.5pt}{8pt}\selectfont}
+
+
+%% \DescribeMacro{\imagecaption}
+%
+%%	>> \imagecaption{<caption>}{<location-date>}
+%%
+\newcommand\imagecaption[2]{
+	{\captionsize%
+		#1 %
+		\par\vspace{-\parskip}%
+		#2}}
+
+
+%% \DescribeMacro{\overlaycaption}
+%
+%%	>> \overlaycaption{<caption>}{<location-date>}
+%%
+\newcommand\overlaycaption[2]{
+	\begin{flushright}
+		\captionsize%
+		\color{black}{%
+			\colorbox{white}{ #1 }%
+			\par\vspace{-\parskip}%
+			\colorbox{white}{ #2 }}
+	\end{flushright}}
+
+
+%% \DescribeMacro{\captionsidebox}
+%
+%%	>> \captionsidebox[<offset>]{<imagebox>}{<text>}
+%%
+\newcommand\captionsidebox[3][0mm]{
+	\begin{minipage}{\dimexpr 
+			% caption-image distance...
+			-1em
+			-\clearimage 
+			+\blockwidth
+			-(\wd#2 - #1)
+			+(\nudgeimageby)
+			-(0.5\blockwidth - 0.5\textwidth) \relax}%
+		{ \captionsize #3 }
+	\end{minipage}}
+
+
+%% \DescribeMacro{\captionboxleft}
+%% \DescribeMacro{\captionboxright}
+%
+%%	>> \captionboxleft[<offset>]{<imagebox>}{<text>}
+%%	>> \captionboxright[<offset>]{<imagebox>}{<text>}
+%%
+\newcommand\captionboxleft[3][0mm]{
+	\null
+	\vfill
+	\begin{flushleft}
+	\captionsidebox[#1]{#2}{%
+		\begin{flushright}
+			#3
+		\end{flushright}}
+	\end{flushleft}}
+\newcommand\captionboxright[3][0mm]{
+	\null
+	\vfill
+	\begin{flushright}
+	\captionsidebox[#1]{#2}{%
+		\begin{flushleft}
+			#3
+		\end{flushleft}}
+	\end{flushright}}
+
+
+% XXX \CAPTIONWIDTHFIX
+%% \DescribeMacro{\captionbottombox}
+%
+%%	>> \captionbottombox[<offset>]{<imagebox>}{<text>}
+%%
+% XXX for some reason the width is wrong here...
+\newcommand\captionbottombox[3][0mm]{
+	\hspace{ #1 }{
+		% XXX the \CAPTIONWIDTHFIX factor is compensating for an odd alignment error...
+		\begin{minipage}{\dimexpr \CAPTIONWIDTHFIX + \wd#2 \relax}
+			{ \captionsize #3 }
+		\end{minipage}}}
+
+
+%% \DescribeMacro{\graycaptionpage}
+%
+%%	>> \graycaptionpage{<text>}
+%%
+% XXX should this be \captionsize or \scriptsize
+\newcommand\graycaptionpage[1]{
+	\pagestyle{empty}
+	\pagecolor{normgray}
+	\color{white}
+	\null
+	\vfill
+	\hspace{0.66\textwidth}{%
+		\begin{minipage}{0.33\textwidth}
+			\setlength{\parskip}{0.5em}%
+			\captionsize\it%
+			#1
+		\end{minipage} }
+	\newpage
+	\nopagecolor
+	\color{black} }
+
+
+
+%----------------------------------------------------------------------
+%%%% Page Templates
 
 \newsavebox\photobook@imagebox
 
@@ -1308,7 +1504,7 @@
 
 
 %----------------------------------------------------------------------
-% Spread Templates...
+%%%% Spread Templates
 
 \newlength{\photobook@tmpnudgeimageby}
 \newlength{\photobook@tmpvnudgeimageby}
@@ -1681,11 +1877,11 @@
 
 
 %----------------------------------------------------------------------
-%%% XXX DEBUG...
-%%\AtBeginDocument{
-%%}
+%5%% XXX DEBUG...
+%%%\AtBeginDocument{
+%%%}
 
 
 
 %----------------------------------------------------------------------
-%                                                  vim:set ts=4 sw=4 :
+%% \end{document} %                                 im:set ts=4 sw=4 :
