@@ -9,7 +9,7 @@ TEX := lualatex
 
 
 %.pdf: %.tex
-	$(TEX) $< #> /dev/null
+	$(TEX) $< > /dev/null
 
 
 # Generate docs from latex package/class...

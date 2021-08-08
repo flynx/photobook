@@ -19,7 +19,7 @@
 %%
 %% \usepackage[a4paper,margin=25mm,left=50mm,nohead]{geometry}
 %% \usepackage[numbered]{hypdoc}
-%%% \usepackage{verbatimbox}
+%% \usepackage{doctools}
 %%
 %%
 %% \begin{document}
@@ -65,6 +65,55 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+%%%%% Page geometry
+%
+%% \DescribeMacro{blockwidth=<len>}
+%% \DescribeMacro{blockheight=<len>}
+%% \DescribeMacro{bindingoffset=<len>}
+%% \DescribeMacro{bleed=<len>}
+%
+%% This is similar to what |geometry| does, but adds bleed support.
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   <---> bleed                                 <---> bleed
+%%
+%%   + - - - - - - - - - - - - - - - - - - - - - + - +   ^
+%%   .                                           .   .   | bleed
+%%   .   +---------------------------------------+-----  v   .   .  ---
+%%   .   |                           ^       .   =   .
+%%   .   |   .   .   .   .   .   .   |   .   .   =   .               ^
+%%   .   |<-- blockwidth ----------------------->=   .               |
+%%   .   |   .                       |   .   .   =   .               |
+%%   .   |                           |       .   =   .       textheight
+%%   .   |   .                       |   .   .   =   .               |
+%%   .   |                      blockheight  .   =   .               |
+%%   .   |   .                       |   .   .   =   .               |
+%%   .   |                           |       <---> bindingoffset     |
+%%   .   |   .   .   .   .   .   .   |   .   .   =   .               v
+%%   .   |                           v       .   =   .
+%%   .   +---------------------------------------+-----  ^   .   .  ---
+%%   .   .                                       .   .   | bleed
+%%   + - - - - - - - - - - - - - - - - - - - - - + - +   v
+%%       .                                       .
+%%       |   <-- textwidth -------------->   .   |
+%%                                               ^ binding line
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%
+% NOTE: if blockwidth/blockheight are set they will force recalculations 
+%		and overriding of the paperwidth/paperheight if they were changed
+%		by the user code anywhere between \documentclass[..]{photobook}
+%		and \begin{document}...
+\DeclareStringOption{blockwidth}
+\DeclareStringOption{blockheight}
+\DeclareStringOption[0]{bindingoffset}[10mm]
+\DeclareStringOption[5mm]{bleed}[5mm]
+
+
 %%%%% layout
 %
 %% \DescribeMacro{layoutmode=<layout>}
@@ -77,8 +126,11 @@
 %%
 %% |block| (default)
 %%
-%%% \begin{figure}[h]
+%%	Basic page layout.
+%%
+%% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
+%%
 %%       blockwidth
 %%   <--------------->
 %%
@@ -89,14 +141,18 @@
 %%   |               |
 %%   |               |
 %%   +---------------+
+%%
 %% \end{verbatim}
-%%% \end{figure}
+%% \end{minipage}
 %%
 %%
 %% |endpaper|:
 %%
-%%% \begin{figure}[h]
+%%	Endpaper layout.
+%%
+%% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
+%%
 %%       blockwidth 2x
 %%   <------------------------------->
 %%
@@ -107,14 +163,23 @@
 %%   |               .               |
 %%   |               .               |
 %%   +---------------+---------------+
+%%
 %% \end{verbatim}
-%%% \end{figure}
+%% \end{minipage}
 %%	
 %%
-%% |cover|:
+%% |cover|
 %%
-%%% \begin{figure}[h]
+%%	Book cover layout
+%%
+%% \DescribeMacro{coverboardgrow=<len>}
+%% \DescribeMacro{coverflap=<len>}
+%% \DescribeMacro{spinewidth=<len>}
+%% \DescribeMacro{spinewidth=<len>}
+%
+%% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
+%%
 %%          blockwidth            blockwidth
 %%       <--------------->     <--------------->
 %%     <-> coverboardgrow                      <-> coverboardgrow
@@ -135,14 +200,23 @@
 %%                       ^.   .^ spinefold
 %%                        .   .
 %%                        <---> spinewidth
+%%
 %% \end{verbatim}
-%%% \end{figure}
+%% \end{minipage}
 %%
 %%
-%% |jacket|:
+%% |jacket|
 %%
-%%% \begin{figure}[h]
+%%	Dust jacket layout
+%%
+%% \DescribeMacro{jacketwrap=<len>}
+%% \DescribeMacro{jacketflap=<len>}
+%% \DescribeMacro{jacketflapfront=<len>}
+%% \DescribeMacro{jacketflapback=<len>}
+%
+%% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
+%%
 %%   <---> jaketflap/jacketflapback                  <---> jaketflap/jacketflapfront
 %%   .   .                                           .   .
 %%   .   .     blockwidth            blockwidth      .   .
@@ -163,8 +237,9 @@
 %%                          ^.   .^ spinefold
 %%                           .   .
 %%                           <---> spinewidth
+%%
 %% \end{verbatim}
-%%% \end{figure}
+%% \end{minipage}
 %
 % XXX in cover layout setup pdf boxes in a way to use \bleed as foldover...
 % 		...see hyperref docs to set pdf view/print area (???)
@@ -202,9 +277,8 @@
 \@DeclareLiteralOptionTo{layoutmode}{jacket}
 
 
-% spine width and spine fold...
-%
 % NOTE: this is only used when layoutmode=cover
+% NOTE: these are documented inline with layoutmode=.. docs...
 \DeclareStringOption[0pt]{spinewidth}[0pt]
 \DeclareStringOption[0pt]{spinefold}[7mm]
 \DeclareStringOption[0pt]{coverboardgrow}[3mm]
@@ -215,50 +289,6 @@
 \DeclareStringOption[0pt]{jacketflapfront}[50mm]
 \DeclareStringOption[0pt]{jacketflapback}[50mm]
 
-
-%%%%% Page geometry
-%
-%% \DescribeMacro{blockwidth=<len>}
-%% \DescribeMacro{blockheight=<len>}
-%% \DescribeMacro{bindingoffset=<len>}
-%% \DescribeMacro{bleed=<len>}
-%
-%%% \begin{figure}[h]
-%% \begin{verbatim}
-%%   <---> bleed                                 <---> bleed
-%%
-%%   + - - - - - - - - - - - - - - - - - - - - - + - +   ^
-%%   .                                           .   .   | bleed
-%%   .   +---------------------------------------+   .   v   .   .  ---
-%%   .   |                           ^       .   =   .
-%%   .   |   .   .   .   .   .   .   |   .   .   =   .               ^
-%%   .   |<-- blockwidth ----------------------->=   .               |
-%%   .   |   .                       |   .   .   =   .               |
-%%   .   |                           |       .   =   .       textheight
-%%   .   |   .                       |   .   .   =   .               |
-%%   .   |                      blockheight  .   =   .               |
-%%   .   |   .                       |   .   .   =   .               |
-%%   .   |                           |       <---> bindingoffset     |
-%%   .   |   .   .   .   .   .   .   |   .   .   =   .               v
-%%   .   |                           v       .   =   .
-%%   .   +---------------------------------------+   .   ^   .   .  ---
-%%   .   .                                       .   .   | bleed
-%%   + - - - - - - - - - - - - - - - - - - - - - + - +   v
-%%       .                                       .
-%%       |   <-- textwidth -------------->   .   |
-%%                                               ^ binding line
-%% \end{verbatim}
-%%% \end{figure}
-%%
-%
-% NOTE: if blockwidth/blockheight are set they will force recalculations 
-%		and overriding of the paperwidth/paperheight if they were changed
-%		by the user code anywhere between \documentclass[..]{photobook}
-%		and \begin{document}...
-\DeclareStringOption{blockwidth}
-\DeclareStringOption{blockheight}
-\DeclareStringOption[0]{bindingoffset}[10mm]
-\DeclareStringOption[5mm]{bleed}[5mm]
 
 
 %%%%% Image clearance
@@ -316,13 +346,16 @@
 %% \DescribeMacro{geometrynodefaults}
 %
 %% let the user set geometry defaults.
-%
-% NOTE: if this is not set any options set by the uset intersecting with
-%		options set in the class will get overriden by class options...
-% NOTE: this does not affect the following: 
-%			paperwidth=\bleedblockwidth
-%			paperheight=\bleedblockheight
-%			bindingoffset=\bindingoffset
+%%
+%%	If this is not set |photobook| will override some user settings when
+%%	initializing geometry.
+%%
+%%	If set |photobook| will only set override:
+%%	\begin{verbatim}
+%%		paperwidth=\bleedblockwidth
+%%		paperheight=\bleedblockheight
+%%		bindingoffset=\bindingoffset
+%%	\end{verbatim}
 %
 % XXX better name..
 \DeclareBoolOption{geometrynodefaults}
@@ -364,7 +397,8 @@
 \RequirePackage[linewidth=1pt]{mdframed}
 \RequirePackage{rotating}
 % XXX flow text frames...
-\RequirePackage{flowfram}
+% XXX this messes with geometry....
+%\RequirePackage{flowfram}
 
 
 
@@ -509,7 +543,7 @@
 %%
 %% \DescribeMacro{\InitPage}
 %
-%%	Initialize page dimentions.
+%%	Initialize page dimensions.
 %%
 \newcommand\InitPage{
 	% layout bools/tests...
@@ -1259,7 +1293,9 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-% \imagepagefitWH{width}{height}{caption}{image}
+%% \DescribeMacro{\imagepagefitWH}
+%
+%%	>> \imagepagefitWH{<width>}{<height>}{<caption>}{<image>}
 %
 % NOTE: width and hight are ratios of \textwidth and \textheight 
 %		respectively. 
@@ -1314,8 +1350,13 @@
 	\newpage }
 
 
-% \imagepagefitH[height]{caption}{image}
-% \imagepagefitW[width]{caption}{image}
+%% \DescribeMacro{\imagepagefitW}
+%% \DescribeMacro{\imagepagefitH}
+%
+%%	Shorthands to |\imagepagefitWH|
+%
+%%	>> \imagepagefitH[<height>]{<caption>}{<image>}
+%%	>> \imagepagefitW[<width>]{<caption>}{<image>}
 %
 \newcommand\imagepagefitH[3][\imageblockheight]{
 	\imagepagefitWH{\imageblockwidth}{#1}{#2}{#3} }
@@ -1323,42 +1364,61 @@
 	\imagepagefitWH{#1}{\imageblockheight}{#2}{#3} }
 
 
-% \imagepage{caption}{path}
+%% \DescribeMacro{\imagepage}
 %
-%	+---------------+
-%	|				|
-%	| +-----------+	|
-%	| |.		 .|	|
-%	| |	 .	   .  |	|
-%	| |	  image	  |	|
-%	| |	 .	   .  |	|
-%	| |.		 .|	|
-%	| +-----------+	|
-%	|			  c	|
-%	|				|
-%	+---------------+
+%%	Basic image page
 %
+%%	>> \imagepage{<caption>}{<path>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   |               |
+%%   | +-----------+ |
+%%   | |.         .| |
+%%   | |  .     .  | |
+%%   | |   image   | |
+%%   | |  .     .  | |
+%%   | |.         .| |
+%%   | +-----------+ |
+%%   |             c |
+%%   |               |
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
 \newcommand\imagepage[2]{
 	\imagepagefitWH{\imageblockwidth}{\imageblockheight}{#1}{#2} }
 
 
 % XXX
 % XXX captions wrong... 
-% \imagepagefit[clearence]{caption}{image}
+%% \DescribeMacro{\imagepagefit}
 %
-%	+---------------+
-%	| |.		 .| |
-%	| | .	    . |	|
-%	| |  .	   .  | |
-%	| |   .   .	  | |
-%	| |	  image	  | |
-%	| |	  .   .	  | |
-%	| |  .	   .  | |
-%	| | .		. | |
-%	| |.		 .| |
-%	+---------------+
+%% Similar to |\imagepage| but will fit an image into page...
 %
-% NOTE: this is like \imagepage but will fit an image into page...
+%%	>> \imagepagefit[<clearence>]{<caption>}{<image>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   | |.         .| |
+%%   | | .       . | |
+%%   | |  .     .  | |
+%%   | |   .   .   | |
+%%   | |   image   | |
+%%   | |   .   .   | |
+%%   | |  .     .  | |
+%%   | | .       . | |
+%%   | |.         .| |
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
 \newcommand\imagepagefit[3][\clearimage]{
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
@@ -1394,21 +1454,31 @@
 
 % XXX does not work...
 % XXX \OFFSETFIX
-% \imagepagefill[clearence]{caption}{image}
+%% \DescribeMacro{\imagepagefill}
 %
-%	+---------------+
-%	|---------------|
-%	|				|
-%	|.			   .|
-%	|	.		.	|
-%	|	  image		|
-%	|	.		.	|
-%	|.			   .|
-%	|				|
-%	|-------------c-|
-%	+---------------+
+%%	Like |\imagepage| but will fit an image into page...
 %
-% NOTE: this is like \imagepage but will fit an image into page...
+%%	>> \imagepagefill[<clearence>]{<caption>}{<image>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   |---------------|
+%%   |               |
+%%   |.             .|
+%%   |   .       .   |
+%%   |     image     |
+%%   |   .       .   |
+%%   |.             .|
+%%   |               |
+%%   |-------------c-|
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%
 % XXX add option to align to top/bottom... 
 % XXX captions untested... 
 \newcommand\imagepagefill[3][\clearimage]{
@@ -1439,20 +1509,28 @@
 
 % XXX
 % XXX \OFFSETFIX
-% portraitimagepageleft[clearence]{caption}{image}
+%% \DescribeMacro{\portraitimagepageleft}
 %
-%	+---------------+
-%	|.		   .|	|
-%	| .		  .	|	|
-%	|  .	 .	|	|
-%	|	.	.	|	|
-%	|	image	|	|
-%	|	.	.	|	|
-%	|  .	 .	|	|
-%	| .		  .	|	|
-%	|.		   .| c |
-%	+---------------+
+%%  >> portraitimagepageleft[<clearence>]{<caption>}{<image>}
 %
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   |.         .|   |
+%%   | .       . |   |
+%%   |  .     .  |   |
+%%   |   .   .   |   |
+%%   |   image   |   |
+%%   |   .   .   |   |
+%%   |  .     .  |   |
+%%   | .       . |   |
+%%   |.         .| c |
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
 \newcommand\portraitimagepageleft[3][\clearimage]{
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
