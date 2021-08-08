@@ -406,9 +406,9 @@
 
 %----------------------------------------------------------------------
 %%%% Globals
-%
-% NOTE: most of these are setup in \InitPage...
-
+%%
+%% Most of these are setup in |\InitPage|.
+%%
 %% \DescribeMacro{\layoutmode}
 %
 %%	Layout mode
