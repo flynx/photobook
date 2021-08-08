@@ -849,7 +849,7 @@
 %
 %%	Get pdf page count
 %%
-%%	>>	\pdfpagecount{<file.pdf>}
+%%	>>	\pdfpagecount{<file-pdf>}
 %%
 \newcommand\pdfpagecount[1]{
 	\ifpdftex
