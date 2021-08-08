@@ -35,6 +35,8 @@
 %%
 %% \maketitle
 %%
+%% {\bf Note: all older templates/commnads/macros will get reworked soon!}
+%%
 %%%% Usage
 %%
 %%	>> \documentclass[<options>]{photobook}
@@ -1547,21 +1549,28 @@
 
 
 % XXX
-% portraitimagepageright{caption}{image}
+%% \DescribeMacro{\portraitimagepageright}
 %
-%	+---------------+
-%	|	|.		   .|
-%	|	| .		  .	|
-%	|	|  .	 .	|
-%	|	|	.	.	|
-%	|	|	image	|
-%	|	|	.	.	|
-%	|	|  .	 .	|
-%	|	| .		  .	|
-%	| c	|.		   .|
-%	+---------------+
+%%	>> portraitimagepageright{<caption>}{<image>}
 %
-%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   |   |.         .|
+%%   |   | .       . |
+%%   |   |  .     .  |
+%%   |   |   .   .   |
+%%   |   |   image   |
+%%   |   |   .   .   |
+%%   |   |  .     .  |
+%%   |   | .       . |
+%%   | c |.         .|
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
 \newcommand\portraitimagepageright[3][\clearimage]{
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
@@ -1642,17 +1651,17 @@
 % XXX
 % portraitspreadbleedleft[clearence]{caption}{image}
 %
-%	+---------------+---------------+
-%	|	|.		   .|				|
-%	|	| .		  .	|				|
-%	|	|  .	 .	|				|
-%	|	|	.	.	|				|
-%	|	|	image	|				|
-%	|	|	.	.	|				|
-%	|	|  .	 .	|				|
-%	|	| .		  .	|				|
-%	|	|.		   .| c				|
-%	+---------------+---------------+
+%   +---------------+---------------+
+%   |   |.         .|               |
+%   |   | .       . |               |
+%   |   |  .     .  |               |
+%   |   |   .   .   |               |
+%   |   |   image   |               |
+%   |   |   .   .   |               |
+%   |   |  .     .  |               |
+%   |   | .       . |               |
+%   |   |.         .| c             |
+%   +---------------+---------------+
 %
 \newcommand\portraitspreadbleedleft[3][\clearimage]{
 	\cleartoleftpage
@@ -1670,17 +1679,17 @@
 % XXX
 % portraitspreadbleedright[clearence]{caption}{image}
 %
-%	+---------------+---------------+
-%	|				|.		   .|	|
-%	|				| .		  .	|	|
-%	|				|  .	 .	|	|
-%	|				|	.	.	|	|
-%	|				|	image	|	|
-%	|				|	.	.	|	|
-%	|				|  .	 .	|	|
-%	|				| .		  .	|	|
-%	|			  c	|.		   .|	|
-%	+---------------+---------------+
+%   +---------------+---------------+
+%   |               |.         .|   |
+%   |               | .       . |   |
+%   |               |  .     .  |   |
+%   |               |   .   .   |   |
+%   |               |   image   |   |
+%   |               |   .   .   |   |
+%   |               |  .     .  |   |
+%   |               | .       . |   |
+%   |             c |.         .|   |
+%   +---------------+---------------+
 %
 \newcommand\portraitspreadbleedright[3][\clearimage]{
 	\cleartoleftpage
@@ -1701,17 +1710,17 @@
 %
 % 	Image spread aligned left (with bleed)...
 %
-%	+---------------+---------------+
-%	| .			 	. 		  .	|	|
-%	|    .			.	   .	|	|
-%	|	    .		.	.		|	|
-%	|		   .	..			|	|
-%	|			image			|	|
-%	|		   .	..			|	|
-%	|	    .		.	.		|	|
-%	|    .			.	   .	|	|
-%	| .			 	. 		  .	| c	|
-%	+---------------+---------------+
+%   +---------------+---------------+
+%   | .             .         . |   |
+%   |    .          .      .    |   |
+%   |       .       .   .       |   |
+%   |          .    ..          |   |
+%   |           image           |   |
+%   |          .    ..          |   |
+%   |       .       .   .       |   |
+%   |    .          .      .    |   |
+%   | .             .         . | c |
+%   +---------------+---------------+
 %
 %
 % XXX might be a good idea to do a version of this with min/max width of 
@@ -1769,17 +1778,17 @@
 %
 % 	Image spread aligned right (with bleed)...
 %
-%	+---------------+---------------+
-%	|	| .			.	 		  .	|
-%	|	|    .		.		   .	|
-%	|	|	    .	.		.		|
-%	|	|		   ..	.			|
-%	|	|		   image			|
-%	|	|		   ..	.			|
-%	|	|	    .	.		.		|
-%	|	|    .		.		   .	|
-%	| c	| .			.	 		  .	|
-%	+---------------+---------------+
+%   +---------------+---------------+
+%   |   | .         .             . |
+%   |   |    .      .          .    |
+%   |   |       .   .       .       |
+%   |   |          ..   .           |
+%   |   |          image            |
+%   |   |          ..   .           |
+%   |   |       .   .       .       |
+%   |   |    .      .          .    |
+%   | c | .         .             . |
+%   +---------------+---------------+
 %
 \newcommand\imagespreadright[3][\clearimage]{
 	\sbox{\photobook@imagebox}{
@@ -1829,17 +1838,17 @@
 %
 %	Image spread with full bleed...
 %
-%	+---------------+
-%	|	.			.
-%	|	   .		.
-%	|		  .		.
-%	|			 .	.
-%	|			  ima
-%	|			 .	.
-%	|		  .		.
-%	|	   .		.
-%	|	.		  c	.
-%	+---------------+
+%   +---------------+
+%   |   .           .
+%   |      .        .
+%   |         .     .
+%   |            .  .
+%   |             ima
+%   |            .  .
+%   |         .     .
+%   |      .        .
+%   |   .         c .
+%   +---------------+
 %
 \newcommand\imageleftspreadfullbleed[3][0mm]{
 	\sbox{\photobook@imagebox}{
@@ -1877,17 +1886,17 @@
 %
 %	Image spread with full bleed...
 %
-%	+---------------+
-%	.			.	|
-%	.		 .		|
-%	.	  .			|
-%	.  .			|
-%	age				|
-%	.  .			|
-%	.	  .			|
-%	.		 .		|
-%	.			. c	|
-%	+---------------+
+%   +---------------+
+%   .           .   |
+%   .        .      |
+%   .     .         |
+%   .  .            |
+%   age             |
+%   .  .            |
+%   .     .         |
+%   .        .      |
+%   .           . c |
+%   +---------------+
 %
 \newcommand\imagerightspreadfullbleed[3][0mm]{
 	\sbox{\photobook@imagebox}{
@@ -1928,17 +1937,17 @@
 %
 %	Image spread with full bleed...
 %
-%	+---------------+---------------+
-%	|	.			.			.	|
-%	|	   .		.		 .		|
-%	|		  .		.	  .			|
-%	|			 .	.  .			|
-%	|			  image				|
-%	|			 .	.  .			|
-%	|		  .		.	  .			|
-%	|	   .		.		 .		|
-%	|	.			.			. c	|
-%	+---------------+---------------+
+%   +---------------+---------------+
+%   |   .           .           .   |
+%   |      .        .        .      |
+%   |         .     .     .         |
+%   |            .  .  .            |
+%   |             image             |
+%   |            .  .  .            |
+%   |         .     .     .         |
+%   |      .        .        .      |
+%   |   .           .           . c |
+%   +---------------+---------------+
 %
 % XXX do we need the same thing but with a left caption???
 \newcommand\imagespreadfullbleed[3][0mm]{
