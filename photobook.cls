@@ -925,8 +925,14 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% Generic...
+%%%%% Generic
 
+%% \DescribeEnv{page}
+%
+%% Page environment.
+%%
+%% This is mainly designed to wrap other cell environment described later.
+%
 % XXX this may span more than one page if there is enoug stuff packed 
 %		into it...
 \newenvironment{page}{}{%
@@ -936,8 +942,33 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % Covers, Jackets and endpapers...
-
-% endpaper...
+%
+%%%%% Cell environments
+%
+%% A cell environments is designed to place a cell/box at a specific 
+%% location in a page.
+%
+%
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Endpaper cells
+%
+%% \DescribeEnv{leftside}
+%% \DescribeEnv{rightside}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+---------------+
+%%   |               |               |
+%%   |               |               |
+%%   |   leftside    |   rightside   |
+%%   |               |               |
+%%   |               |               |
+%%   +---------------+---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
 %
 % XXX for some reason naming this anything starting with endpaper will
 %		make LaTeX complain that that is already defined...
@@ -968,7 +999,37 @@
 		\end{textblock*} \fi }
 
 
-% front/back covers...
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Cover and dust jacket cells
+%
+%% \DescribeEnv{frontcover}
+%% \DescribeEnv{backcover}
+%
+%% \DescribeEnv{spine}
+%% \DescribeEnv{vspine}
+%
+%% \DescribeEnv{frontflap}
+%% \DescribeEnv{backflap}
+%
+%% Covers and dust jackets differ only in that covers do not {usually} 
+%% have flaps.
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   backflap        spline/vspine           frontflap
+%%     .    backcover      .   frontcover      .
+%%     v     v             v     v             v
+%%   +---+---------------+---+---------------+---+               
+%%   |   |               |   |               |   |
+%%   |   |               |   |               |   |
+%%   |   |     Back      |   |     Front     |   |
+%%   |   |               |   |               |   |
+%%   |   |               |   |               |   |
+%%   +---+---------------+---+---------------+---+               
+%%
+%% \end{verbatim}
+%% \end{minipage}
 %
 \NewEnviron{frontcover}{%
 	\ifcoverlikelayout
@@ -1609,35 +1670,50 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-% nudgeimage{amount}
+%% \DescribeMacro{\nudgeimage}
 %
-% NOTE: in addition to spread commands below this is also used by 
-%		\captionsidebox
+%% Nudge an image horizontally within bleeds. Positive values nudge/move 
+%% to the right negative values nudge left.
+%
+%%	>> \nudgeimage{<amount>}
+%
+%% in addition to spread commands below this is also used by |\captionsidebox{..}|
 \newcommand\nudgeimage[1]{%
 	\setlength{\nudgeimageby}{#1}}
 
-% vnudgeimage{amount}
+%% \DescribeMacro{\vnudgeimage}
 %
-% offset image vertically within bleeds.
+%% Like |\nudgeimage{..}| but nudges vertically.
+%
+%%	>> \vnudgeimage{<amount>}
 %
 % NOTE: this should not be used in conjunction with \vgrowimage{..} and 
 %		should not exceed 1/2 of the amount given to \vgrowimage{..}
 \newcommand\vnudgeimage[1]{%
 	\setlength{\vnudgeimageby}{#1}}
 
-% vgrowimage{amount}
+%% \DescribeMacro{\vgrowimage}
 %
-% This will effectively add to 1/2 amount to top bleed and the same to 
-% bottom bleed.
+%% Grow an image within bleeds. 
+%
+%%	>> \vgrowimage{<amount>}
+%
+%% This sizes the image relative to its center this adding 1/2 the 
+%% amount to the top and 1/2 to the bottom.
 \newcommand\vgrowimage[1]{%
 	\setlength{\vgrowimageby}{#1}}
 
 
-% resetnudgeimage
+%% \DescribeMacro{\resetnudgeimage}
 %
-% NOTE: when working with shipout place this after \newpage as when 
-%		placed before this will reset the \nudgeimageby BEFORE the image
-%		placing commands have a chance to execute.
+%% Reset the effects of nudging and growing back to 0.
+%
+%%	>> \resetnudgeimage
+%
+%% When working with shipout place this after |\newpage| as when 
+%% placed before this will reset the |\nudgeimageby{..}| BEFORE the image
+%% placing commands have a chance to execute.
+%
 % XXX rename
 \newcommand\resetnudgeimage{%
 	\setlength{\vgrowimageby}{0mm}%
@@ -1649,19 +1725,27 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 % XXX
-% portraitspreadbleedleft[clearence]{caption}{image}
+%% \DescribeMacro{\portraitspreadbleedleft}
 %
-%   +---------------+---------------+
-%   |   |.         .|               |
-%   |   | .       . |               |
-%   |   |  .     .  |               |
-%   |   |   .   .   |               |
-%   |   |   image   |               |
-%   |   |   .   .   |               |
-%   |   |  .     .  |               |
-%   |   | .       . |               |
-%   |   |.         .| c             |
-%   +---------------+---------------+
+%%	>> \portraitspreadbleedleft[<clearence>]{<caption>}{<image>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+---------------+
+%%   |   |.         .|               |
+%%   |   | .       . |               |
+%%   |   |  .     .  |               |
+%%   |   |   .   .   |               |
+%%   |   |   image   |               |
+%%   |   |   .   .   |               |
+%%   |   |  .     .  |               |
+%%   |   | .       . |               |
+%%   |   |.         .| c             |
+%%   +---------------+---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
 %
 \newcommand\portraitspreadbleedleft[3][\clearimage]{
 	\cleartoleftpage
@@ -1677,19 +1761,27 @@
 
 
 % XXX
-% portraitspreadbleedright[clearence]{caption}{image}
+%% \DescribeMacro{\portraitspreadbleedright}
 %
-%   +---------------+---------------+
-%   |               |.         .|   |
-%   |               | .       . |   |
-%   |               |  .     .  |   |
-%   |               |   .   .   |   |
-%   |               |   image   |   |
-%   |               |   .   .   |   |
-%   |               |  .     .  |   |
-%   |               | .       . |   |
-%   |             c |.         .|   |
-%   +---------------+---------------+
+%%	>> \portraitspreadbleedright[<clearence>]{<caption>}{<image>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+---------------+
+%%   |               |.         .|   |
+%%   |               | .       . |   |
+%%   |               |  .     .  |   |
+%%   |               |   .   .   |   |
+%%   |               |   image   |   |
+%%   |               |   .   .   |   |
+%%   |               |  .     .  |   |
+%%   |               | .       . |   |
+%%   |             c |.         .|   |
+%%   +---------------+---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
 %
 \newcommand\portraitspreadbleedright[3][\clearimage]{
 	\cleartoleftpage
@@ -1706,22 +1798,29 @@
 
 % XXX
 % XXX \OFFSETFIX
-% imagespreadleft[clearence]{caption}{image}
+%% \DescribeMacro{\imagespreadleft}
 %
-% 	Image spread aligned left (with bleed)...
+%% Image spread aligned left (with bleed).
 %
-%   +---------------+---------------+
-%   | .             .         . |   |
-%   |    .          .      .    |   |
-%   |       .       .   .       |   |
-%   |          .    ..          |   |
-%   |           image           |   |
-%   |          .    ..          |   |
-%   |       .       .   .       |   |
-%   |    .          .      .    |   |
-%   | .             .         . | c |
-%   +---------------+---------------+
+%% 	>> \imagespreadleft[<clearence>]{<caption>}{<image>}
 %
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+---------------+
+%%   | .             .         . |   |
+%%   |    .          .      .    |   |
+%%   |       .       .   .       |   |
+%%   |          .    ..          |   |
+%%   |           image           |   |
+%%   |          .    ..          |   |
+%%   |       .       .   .       |   |
+%%   |    .          .      .    |   |
+%%   | .             .         . | c |
+%%   +---------------+---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
 %
 % XXX might be a good idea to do a version of this with min/max width of 
 %		the caption block...
@@ -1774,21 +1873,29 @@
 
 
 % XXX
-% imagespreadright[clearence]{caption}{image}
+%% \DescribeMacro{\imagespreadright}
 %
-% 	Image spread aligned right (with bleed)...
+%% Image spread aligned right (with bleed).
 %
-%   +---------------+---------------+
-%   |   | .         .             . |
-%   |   |    .      .          .    |
-%   |   |       .   .       .       |
-%   |   |          ..   .           |
-%   |   |          image            |
-%   |   |          ..   .           |
-%   |   |       .   .       .       |
-%   |   |    .      .          .    |
-%   | c | .         .             . |
-%   +---------------+---------------+
+%%	>> \imagespreadright[<clearence>]{<caption>}{<image>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+---------------+
+%%   |   | .         .             . |
+%%   |   |    .      .          .    |
+%%   |   |       .   .       .       |
+%%   |   |          ..   .           |
+%%   |   |          image            |
+%%   |   |          ..   .           |
+%%   |   |       .   .       .       |
+%%   |   |    .      .          .    |
+%%   | c | .         .             . |
+%%   +---------------+---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
 %
 \newcommand\imagespreadright[3][\clearimage]{
 	\sbox{\photobook@imagebox}{
@@ -1834,21 +1941,29 @@
 
 % XXX
 % XXX \OFFSETFIX
-% imageleftspreadfullbleed[vertical-offset]{caption}{image}
+%% \DescribeMacro{\imageleftspreadfullbleed}
 %
-%	Image spread with full bleed...
+%% Image left page spread with full bleed.
 %
-%   +---------------+
-%   |   .           .
-%   |      .        .
-%   |         .     .
-%   |            .  .
-%   |             ima
-%   |            .  .
-%   |         .     .
-%   |      .        .
-%   |   .         c .
-%   +---------------+
+%%	>> \imageleftspreadfullbleed[<vertical-offset>]{<caption>}{<image>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   |   .           .
+%%   |      .        .
+%%   |         .     .
+%%   |            .  .
+%%   |             ima
+%%   |            .  .
+%%   |         .     .
+%%   |      .        .
+%%   |   .         c .
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
 %
 \newcommand\imageleftspreadfullbleed[3][0mm]{
 	\sbox{\photobook@imagebox}{
@@ -1882,21 +1997,29 @@
 
 % XXX
 % XXX \OFFSETFIX
-% imagerightspreadfullbleed[vertical-offset]{caption}{image}
+%% \DescribeMacro{\imagerightspreadfullbleed}
 %
-%	Image spread with full bleed...
+%% Image spread right page with full bleed.
 %
-%   +---------------+
-%   .           .   |
-%   .        .      |
-%   .     .         |
-%   .  .            |
-%   age             |
-%   .  .            |
-%   .     .         |
-%   .        .      |
-%   .           . c |
-%   +---------------+
+%%	>> \imagerightspreadfullbleed[<vertical-offset>]{<caption>}{<image>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   .           .   |
+%%   .        .      |
+%%   .     .         |
+%%   .  .            |
+%%   age             |
+%%   .  .            |
+%%   .     .         |
+%%   .        .      |
+%%   .           . c |
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
 %
 \newcommand\imagerightspreadfullbleed[3][0mm]{
 	\sbox{\photobook@imagebox}{
@@ -1933,21 +2056,29 @@
 
 % XXX BUG?: this is not centered vertically...
 % XXX
-% imagespreadfullbleed[vertical-offset]{caption}{image}
+%% \DescribeMacro{\imagespreadfullbleed}
 %
-%	Image spread with full bleed...
+%% Image spread with full bleed.
 %
-%   +---------------+---------------+
-%   |   .           .           .   |
-%   |      .        .        .      |
-%   |         .     .     .         |
-%   |            .  .  .            |
-%   |             image             |
-%   |            .  .  .            |
-%   |         .     .     .         |
-%   |      .        .        .      |
-%   |   .           .           . c |
-%   +---------------+---------------+
+%%	>> \imagespreadfullbleed[<vertical-offset>]{<caption>}{<image>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+---------------+
+%%   |   .           .           .   |
+%%   |      .        .        .      |
+%%   |         .     .     .         |
+%%   |            .  .  .            |
+%%   |             image             |
+%%   |            .  .  .            |
+%%   |         .     .     .         |
+%%   |      .        .        .      |
+%%   |   .           .           . c |
+%%   +---------------+---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
 %
 % XXX do we need the same thing but with a left caption???
 \newcommand\imagespreadfullbleed[3][0mm]{
