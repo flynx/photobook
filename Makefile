@@ -15,8 +15,8 @@ TEX := lualatex
 # Generate docs from latex package/class...
 #
 # 	- keep only lines starting with '%%'
-# 	- %%%% Text -> \section(Text)
 # 	- %%%%% Text -> \subsection(Text)
+# 	- %%%% Text -> \section(Text)
 # 	- %% >> code -> \begin{verbatim}code\end{verbatim}
 #
 # NOTE: the idea of keeping latex docs in a latex file is far similar 

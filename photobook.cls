@@ -243,6 +243,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %
+% XXX document layout bools here...
 % XXX in cover layout setup pdf boxes in a way to use \bleed as foldover...
 % 		...see hyperref docs to set pdf view/print area (???)
 %		.....should also set \bleed default to something like 17mm
@@ -251,7 +252,6 @@
 %			- setup pine
 %			- setup back-cover
 %		...envs??
-% XXX do we need to implement cover fold over???
 % XXX not yet sure how to go about this -- should we update \blockwidth 
 %		or should we define a new length and let some templates 
 %		use one and some use the other???
@@ -406,9 +406,9 @@
 
 %----------------------------------------------------------------------
 %%%% Globals
-%
-% NOTE: most of these are setup in \InitPage...
-
+%%
+%% Most of these are setup in |\InitPage|.
+%%
 %% \DescribeMacro{\layoutmode}
 %
 %%	Layout mode
@@ -849,7 +849,7 @@
 %
 %%	Get pdf page count
 %%
-%%	>>	\pdfpagecount{<file.pdf>}
+%%	>>	\pdfpagecount{<file-pdf>}
 %%
 \newcommand\pdfpagecount[1]{
 	\ifpdftex
