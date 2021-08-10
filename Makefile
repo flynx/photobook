@@ -14,7 +14,8 @@ TEX := lualatex
 
 # Generate docs from latex package/class...
 #
-# 	- keep only lines starting with '%%'
+# 	- keep lines starting with \def\<module-name>@FILE
+# 	- keep lines starting with '%%'
 # 	- %%%%% Text -> \subsection(Text)
 # 	- %%%% Text -> \section(Text)
 # 	- %% >> code -> \begin{verbatim}code\end{verbatim}
@@ -31,7 +32,8 @@ TEX := lualatex
 #%.tex: %.sty
 %.tex: %.cls
 	cat $< \
-		| egrep "^%%" \
+		| egrep '(^%%|^\\\\def\\\\$*@FILE)' \
+		| sed 's/^\(\\\\def\\\\\)$*@/%%\\1/'\
 		| sed 's/%%%%%% \(.*\)/%%\\\\subsubsection{\1}/' \
 		| sed 's/%%%%% \(.*\)/%%\\\\subsection{\1}/' \
 		| sed 's/%%%% \(.*\)/%%\\\\section{\1}/' \

@@ -14,7 +14,11 @@
 % XXX might be a good idea to add a spine calculator...
 %
 %----------------------------------------------------------------------
-%
+
+\def\photobook@FILEVERSION{v0.1}
+\def\photobook@FILEDATE{2021-07-28}
+
+
 %% \documentclass{ltxdoc}
 %%
 %% \usepackage[a4paper,margin=25mm,left=50mm,nohead]{geometry}
@@ -24,14 +28,13 @@
 %%
 %% \begin{document}
 %%
-%% \GetFileInfo{\jobname.cls}
-%%
-%% \title{\textsf{photobook} --- A new LaTeX class\thanks{This file
-%% 		describes version \fileversion, last revised \filedate.}}
+%% \title{\textsf{photobook} --- Document class for building photo-books
+%%		\thanks{This file describes version \FILEVERSION, 
+%%			last revised \FILEDATE.}}
 %%
 %% \author{Alex A. Naanou\thanks{E-mail: alex.nanou@gmail.com}}
 %%
-%% \date{Released \filedate}
+%% \date{Released \FILEDATE}
 %%
 %% \maketitle
 %%
@@ -46,8 +49,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-% XXX set release date...
-\ProvidesClass{photobook}[2021/07/28 v0.1 Photo book document class]
+\ProvidesClass{photobook}
+	[\photobook@FILEDATE \space \photobook@FILEVERSION Photo book document class]
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -243,7 +246,6 @@
 %% \end{verbatim}
 %% \end{minipage}
 %
-% XXX document layout bools here...
 % XXX in cover layout setup pdf boxes in a way to use \bleed as foldover...
 % 		...see hyperref docs to set pdf view/print area (???)
 %		.....should also set \bleed default to something like 17mm
@@ -252,6 +254,7 @@
 %			- setup pine
 %			- setup back-cover
 %		...envs??
+% XXX do we need to implement cover fold over???
 % XXX not yet sure how to go about this -- should we update \blockwidth 
 %		or should we define a new length and let some templates 
 %		use one and some use the other???
@@ -406,9 +409,9 @@
 
 %----------------------------------------------------------------------
 %%%% Globals
-%%
-%% Most of these are setup in |\InitPage|.
-%%
+%
+% NOTE: most of these are setup in \InitPage...
+
 %% \DescribeMacro{\layoutmode}
 %
 %%	Layout mode
@@ -849,7 +852,7 @@
 %
 %%	Get pdf page count
 %%
-%%	>>	\pdfpagecount{<file-pdf>}
+%%	>>	\pdfpagecount{<file.pdf>}
 %%
 \newcommand\pdfpagecount[1]{
 	\ifpdftex
@@ -1650,6 +1653,121 @@
 	\newpage }
 
 
+% XXX
+% XXX \OFFSETFIX
+%% \DescribeMacro{\imageleftspreadfullbleed}
+%
+%% Image left page spread with full bleed.
+%
+%%	>> \imageleftspreadfullbleed[<vertical-offset>]{<caption>}{<image>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   |   .           .
+%%   |      .        .
+%%   |         .     .
+%%   |            .  .
+%%   |             ima
+%%   |            .  .
+%%   |         .     .
+%%   |      .        .
+%%   |   .         c .
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%
+\newcommand\imageleftspreadfullbleed[3][0mm]{
+	\sbox{\photobook@imagebox}{
+		\includegraphics[
+			keepaspectratio, 
+			width=\dimexpr 
+				2\blockwidth - 2\clearimage + \vgrowimageby \relax]{#3} }
+	\clearpage
+	\null
+	\vfill
+	\begin{flushright}
+		#2
+	\end{flushright}
+	\ShipoutPicture{
+		\AtPageCenter{
+			\hspace{\dimexpr 
+				\OFFSETFIX
+				-(\nudgeimageby)
+				+\clearimage
+				-0.5\blockwidth \relax}{
+			\raisebox{\dimexpr
+					(#1)
+					+\clearimage
+					-(0.5\blockheight
+						+(0.5\ht\photobook@imagebox - 0.5\blockheight)) 
+					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
+				\usebox\photobook@imagebox } } } }
+	\newpage 
+	\resetnudgeimage }
+
+
+% XXX
+% XXX \OFFSETFIX
+%% \DescribeMacro{\imagerightspreadfullbleed}
+%
+%% Image spread right page with full bleed.
+%
+%%	>> \imagerightspreadfullbleed[<vertical-offset>]{<caption>}{<image>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   .           .   |
+%%   .        .      |
+%%   .     .         |
+%%   .  .            |
+%%   age             |
+%%   .  .            |
+%%   .     .         |
+%%   .        .      |
+%%   .           . c |
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%
+\newcommand\imagerightspreadfullbleed[3][0mm]{
+	\sbox{\photobook@imagebox}{
+		\includegraphics[
+			keepaspectratio, 
+			width=\dimexpr 
+				2\blockwidth - 2\clearimage + \vgrowimageby \relax]{#3} }
+	\clearpage
+	\null
+	\vfill
+	% XXX for some reason the last line here is a bit off...
+	% XXX do we need to restrict caption width here??? ...0.5\textwidth??
+	% XXX make caption sizing a bit more flexible...
+	\begin{flushright}
+		\captionsize #2
+	\end{flushright}
+	\ShipoutPicture{
+		\AtPageCenter{
+			\hspace{\dimexpr 
+				\OFFSETFIX
+				-(\nudgeimageby)
+				+\clearimage
+				-1.5\blockwidth \relax}{
+			\raisebox{\dimexpr
+					(#1)
+					+\clearimage
+					-(0.5\blockheight
+						+(0.5\ht\photobook@imagebox - 0.5\blockheight))
+					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
+				\usebox\photobook@imagebox } } } }
+	\newpage 
+	\resetnudgeimage }
+
+
 
 %----------------------------------------------------------------------
 %%%% Spread Templates
@@ -1933,121 +2051,6 @@
 				-\wd\photobook@imagebox \relax}{
 			\raisebox{\dimexpr 
 					#1 + \bleed 
-					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
-				\usebox\photobook@imagebox } } } }
-	\newpage 
-	\resetnudgeimage }
-
-
-% XXX
-% XXX \OFFSETFIX
-%% \DescribeMacro{\imageleftspreadfullbleed}
-%
-%% Image left page spread with full bleed.
-%
-%%	>> \imageleftspreadfullbleed[<vertical-offset>]{<caption>}{<image>}
-%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%   +---------------+
-%%   |   .           .
-%%   |      .        .
-%%   |         .     .
-%%   |            .  .
-%%   |             ima
-%%   |            .  .
-%%   |         .     .
-%%   |      .        .
-%%   |   .         c .
-%%   +---------------+
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%
-\newcommand\imageleftspreadfullbleed[3][0mm]{
-	\sbox{\photobook@imagebox}{
-		\includegraphics[
-			keepaspectratio, 
-			width=\dimexpr 
-				2\blockwidth - 2\clearimage + \vgrowimageby \relax]{#3} }
-	\clearpage
-	\null
-	\vfill
-	\begin{flushright}
-		#2
-	\end{flushright}
-	\ShipoutPicture{
-		\AtPageCenter{
-			\hspace{\dimexpr 
-				\OFFSETFIX
-				-(\nudgeimageby)
-				+\clearimage
-				-0.5\blockwidth \relax}{
-			\raisebox{\dimexpr
-					(#1)
-					+\clearimage
-					-(0.5\blockheight
-						+(0.5\ht\photobook@imagebox - 0.5\blockheight)) 
-					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
-				\usebox\photobook@imagebox } } } }
-	\newpage 
-	\resetnudgeimage }
-
-
-% XXX
-% XXX \OFFSETFIX
-%% \DescribeMacro{\imagerightspreadfullbleed}
-%
-%% Image spread right page with full bleed.
-%
-%%	>> \imagerightspreadfullbleed[<vertical-offset>]{<caption>}{<image>}
-%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%   +---------------+
-%%   .           .   |
-%%   .        .      |
-%%   .     .         |
-%%   .  .            |
-%%   age             |
-%%   .  .            |
-%%   .     .         |
-%%   .        .      |
-%%   .           . c |
-%%   +---------------+
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%
-\newcommand\imagerightspreadfullbleed[3][0mm]{
-	\sbox{\photobook@imagebox}{
-		\includegraphics[
-			keepaspectratio, 
-			width=\dimexpr 
-				2\blockwidth - 2\clearimage + \vgrowimageby \relax]{#3} }
-	\clearpage
-	\null
-	\vfill
-	% XXX for some reason the last line here is a bit off...
-	% XXX do we need to restrict caption width here??? ...0.5\textwidth??
-	% XXX make caption sizing a bit more flexible...
-	\begin{flushright}
-		\captionsize #2
-	\end{flushright}
-	\ShipoutPicture{
-		\AtPageCenter{
-			\hspace{\dimexpr 
-				\OFFSETFIX
-				-(\nudgeimageby)
-				+\clearimage
-				-1.5\blockwidth \relax}{
-			\raisebox{\dimexpr
-					(#1)
-					+\clearimage
-					-(0.5\blockheight
-						+(0.5\ht\photobook@imagebox - 0.5\blockheight))
 					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
 				\usebox\photobook@imagebox } } } }
 	\newpage 
