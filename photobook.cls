@@ -15,15 +15,20 @@
 %
 %----------------------------------------------------------------------
 
+%%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
+%%%		code and the generated docs...
 \def\photobook@FILEVERSION{v0.1}
 \def\photobook@FILEDATE{2021-07-28}
 
 
 %% \documentclass{ltxdoc}
 %%
-%% \usepackage[a4paper,margin=25mm,left=50mm,nohead]{geometry}
+%% \usepackage[a4paper,margin=25mm,left=55mm,nohead]{geometry}
 %% \usepackage[numbered]{hypdoc}
 %% \usepackage{doctools}
+%%
+%%% \newcommand\DescribeGlobal[1]{%
+%%%	\DescribeMacro{#1}}
 %%
 %%
 %% \begin{document}
@@ -38,7 +43,8 @@
 %%
 %% \maketitle
 %%
-%% {\bf Note: all older templates/commnads/macros will get reworked soon!}
+%% \fbox{\bf%
+%%		Note: all older templates/commnads/macros will get reworked soon!}
 %%
 %%%% Usage
 %%
@@ -245,6 +251,7 @@
 %%
 %% \end{verbatim}
 %% \end{minipage}
+%%
 %
 % XXX in cover layout setup pdf boxes in a way to use \bleed as foldover...
 % 		...see hyperref docs to set pdf view/print area (???)
@@ -305,6 +312,7 @@
 %% this can be:
 %% - negative value set image bleed, 
 %% - positive value set distance from paper edge to image.
+%%
 %
 \DeclareStringOption{clearimage}[-5mm]
 
@@ -316,6 +324,7 @@
 %% \DescribeMacro{imageblockoffsettop=<len>}
 %
 %% Image block size relative to text block.
+%%
 %
 % XXX better name...
 \DeclareStringOption[0.85]{imageblockwidth}[1]
@@ -336,7 +345,9 @@
 %	- TwoColumnLeft (for layoutmode=block)
 %	- SinglePage
 %
-% see: hyperref's pdfpagelayout for more options...
+% XXX make this a proper link...
+%% See: hyperref's pdfpagelayout for more options.
+%%
 \DeclareStringOption{pdfpagelayout}
 \@DeclareLiteralOptionTo{pdfpagelayout}{SinglePage}
 \@DeclareLiteralOptionTo{pdfpagelayout}{OneColumn}
@@ -361,6 +372,7 @@
 %%		paperheight=\bleedblockheight
 %%		bindingoffset=\bindingoffset
 %%	\end{verbatim}
+%%
 %
 % XXX better name..
 \DeclareBoolOption{geometrynodefaults}
@@ -412,7 +424,8 @@
 %
 % NOTE: most of these are setup in \InitPage...
 
-%% \DescribeMacro{\layoutmode}
+%%% \DescribeGlobal{layoutmode}
+%% \DescribeMacro{\layoutmode=<mode>}
 %
 %%	Layout mode
 %%
@@ -428,43 +441,43 @@
 \newif\ifcoverlikelayout
 \newif\ifblocklayout
 
-%% \DescribeMacro{\pdfpagelayout}
+%% \DescribeMacro{\pdfpagelayout=<mode>}
 %
 %%	Controls the default layout in the pdf viewer.
 %%
 \edef\pdfpagelayout{\photobook@pdfpagelayout}
 
-%% \DescribeMacro{\spinewidth}
+%% \DescribeMacro{\spinewidth=<len>}
 %
 %%	Spine width
 %%
 \newlength\spinewidth
 \setlength\spinewidth{\photobook@spinewidth}
 
-%% \DescribeMacro{\spinefold}
+%% \DescribeMacro{\spinefold=<len>}
 %
 %%	Spine fold width
 %%
 \newlength\spinefold
 \setlength\spinefold{\photobook@spinefold}
 
-%% \DescribeMacro{\coverboardgrow}
+%% \DescribeMacro{\coverboardgrow=<len>}
 %
 %%	Controls how much biger the cover board is than the page block
 %%
 \newlength\coverboardgrow
 \setlength\coverboardgrow{\photobook@coverboardgrow}
 
-%% \DescribeMacro{\coverflap}
+%% \DescribeMacro{\coverflap=<len>}
 %
 %%	Cover flap
 %%
 \newlength\coverflap
 
-%% \DescribeMacro{\jacketwrap}
-%% \DescribeMacro{\jacketflap}
-%% \DescribeMacro{\jacketflapfront}
-%% \DescribeMacro{\jacketflapback}
+%% \DescribeMacro{\jacketwrap=<len>}
+%% \DescribeMacro{\jacketflap=<len>}
+%% \DescribeMacro{\jacketflapfront=<len>}
+%% \DescribeMacro{\jacketflapback=<len>}
 %
 %%	Jacker configuration
 %%
@@ -473,8 +486,8 @@
 \newlength\jacketflapfront
 \newlength\jacketflapback
 
-%% \DescribeMacro{\blockwidth}
-%% \DescribeMacro{\blockheight}
+%% \DescribeMacro{\blockwidth=<len>}
+%% \DescribeMacro{\blockheight=<len>}
 %
 %%	Page block size
 %%
@@ -482,42 +495,44 @@
 \newlength\blockwidth
 \newlength\blockheight
 
-%% \DescribeMacro{\bleedblockwidth}
-%% \DescribeMacro{\bleedblockheight}
+%% \DescribeMacro{\bleedblockwidth=<len>}
+%% \DescribeMacro{\bleedblockheight=<len>}
 %
 %%	Page block size with bleeds
 %%
 %%	These are equivalent to |\paperwidth| and |\paperheight| but are 
 %%	independent of them...
+%%
 \newlength\bleedblockwidth
 \newlength\bleedblockheight
 
-%% \DescribeMacro{\pageblockwidth}
-%% \DescribeMacro{\pageblockheight}
+%% \DescribeMacro{\pageblockwidth=<len>}
+%% \DescribeMacro{\pageblockheight=<len>}
 %
 %% Original page block size
 %%
 %% for the block layout these are the same as |\blockwidth| and |\blockheight|
 %% for other layouts these are the original page layout size while the 
 %% |\blockwidth| are set tho the current layout visible size.
+%%
 \newlength\pageblockwidth
 \newlength\pageblockheight
 
-%% \DescribeMacro{\bleed}
+%% \DescribeMacro{\bleed=<len>}
 %
 %%	Page bleed size
 %%
 \newlength\bleed
 \setlength\bleed{\photobook@bleed}
 
-%% \DescribeMacro{\bindingoffset}
+%% \DescribeMacro{\bindingoffset=<len>}
 %
 %%	Binding offset
 %%
 \newlength\bindingoffset
 \setlength\bindingoffset{\photobook@bindingoffset}
 
-%% \DescribeMacro{\clearimage}
+%% \DescribeMacro{\clearimage=<len>}
 %
 %%	Image clearence
 %%
@@ -527,15 +542,15 @@
 \newlength{\clearimage}
 \setlength\clearimage{\maxdimen}
 
-%% \DescribeMacro{\imageblockwidth}
-%% \DescribeMacro{\imageblockheight}
+%% \DescribeMacro{\imageblockwidth=<ratio>}
+%% \DescribeMacro{\imageblockheight=<ratio>}
 %
 %%	Image block width relative to |\textwidth|
 %%
 \edef\imageblockwidth{\photobook@imageblockwidth}
 \edef\imageblockheight{\photobook@imageblockheight}
 
-%% \DescribeMacro{\imageblockoffsettop}
+%% \DescribeMacro{\imageblockoffsettop=<ratio>}
 %
 %%
 %%
@@ -811,7 +826,7 @@
 %%%% Generic commands
 %%
 
-%% \DescribeMacro{\keywords}
+%% \DescribeMacro{\keywords\{..\}}
 %
 %%	Set pdf metadata keywords
 %%
@@ -823,7 +838,7 @@
 	\def\@keywords{#1}}
 
 
-%% \DescribeMacro{\subject}
+%% \DescribeMacro{\subject\{..\}}
 %
 %%	Set pdf metadata subject
 %%
@@ -848,7 +863,7 @@
 				\hbox{}\newpage \fi\fi\fi }
 
 
-%% \DescribeMacro{\pdfpagecount}
+%% \DescribeMacro{\pdfpagecount\{..\}}
 %
 %%	Get pdf page count
 %%
@@ -871,7 +886,7 @@
 			tex.write(pages) } \fi\fi }
 
 
-%% \DescribeMacro{\pdfspinewidth}
+%% \DescribeMacro{\pdfspinewidth\{..\}}
 %
 %%	Calculate spine thickness
 %%
@@ -1246,7 +1261,7 @@
 \newcommand\captionsize{\fontsize{6.5pt}{8pt}\selectfont}
 
 
-%% \DescribeMacro{\imagecaption}
+%% \DescribeMacro{\imagecaption\{..\}}
 %
 %%	>> \imagecaption{<caption>}{<location-date>}
 %%
@@ -1257,7 +1272,7 @@
 		#2}}
 
 
-%% \DescribeMacro{\overlaycaption}
+%% \DescribeMacro{\overlaycaption\{..\}}
 %
 %%	>> \overlaycaption{<caption>}{<location-date>}
 %%
@@ -1271,7 +1286,7 @@
 	\end{flushright}}
 
 
-%% \DescribeMacro{\captionsidebox}
+%% \DescribeMacro{\captionsidebox\{..\}}
 %
 %%	>> \captionsidebox[<offset>]{<imagebox>}{<text>}
 %%
@@ -1288,8 +1303,8 @@
 	\end{minipage}}
 
 
-%% \DescribeMacro{\captionboxleft}
-%% \DescribeMacro{\captionboxright}
+%% \DescribeMacro{\captionboxleft\{..\}}
+%% \DescribeMacro{\captionboxright\{..\}}
 %
 %%	>> \captionboxleft[<offset>]{<imagebox>}{<text>}
 %%	>> \captionboxright[<offset>]{<imagebox>}{<text>}
@@ -1315,7 +1330,7 @@
 
 
 % XXX \CAPTIONWIDTHFIX
-%% \DescribeMacro{\captionbottombox}
+%% \DescribeMacro{\captionbottombox\{..\}}
 %
 %%	>> \captionbottombox[<offset>]{<imagebox>}{<text>}
 %%
@@ -1328,7 +1343,7 @@
 		\end{minipage}}}
 
 
-%% \DescribeMacro{\graycaptionpage}
+%% \DescribeMacro{\graycaptionpage\{..\}}
 %
 %%	>> \graycaptionpage{<text>}
 %%
@@ -1359,9 +1374,10 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-%% \DescribeMacro{\imagepagefitWH}
+%% \DescribeMacro{\imagepagefitWH\{..\}}
 %
 %%	>> \imagepagefitWH{<width>}{<height>}{<caption>}{<image>}
+%%
 %
 % NOTE: width and hight are ratios of \textwidth and \textheight 
 %		respectively. 
@@ -1416,21 +1432,21 @@
 	\newpage }
 
 
-%% \DescribeMacro{\imagepagefitW}
-%% \DescribeMacro{\imagepagefitH}
+%% \DescribeMacro{\imagepagefitW\{..\}}
+%% \DescribeMacro{\imagepagefitH\{..\}}
 %
 %%	Shorthands to |\imagepagefitWH|
 %
 %%	>> \imagepagefitH[<height>]{<caption>}{<image>}
 %%	>> \imagepagefitW[<width>]{<caption>}{<image>}
-%
+%%
 \newcommand\imagepagefitH[3][\imageblockheight]{
 	\imagepagefitWH{\imageblockwidth}{#1}{#2}{#3} }
 \newcommand\imagepagefitW[3][\imageblockwidth]{
 	\imagepagefitWH{#1}{\imageblockheight}{#2}{#3} }
 
 
-%% \DescribeMacro{\imagepage}
+%% \DescribeMacro{\imagepage\{..\}}
 %
 %%	Basic image page
 %
@@ -1461,7 +1477,7 @@
 
 % XXX
 % XXX captions wrong... 
-%% \DescribeMacro{\imagepagefit}
+%% \DescribeMacro{\imagepagefit\{..\}}
 %
 %% Similar to |\imagepage| but will fit an image into page...
 %
@@ -1470,6 +1486,7 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
+%%     . . . . . . .
 %%   +---------------+
 %%   | |.         .| |
 %%   | | .       . | |
@@ -1481,6 +1498,7 @@
 %%   | | .       . | |
 %%   | |.         .| |
 %%   +---------------+
+%%     . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -1520,7 +1538,7 @@
 
 % XXX does not work...
 % XXX \OFFSETFIX
-%% \DescribeMacro{\imagepagefill}
+%% \DescribeMacro{\imagepagefill\{..\}}
 %
 %%	Like |\imagepage| but will fit an image into page...
 %
@@ -1529,17 +1547,17 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   +---------------+
-%%   |---------------|
-%%   |               |
-%%   |.             .|
-%%   |   .       .   |
-%%   |     image     |
-%%   |   .       .   |
-%%   |.             .|
-%%   |               |
-%%   |-------------c-|
-%%   +---------------+
+%%     +---------------+
+%%   . |---------------| .
+%%   . |               | .
+%%   . |.             .| .
+%%   . |   .       .   | .
+%%   . |     image     | .
+%%   . |   .       .   | .
+%%   . |.             .| .
+%%   . |               | .
+%%   . |-------------c-| .
+%%     +---------------+
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -1575,24 +1593,26 @@
 
 % XXX
 % XXX \OFFSETFIX
-%% \DescribeMacro{\portraitimagepageleft}
+%% \DescribeMacro{\portraitimagepageleft\{..\}}
 %
 %%  >> portraitimagepageleft[<clearence>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   +---------------+
-%%   |.         .|   |
-%%   | .       . |   |
-%%   |  .     .  |   |
-%%   |   .   .   |   |
-%%   |   image   |   |
-%%   |   .   .   |   |
-%%   |  .     .  |   |
-%%   | .       . |   |
-%%   |.         .| c |
-%%   +---------------+
+%%   . . . . . . . .
+%%   . +---------------+
+%%   . |.         .|   |
+%%   . | .       . |   |
+%%   . |  .     .  |   |
+%%   . |   .   .   |   |
+%%   . |   image   |   |
+%%   . |   .   .   |   |
+%%   . |  .     .  |   |
+%%   . | .       . |   |
+%%   . |.         .| c |
+%%   . +---------------+
+%%   . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -1613,24 +1633,26 @@
 
 
 % XXX
-%% \DescribeMacro{\portraitimagepageright}
+%% \DescribeMacro{\portraitimagepageright\{..\}}
 %
 %%	>> portraitimagepageright{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   +---------------+
-%%   |   |.         .|
-%%   |   | .       . |
-%%   |   |  .     .  |
-%%   |   |   .   .   |
-%%   |   |   image   |
-%%   |   |   .   .   |
-%%   |   |  .     .  |
-%%   |   | .       . |
-%%   | c |.         .|
-%%   +---------------+
+%%       . . . . . . . .
+%%   +---------------+ .
+%%   |   |.         .| .
+%%   |   | .       . | .
+%%   |   |  .     .  | .
+%%   |   |   .   .   | .
+%%   |   |   image   | .
+%%   |   |   .   .   | .
+%%   |   |  .     .  | .
+%%   |   | .       . | .
+%%   | c |.         .| .
+%%   +---------------+ .
+%%       . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -1655,7 +1677,7 @@
 
 % XXX
 % XXX \OFFSETFIX
-%% \DescribeMacro{\imageleftspreadfullbleed}
+%% \DescribeMacro{\imageleftspreadfullbleed\{..\}}
 %
 %% Image left page spread with full bleed.
 %
@@ -1664,21 +1686,23 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   +---------------+
-%%   |   .           .
-%%   |      .        .
-%%   |         .     .
-%%   |            .  .
-%%   |             ima
-%%   |            .  .
-%%   |         .     .
-%%   |      .        .
-%%   |   .         c .
-%%   +---------------+
+%%  . . . . . . . . . . . . 
+%%  . +---------------+     
+%%  . |   .           |     
+%%  . |      .        |     
+%%  . |         .     |     
+%%  . |            .  |     
+%%  . |             image
+%%  . |            .  |     
+%%  . |         .     |     
+%%  . |      .        |     
+%%  . |   .         c |     
+%%  . +---------------+     
+%%  . . . . . . . . . . . . 
 %%
 %% \end{verbatim}
 %% \end{minipage}
-%
+%%
 \newcommand\imageleftspreadfullbleed[3][0mm]{
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
@@ -1711,7 +1735,7 @@
 
 % XXX
 % XXX \OFFSETFIX
-%% \DescribeMacro{\imagerightspreadfullbleed}
+%% \DescribeMacro{\imagerightspreadfullbleed\{..\}}
 %
 %% Image spread right page with full bleed.
 %
@@ -1720,21 +1744,23 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   +---------------+
-%%   .           .   |
-%%   .        .      |
-%%   .     .         |
-%%   .  .            |
-%%   age             |
-%%   .  .            |
-%%   .     .         |
-%%   .        .      |
-%%   .           . c |
-%%   +---------------+
+%%  . . . . . . . . . . . .
+%%      +---------------+ .
+%%      |           .   | .
+%%      |        .      | .
+%%      |     .         | .
+%%      |  .            | .
+%%    image             | .
+%%      |  .            | .
+%%      |     .         | .
+%%      |        .      | .
+%%      |           . c | .
+%%      +---------------+ .
+%%  . . . . . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
-%
+%%
 \newcommand\imagerightspreadfullbleed[3][0mm]{
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
@@ -1788,7 +1814,7 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-%% \DescribeMacro{\nudgeimage}
+%% \DescribeMacro{\nudgeimage\{..\}}
 %
 %% Nudge an image horizontally within bleeds. Positive values nudge/move 
 %% to the right negative values nudge left.
@@ -1796,21 +1822,23 @@
 %%	>> \nudgeimage{<amount>}
 %
 %% in addition to spread commands below this is also used by |\captionsidebox{..}|
+%%
 \newcommand\nudgeimage[1]{%
 	\setlength{\nudgeimageby}{#1}}
 
-%% \DescribeMacro{\vnudgeimage}
+%% \DescribeMacro{\vnudgeimage\{..\}}
 %
 %% Like |\nudgeimage{..}| but nudges vertically.
 %
 %%	>> \vnudgeimage{<amount>}
+%%
 %
 % NOTE: this should not be used in conjunction with \vgrowimage{..} and 
 %		should not exceed 1/2 of the amount given to \vgrowimage{..}
 \newcommand\vnudgeimage[1]{%
 	\setlength{\vnudgeimageby}{#1}}
 
-%% \DescribeMacro{\vgrowimage}
+%% \DescribeMacro{\vgrowimage\{..\}}
 %
 %% Grow an image within bleeds. 
 %
@@ -1818,6 +1846,7 @@
 %
 %% This sizes the image relative to its center this adding 1/2 the 
 %% amount to the top and 1/2 to the bottom.
+%%
 \newcommand\vgrowimage[1]{%
 	\setlength{\vgrowimageby}{#1}}
 
@@ -1831,7 +1860,7 @@
 %% When working with shipout place this after |\newpage| as when 
 %% placed before this will reset the |\nudgeimageby{..}| BEFORE the image
 %% placing commands have a chance to execute.
-%
+%%
 % XXX rename
 \newcommand\resetnudgeimage{%
 	\setlength{\vgrowimageby}{0mm}%
@@ -1843,13 +1872,14 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 % XXX
-%% \DescribeMacro{\portraitspreadbleedleft}
+%% \DescribeMacro{\portraitspreadbleedleft\{..\}}
 %
 %%	>> \portraitspreadbleedleft[<clearence>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
+%%       . . . . . . . .
 %%   +---------------+---------------+
 %%   |   |.         .|               |
 %%   |   | .       . |               |
@@ -1861,10 +1891,11 @@
 %%   |   | .       . |               |
 %%   |   |.         .| c             |
 %%   +---------------+---------------+
+%%       . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
-%
+%%
 \newcommand\portraitspreadbleedleft[3][\clearimage]{
 	\cleartoleftpage
 	% style the caption...
@@ -1879,13 +1910,14 @@
 
 
 % XXX
-%% \DescribeMacro{\portraitspreadbleedright}
+%% \DescribeMacro{\portraitspreadbleedright\{..\}}
 %
 %%	>> \portraitspreadbleedright[<clearence>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
+%%                 . . . . . . . .
 %%   +---------------+---------------+
 %%   |               |.         .|   |
 %%   |               | .       . |   |
@@ -1897,10 +1929,11 @@
 %%   |               | .       . |   |
 %%   |             c |.         .|   |
 %%   +---------------+---------------+
+%%                 . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
-%
+%%
 \newcommand\portraitspreadbleedright[3][\clearimage]{
 	\cleartoleftpage
 	% style the caption...
@@ -1916,7 +1949,7 @@
 
 % XXX
 % XXX \OFFSETFIX
-%% \DescribeMacro{\imagespreadleft}
+%% \DescribeMacro{\imagespreadleft\{..\}}
 %
 %% Image spread aligned left (with bleed).
 %
@@ -1925,21 +1958,23 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   +---------------+---------------+
-%%   | .             .         . |   |
-%%   |    .          .      .    |   |
-%%   |       .       .   .       |   |
-%%   |          .    ..          |   |
-%%   |           image           |   |
-%%   |          .    ..          |   |
-%%   |       .       .   .       |   |
-%%   |    .          .      .    |   |
-%%   | .             .         . | c |
-%%   +---------------+---------------+
+%%   . . . . . . . . . . . . . . . .
+%%   . +---------------+---------------+
+%%   . | .             .         . |   |
+%%   . |    .          .      .    |   |
+%%   . |       .       .   .       |   |
+%%   . |          .    ..          |   |
+%%   . |           image           |   |
+%%   . |          .    ..          |   |
+%%   . |       .       .   .       |   |
+%%   . |    .          .      .    |   |
+%%   . | .             .         . | c |
+%%   . +---------------+---------------+
+%%   . . . . . . . . . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
-%
+%%
 % XXX might be a good idea to do a version of this with min/max width of 
 %		the caption block...
 \newcommand\imagespreadleft[3][\clearimage]{
@@ -1991,7 +2026,7 @@
 
 
 % XXX
-%% \DescribeMacro{\imagespreadright}
+%% \DescribeMacro{\imagespreadright\{..\}}
 %
 %% Image spread aligned right (with bleed).
 %
@@ -2000,21 +2035,23 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   +---------------+---------------+
-%%   |   | .         .             . |
-%%   |   |    .      .          .    |
-%%   |   |       .   .       .       |
-%%   |   |          ..   .           |
-%%   |   |          image            |
-%%   |   |          ..   .           |
-%%   |   |       .   .       .       |
-%%   |   |    .      .          .    |
-%%   | c | .         .             . |
-%%   +---------------+---------------+
+%%       . . . . . . . . . . . . . . . .
+%%   +---------------+---------------+ .
+%%   |   | .         .             . | .
+%%   |   |    .      .          .    | .
+%%   |   |       .   .       .       | .
+%%   |   |          ..   .           | .
+%%   |   |          image            | .
+%%   |   |          ..   .           | .
+%%   |   |       .   .       .       | .
+%%   |   |    .      .          .    | .
+%%   | c | .         .             . | .
+%%   +---------------+---------------+ .
+%%       . . . . . . . . . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
-%
+%%
 \newcommand\imagespreadright[3][\clearimage]{
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
@@ -2059,7 +2096,7 @@
 
 % XXX BUG?: this is not centered vertically...
 % XXX
-%% \DescribeMacro{\imagespreadfullbleed}
+%% \DescribeMacro{\imagespreadfullbleed\{..\}}
 %
 %% Image spread with full bleed.
 %
@@ -2068,21 +2105,23 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   +---------------+---------------+
-%%   |   .           .           .   |
-%%   |      .        .        .      |
-%%   |         .     .     .         |
-%%   |            .  .  .            |
-%%   |             image             |
-%%   |            .  .  .            |
-%%   |         .     .     .         |
-%%   |      .        .        .      |
-%%   |   .           .           . c |
-%%   +---------------+---------------+
+%%  . . . . . . . . . . . . . . . . . . .
+%%  . +---------------+---------------+ .
+%%  . |   .           .           .   | .
+%%  . |      .        .        .      | .
+%%  . |         .     .     .         | .
+%%  . |            .  .  .            | .
+%%  . |             image             | .
+%%  . |            .  .  .            | .
+%%  . |         .     .     .         | .
+%%  . |      .        .        .      | .
+%%  . |   .           .           . c | .
+%%  . +---------------+---------------+ .
+%%  . . . . . . . . . . . . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
-%
+%%
 % XXX do we need the same thing but with a left caption???
 \newcommand\imagespreadfullbleed[3][0mm]{
 	\setlength{\photobook@tmpnudgeimageby}{\nudgeimageby}
