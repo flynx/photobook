@@ -14,7 +14,7 @@ TEX := lualatex
 
 # Generate docs from latex package/class...
 #
-# 	- keep lines starting with \def\<module-name>@FILE
+# 	- keep lines starting with \def\<module-name>@[A-Z]\+
 # 	- keep lines starting with '%%'
 # 	- %%%%% Text -> \subsection(Text)
 # 	- %%%% Text -> \section(Text)
@@ -32,7 +32,7 @@ TEX := lualatex
 #%.tex: %.sty
 %.tex: %.cls
 	cat $< \
-		| egrep '(^%%|^\\\\def\\\\$*@FILE)' \
+		| egrep '(^%%|^\\\\def\\\\$*@[A-Z]+)' \
 		| sed 's/^\(\\\\def\\\\\)$*@/%%\\1/'\
 		| sed 's/%%%%%% \(.*\)/%%\\\\subsubsection{\1}/' \
 		| sed 's/%%%%% \(.*\)/%%\\\\subsection{\1}/' \
