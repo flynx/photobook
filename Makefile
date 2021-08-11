@@ -7,11 +7,6 @@ TEX := lualatex
 
 #----------------------------------------------------------------------
 
-
-%.pdf: %.tex
-	$(TEX) $< > /dev/null
-
-
 # Generate docs from latex package/class...
 #
 # 	- keep lines starting with \def\<module-name>@[A-Z]\+
@@ -27,18 +22,33 @@ TEX := lualatex
 # 		in both the repo and in installed form.
 # NOTE: this is evolving as need arises, when this gets too complicated 
 # 		we'll split it out into it's own script.
-#
-# XXX need to do this without repeating the recipe...
-#%.tex: %.sty
-%.tex: %.cls
-	cat $< \
+texToDoc = \
+	@echo "texToDoc: $1 -> $2"; \
+	cat $1 \
 		| egrep '(^%%|^\\\\def\\\\$*@[A-Z]+)' \
 		| sed 's/^\(\\\\def\\\\\)$*@/%%\\1/'\
 		| sed 's/%%%%%% \(.*\)/%%\\\\subsubsection{\1}/' \
 		| sed 's/%%%%% \(.*\)/%%\\\\subsection{\1}/' \
 		| sed 's/%%%% \(.*\)/%%\\\\section{\1}/' \
 		| sed 's/%%\s\+>>\s\+\(.*\)/%%\\\\begin{verbatim} \1 \\\\end{verbatim}/' \
-		| cut -c 3- - > $@
+		| cut -c 3- - > $2
+
+
+#----------------------------------------------------------------------
+
+
+%.pdf: %.tex
+	$(TEX) $< > /dev/null
+
+
+%.tex: %.sty
+	$(call texToDoc,$<,$@)
+
+
+%.tex: %.cls
+	$(call texToDoc,$<,$@)
+
+
 
 #----------------------------------------------------------------------
 # XXX install... (see: ./tmp/Makefile)
