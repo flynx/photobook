@@ -1,7 +1,9 @@
 #----------------------------------------------------------------------
 
 
-TEX := lualatex
+ARGS :=
+
+TEX := lualatex $(ARGS)
 
 
 
@@ -41,9 +43,10 @@ texToDoc = \
 	$(TEX) $< > /dev/null
 
 
+# NOTE: .sty and .cls are essentially the same in terms of documentation 
+# 		generation...
 %.tex: %.sty
 	$(call texToDoc,$<,$@)
-
 
 %.tex: %.cls
 	$(call texToDoc,$<,$@)
