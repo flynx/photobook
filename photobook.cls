@@ -965,8 +965,29 @@
 %
 %% A cell environments is designed to place a cell/box at a specific 
 %% location in a page.
+
+
+%% \DescribeEnv{cell}
 %
+%%	>> \begin{cell}{<top>, <left>}{<width>}{<height>} ...
 %
+% XXX EXPERIMENTAL...
+% XXX cells can not be nested -- they will mess up the \cellwidth and 
+%		\cellheight for parents...
+% XXX SYNTAX: place the second arg in braces...
+%		\begin{cell}(<top>, <left>){<width>}{<height>}
+% XXX it appears that \NewEnviron{..} can't be nested...
+\newenvironment{cell}[3]{%
+	\setlength\cellwidth{\dimexpr #2 \relax}
+	\setlength\cellheight{\dimexpr #3 \relax}
+	%
+	\begin{textblock*}{\cellwidth}(#1)%
+	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+}{%
+	\end{minipage}%
+	\end{textblock*} }
+
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Endpaper cells
 %
@@ -992,29 +1013,18 @@
 %		make LaTeX complain that that is already defined...
 
 \NewEnviron{leftside}{%
-	\ifendpaperlayout
-		\setlength\cellwidth{\pageblockwidth}
-		\setlength\cellheight{\pageblockheight}
-		%
-		\begin{textblock*}{\pageblockwidth}(\bleed, \bleed)%
-		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	\ifendpaperlayout%
+		\begin{cell}{\bleed, \bleed}{\pageblockwidth}{\pageblockheight}%
 			\BODY%
-		\end{minipage}%
-		\end{textblock*} \fi }
+		\end{cell} \fi }
 
 \NewEnviron{rightside}{%
-	\ifendpaperlayout
-		\setlength\cellwidth{\pageblockwidth}
-		\setlength\cellheight{\pageblockheight}
-		%
-		\begin{textblock*}{\pageblockwidth}(
-			\bleed 
-				+ \pageblockwidth, 
-			\bleed )%
-		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	\ifendpaperlayout%
+		\begin{cell}%
+				{\bleed + \pageblockwidth, \bleed}%
+				{\pageblockwidth}{\pageblockheight}%
 			\BODY%
-		\end{minipage}%
-		\end{textblock*} \fi }
+		\end{cell} \fi }
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1048,147 +1058,110 @@
 %%
 %% \end{verbatim}
 %% \end{minipage}
-%
+%%
 \NewEnviron{frontcover}{%
-	\ifcoverlikelayout
-		\setlength\cellwidth{\dimexpr
-			\pageblockwidth 
-			+ \coverboardgrow \relax }
-		\setlength\cellheight{\dimexpr
-			\pageblockheight 
-			+ 2\coverboardgrow \relax }
-		%
-		\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
-				\bleed 
-					+ \jacketflapback 
-					+ \coverflap 
-					+ \jacketwrap 
-					+ \coverboardgrow 
-					+ \pageblockwidth 
-					+ 2\spinefold 
-					+ \spinewidth,
-				\bleed 
-					+ \coverflap )%
-		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	\ifcoverlikelayout%
+		\begin{cell}{
+					\bleed 
+						+ \jacketflapback 
+						+ \coverflap 
+						+ \jacketwrap 
+						+ \coverboardgrow 
+						+ \pageblockwidth 
+						+ 2\spinefold 
+						+ \spinewidth,
+					\bleed 
+						+ \coverflap }%
+				{ \pageblockwidth + \coverboardgrow }%
+				{ \pageblockheight + 2\coverboardgrow }%
 			\BODY%
-		\end{minipage}%
-		\end{textblock*} \fi }
+		\end{cell} \fi }
 
 \NewEnviron{backcover}{%
-	\ifcoverlikelayout
-		\setlength\cellwidth{\dimexpr
-			\pageblockwidth 
-			+ \coverboardgrow \relax }
-		\setlength\cellheight{\dimexpr
-			\pageblockheight 
-			+ 2\coverboardgrow \relax }
-		%
-		\begin{textblock*}{\pageblockwidth + \coverboardgrow}(
-			\bleed 
-				+ \jacketflapback 
-				+ \coverflap 
-				+ \jacketwrap,
-			\bleed 
-				+ \coverflap )%
-		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	\ifcoverlikelayout%
+		\begin{cell}{
+					\bleed 
+						+ \jacketflapback 
+						+ \coverflap 
+						+ \jacketwrap,
+					\bleed 
+						+ \coverflap }%
+				{ \pageblockwidth + \coverboardgrow }%
+				{ \pageblockheight + 2\coverboardgrow }%
 			\BODY%
-		\end{minipage}%
-		\end{textblock*} \fi }
+		\end{cell} \fi }
 
 
 % spines...
 %
 \NewEnviron{spine}{%
 	\ifcoverlikelayout
-		\setlength\cellwidth{\dimexpr
-			\spinewidth \relax }
-		\setlength\cellheight{\dimexpr
-			\pageblockheight 
-			+ 2\coverboardgrow \relax }
-		%
-		\begin{textblock*}{\spinewidth}(
-			\bleed 
-				+ \jacketflapback 
-				+ \coverflap 
-				+ \jacketwrap 
-				+ \coverboardgrow 
-				+ \pageblockwidth 
-				+ \spinefold,
-			\bleed 
-				+ \coverflap )%
-		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+		\begin{cell}{
+					\bleed 
+						+ \jacketflapback 
+						+ \coverflap 
+						+ \jacketwrap 
+						+ \coverboardgrow 
+						+ \pageblockwidth 
+						+ \spinefold,
+					\bleed 
+						+ \coverflap }%
+				{ \spinewidth }%
+				{ \pageblockheight + 2\coverboardgrow }
 			\BODY%
-		\end{minipage}%
-		\end{textblock*} \fi }
+		\end{cell} \fi }
 
-% XXX make args be up or down...
 \NewEnviron{vspine}[1][270]{%
 	\ifcoverlikelayout
-		\setlength\cellwidth{\dimexpr
-			\spinewidth \relax }
-		\setlength\cellheight{\dimexpr
-			\pageblockheight 
-			+ 2\coverboardgrow \relax }
-		%
-		\begin{textblock*}{\spinewidth}(
-			\bleed 
-				+ \jacketflapback 
-				+ \coverflap 
-				+ \jacketwrap 
-				+ \coverboardgrow 
-				+ \pageblockwidth 
-				+ \spinefold,
-			\bleed 
-				+ \coverflap )%
-		% XXX this does not work for some reason...
-		%\begin{turn}{\ifdefstring{#1}{up}{270}{90}}
-		\begin{turn}{#1}
-		\begin{minipage}[t][\cellwidth][t]{\cellheight}% 
-			\BODY%
-		\end{minipage}%
-		\end{turn}
-		\end{textblock*} \fi }
+		\begin{cell}{
+					\bleed 
+						+ \jacketflapback 
+						+ \coverflap 
+						+ \jacketwrap 
+						+ \coverboardgrow 
+						+ \pageblockwidth 
+						+ \spinefold,
+					\bleed 
+						+ \coverflap }%
+				{ \spinewidth }%
+				{ \pageblockheight + 2\coverboardgrow }
+			\begin{turn}{#1}%
+			\begin{minipage}[t][\cellwidth][t]{\cellheight}% 
+				\BODY%
+			\end{minipage}%
+			\end{turn}%
+		\end{cell} \fi }
 
 
 % jackets flaps...
 %
 \NewEnviron{frontflap}{%
 	\ifjacketlayout
-		\setlength\cellwidth{\jacketflapfront }
-		\setlength\cellheight{\dimexpr 
-			\pageblockheight 
-			+ 2\coverboardgrow \relax }
-		%
-		\begin{textblock*}{\jacketflapfront}(
-			\bleed 
-				+ \jacketflapback 
-				+ 2\jacketwrap 
-				+ 2\coverboardgrow 
-				+ 2\pageblockwidth 
-				+ 2\spinefold 
-				+ \spinewidth,
-			\bleed 
-				+ \coverflap )% 
-		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+		\begin{cell}{
+					\bleed 
+						+ \jacketflapback 
+						+ 2\jacketwrap 
+						+ 2\coverboardgrow 
+						+ 2\pageblockwidth 
+						+ 2\spinefold 
+						+ \spinewidth,
+					\bleed 
+						+ \coverflap }% 
+				{ \jacketflapfront }%
+				{ \pageblockheight + 2\coverboardgrow }%
 			\BODY%
-		\end{minipage}%
-		\end{textblock*} \fi }
+		\end{cell} \fi }
 
 \NewEnviron{backflap}{%
 	\ifjacketlayout
-		\setlength\cellwidth{\jacketflapback}
-		\setlength\cellheight{\dimexpr 
-			\pageblockheight 
-			+ 2\coverboardgrow \relax }
-		%
-		\begin{textblock*}{\jacketflapback}(
-			\bleed,
-			\bleed 
-				+ \coverflap )%
-		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+		\begin{cell}{
+					\bleed,
+					\bleed 
+						+ \coverflap }%
+				{ \jacketflapback }%
+				{ \pageblockheight + 2\coverboardgrow }%
 			\BODY%
-		\end{minipage}%
-		\end{textblock*} \fi } 
+		\end{cell} \fi }
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
