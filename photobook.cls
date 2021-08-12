@@ -378,6 +378,18 @@
 \DeclareBoolOption{geometrynodefaults}
 
 
+%% \DescribeMacro{roundprintedlengthsto=<num>}
+%
+%% Number of digits to round printed lengths to (default: 1).
+%%
+%% This is a shorthand to |numprint|'s |\nprounddigits{..}|, us it to 
+%% change values mid-document if needed.
+%%
+%% This is mostly used for |\GenerateTemplate|.
+%%
+\DeclareStringOption[1]{roundprintedlengthsto}[1]
+
+
 \DeclareDefaultOption{\PassOptionsToClass{\CurrentOption}{book}}
 \ProcessKeyvalOptions*
 
@@ -407,6 +419,7 @@
 %\RequirePackage{pdfcomment}
 \RequirePackage{eso-pic}
 \RequirePackage{environ}
+\RequirePackage{numprint}
 \RequirePackage{xcolor}
 \RequirePackage{colorspace}
 \RequirePackage{graphicx}
@@ -702,7 +715,9 @@
 		\relax}
 	\setlength\bleedblockheight{\dimexpr 
 			2\bleed + \blockheight 
-		\relax} }
+		\relax} 
+	% misc...
+	\nprounddigits{\photobook@roundprintedlengthsto} }
 
 
 %% \DescribeMacro{\ResetPage}
@@ -936,12 +951,6 @@
 % XXX should these only be visible in respective modes or for non-zero widths???
 
 
-% within a block/cell env these store the cell width and height...
-\newlength\cellwidth
-\newlength\cellheight
-
-
-
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Generic
 
@@ -959,15 +968,23 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% Covers, Jackets and endpapers...
-%
 %%%%% Cell environments
 %
-%% A cell environments is designed to place a cell/box at a specific 
+%% A cell environments is a box of specified size placed at a specific 
 %% location in a page.
+%%
+%% Cells are implemented via |textpos|'s |textblock*| environment.
+%%
+%% A cell defines |\cellwidth| and |\cellheight| within it's body that 
+%% store the initial cell dimentions.
+%%
+\newlength\cellwidth
+\newlength\cellheight
 
 
 %% \DescribeEnv{cell}
+%
+%% Create a basic cell.
 %
 %%	>> \begin{cell}{<top>, <left>}{<width>}{<height>} ...
 %
@@ -1165,47 +1182,66 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Cell helper macros
 
-\newcommand\photobook@TemplateCell[1]{
+
+% XXX should digits/rounding be configurable???
+\newcommand\photobook@TemplateCell[2][mm]{
 	% XXX this seems to be bigger than the size given...
 	%\fbox{\parbox[t][\cellheight][t]{\cellwidth}{%
 	\begin{center}
 		\vfill
-		#1 \\
-		(\the\cellwidth \space x \the\cellheight)
+		#2 \\
+		(\lenprint[#1]{\cellwidth} \space x \lenprint[#1]{\cellheight})
 		\vfill
 	\end{center} }
 	%\end{center} }} }
 
 
-\newcommand\GenerateTemplate{
+%% \DescribeMacro{\GenerateTemplate\{..\}}
+%
+%% Generate template page for current |layoutmode|.
+%
+%%	>> \GenerateTemplate
+%
+%% Cell size can be printed in |mm| (default) or in any explicit unit 
+%% supported by \LaTeX.
+%
+%%	>> \GenerateTemplate{<unit>}
+%
+%% This can be useful if one needs to make the cover/jacket/... in either a 
+%% different software package or by hand.
+%%
+%% This is a no-op for |layoutmode=block|.
+%%
+\newcommand\GenerateTemplate[1][mm]{
 	% XXX undo this after...
 	\TPoptions{showboxes=true}
 	\begin{page}
 		\setlength{\parindent}{0em}
 		% NOTE: only the relevant blocks will be visible...
 		\begin{leftside}
-			\photobook@TemplateCell{ENDPAPER LEFT}
+			\photobook@TemplateCell[#1]{ENDPAPER LEFT}
 		\end{leftside}
 		\begin{rightside}
-			\photobook@TemplateCell{ENDPAPER RIGHT}
+			\photobook@TemplateCell[#1]{ENDPAPER RIGHT}
 		\end{rightside}
 		\begin{frontcover}
-			\photobook@TemplateCell{FRONT COVER}
+			\photobook@TemplateCell[#1]{FRONT COVER}
 		\end{frontcover}
 		%\begin{vspine}[90]
 		%\begin{vspine}[down]
 		\begin{vspine}
-			\photobook@TemplateCell{SPINE}
+			\photobook@TemplateCell[#1]{SPINE}
 		\end{vspine}
 		\begin{backcover}
-			\photobook@TemplateCell{BACK COVER}
+			\photobook@TemplateCell[#1]{BACK COVER}
 		\end{backcover}
 		\begin{frontflap}
-			\photobook@TemplateCell{FRONT FLAP}
+			\photobook@TemplateCell[#1]{FRONT FLAP}
 		\end{frontflap}
 		\begin{backflap}
-			\photobook@TemplateCell{BACK FLAP}
+			\photobook@TemplateCell[#1]{BACK FLAP}
 		\end{backflap}
 	\end{page} }
 
@@ -2110,7 +2146,7 @@
 
 
 %----------------------------------------------------------------------
-%5%% XXX DEBUG...
+%%% XXX DEBUG...
 %%%\AtBeginDocument{
 %%%}
 
