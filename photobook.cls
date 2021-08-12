@@ -44,10 +44,10 @@
 %% \maketitle
 %%
 %% \fbox{\bf%
-%%		Note: all older templates/commnads/macros will get reworked soon!}
+%%		Note: all older templates/commnads/macros will get reworked soon! }
 %%
 %%%% Usage
-%%
+%
 %%	>> \documentclass[<options>]{photobook}
 %%
 %
@@ -1006,6 +1006,31 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+%% \DescribeEnv{pagecell}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   |               |
+%%   |               |
+%%   |   pagecell    |
+%%   |               |
+%%   |               |
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+% XXX
+\newenvironment{pagecell}{%
+	\begin{cell}{\bleed, \bleed}{\pageblockwidth}{\pageblockheight}%
+}{%
+	\end{cell} }
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Endpaper cells
 %
 %% \DescribeEnv{leftside}
@@ -1031,9 +1056,9 @@
 
 \NewEnviron{leftside}{%
 	\ifendpaperlayout%
-		\begin{cell}{\bleed, \bleed}{\pageblockwidth}{\pageblockheight}%
+		\begin{pagecell}%
 			\BODY%
-		\end{cell} \fi }
+		\end{pagecell} \fi }
 
 \NewEnviron{rightside}{%
 	\ifendpaperlayout%
@@ -1183,7 +1208,6 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Cell helper macros
-
 
 % XXX should digits/rounding be configurable???
 \newcommand\photobook@TemplateCell[2][mm]{
