@@ -945,7 +945,7 @@
 
 
 %----------------------------------------------------------------------
-%%%% Environments
+%%%% Environments and Cells
 %
 % XXX need a way to place images / templates into these...
 % XXX should these only be visible in respective modes or for non-zero widths???
@@ -968,7 +968,7 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-%%%%% Cell environments
+%%%%% Cells
 %
 %% A cell environments is a box of specified size placed at a specific 
 %% location in a page.
@@ -1009,16 +1009,22 @@
 
 %% \DescribeEnv{pagecell}
 %
+%% Page cell. 
+%%
+%% This corresponds to the visible page and does not include bleeds.
+%%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   +---------------+
-%%   |               |
-%%   |               |
-%%   |   pagecell    |
-%%   |               |
-%%   |               |
-%%   +---------------+
+%%   + - - - - - - - - - +
+%%   . +---------------+ .
+%%   . |               | .
+%%   . |               | .
+%%   . |   pagecell    | .
+%%   . |               | .
+%%   . |               | .
+%%   . +---------------+ .
+%%   + - - - - - - - - - +
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -1028,6 +1034,77 @@
 	\begin{cell}{\bleed, \bleed}{\pageblockwidth}{\pageblockheight}%
 }{%
 	\end{cell} }
+
+
+%% \DescribeEnv{pagebleedcell}
+%
+%% Like |page| but includes bleeds.
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +-------------------+
+%%   | + - - - - - - - + |
+%%   | .               . |
+%%   | .               . |
+%%   | . pagebleedcell . |
+%%   | .               . |
+%%   | .               . |
+%%   | + - - - - - - - + |
+%%   +-------------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+% XXX
+\newenvironment{pagebleedcell}{%
+	\begin{cell}{0mm, 0mm}{\bleedblockwidth}{\bleedblockheight}%
+}{%
+	\end{cell} }
+
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Cell macros
+%
+%% Cell macros require a cell environment to function correctly.
+%%
+
+%% \DescribeMacro{\fitimagetocell\{..\}}
+%
+%% Fit an image to cell (centered).
+%
+%%	>> \fitimagetocell[<clearence>]{<caption>}{<image>}
+%
+%% Image position can be tweaked via |\vspace{..}| or |\hspace{..}|
+%%
+% XXX caption is not supported yet...
+\newcommand\fitimagetocell[3][0mm]{
+	\sbox{\photobook@imagebox}{
+		\includegraphics[
+			keepaspectratio, 
+			width=\dimexpr \cellwidth - ((#1) * 2) \relax,
+			height=\dimexpr \cellheight - ((#1) * 2) \relax]{#3} }%
+	\vspace{\dimexpr 
+			+0.5\cellheight
+			-0.5\ht\photobook@imagebox \relax}%
+	\hspace{\dimexpr 
+			+0.5\cellwidth
+			-0.5\wd\photobook@imagebox \relax}{%
+		\usebox\photobook@imagebox}%
+	\linebreak%
+	% caption...
+	\ifx #2 \empty \else%
+		% XXX need keep under corner of image if image is less than X and 
+		%		at Ymm from page edge if it's larger...
+		%			min( \wd\photobook@imagebox, \cellwidth )
+		%		...or should we account for \textwidth???
+		\begin{minipage}{\cellwidth}% 
+			\begin{flushright}%
+				\captionsize #2 
+			\end{flushright}%
+		\end{minipage}%
+	\fi }
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1536,37 +1613,45 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+% XXX EXPERIMENTAL
+% XXX add caption support...
 \newcommand\imagepagefit[3][\clearimage]{
-	\sbox{\photobook@imagebox}{
-		\includegraphics[
-			keepaspectratio, 
-			width=\dimexpr \blockwidth - ((#1) * 2) \relax,
-			height=\dimexpr \blockheight - ((#1) * 2) \relax]{#3} }
-	%\clearpage
 	\null
-	% XXX misaligned...
-	\captionboxright{\photobook@imagebox}{#2}%
-	\ShipoutPicture{%
-		%\AtPageCenter{%
-		% XXX this for some reason not at -\bleed horizontally...
-		\AtPageLowerLeft{%
-			\hspace*{\dimexpr 
-					% XXX when \AtPageCenter{ .. }for some reason -\bleed puts 
-					%		the image in the center but adding -0.5\ht\photobook@imagebox 
-					%		to it offsets the image to the left -- scaling????!!
-					%-\bleed
-					+0.5\OFFSETFIX
-					+0.5\blockwidth
-					-0.5\wd\photobook@imagebox 
-					+\bleed
-				\relax}{
-			\raisebox{\dimexpr 
-					+0.5\blockheight
-					-0.5\ht\photobook@imagebox 
-					+\bleed
-				\relax}{
-				\usebox\photobook@imagebox } } } }
-	\newpage }
+	\begin{pagecell}%
+		\fitimagetocell[#1]{#2}{#3}
+	\end{pagecell}
+	\clearpage }
+
+%\newcommand\imagepagefit[3][\clearimage]{
+%	\sbox{\photobook@imagebox}{
+%		\includegraphics[
+%			keepaspectratio, 
+%			width=\dimexpr \blockwidth - ((#1) * 2) \relax,
+%			height=\dimexpr \blockheight - ((#1) * 2) \relax]{#3} }
+%	%\clearpage
+%	\null
+%	% XXX misaligned...
+%	\captionboxright{\photobook@imagebox}{#2}%
+%	\ShipoutPicture{%
+%		%\AtPageCenter{%
+%		% XXX this for some reason not at -\bleed horizontally...
+%		\AtPageLowerLeft{%
+%			\hspace*{\dimexpr 
+%					% XXX when \AtPageCenter{ .. }for some reason -\bleed puts 
+%					%		the image in the center but adding -0.5\ht\photobook@imagebox 
+%					%		to it offsets the image to the left -- scaling????!!
+%					%-\bleed
+%					+0.5\blockwidth
+%					-0.5\wd\photobook@imagebox 
+%					+\bleed
+%				\relax}{%
+%			\raisebox{\dimexpr 
+%					+0.5\blockheight
+%					-0.5\ht\photobook@imagebox 
+%					+\bleed
+%				\relax}{%
+%				\usebox\photobook@imagebox } } } }
+%	\newpage }
 
 
 % XXX does not work...
@@ -1602,6 +1687,7 @@
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
+			%width=\dimexpr \blockwidth - ((#1) * 2) \relax,
 			width=\dimexpr \blockwidth - ((#1) * 2) \relax,
 			% XXX make this use the minumum dimention and not width...
 			%height=\dimexpr \blockheight - ((#1) * 2) \relax
@@ -1614,12 +1700,12 @@
 					+0.5\blockwidth 
 					-0.5\wd\photobook@imagebox 
 					-\bleed
-					-0.5\OFFSETFIX 
-				\relax}{
+					%-0.5\OFFSETFIX 
+				\relax}{%
 			\raisebox{\dimexpr 
 					(#1)
 					+\clearimage 
-					+\bleed \relax}{
+					+\bleed \relax}{%
 				\usebox\photobook@imagebox } } } }
 	\newpage }
 
@@ -2018,7 +2104,7 @@
 	% left page...
 	% XXX BUG: this in some cases creates an extra empty spread before this...
 	%		...appears to be a problem where we have a tweak.tex
-	%\cleartoleftpage
+	\cleartoleftpage
 	\null
 	\ShipoutPicture{
 		\AtPageLowerLeft{
@@ -2091,7 +2177,7 @@
 			keepaspectratio, 
 			height=\dimexpr \blockheight - ((#1) * 2) + \vgrowimageby \relax]{#3} }
 	% left page...
-	%\cleartoleftpage
+	\cleartoleftpage
 	\null
 	\captionboxleft[\blockwidth]{\photobook@imagebox}{#2}
 	\ShipoutPicture{
