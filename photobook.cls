@@ -984,7 +984,7 @@
 %
 %% Page environment.
 %%
-%% This is mainly designed to wrap other cell environment described later.
+%% This is mainly designed to wrap other cell environments described later.
 %
 % XXX this may span more than one page if there is enoug stuff packed 
 %		into it...
