@@ -420,6 +420,7 @@
 \RequirePackage{eso-pic}
 \RequirePackage{environ}
 \RequirePackage{numprint}
+\RequirePackage{trimclip}
 \RequirePackage{xcolor}
 \RequirePackage{colorspace}
 \RequirePackage{graphicx}
@@ -841,6 +842,31 @@
 %%%% Generic commands
 %%
 
+
+%% \DescribeMacro{\mindim\{..\}}
+%% \DescribeMacro{\maxdim\{..\}}
+%
+%% Get min/max dimension.
+%
+%%	>> \mindim{A}{B}
+%
+%%	>> \maxdim{A}{B}
+%%
+\newcommand\mindim[2]{
+	\ifdim \dimexpr #1 \relax < \dimexpr #2 \relax%
+		\dimexpr #1 \relax%
+	\else%
+		\dimexpr #2 \relax%
+	\fi }
+
+\newcommand\maxdim[2]{
+	\ifdim \dimexpr #1 \relax > \dimexpr #2 \relax%
+		\dimexpr #1 \relax%
+	\else%
+		\dimexpr #2 \relax%
+	\fi }
+
+
 %% \DescribeMacro{\keywords\{..\}}
 %
 %%	Set pdf metadata keywords
@@ -988,21 +1014,37 @@
 %
 %%	>> \begin{cell}{<top>, <left>}{<width>}{<height>} ...
 %
-% XXX EXPERIMENTAL...
 % XXX cells can not be nested -- they will mess up the \cellwidth and 
 %		\cellheight for parents...
 % XXX SYNTAX: place the second arg in braces...
 %		\begin{cell}(<top>, <left>){<width>}{<height>}
-% XXX it appears that \NewEnviron{..} can't be nested...
 \newenvironment{cell}[3]{%
-	\setlength\cellwidth{\dimexpr #2 \relax}
-	\setlength\cellheight{\dimexpr #3 \relax}
+	\setlength\cellwidth{\dimexpr #2 \relax}%
+	\setlength\cellheight{\dimexpr #3 \relax}%
 	%
 	\begin{textblock*}{\cellwidth}(#1)%
 	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
 }{%
 	\end{minipage}%
 	\end{textblock*} }
+
+
+%% \DescribeEnv{clipcell}
+%
+%% Create a clipped cell.
+%
+%%	>> \begin{clipcell}{<top>, <left>}{<width>}{<height>} ...
+%
+%% This is like the |cell| environment but will clip everything not in the 
+%% the cell.
+%%
+%% Note that this uses |clip| and |cliptocell| environments internally.
+\newenvironment{clipcell}[3]{%
+	\begin{cell}{#1}{#2}{#3}%
+	\begin{cliptocell}%
+}{%
+	\end{cliptocell}%
+	\end{cell} }
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1070,17 +1112,38 @@
 %% Cell macros require a cell environment to function correctly.
 %%
 
-%% \DescribeMacro{\fitimagetocell\{..\}}
+\newcommand\captionformat[1]{%
+	\begin{flushright}%
+		\captionsize #1 %
+	\end{flushright} }
+
+
+
+%% \DescribeEnv{cliptocell}
+%
+%% Clip content to cell.
+%%
+\newenvironment{cliptocell}{%
+	\begin{clipbox*}{0cm {\height - \cellheight} {\cellwidth} {\height}}%
+	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+}{%
+	\end{minipage}%
+	\end{clipbox*} }
+
+
+%% \DescribeMacro{\imagetocellfit\{..\}}
 %
 %% Fit an image to cell (centered).
 %
-%%	>> \fitimagetocell[<clearence>]{<caption>}{<image>}
+%%	>> \imagetocellfit[<clearence>]{<caption>}{<image>}
 %
 %% Image position can be tweaked via |\vspace{..}| or |\hspace{..}|
 %%
-% XXX caption is not supported yet...
-\newcommand\fitimagetocell[3][0mm]{
-	\sbox{\photobook@imagebox}{
+% XXX this should trim the image to the cell... (option??)
+% XXX test interaction between \bleed and \clearimage...
+\newcommand\imagetocellfit[3][0mm]{%
+	% image...
+	\sbox{\photobook@imagebox}{%
 		\includegraphics[
 			keepaspectratio, 
 			width=\dimexpr \cellwidth - ((#1) * 2) \relax,
@@ -1092,19 +1155,71 @@
 			+0.5\cellwidth
 			-0.5\wd\photobook@imagebox \relax}{%
 		\usebox\photobook@imagebox}%
-	\linebreak%
 	% caption...
 	\ifx #2 \empty \else%
-		% XXX need keep under corner of image if image is less than X and 
-		%		at Ymm from page edge if it's larger...
-		%			min( \wd\photobook@imagebox, \cellwidth )
-		%		...or should we account for \textwidth???
-		\begin{minipage}{\cellwidth}% 
-			\begin{flushright}%
-				\captionsize #2 
-			\end{flushright}%
-		\end{minipage}%
-	\fi }
+		% XXX for some reason adding 'center' env here adds vertical 
+		%		space, so we have to compensate...
+		\vspace{-1em}%
+		\begin{center}%
+			\begin{minipage}{\mindim{\wd\photobook@imagebox - 1em}{\cellwidth - 1em}}% 
+				\captionformat{ #2 }%
+			\end{minipage}%
+		\end{center} \fi }
+
+%% \DescribeMacro{\imagetocellfill\{..\}}
+%
+%% Fill cell with image (centered).
+%
+%%	>> \imagetocellfill[<clearence>]{<caption>}{<image>}
+%
+%% Image position can be tweaked via |\vspace{..}| or |\hspace{..}|
+%%
+% XXX add left/right/top/bottom align...
+% XXX this should trim the image to the cell... (option??)
+% XXX test interaction between \bleed and \clearimage...
+\newcommand\imagetocellfill[3][0mm]{%
+	% image...
+	% preload image to get its proportions...
+	\sbox{\photobook@imagebox}{\includegraphics{#3}}
+	% constrain minimal dimension of image...
+	\ifdim \wd\photobook@imagebox < \ht\photobook@imagebox%
+		\sbox{\photobook@imagebox}{%
+			\includegraphics[
+				keepaspectratio, 
+				width=\dimexpr \cellwidth - ((#1) * 2) \relax, ]{#3} }%
+	\else%
+		\sbox{\photobook@imagebox}{%
+			\includegraphics[
+				keepaspectratio, 
+				height=\dimexpr \cellheight - ((#1) * 2) \relax, ]{#3} } \fi% 
+	% place image...
+	\vspace{\dimexpr 
+			+0.5\cellheight
+			-0.5\ht\photobook@imagebox \relax}%
+	\hspace{\dimexpr 
+			+0.5\cellwidth
+			-0.5\wd\photobook@imagebox \relax}{%
+		\usebox\photobook@imagebox}%
+	% caption...
+	\ifx #2 \empty \else%
+		\vspace{\dimexpr 
+			-\mindim{\ht\photobook@imagebox}{\cellheight - #1}
+			% XXX for some reason adding 'center' env here adds vertical 
+			%		space, so we have to compensate...
+			-1em
+			\relax}%
+		\begin{center}%
+			\begin{minipage}%
+					[\mindim{\ht\photobook@imagebox}{\cellheight}]%
+					{\mindim{\wd\photobook@imagebox - 1em}{\cellwidth - 1em}}% 
+				\captionformat{ #2 }%
+			\end{minipage}%
+		\end{center} \fi }
+
+
+% XXX like fill but trim to cell...
+\newcommand\imagetocelltrim[3][0mm]{%
+}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1592,7 +1707,7 @@
 %% Similar to |\imagepage| but will fit an image into page...
 %
 %%	>> \imagepagefit[<clearence>]{<caption>}{<image>}
-%
+%%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
@@ -1613,101 +1728,47 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% XXX EXPERIMENTAL
-% XXX add caption support...
-\newcommand\imagepagefit[3][\clearimage]{
-	\null
+\newcommand\imagepagefit[3][\clearimage]{%
+	\null%
 	\begin{pagecell}%
-		\fitimagetocell[#1]{#2}{#3}
-	\end{pagecell}
+		\imagetocellfit[#1]{#2}{#3}%
+	\end{pagecell}%
 	\clearpage }
 
-%\newcommand\imagepagefit[3][\clearimage]{
-%	\sbox{\photobook@imagebox}{
-%		\includegraphics[
-%			keepaspectratio, 
-%			width=\dimexpr \blockwidth - ((#1) * 2) \relax,
-%			height=\dimexpr \blockheight - ((#1) * 2) \relax]{#3} }
-%	%\clearpage
-%	\null
-%	% XXX misaligned...
-%	\captionboxright{\photobook@imagebox}{#2}%
-%	\ShipoutPicture{%
-%		%\AtPageCenter{%
-%		% XXX this for some reason not at -\bleed horizontally...
-%		\AtPageLowerLeft{%
-%			\hspace*{\dimexpr 
-%					% XXX when \AtPageCenter{ .. }for some reason -\bleed puts 
-%					%		the image in the center but adding -0.5\ht\photobook@imagebox 
-%					%		to it offsets the image to the left -- scaling????!!
-%					%-\bleed
-%					+0.5\blockwidth
-%					-0.5\wd\photobook@imagebox 
-%					+\bleed
-%				\relax}{%
-%			\raisebox{\dimexpr 
-%					+0.5\blockheight
-%					-0.5\ht\photobook@imagebox 
-%					+\bleed
-%				\relax}{%
-%				\usebox\photobook@imagebox } } } }
-%	\newpage }
 
-
-% XXX does not work...
-% XXX \OFFSETFIX
 %% \DescribeMacro{\imagepagefill\{..\}}
 %
-%%	Like |\imagepage| but will fit an image into page...
+%%	Like |\imagepage| but will fill page with image.
 %
 %%	>> \imagepagefill[<clearence>]{<caption>}{<image>}
-%
+%%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%     +---------------+
-%%   . |---------------| .
-%%   . |               | .
-%%   . |.             .| .
-%%   . |   .       .   | .
-%%   . |     image     | .
-%%   . |   .       .   | .
-%%   . |.             .| .
-%%   . |               | .
-%%   . |-------------c-| .
-%%     +---------------+
+%%   . . . . . . . . . . . . . . . . . . .
+%%   . .       +---------------+       . .
+%%   .    .    |             c |    .    .
+%%   .       . |               | .       .
+%%   .         |.             .|         .
+%%   .         |   .       .   |         .
+%%   .         |     image     |         .
+%%   .         |   .       .   |         .
+%%   .         |.             .|         .
+%%   .       . |               | .       .
+%%   .    .    |               |    .    .
+%%   . .       +---------------+       . .
+%%   . . . . . . . . . . . . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%
-% XXX add option to align to top/bottom... 
-% XXX captions untested... 
+% XXX add nudge/grow support...
 \newcommand\imagepagefill[3][\clearimage]{
-	\sbox{\photobook@imagebox}{
-		\includegraphics[
-			keepaspectratio, 
-			%width=\dimexpr \blockwidth - ((#1) * 2) \relax,
-			width=\dimexpr \blockwidth - ((#1) * 2) \relax,
-			% XXX make this use the minumum dimention and not width...
-			%height=\dimexpr \blockheight - ((#1) * 2) \relax
-			]{#3} }
-	\clearpage
-	\captionboxright[-#1]{\photobook@imagebox}{#2}
-	\ShipoutPicture{
-		\AtPageLowerLeft{
-			\hspace*{\dimexpr 
-					+0.5\blockwidth 
-					-0.5\wd\photobook@imagebox 
-					-\bleed
-					%-0.5\OFFSETFIX 
-				\relax}{%
-			\raisebox{\dimexpr 
-					(#1)
-					+\clearimage 
-					+\bleed \relax}{%
-				\usebox\photobook@imagebox } } } }
-	\newpage }
+	\null%
+	\begin{pagecell}%
+		\imagetocellfill[#1]{#2}{#3}%
+	\end{pagecell}%
+	\clearpage }
 
 
 % XXX
