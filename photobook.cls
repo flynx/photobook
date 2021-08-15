@@ -411,6 +411,7 @@
 \RequirePackage{xargs}
 \RequirePackage{ifthen}
 \RequirePackage{iftex}
+\RequirePackage{pgffor}
 \RequirePackage{etoolbox}
 \RequirePackage{atbegshi}
 %\RequirePackage{afterpage}
@@ -436,7 +437,7 @@
 %----------------------------------------------------------------------
 %%%% Globals
 %
-% NOTE: most of these are setup in \InitPage...
+% NOTE: most of these are setup in \InitPages...
 
 %%% \DescribeGlobal{layoutmode}
 %% \DescribeMacro{\layoutmode=<mode>}
@@ -505,7 +506,7 @@
 %
 %%	Page block size
 %%
-% NOTE: page and bleed block sizes are set via \InitPage
+% NOTE: page and bleed block sizes are set via \InitPages
 \newlength\blockwidth
 \newlength\blockheight
 
@@ -575,11 +576,11 @@
 %----------------------------------------------------------------------
 %%%% Initialization
 %%
-%% \DescribeMacro{\InitPage}
+%% \DescribeMacro{\InitPages}
 %
 %%	Initialize page dimensions.
 %%
-\newcommand\InitPage{
+\newcommand\InitPages{
 	% layout bools/tests...
 	\coverlayoutfalse
 	\hardcoverlayoutfalse
@@ -721,16 +722,16 @@
 	\nprounddigits{\photobook@roundprintedlengthsto} }
 
 
-%% \DescribeMacro{\ResetPage}
+%% \DescribeMacro{\ResetPages}
 %
 %%	Reset and re-initialize page dimentions.
 %%
-\newcommand\ResetPage{
+\newcommand\ResetPages{
 	\setlength\blockwidth{0mm}
 	\setlength\blockheight{0mm}
 	\edef\pdfpagelayout{}
 	%
-	\InitPage}
+	\InitPages}
 
 
 
@@ -740,7 +741,7 @@
 % Setup...
 
 % init/update lengths...
-\InitPage
+\InitPages
 
 % minimal geometry setup...
 \RequirePackage[
@@ -772,7 +773,7 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % Geometry...
 
-	\InitPage
+	\InitPages
 
 	% no-defaults -- the user is expected to set things up...
 	\ifphotobook@geometrynodefaults
@@ -984,7 +985,7 @@
 %
 %% Page environment.
 %%
-%% This is mainly designed to wrap other cell environments described later.
+%% This is mainly designed to wrap other cell environment described later.
 %
 % XXX this may span more than one page if there is enoug stuff packed 
 %		into it...
@@ -1007,33 +1008,54 @@
 \newlength\cellwidth
 \newlength\cellheight
 
+% XXX should we treat the page as a cell???
+\setlength\cellwidth{\textwidth}
+\setlength\cellheight{\textheight}
+
+
+%% \DescribeEnv{inlinecell}
+%
+%% Create a basic inline cell.
+%
+%%	>> \begin{inline}<width>}{<height>} ... \end{inlinecell}
+%
+%% This is just like |minipage| but provides cell mechanics.
+%%
+% XXX
+\newenvironment{inlinecell}[2]{%
+	\begingroup%
+		\setlength\cellwidth{\dimexpr #1 \relax}%
+		\setlength\cellheight{\dimexpr #2 \relax}%
+		%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+}{%
+		\end{minipage}%
+	\endgroup}
+
 
 %% \DescribeEnv{cell}
 %
-%% Create a basic cell.
+%% Create a basic absolutely positioned cell.
 %
-%%	>> \begin{cell}{<top>, <left>}{<width>}{<height>} ...
+%%	>> \begin{cell}{<top>, <left>}{<width>}{<height>} ... \end{cell}
 %
 % XXX cells can not be nested -- they will mess up the \cellwidth and 
 %		\cellheight for parents...
 % XXX SYNTAX: place the second arg in braces...
 %		\begin{cell}(<top>, <left>){<width>}{<height>}
 \newenvironment{cell}[3]{%
-	\setlength\cellwidth{\dimexpr #2 \relax}%
-	\setlength\cellheight{\dimexpr #3 \relax}%
-	%
-	\begin{textblock*}{\cellwidth}(#1)%
-	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+	\begin{textblock*}{#2}(#1)%
+	\begin{inlinecell}{#2}{#3}%
 }{%
-	\end{minipage}%
-	\end{textblock*} }
+	\end{inlinecell}%
+	\end{textblock*}}
 
 
 %% \DescribeEnv{clipcell}
 %
 %% Create a clipped cell.
 %
-%%	>> \begin{clipcell}{<top>, <left>}{<width>}{<height>} ...
+%%	>> \begin{clipcell}{<top>, <left>}{<width>}{<height>} ... \end{clipcell}
 %
 %% This is like the |cell| environment but will clip everything not in the 
 %% the cell.
@@ -1044,7 +1066,7 @@
 	\begin{cliptocell}%
 }{%
 	\end{cliptocell}%
-	\end{cell} }
+	\end{cell}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1075,7 +1097,7 @@
 \newenvironment{pagecell}{%
 	\begin{cell}{\bleed, \bleed}{\pageblockwidth}{\pageblockheight}%
 }{%
-	\end{cell} }
+	\end{cell}}
 
 
 %% \DescribeEnv{pagebleedcell}
@@ -1102,7 +1124,7 @@
 \newenvironment{pagebleedcell}{%
 	\begin{cell}{0mm, 0mm}{\bleedblockwidth}{\bleedblockheight}%
 }{%
-	\end{cell} }
+	\end{cell}}
 
 
 
@@ -1114,8 +1136,8 @@
 
 \newcommand\captionformat[1]{%
 	\begin{flushright}%
-		\captionsize #1 %
-	\end{flushright} }
+		\captionsize #1%
+	\end{flushright}}
 
 
 
@@ -1128,7 +1150,7 @@
 	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
 }{%
 	\end{minipage}%
-	\end{clipbox*} }
+	\end{clipbox*}}
 
 
 %% \DescribeMacro{\imagetocellfit\{..\}}
@@ -1136,9 +1158,28 @@
 %% Fit an image to cell (centered).
 %
 %%	>> \imagetocellfit[<clearence>]{<caption>}{<image>}
-%
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +-----------------+
+%%   |                 |
+%%   +-----------------+ 
+%%   | .             . | 
+%%   |    .       .    | 
+%%   |      image      | 
+%%   |    .       .    | 
+%%   | .             . | 
+%%   +-----------------+ 
+%%   |               c |
+%%   +-----------------+ 
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
 %% Image position can be tweaked via |\vspace{..}| or |\hspace{..}|
 %%
+% XXX revise caption for vertical images...
 % XXX this should trim the image to the cell... (option??)
 % XXX test interaction between \bleed and \clearimage...
 \newcommand\imagetocellfit[3][0mm]{%
@@ -1162,17 +1203,37 @@
 		\vspace{-1em}%
 		\begin{center}%
 			\begin{minipage}{\mindim{\wd\photobook@imagebox - 1em}{\cellwidth - 1em}}% 
-				\captionformat{ #2 }%
+				\captionformat{#2}%
 			\end{minipage}%
-		\end{center} \fi }
+		\end{center}\fi}
 
 %% \DescribeMacro{\imagetocellfill\{..\}}
 %
 %% Fill cell with image (centered).
 %
 %%	>> \imagetocellfill[<clearence>]{<caption>}{<image>}
-%
-%% Image position can be tweaked via |\vspace{..}| or |\hspace{..}|
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   . . . +---------------+ . . .
+%%   .   . |             c | .   .
+%%   .     |.             .|     .
+%%   .     |   .       .   |     .
+%%   .     |     image     |     .
+%%   .     |   .       .   |     .
+%%   .     |.             .|     .
+%%   .   . |               | .   .
+%%   . . . +---------------+ . . .
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% Image position can be tweaked via |\vspace{..}| or |\hspace{..}|.
+%%
+%% Note that this will not clip an image by default, to clip everything 
+%% outside the cell use a |cliptocell| environment inside a cell or 
+%% a |clipcell| cell environment.
 %%
 % XXX add left/right/top/bottom align...
 % XXX this should trim the image to the cell... (option??)
@@ -1212,9 +1273,9 @@
 			\begin{minipage}%
 					[\mindim{\ht\photobook@imagebox}{\cellheight}]%
 					{\mindim{\wd\photobook@imagebox - 1em}{\cellwidth - 1em}}% 
-				\captionformat{ #2 }%
+				\captionformat{#2}%
 			\end{minipage}%
-		\end{center} \fi }
+		\end{center}\fi}
 
 
 % XXX like fill but trim to cell...
