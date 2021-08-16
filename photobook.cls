@@ -1124,7 +1124,7 @@
 %% \end{minipage}
 %%
 %% Image position can be tweaked via |\vspace{..}| or |\hspace{..}|
-%%
+%
 % XXX revise caption for vertical images...
 % XXX can't seem to get rid of small placement errors...
 \newcommand\imagetocellfit[3][0mm]{%
@@ -1134,7 +1134,7 @@
 			keepaspectratio, 
 			width=\dimexpr \cellwidth - ((#1) * 2) \relax,
 			height=\dimexpr \cellheight - ((#1) * 2) \relax, ]{#3} }%
-	% place...
+	% place image...
 	% XXX for some odd reason without this the alignment completely breaks...
 	\vspace{0pt}%
 	\adjustbox{
@@ -1142,6 +1142,9 @@
 			% left...
 			{\dimexpr 
 				% XXX where is this coming from???!
+				% XXX setting margin-left to 0pt and setting center produces 
+				%		the same error...
+				%		...this is starting to look like a bug...
 				+1.5pt
 				+0.5\cellwidth 
 				-0.5\wd\photobook@imagebox \relax}
@@ -1210,6 +1213,7 @@
 				keepaspectratio, 
 				height=\dimexpr \cellheight - ((#1) * 2) \relax,]{#3} } \fi% 
 	% place image...
+	% XXX if this is removed things break...
 	\vspace{0pt}%
 	\adjustbox{
 		margin=
@@ -1219,7 +1223,7 @@
 				+1.5pt
 				+0.5\cellwidth 
 				-0.5\wd\photobook@imagebox \relax}
-			0 0 
+			0pt 0pt 
 			% top...
 			{\dimxpr 
 				+0.5\cellheight 
