@@ -425,6 +425,7 @@
 \RequirePackage{xcolor}
 \RequirePackage{colorspace}
 \RequirePackage{graphicx}
+\RequirePackage{adjustbox}
 \RequirePackage[overlay,absolute]{textpos}
 \RequirePackage[linewidth=1pt]{mdframed}
 \RequirePackage{rotating}
@@ -1013,6 +1014,7 @@
 \setlength\cellheight{\textheight}
 
 
+% \DescribeMacro{\begin\{inlinecell\}\{..\} ...}
 %% \DescribeEnv{inlinecell}
 %
 %% Create a basic inline cell.
@@ -1033,6 +1035,7 @@
 	\endgroup}
 
 
+% \DescribeMacro{\begin\{cell\}\{..\} ...}
 %% \DescribeEnv{cell}
 %
 %% Create a basic absolutely positioned cell.
@@ -1051,6 +1054,7 @@
 	\end{textblock*}}
 
 
+% \DescribeMacro{\begin\{clipcell\}\{..\} ...}
 %% \DescribeEnv{clipcell}
 %
 %% Create a clipped cell.
@@ -1070,70 +1074,12 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-%% \DescribeEnv{pagecell}
-%
-%% Page cell. 
-%%
-%% This corresponds to the visible page and does not include bleeds.
-%%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%   + - - - - - - - - - +
-%%   . +---------------+ .
-%%   . |               | .
-%%   . |               | .
-%%   . |   pagecell    | .
-%%   . |               | .
-%%   . |               | .
-%%   . +---------------+ .
-%%   + - - - - - - - - - +
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%%
-% XXX
-\newenvironment{pagecell}{%
-	\begin{cell}{\bleed, \bleed}{\pageblockwidth}{\pageblockheight}%
-}{%
-	\end{cell}}
-
-
-%% \DescribeEnv{pagebleedcell}
-%
-%% Like |page| but includes bleeds.
-%%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%   +-------------------+
-%%   | + - - - - - - - + |
-%%   | .               . |
-%%   | .               . |
-%%   | . pagebleedcell . |
-%%   | .               . |
-%%   | .               . |
-%%   | + - - - - - - - + |
-%%   +-------------------+
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%%
-% XXX
-\newenvironment{pagebleedcell}{%
-	\begin{cell}{0mm, 0mm}{\bleedblockwidth}{\bleedblockheight}%
-}{%
-	\end{cell}}
-
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Cell macros
 %
 %% Cell macros require a cell environment to function correctly.
 %%
 
+% XXX
 \newcommand\captionformat[1]{%
 	\begin{flushright}%
 		\captionsize #1%
@@ -1180,21 +1126,30 @@
 %% Image position can be tweaked via |\vspace{..}| or |\hspace{..}|
 %%
 % XXX revise caption for vertical images...
-% XXX this should trim the image to the cell... (option??)
-% XXX test interaction between \bleed and \clearimage...
+% XXX can't seem to get rid of small placement errors...
 \newcommand\imagetocellfit[3][0mm]{%
 	% image...
 	\sbox{\photobook@imagebox}{%
 		\includegraphics[
 			keepaspectratio, 
 			width=\dimexpr \cellwidth - ((#1) * 2) \relax,
-			height=\dimexpr \cellheight - ((#1) * 2) \relax]{#3} }%
-	\vspace{\dimexpr 
-			+0.5\cellheight
-			-0.5\ht\photobook@imagebox \relax}%
-	\hspace{\dimexpr 
-			+0.5\cellwidth
-			-0.5\wd\photobook@imagebox \relax}{%
+			height=\dimexpr \cellheight - ((#1) * 2) \relax, ]{#3} }%
+	% place...
+	% XXX for some odd reason without this the alignment completely breaks...
+	\vspace{0pt}%
+	\adjustbox{
+		margin=
+			% left...
+			{\dimexpr 
+				% XXX where is this coming from???!
+				+1.5pt
+				+0.5\cellwidth 
+				-0.5\wd\photobook@imagebox \relax}
+			0pt 0pt 
+			% top...
+			{\dimxpr 
+				+0.5\cellheight 
+				-0.5\ht\photobook@imagebox \relax}}{%
 		\usebox\photobook@imagebox}%
 	% caption...
 	\ifx #2 \empty \else%
@@ -1202,10 +1157,11 @@
 		%		space, so we have to compensate...
 		\vspace{-1em}%
 		\begin{center}%
-			\begin{minipage}{\mindim{\wd\photobook@imagebox - 1em}{\cellwidth - 1em}}% 
+			\begin{minipage}[t]{\mindim{\wd\photobook@imagebox - 1em}{\cellwidth - 1em}}% 
 				\captionformat{#2}%
 			\end{minipage}%
 		\end{center}\fi}
+%
 
 %% \DescribeMacro{\imagetocellfill\{..\}}
 %
@@ -1252,14 +1208,22 @@
 		\sbox{\photobook@imagebox}{%
 			\includegraphics[
 				keepaspectratio, 
-				height=\dimexpr \cellheight - ((#1) * 2) \relax, ]{#3} } \fi% 
+				height=\dimexpr \cellheight - ((#1) * 2) \relax,]{#3} } \fi% 
 	% place image...
-	\vspace{\dimexpr 
-			+0.5\cellheight
-			-0.5\ht\photobook@imagebox \relax}%
-	\hspace{\dimexpr 
-			+0.5\cellwidth
-			-0.5\wd\photobook@imagebox \relax}{%
+	\vspace{0pt}%
+	\adjustbox{
+		margin=
+			% left...
+			{\dimexpr 
+				% XXX where is this coming from???!
+				+1.5pt
+				+0.5\cellwidth 
+				-0.5\wd\photobook@imagebox \relax}
+			0 0 
+			% top...
+			{\dimxpr 
+				+0.5\cellheight 
+				-0.5\ht\photobook@imagebox \relax}}{%
 		\usebox\photobook@imagebox}%
 	% caption...
 	\ifx #2 \empty \else%
@@ -1279,8 +1243,104 @@
 
 
 % XXX like fill but trim to cell...
-\newcommand\imagetocelltrim[3][0mm]{%
-}
+% XXX do we need this???
+\newcommand\imagetocellclip[3][0mm]{%
+	\begin{cliptocell}%
+		\imagetocellfill[#1]{#2}{#3}%
+	\end{cliptocell}}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Paper cells
+
+%% \DescribeEnv{papercell}
+%
+%% Paper cell.
+%%
+%% This does not include bleeds and is independent of |layoutmode|.
+%%
+\newenvironment{papercell}{%
+	\begin{cell}{\bleed, \bleed}{\blockwidth}{\blockheight}%
+}{%
+	\end{cell}}
+
+
+%% \DescribeEnv{paperbleedcell}
+%
+%% Paper bleed cell.
+%%
+%% Like |papercell| but includes bleeds.
+%%
+\newenvironment{paperbleedcell}{%
+	\begin{cell}{0, 0}{\bleedblockwidth}{\bleedblockheight}%
+}{%
+	\end{cell}}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Page cells
+
+%% \DescribeEnv{pagecell}
+%
+%% Page cell. 
+%%
+%% This corresponds to the visible page in the |layoutmode=block| and 
+%% does not include bleeds.
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   + - - - - - - - - - +
+%%   . +---------------+ .
+%%   . |               | .
+%%   . |               | .
+%%   . |   pagecell    | .
+%%   . |               | .
+%%   . |               | .
+%%   . +---------------+ .
+%%   + - - - - - - - - - +
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% Note that |layoutmode|'s other than block will change the paper size 
+%% but will not affect this.
+%%
+% XXX
+\newenvironment{pagecell}{%
+	\begin{cell}{\bleed, \bleed}{\pageblockwidth}{\pageblockheight}%
+}{%
+	\end{cell}}
+
+
+%% \DescribeEnv{pagebleedcell}
+%
+%% Like |page| but includes bleeds.
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +-------------------+
+%%   | + - - - - - - - + |
+%%   | .               . |
+%%   | .               . |
+%%   | . pagebleedcell . |
+%%   | .               . |
+%%   | .               . |
+%%   | + - - - - - - - + |
+%%   +-------------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% Note that |layoutmode|'s other than block will change the paper size 
+%% but will not affect this.
+%%
+% XXX
+\newenvironment{pagebleedcell}{%
+	\begin{cell}{0mm, 0mm}{\bleedblockwidth}{\bleedblockheight}%
+}{%
+	\end{cell}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1681,7 +1741,7 @@
 		\includegraphics[
 			keepaspectratio=true, 
 			width=#1\textwidth, 
-			height=#2\textheight]{#4} }
+			height=#2\textheight,]{#4} }
 	\null
 	\vfill
 	% image...
@@ -1862,7 +1922,7 @@
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
-			height=\dimexpr \blockheight - ((#1) * 2) \relax]{#3} }
+			height=\dimexpr \blockheight - ((#1) * 2) \relax,]{#3} }
 	\clearpage
 	\captionboxright[-#1]{\photobook@imagebox}{#2}
 	\ShipoutPicture{
@@ -1902,7 +1962,7 @@
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
-			height=\dimexpr \blockheight - ((#1) * 2) \relax]{#3} }
+			height=\dimexpr \blockheight - ((#1) * 2) \relax,]{#3} }
 	\clearpage
 	\captionboxleft[-#1]{\photobook@imagebox}{#2}
 	\ShipoutPicture{
@@ -1949,7 +2009,7 @@
 		\includegraphics[
 			keepaspectratio, 
 			width=\dimexpr 
-				2\blockwidth - 2\clearimage + \vgrowimageby \relax]{#3} }
+				2\blockwidth - 2\clearimage + \vgrowimageby \relax,]{#3} }
 	\clearpage
 	\null
 	\vfill
@@ -2007,7 +2067,7 @@
 		\includegraphics[
 			keepaspectratio, 
 			width=\dimexpr 
-				2\blockwidth - 2\clearimage + \vgrowimageby \relax]{#3} }
+				2\blockwidth - 2\clearimage + \vgrowimageby \relax,]{#3} }
 	\clearpage
 	\null
 	\vfill
@@ -2222,7 +2282,7 @@
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
-			height=\dimexpr \blockheight - ((#1) * 2) + \vgrowimageby \relax]{#3} }
+			height=\dimexpr \blockheight - ((#1) * 2) + \vgrowimageby \relax,]{#3} }
 	% left page...
 	% XXX BUG: this in some cases creates an extra empty spread before this...
 	%		...appears to be a problem where we have a tweak.tex
@@ -2297,7 +2357,7 @@
 	\sbox{\photobook@imagebox}{
 		\includegraphics[
 			keepaspectratio, 
-			height=\dimexpr \blockheight - ((#1) * 2) + \vgrowimageby \relax]{#3} }
+			height=\dimexpr \blockheight - ((#1) * 2) + \vgrowimageby \relax,]{#3} }
 	% left page...
 	\cleartoleftpage
 	\null
