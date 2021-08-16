@@ -1347,6 +1347,38 @@
 	\end{cell}}
 
 
+% XXX EXPERIMENTAL
+%% \DescribeEnv{pagebleedcell}
+%
+%% A cell taking up the page text block.
+%
+%%	>> \begin{textcell}{<width>}{<height>} ... \end{textcell}
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%     <-----------> \textwidth
+%%   +---------------+
+%%   | +-----------+ |  ^
+%%   | |           | |  | \textheight
+%%   | | textcell  | |  |
+%%   | |           | |  |
+%%   | +-----------+ |  v
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% Note that this is an inline cell and if something is on the page it 
+%% may not be centered properly.
+%%
+% XXX test...
+\newenvironment{textcell}{%
+	\begin{inlinecell}{\textwidth}{\textheight}%
+}{%
+	\end{inlinecell}}
+
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Endpaper cells
 %
