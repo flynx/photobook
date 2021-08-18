@@ -409,6 +409,7 @@
 
 \RequirePackage{calc}
 \RequirePackage{xargs}
+\RequirePackage{keyval}
 \RequirePackage{ifthen}
 \RequirePackage{iftex}
 \RequirePackage{pgffor}
@@ -1089,7 +1090,7 @@
 
 %% \DescribeEnv{cliptocell}
 %
-%% Clip content to cell.
+%% Clip content to cell env.
 %%
 \newenvironment{cliptocell}{%
 	\begin{clipbox*}{0cm {\height - \cellheight} {\cellwidth} {\height}}%
@@ -1097,6 +1098,48 @@
 }{%
 	\end{minipage}%
 	\end{clipbox*}}
+
+
+%% \DescribeMacro{\imagetocellfitTEST\{..\}}
+%
+%% \fbox{XXX EXPERIMENTAL}
+%
+%%	>> \imagetocellfitTEST[<key>=<value>, ..]{<image>}
+%%
+% XXX RENAME...
+\define@key\imagetocellfitTEST@keys{align}[center]{\def\imagetocellfitTEST@align{#1}}%
+\define@key\imagetocellfitTEST@keys{left}{}%
+\define@key\imagetocellfitTEST@keys{top}{}%
+\define@key\imagetocellfitTEST@keys{clearence}{}%
+\newcommand\imagetocellfitTEST[2][]{%
+	\setkeys{imagetocellfitTEST@keys}{align=center,#1}
+	% image...
+	\sbox{\photobook@imagebox}{%
+		\includegraphics[
+			keepaspectratio, 
+			width=\dimexpr \cellwidth - ((#1) * 2) \relax,
+			height=\dimexpr \cellheight - ((#1) * 2) \relax, ]{#3} }%
+	% place image...
+	% XXX for some odd reason without this the alignment completely breaks...
+	\vspace{0pt}%
+	\adjustbox{
+		margin=
+			% left...
+			{\dimexpr 
+				% XXX where is this coming from???!
+				% XXX setting margin-left to 0pt and setting center produces 
+				%		the same error...
+				%		...this is starting to look like a bug...
+				+1.5pt
+				+0.5\cellwidth 
+				-0.5\wd\photobook@imagebox \relax}
+			0pt 0pt 
+			% top...
+			{\dimxpr 
+				+0.5\cellheight 
+				-0.5\ht\photobook@imagebox \relax}}{%
+		\usebox\photobook@imagebox}%
+}
 
 
 %% \DescribeMacro{\imagetocellfit\{..\}}
@@ -1164,7 +1207,7 @@
 				\captionformat{#2}%
 			\end{minipage}%
 		\end{center}\fi}
-%
+
 
 %% \DescribeMacro{\imagetocellfill\{..\}}
 %
