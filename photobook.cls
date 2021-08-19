@@ -409,10 +409,14 @@
 
 \RequirePackage{calc}
 \RequirePackage{xargs}
-\RequirePackage{keyval}
 \RequirePackage{ifthen}
 \RequirePackage{iftex}
 \RequirePackage{pgffor}
+
+% XXX argument processing -- use one of the following two...
+%\RequirePackage{pgfkeys}
+\RequirePackage{xkeyval} 
+
 \RequirePackage{etoolbox}
 \RequirePackage{atbegshi}
 %\RequirePackage{afterpage}
@@ -551,11 +555,11 @@
 
 %% \DescribeMacro{\clearimage=<len>}
 %
-%%	Image clearence
+%%	Image clearance
 %%
 % NOTE: since this can be any number but we need to detect if it was set 
 %		manually we'll set it to \maxdimen and hope noe will print 
-%		something big enough and dare to use it as image clearence...
+%		something big enough and dare to use it as image clearance...
 \newlength{\clearimage}
 \setlength\clearimage{\maxdimen}
 
@@ -702,7 +706,7 @@
 					+ 2\coverboardgrow
 				\relax } \fi
 	\fi
-	% default image clearence...
+	% default image clearance...
 	\ifdim\clearimage=\maxdimen
 		\ifx\photobook@clearimage\empty
 			\setlength\clearimage{-\bleed}
@@ -1100,53 +1104,246 @@
 	\end{clipbox*}}
 
 
-%% \DescribeMacro{\imagetocellfitTEST\{..\}}
-%
-%% \fbox{XXX EXPERIMENTAL}
-%
-%%	>> \imagetocellfitTEST[<key>=<value>, ..]{<image>}
-%%
-% XXX RENAME...
-\define@key\imagetocellfitTEST@keys{align}[center]{\def\imagetocellfitTEST@align{#1}}%
-\define@key\imagetocellfitTEST@keys{left}{}%
-\define@key\imagetocellfitTEST@keys{top}{}%
-\define@key\imagetocellfitTEST@keys{clearence}{}%
-\newcommand\imagetocellfitTEST[2][]{%
-	\setkeys{imagetocellfitTEST@keys}{align=center,#1}
-	% image...
-	\sbox{\photobook@imagebox}{%
-		\includegraphics[
-			keepaspectratio, 
-			width=\dimexpr \cellwidth - ((#1) * 2) \relax,
-			height=\dimexpr \cellheight - ((#1) * 2) \relax, ]{#3} }%
-	% place image...
-	% XXX for some odd reason without this the alignment completely breaks...
-	\vspace{0pt}%
-	\adjustbox{
-		margin=
-			% left...
-			{\dimexpr 
-				% XXX where is this coming from???!
-				% XXX setting margin-left to 0pt and setting center produces 
-				%		the same error...
-				%		...this is starting to look like a bug...
-				+1.5pt
-				+0.5\cellwidth 
-				-0.5\wd\photobook@imagebox \relax}
-			0pt 0pt 
-			% top...
-			{\dimxpr 
-				+0.5\cellheight 
-				-0.5\ht\photobook@imagebox \relax}}{%
-		\usebox\photobook@imagebox}%
-}
-
-
 %% \DescribeMacro{\imagetocellfit\{..\}}
+%
+%% Fit image to cell.
+%
+%%	>> \imagetocellfit{<caption-cell>}{<image>}
+%%	>> \imagetocellfit[<key>=<value>, ..]{<caption-cell>}{<image>}
+%%
+%% The image will be centered by default.
+%%
+%%	>> \imagetocellfit{}{landscape-image}
+%%	>> \imagetocellfit[center]{}{landscape-image}
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +-----------------+    +-+-------------+-+
+%%   |                 |    | | .         . | |
+%%   +-----------------+    | |  .       .  | | 
+%%   | .             . |    | |   .     .   | | 
+%%   |    .       .    |    | |    .   .    | | 
+%%   |      image      |    | |    image    | | 
+%%   |    .       .    |    | |    .   .    | | 
+%%   | .             . |    | |   .     .   | | 
+%%   +-----------------+    | |  .       .  | | 
+%%   |                 |    | | .         . | |
+%%   +-----------------+    +-+-------------+-+ 
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% Vertical alignment for landscape images.
+%%
+%%	>> \imagetocellfit[top]{}{landscape-image}
+%%	>> \imagetocellfit[bottom]{}{landscape-image}
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   top                    center (default)       bottom
+%%   +-----------------+    +-----------------+    +-----------------+ 
+%%   | .             . |    |                 |    |                 |
+%%   |    .       .    |    +-----------------+    |                 |
+%%   |      image      |    | .             . |    |                 |
+%%   |    .       .    |    |    .       .    |    +-----------------+ 
+%%   | .             . |    |      image      |    | .             . | 
+%%   +-----------------+    |    .       .    |    |    .       .    | 
+%%   |                 |    | .             . |    |      image      | 
+%%   |                 |    +-----------------+    |    .       .    | 
+%%   |                 |    |                 |    | .             . | 
+%%   +-----------------+    +-----------------+    +-----------------+ 
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% Horizontal alignment for portrait images.
+%%
+%%	>> \imagetocellfit[left]{}{portrait-image}
+%%	>> \imagetocellfit[right]{}{portrait-image}
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   left                   center (default)       right
+%%   +-------------+---+    +-+-------------+-+    +---+-------------+
+%%   | .         . |   |    | | .         . | |    |   | .         . |
+%%   |  .       .  |   |    | |  .       .  | |    |   |  .       .  |
+%%   |   .     .   |   |    | |   .     .   | |    |   |   .     .   |
+%%   |    .   .    |   |    | |    .   .    | |    |   |    .   .    |
+%%   |    image    |   |    | |    image    | |    |   |    image    |
+%%   |    .   .    |   |    | |    .   .    | |    |   |    .   .    |
+%%   |   .     .   |   |    | |   .     .   | |    |   |   .     .   |
+%%   |  .       .  |   |    | |  .       .  | |    |   |  .       .  |
+%%   | .         . |   |    | | .         . | |    |   | .         . |
+%%   +-------------+---+    +-+-------------+-+    +---+-------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% Horizontal and vertical alignment can be combined to control alignment 
+%% of both vertical and horizontal images at the same time.
+%%
+%% Image |clearance|. This sets the amount of clearance around an image 
+%% (default: |0pt|).
+%%
+%%	>> \imagetocellfit[clearance=-4mm]{}{landscape-image}
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   clearance > 0pt        clearance = 0pt          clearance < 0pt
+%%                                  (default)     
+%%   +-----------------+    +-----------------+    +-----------------+    
+%%   |                 |    |                 |    |                 |    
+%%   |+---------------+|    +-----------------+  ..+-----------------+..  
+%%   || .           . ||    | .             . |  . |.               .| .  
+%%   ||   .       .   ||    |    .       .    |  . |    .       .    | .  
+%%   ||     image     ||    |      image      |  . |      image      | .  
+%%   ||   .       .   ||    |    .       .    |  . |    .       .    | .  
+%%   || .           . ||    | .             . |  . |.               .| .  
+%%   |+---------------+|    +-----------------+  ..+-----------------+..  
+%%   |                 |    |                 |    |                 |    
+%%   +-----------------+    +-----------------+    +-----------------+    
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% Note that if |clearance| is less than 0, the image will take up more
+%% space than the containing cell, |\imagetocellfit{..}| will not clip 
+%% its content and the whole image surface will be shown. If clipping is 
+%% needed then use |clipcell| environment as a container.
+%%
+%% |<caption-cell>| is a cell that occupies the same space as the image
+%% clipped by the containing cell and provides all the cell functionality.
+%%
+
+% XXX HACK -- need to track down where is this coming from and either 
+%		set it to zero or account for it correctly....
+\newlength\photobook@imagetocellfit@HFIX
+\setlength\photobook@imagetocellfit@HFIX{1.5pt}
+
+% XXX should these be lengths or macros???
+\def\photobook@imagetocellfit@top{0pt}
+\def\photobook@imagetocellfit@left{0pt}
+\def\photobook@imagetocellfit@clearance{0pt}
+
+% center...
+\define@boolkey{imagetocellfit@args}{center}[true]{%
+	\def\photobook@imagetocellfit@top{\dimexpr 
+		+0.5\cellheight 
+		-0.5\ht\photobook@imagebox \relax}%
+	\def\photobook@imagetocellfit@left{\dimexpr 
+		+\photobook@imagetocellfit@HFIX
+		+0.5\cellwidth 
+		-0.5\wd\photobook@imagebox \relax}}%
+
+% left/right...
+% shortdands...
+\newcommand\photobook@imagetocellfit@LEFT{%
+	\def\photobook@imagetocellfit@left{%
+		\photobook@imagetocellfit@clearance}}%
+\newcommand\photobook@imagetocellfit@RIGHT{%
+	\def\photobook@imagetocellfit@left{\dimexpr 
+		+2\photobook@imagetocellfit@HFIX
+		+\cellwidth 
+		-\photobook@imagetocellfit@clearance
+		-\wd\photobook@imagebox \relax}}%
+% args...
+\define@boolkey{imagetocellfit@args}{left}[true]{%
+	\photobook@imagetocellfit@LEFT}
+\define@boolkey{imagetocellfit@args}{right}[true]{
+	\photobook@imagetocellfit@RIGHT}
+
+% inside/outside...
+\define@boolkey{imagetocellfit@args}{inside}[true]{%
+	\ifthenelse{\isodd{\thepage}}{
+		\photobook@imagetocellfit@LEFT%
+	}{%
+		\photobook@imagetocellfit@RIGHT}}%
+\define@boolkey{imagetocellfit@args}{outside}[true]{%
+	\ifthenelse{\isodd{\thepage}}{
+		\photobook@imagetocellfit@RIGHT%
+	}{%
+		\photobook@imagetocellfit@LEFT}}%
+
+% top/bottom...
+\define@boolkey{imagetocellfit@args}{top}[true]{%
+	\def\photobook@imagetocellfit@top{%
+		\photobook@imagetocellfit@clearance}}%
+\define@boolkey{imagetocellfit@args}{bottom}[true]{%
+	\def\photobook@imagetocellfit@top{\dimexpr 
+		+\cellheight 
+		-\photobook@imagetocellfit@clearance
+		-\ht\photobook@imagebox \relax}}%
+
+% clearance=<len>...
+\define@key{imagetocellfit@args}{clearance}{%
+	\def\photobook@imagetocellfit@clearance{#1}}%
+
+% XXX can't seem to get rid of small placement errors...
+%		see: \photobook@imagetocellfit@HFIX
+% XXX can we make this an env???
+\newcommand\imagetocellfit[3][]{%
+	\begingroup
+		% args...
+		\setkeys{imagetocellfit@args}{center,clearance=0pt,#1}%
+		% preload image...
+		\sbox{\photobook@imagebox}{%
+			\includegraphics[
+				keepaspectratio, 
+				width=\dimexpr 
+					\cellwidth 
+					- ((\photobook@imagetocellfit@clearance) * 2) \relax,
+				height=\dimexpr 
+					\cellheight 
+					- ((\photobook@imagetocellfit@clearance) * 2) \relax, ]{#3} }%
+		% place image...
+		% XXX for some odd reason without this the alignment completely breaks...
+		\vspace{0pt}%
+		\adjustbox{
+			margin=
+				{\photobook@imagetocellfit@left}
+				0pt 0pt 
+				{\photobook@imagetocellfit@top}}{%
+			\usebox\photobook@imagebox%
+			% over image cell...
+			\ifx #2 \empty \else%
+				\begingroup
+					\hspace{-\mindim{%
+								\wd\photobook@imagebox
+							}{%
+								\cellwidth - \photobook@imagetocellfit@clearance}}{%
+						\setlength\cellwidth{\dimexpr%
+							-2\photobook@imagetocellfit@HFIX
+							+\mindim{\wd\photobook@imagebox}{\cellwidth} \relax}%
+						\setlength\cellheight{%
+							\mindim{\ht\photobook@imagebox}{\cellheight}}% 
+						\setlength\fboxsep{0pt}%
+						\begin{minipage}[b][\cellheight][t]{\cellwidth}%
+							#2%
+						\end{minipage}}%
+				\endgroup\fi}%
+	\endgroup}
+
+
+% XXX same keywords as \imagetocellfit
+%\newcommand\imagetocellfill[3][]{}
+
+
+% XXX add support for boolkeys:
+%		- left/right/top/bottom
+%		- inside/outside
+%		- topdown/bottomup
+%\newcommand\captioncell[2][]{}
+
+
+%% \DescribeMacro{\cimagetocellfit\{..\}}
 %
 %% Fit an image to cell (centered).
 %
-%%	>> \imagetocellfit[<clearence>]{<caption>}{<image>}
+%%	>> \cimagetocellfit[<clearence>]{<caption>}{<image>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -1168,45 +1365,15 @@
 %%
 %% Image position can be tweaked via |\vspace{..}| or |\hspace{..}|
 %
+% XXX do we need this???
 % XXX revise caption for vertical images...
-% XXX can't seem to get rid of small placement errors...
-\newcommand\imagetocellfit[3][0mm]{%
-	% image...
-	\sbox{\photobook@imagebox}{%
-		\includegraphics[
-			keepaspectratio, 
-			width=\dimexpr \cellwidth - ((#1) * 2) \relax,
-			height=\dimexpr \cellheight - ((#1) * 2) \relax, ]{#3} }%
-	% place image...
-	% XXX for some odd reason without this the alignment completely breaks...
-	\vspace{0pt}%
-	\adjustbox{
-		margin=
-			% left...
-			{\dimexpr 
-				% XXX where is this coming from???!
-				% XXX setting margin-left to 0pt and setting center produces 
-				%		the same error...
-				%		...this is starting to look like a bug...
-				+1.5pt
-				+0.5\cellwidth 
-				-0.5\wd\photobook@imagebox \relax}
-			0pt 0pt 
-			% top...
-			{\dimxpr 
-				+0.5\cellheight 
-				-0.5\ht\photobook@imagebox \relax}}{%
-		\usebox\photobook@imagebox}%
-	% caption...
-	\ifx #2 \empty \else%
-		% XXX for some reason adding 'center' env here adds vertical 
-		%		space, so we have to compensate...
-		\vspace{-1em}%
-		\begin{center}%
-			\begin{minipage}[t]{\mindim{\wd\photobook@imagebox - 1em}{\cellwidth - 1em}}% 
-				\captionformat{#2}%
-			\end{minipage}%
-		\end{center}\fi}
+\newcommand\cimagetocellfit[3][0mm]{%
+	\imagetocellfit[center, clearance=#1]{%
+		\vspace{\cellheight}%
+		\begin{flushright}%
+			\captionformat{%
+				\adjustbox{margin=0.5em}{#2}}%
+		\end{flushright}}{#3}}
 
 
 %% \DescribeMacro{\imagetocellfill\{..\}}
@@ -1268,7 +1435,7 @@
 				-0.5\wd\photobook@imagebox \relax}
 			0pt 0pt 
 			% top...
-			{\dimxpr 
+			{\dimexpr 
 				+0.5\cellheight 
 				-0.5\ht\photobook@imagebox \relax}}{%
 		\usebox\photobook@imagebox}%
@@ -1931,7 +2098,7 @@
 \newcommand\imagepagefit[3][\clearimage]{%
 	\null%
 	\begin{pagecell}%
-		\imagetocellfit[#1]{#2}{#3}%
+		\cimagetocellfit[#1]{#2}{#3}%
 	\end{pagecell}%
 	\clearpage }
 
