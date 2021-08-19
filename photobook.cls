@@ -1223,6 +1223,9 @@
 %% clipped by the containing cell and provides all the cell functionality.
 %%
 
+% XXX TODO:
+%		- offset fix for fill mode...
+%		- caption cell in fill mode...
 % XXX HACK -- need to track down where is this coming from and either 
 %		set it to zero or account for it correctly....
 % XXX RENAME -- make this global...
@@ -1290,24 +1293,25 @@
 	\def\photobook@imagecell@clearance{#1}}%
 
 % XXX can't seem to get rid of small placement errors...
+%		...feels like we've still got a stray space someplace...
 %		see: \photobook@HFIX
 % XXX can we make this an env???
 \newcommand\imagecell[3][]{%
-	\begingroup
+	\begingroup%
 		% args...
 		\setkeys{imagecell@args}{fit,center,clearance=0pt,#1}%
 		% preload image...
 		% fit...
 		\ifKV@imagecell@args@fit%
 			\sbox{\photobook@imagebox}{%
-				\includegraphics[
+				\includegraphics[%
 					keepaspectratio, 
 					width=\dimexpr 
 						\cellwidth 
 						- ((\photobook@imagecell@clearance) * 2) \relax,
 					height=\dimexpr 
 						\cellheight 
-						- ((\photobook@imagecell@clearance) * 2) \relax, ]{#3}}
+						- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}
 		% fill...
 		\else\ifKV@imagecell@args@fill%
 			% preload image to get its proportions...
@@ -1315,23 +1319,22 @@
 			% constrain minimal dimension of image...
 			\ifdim \wd\photobook@imagebox < \ht\photobook@imagebox%
 				\sbox{\photobook@imagebox}{%
-					\includegraphics[
+					\includegraphics[%
 						keepaspectratio, 
 						width=\dimexpr 
 							+\cellwidth 
-							- ((\photobook@imagecell@clearance) * 2) \relax, ]{#3} }%
+							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 			\else%
 				\sbox{\photobook@imagebox}{%
-					\includegraphics[
+					\includegraphics[%
 						keepaspectratio, 
 						height=\dimexpr 
 							+\cellheight 
-							- ((\photobook@imagecell@clearance) * 2) \relax,]{#3} } \fi% 
-		\fi\fi%
+							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}\fi\fi\fi%
 		% place image box...
 		% XXX for some odd reason without this the alignment completely breaks...
 		\vspace{0pt}%
-		\adjustbox{
+		\adjustbox{%
 			margin=
 				{\photobook@imagecell@left - \photobook@HFIX}
 				0pt 0pt 
@@ -1340,7 +1343,9 @@
 			\usebox\photobook@imagebox%
 			% caption cell...
 			\ifx #2 \empty \else%
-				\begingroup
+				\begingroup%
+					% XXX broken for fill...
+					% XXX test for portrait images...
 					\hspace{-\mindim{%
 								\wd\photobook@imagebox
 							}{%
@@ -1351,9 +1356,11 @@
 						\setlength\cellheight{%
 							\mindim{\ht\photobook@imagebox}{\cellheight}}% 
 						\setlength\fboxsep{0pt}%
+						%\fbox{
 						\begin{minipage}[b][\cellheight][t]{\cellwidth}%
 							#2%
 						\end{minipage}}%
+						%}%
 				\endgroup\fi}%
 	\endgroup}
 
