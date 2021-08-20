@@ -75,7 +75,6 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 %%%%% Page geometry
 %
 %% \DescribeMacro{blockwidth=<len>}
@@ -121,7 +120,7 @@
 %		and \begin{document}...
 \DeclareStringOption{blockwidth}
 \DeclareStringOption{blockheight}
-\DeclareStringOption[0]{bindingoffset}[10mm]
+\DeclareStringOption[0pt]{bindingoffset}[10mm]
 \DeclareStringOption[5mm]{bleed}[5mm]
 
 
@@ -571,6 +570,17 @@
 \edef\imageblockwidth{\photobook@imageblockwidth}
 \edef\imageblockheight{\photobook@imageblockheight}
 
+%% \DescribeMacro{\pagetextwidth=<len>}
+%% \DescribeMacro{\pagetextheight=<len>}
+%
+%% Root page text width/height.
+%%
+\newlength\pagetextwidth
+\setlength\pagetextwidth{\textwidth}
+\newlength\pagetextheight
+\setlength\pagetextheight{\textheight}
+
+
 %% \DescribeMacro{\imageblockoffsettop=<ratio>}
 %
 %%
@@ -741,8 +751,6 @@
 
 
 
-
-
 %----------------------------------------------------------------------
 % Setup...
 
@@ -799,6 +807,9 @@
 			% center printed area on page
 			vcentering, hcentering}
 	\fi
+
+	\setlength\pagetextwidth{\textwidth}
+	\setlength\pagetextheight{\textheight}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -950,14 +961,14 @@
 
 % XXX workaround a problem with xelatex vs. lualatex...
 \ifxetex
-	\newcommand\ShipoutPicture[1]{
+	\newcommand\ShipoutPicture[1]{%
 		\AddToShipoutPicture*{#1}}
 
 \else
 	% XXX for some reason in pdflatex and lualatex \pagecolor{..} and 
 	%		\AddToShipoutPicture*{..} start fighting over space...
 	% XXX this draws over page numbers...
-	\newcommand\ShipoutPicture[1]{
+	\newcommand\ShipoutPicture[1]{%
 		\AddToShipoutPictureFG*{#1}}
 \fi
 
@@ -1035,6 +1046,7 @@
 		\setlength\cellheight{\dimexpr #2 \relax}%
 		%
 		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+		\ignorespaces%
 }{%
 		\end{minipage}%
 	\endgroup}
@@ -1052,11 +1064,14 @@
 % XXX SYNTAX: place the second arg in braces...
 %		\begin{cell}(<top>, <left>){<width>}{<height>}
 \newenvironment{cell}[3]{%
+	\begingroup%
+	\setlength\parindent{0em}%
 	\begin{textblock*}{#2}(#1)%
 	\begin{inlinecell}{#2}{#3}%
 }{%
 	\end{inlinecell}%
-	\end{textblock*}}
+	\end{textblock*}%
+	\endgroup}
 
 
 % \DescribeMacro{\begin\{clipcell\}\{..\} ...}
@@ -1073,6 +1088,7 @@
 \newenvironment{clipcell}[3]{%
 	\begin{cell}{#1}{#2}{#3}%
 	\begin{cliptocell}%
+	\ignorespaces%
 }{%
 	\end{cliptocell}%
 	\end{cell}}
@@ -1219,18 +1235,39 @@
 %% its content and the whole image surface will be shown. If clipping is 
 %% needed then use |clipcell| environment as a container.
 %%
-%% |<caption-cell>| is a cell that occupies the same space as the image
-%% clipped by the containing cell and provides all the cell functionality.
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%     +-----------------+ - - caption cell size
+%%     .                 .       .
+%%     +-----------------+       .
+%%     |                 |       . 
+%%   ..+-----------------+..  .  +
+%%   . |.caption cell   .| .     |
+%%   . |    .       .    | .     |
+%%   . |        .        | .     | 
+%%   . |    .       .    | .     |
+%%   . |.               .| .     |
+%%   ..+-----------------+..  .  +
+%%     |                 |    
+%%     +-----------------+    
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% |<caption-cell>| occupies the same space as the image clipped by the 
+%% containing cell and provides all the cell functionality.
 %%
 
 % XXX TODO:
 %		- offset fix for fill mode...
 %		- caption cell in fill mode...
+%		- do we need to reverse left/right for fill? (feels counter-intuitive)
 % XXX HACK -- need to track down where is this coming from and either 
 %		set it to zero or account for it correctly....
 % XXX RENAME -- make this global...
-\newlength\photobook@HFIX
-\setlength\photobook@HFIX{1.5pt}
+\newlength\photobook@HOFFSETFIX
+\setlength\photobook@HOFFSETFIX{1.5pt}
 
 % XXX should these be lengths or macros???
 \def\photobook@imagecell@top{0pt}
@@ -1248,25 +1285,25 @@
 		+0.5\cellheight 
 		-0.5\ht\photobook@imagebox \relax}%
 	\def\photobook@imagecell@left{\dimexpr 
-		+\photobook@HFIX
+		+\photobook@HOFFSETFIX
 		+0.5\cellwidth 
 		-0.5\wd\photobook@imagebox \relax}}%
 % left/right...
 % shortdands...
 \newcommand\photobook@imagecell@LEFT{%
 	\def\photobook@imagecell@left{\dimexpr%
-		+\photobook@HFIX
+		+\photobook@HOFFSETFIX
 		+\photobook@imagecell@clearance \relax}}%
 \newcommand\photobook@imagecell@RIGHT{%
 	\def\photobook@imagecell@left{\dimexpr 
-		+\photobook@HFIX
+		+\photobook@HOFFSETFIX
 		+\cellwidth 
 		-\photobook@imagecell@clearance
 		-\wd\photobook@imagebox \relax}}%
 % args...
 \define@boolkey{imagecell@args}{left}[true]{%
 	\photobook@imagecell@LEFT}
-\define@boolkey{imagecell@args}{right}[true]{
+\define@boolkey{imagecell@args}{right}[true]{%
 	\photobook@imagecell@RIGHT}
 % inside/outside...
 \define@boolkey{imagecell@args}{inside}[true]{%
@@ -1275,7 +1312,7 @@
 	}{%
 		\photobook@imagecell@RIGHT}}%
 \define@boolkey{imagecell@args}{outside}[true]{%
-	\ifthenelse{\isodd{\thepage}}{
+	\ifthenelse{\isodd{\thepage}}{%
 		\photobook@imagecell@RIGHT%
 	}{%
 		\photobook@imagecell@LEFT}}%
@@ -1294,7 +1331,7 @@
 
 % XXX can't seem to get rid of small placement errors...
 %		...feels like we've still got a stray space someplace...
-%		see: \photobook@HFIX
+%		see: \photobook@HOFFSETFIX
 % XXX can we make this an env???
 \newcommand\imagecell[3][]{%
 	\begingroup%
@@ -1311,7 +1348,7 @@
 						- ((\photobook@imagecell@clearance) * 2) \relax,
 					height=\dimexpr 
 						\cellheight 
-						- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}
+						- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 		% fill...
 		\else\ifKV@imagecell@args@fill%
 			% preload image to get its proportions...
@@ -1336,7 +1373,7 @@
 		\vspace{0pt}%
 		\adjustbox{%
 			margin=
-				{\photobook@imagecell@left - \photobook@HFIX}
+				{\photobook@imagecell@left - \photobook@HOFFSETFIX}
 				0pt 0pt 
 				{\photobook@imagecell@top}}{%
 			% image....
@@ -1351,16 +1388,14 @@
 							}{%
 								\cellwidth - \photobook@imagecell@clearance}}{%
 						\setlength\cellwidth{\dimexpr%
-							-2\photobook@HFIX
+							-2\photobook@HOFFSETFIX
 							+\mindim{\wd\photobook@imagebox}{\cellwidth} \relax}%
 						\setlength\cellheight{%
 							\mindim{\ht\photobook@imagebox}{\cellheight}}% 
 						\setlength\fboxsep{0pt}%
-						%\fbox{
 						\begin{minipage}[b][\cellheight][t]{\cellwidth}%
 							#2%
 						\end{minipage}}%
-						%}%
 				\endgroup\fi}%
 	\endgroup}
 
@@ -1368,8 +1403,39 @@
 % XXX add support for boolkeys:
 %		- left/right/top/bottom
 %		- inside/outside
-%		- topdown/bottomup
-%\newcommand\captioncell[2][]{}
+%		- up/down (vertical text)
+%		or
+%		- over/under/before/after
+%		- top/bottom/left/right
+%		- align=left/right/up/down
+% XXX revise keywords...
+\define@boolkey{captioncell@args}{left}[true]{}
+\define@boolkey{captioncell@args}{right}[true]{}
+\define@boolkey{captioncell@args}{top}[true]{}
+\define@boolkey{captioncell@args}{bottom}[true]{}
+
+\define@boolkey{captioncell@args}{inside}[true]{%
+	\KV@captioncell@args@outsidefalse}
+\define@boolkey{captioncell@args}{outside}[true]{%
+	\KV@captioncell@args@insidefalse}
+
+\define@boolkey{captioncell@args}{up}[true]{%
+	\KV@captioncell@args@downfalse}
+\define@boolkey{captioncell@args}{down}[true]{%
+	\KV@captioncell@args@upfalse}
+
+\newcommand\captioncell[2][]{%
+	\setkeys{captioncell@args}{top,left,inside,#1}%
+	% XXX
+}
+
+% XXX HACK -- make over/under/... an argument...
+\newcommand\captioncellunder[1]{
+	\vspace{\cellheight}%
+	\begin{flushright}%
+		\captionformat{%
+			\adjustbox{margin=0pt 0.5em}{#1}}%
+	\end{flushright}}
 
 
 %% \DescribeMacro{\cimagetocellfit\{..\}}
@@ -1401,13 +1467,7 @@
 % XXX do we need this???
 % XXX revise caption for vertical images...
 \newcommand\cimagetocellfit[3][0mm]{%
-	\imagecell[center, clearance=#1]{%
-		\vspace{\cellheight}%
-		\begin{flushright}%
-			\captionformat{%
-				\adjustbox{margin=0.5em}{#2}}%
-		\end{flushright}}{#3}}
-
+	\imagecell[center, clearance=#1]{\captioncellunder{#2}}{#3}}
 
 
 % XXX like fill but trim to cell...
@@ -1476,7 +1536,7 @@
 %%
 % XXX
 \newenvironment{pagecell}{%
-	\begin{cell}{\bleed, \bleed}{\pageblockwidth}{\pageblockheight}%
+	\begin{cell}{\bleed,\bleed}{\pageblockwidth}{\pageblockheight}%
 }{%
 	\end{cell}}
 
@@ -1512,7 +1572,7 @@
 
 
 % XXX EXPERIMENTAL
-%% \DescribeEnv{pagebleedcell}
+%% \DescribeEnv{textcell}
 %
 %% A cell taking up the page text block.
 %
@@ -1790,12 +1850,6 @@
 
 
 
-
-
-
-
-
-
 %----------------------------------------------------------------------
 %%%% Captions
 % XXX need to be able to configure/pass/override:
@@ -1952,6 +2006,10 @@
 	\vfill
 	% caption...
 	\ShipoutPicture{
+		% XXX for some magical reason \vfill here makes latex err 
+		%		"Missing } inserted", removing it fixes the error but breaks
+		%		captions...
+		%		...also adding a '}' here does not break things...
 		\vfill
 		\vspace{ \dimexpr 
 				% XXX this is not accurate for some reason...
@@ -2017,8 +2075,30 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-\newcommand\imagepage[2]{
+\newcommand\imagepageO[2]{
 	\imagepagefitWH{\imageblockwidth}{\imageblockheight}{#1}{#2} }
+
+
+% XXX this is not yet 100% the same as \imagepage{..}
+%		- vertical offset seems not to match (not sure who's fault is it)...
+% XXX needs caption...
+\newcommand\imagepage[2]{%
+	\begin{page}%
+		\begin{pagecell}%
+			\begin{minipage}[t][\cellheight][c]{\cellwidth}%
+				\vspace{\imageblockoffsettop\pagetextheight}%
+				\begin{center}%
+					\hspace{\ifnumodd{\thepage}{\bindingoffset}{-\bindingoffset}}{%
+						\begin{inlinecell}%
+								{\imageblockwidth\pagetextwidth}%
+								{\imageblockheight\pagetextheight}%
+							\imagecell[fit]{\captioncellunder{#1}}{#2}%
+						\end{inlinecell}}%
+				\end{center}%
+			\end{minipage}%
+		\end{pagecell}%
+	\end{page}}
+
 
 
 % XXX

@@ -1,0 +1,43 @@
+%----------------------------------------------------------------------
+
+\documentclass[
+	layoutmode=block,
+	% page size...
+	blockwidth=240mm, blockheight=220mm,
+	bleed=4mm,
+	bindingoffset=5mm,
+	% image block configuration...
+	imageblockwidth=0.98, imageblockheight=0.98,
+	imageblockoffsettop=-0,
+	% misc...
+	9pt,final,openany
+]{photobook}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\begin{document}
+
+%\TPoptions{showboxes=true}
+
+
+\null
+\newpage
+
+\def\imageblockwidth{1}
+\def\imageblockheight{1}
+
+\imagepage{Caption}{DSC00403-2}
+
+\imagepage{Caption}{DSC00403-2}
+
+\imagepage{Caption}{DSC00403-2vert}
+
+%\imagepage{Caption}{DSC00403-2}
+%\imagepage{}{DSC00403-2vert}
+
+\end{document}
+
+
+%----------------------------------------------------------------------
+%                                                  vim:set ts=4 sw=4 :
