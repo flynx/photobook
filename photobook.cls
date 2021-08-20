@@ -1215,17 +1215,17 @@
 %%
 %%   clearance > 0pt        clearance = 0pt          clearance < 0pt
 %%                                  (default)     
-%%   +-----------------+    +-----------------+    +-----------------+    
+%%   +--------v--------+    +-----------------+    +--------^--------+    
 %%   |                 |    |                 |    |                 |    
 %%   |+---------------+|    +-----------------+  ..+-----------------+..  
 %%   || .           . ||    | .             . |  . |.               .| .  
 %%   ||   .       .   ||    |    .       .    |  . |    .       .    | .  
-%%   ||     image     ||    |      image      |  . |      image      | .  
+%%   |>     image     <|    |      image      |  < |      image      | >  
 %%   ||   .       .   ||    |    .       .    |  . |    .       .    | .  
 %%   || .           . ||    | .             . |  . |.               .| .  
 %%   |+---------------+|    +-----------------+  ..+-----------------+..  
 %%   |                 |    |                 |    |                 |    
-%%   +-----------------+    +-----------------+    +-----------------+    
+%%   +--------^--------+    +-----------------+    +--------v--------+    
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -1329,6 +1329,10 @@
 \define@key{imagecell@args}{clearance}{%
 	\def\photobook@imagecell@clearance{#1}}%
 
+\def\photobook@imagecell@captionalign{t}
+\define@choicekey{imagecell@args}{caption-align}{t,c,b}[t]{%
+	\def\photobook@imagecell@captionalign{#1}}%
+
 % XXX can't seem to get rid of small placement errors...
 %		...feels like we've still got a stray space someplace...
 %		see: \photobook@HOFFSETFIX
@@ -1393,13 +1397,36 @@
 						\setlength\cellheight{%
 							\mindim{\ht\photobook@imagebox}{\cellheight}}% 
 						\setlength\fboxsep{0pt}%
-						\begin{minipage}[b][\cellheight][t]{\cellwidth}%
+						\begin{minipage}[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth}%
 							#2%
 						\end{minipage}}%
 				\endgroup\fi}%
 	\endgroup}
 
 
+%% \DescribeMacro{\captioncell\{..\}}
+%
+%% \fbox{XXX EXPERIMENTAL}
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%    [ above         ]
+%%   +-----------------+
+%%   |[ top           ]|
+%%   |                 |
+%%   |                 |
+%%   |                 |
+%%   |                 |
+%%   |                 |
+%%   |                 |
+%%   |[ bottom        ]|
+%%   +-----------------+
+%%    [ below         ]
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
 % XXX add support for boolkeys:
 %		- left/right/top/bottom
 %		- inside/outside
@@ -1407,7 +1434,7 @@
 %		or
 %		- over/under/before/after
 %		- top/bottom/left/right
-%		- align=left/right/up/down
+%		- align=left/right
 % XXX revise keywords...
 \define@boolkey{captioncell@args}{left}[true]{}
 \define@boolkey{captioncell@args}{right}[true]{}
