@@ -14,12 +14,20 @@
 ]{photobook}
 
 
+\newlength\spacewidth
+\newsavebox\spacebox
+\newcommand\calcspacewidth{%
+	\sbox{\spacebox}{ }%
+	\setlength\spacewidth{\wd\spacebox}}
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \begin{document}
 
 %\TPoptions{showboxes=true}
 
+\calcspacewidth
+Space width: \the\spacewidth
 
 \null
 \newpage

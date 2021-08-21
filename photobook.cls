@@ -1427,32 +1427,22 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% XXX add support for boolkeys:
-%		- left/right/top/bottom
-%		- inside/outside
-%		- up/down (vertical text)
-%		or
-%		- over/under/before/after
-%		- top/bottom/left/right
-%		- align=left/right
+
 % XXX revise keywords...
-\define@boolkey{captioncell@args}{left}[true]{}
-\define@boolkey{captioncell@args}{right}[true]{}
+\define@boolkey{captioncell@args}{above}[true]{}
 \define@boolkey{captioncell@args}{top}[true]{}
 \define@boolkey{captioncell@args}{bottom}[true]{}
+\define@boolkey{captioncell@args}{below}[true]{}
 
-\define@boolkey{captioncell@args}{inside}[true]{%
-	\KV@captioncell@args@outsidefalse}
-\define@boolkey{captioncell@args}{outside}[true]{%
-	\KV@captioncell@args@insidefalse}
+% XXX add fields: before/left/right/after... (vertical???)
+% XXX add vertical fields direction: up/down
 
-\define@boolkey{captioncell@args}{up}[true]{%
-	\KV@captioncell@args@downfalse}
-\define@boolkey{captioncell@args}{down}[true]{%
-	\KV@captioncell@args@upfalse}
+% XXX expand choices...
+\define@choicekey{captioncell@args}{align}{flushleft,center,flushright}{}
+
 
 \newcommand\captioncell[2][]{%
-	\setkeys{captioncell@args}{top,left,inside,#1}%
+	\setkeys{captioncell@args}{top, align=flushleft,#1}%
 	% XXX
 }
 
