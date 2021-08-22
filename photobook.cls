@@ -738,11 +738,11 @@
 	\nprounddigits{\photobook@roundprintedlengthsto} }
 
 
-%% \DescribeMacro{\ResetPages}
+%% \DescribeMacro{\ReInitPages}
 %
 %%	Reset and re-initialize page dimentions.
 %%
-\newcommand\ResetPages{
+\newcommand\ReInitPages{
 	\setlength\blockwidth{0mm}
 	\setlength\blockheight{0mm}
 	\edef\pdfpagelayout{}
