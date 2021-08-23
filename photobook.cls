@@ -1272,7 +1272,9 @@
 % XXX should these be lengths or macros???
 \def\photobook@imagecell@top{0pt}
 \def\photobook@imagecell@left{0pt}
-\def\photobook@imagecell@clearance{0pt}
+
+\newlength\photobook@imagecell@clearance
+\setlength\photobook@imagecell@clearance{0pt}
 
 % fit/fill...
 \define@boolkey{imagecell@args}{fit}[true]{%
@@ -1327,7 +1329,7 @@
 		-\ht\photobook@imagebox \relax}}%
 % clearance=<len>...
 \define@key{imagecell@args}{clearance}{%
-	\def\photobook@imagecell@clearance{#1}}%
+	\setlength\photobook@imagecell@clearance{#1}}%
 
 \def\photobook@imagecell@captionalign{t}
 \define@choicekey{imagecell@args}{caption-align}{t,c,b}[t]{%
@@ -1383,23 +1385,32 @@
 			% image....
 			\usebox\photobook@imagebox%
 			% caption cell...
+			% XXX the \ifx here does not work...
 			\ifx #2 \empty \else%
 				\begingroup%
 					% XXX broken for fill...
 					% XXX test for portrait images...
+					\vspace{-1em}%
 					\hspace{-\mindim{%
 								\wd\photobook@imagebox
 							}{%
-								\cellwidth - \photobook@imagecell@clearance}}{%
+								\cellwidth 
+								-0.5\dimexpr 
+									\cellwidth 
+									-\wd\photobook@imagebox \relax }}{%
+						% prep for caption cell...
 						\setlength\cellwidth{\dimexpr%
 							-2\photobook@HOFFSETFIX
 							+\mindim{\wd\photobook@imagebox}{\cellwidth} \relax}%
 						\setlength\cellheight{%
 							\mindim{\ht\photobook@imagebox}{\cellheight}}% 
 						\setlength\fboxsep{0pt}%
+						\fbox{%
 						\begin{minipage}[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth}%
+							%\fbox{clearance: \the\photobook@imagecell@clearance \space offset top: \the\photobook@imagecell@top}\newline\newline%
 							#2%
 						\end{minipage}}%
+						}%\fbox
 				\endgroup\fi}%
 	\endgroup}
 
@@ -2149,7 +2160,8 @@
 \newcommand\imagepagefit[3][\clearimage]{%
 	\null%
 	\begin{pagecell}%
-		\cimagetocellfit[#1]{#2}{#3}%
+		%\cimagetocellfit[#1]{#2}{#3}%
+		\imagecell[center, clearance=#1]{\captioncellunder{#2}}{#3}%
 	\end{pagecell}%
 	\clearpage }
 
