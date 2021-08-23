@@ -1263,15 +1263,12 @@
 %		- offset fix for fill mode...
 %		- caption cell in fill mode...
 %		- do we need to reverse left/right for fill? (feels counter-intuitive)
-% XXX HACK -- need to track down where is this coming from and either 
-%		set it to zero or account for it correctly....
-% XXX RENAME -- make this global...
-\newlength\photobook@HOFFSETFIX
-\setlength\photobook@HOFFSETFIX{1.5pt}
 
 % XXX should these be lengths or macros???
 \def\photobook@imagecell@top{0pt}
 \def\photobook@imagecell@left{0pt}
+\def\photobook@imagecell@captiontop{0pt}
+\def\photobook@imagecell@captionleft{0pt}
 
 \newlength\photobook@imagecell@clearance
 \setlength\photobook@imagecell@clearance{0pt}
@@ -1287,21 +1284,30 @@
 		+0.5\cellheight 
 		-0.5\ht\photobook@imagebox \relax}%
 	\def\photobook@imagecell@left{\dimexpr 
-		+\photobook@HOFFSETFIX
 		+0.5\cellwidth 
 		-0.5\wd\photobook@imagebox \relax}}%
 % left/right...
 % shortdands...
 \newcommand\photobook@imagecell@LEFT{%
 	\def\photobook@imagecell@left{\dimexpr%
-		+\photobook@HOFFSETFIX
-		+\photobook@imagecell@clearance \relax}}%
+		+\photobook@imagecell@clearance \relax}%
+	\def\photobook@imagecell@captionleft{
+		% XXX not sure why this branch is needed...
+		\ifKV@imagecell@args@fit
+			0pt
+		\else%
+			\dimexpr%
+				+\cellwidth 
+				-\photobook@imagecell@clearance
+				-\wd\photobook@imagebox \relax\fi}}%
 \newcommand\photobook@imagecell@RIGHT{%
 	\def\photobook@imagecell@left{\dimexpr 
-		+\photobook@HOFFSETFIX
 		+\cellwidth 
 		-\photobook@imagecell@clearance
-		-\wd\photobook@imagebox \relax}}%
+		-\wd\photobook@imagebox \relax}
+	% XXX not sure why 0.5 but it seems to work...
+	\def\photobook@imagecell@captionleft{%
+		-0.5\photobook@imagecell@left}}%
 % args...
 \define@boolkey{imagecell@args}{left}[true]{%
 	\photobook@imagecell@LEFT}
@@ -1321,12 +1327,19 @@
 % top/bottom...
 \define@boolkey{imagecell@args}{top}[true]{%
 	\def\photobook@imagecell@top{%
-		\photobook@imagecell@clearance}}%
+		\photobook@imagecell@clearance}
+	\def\photobook@imagecell@captiontop{
+		-\dimexpr 
+			+\cellheight 
+			-\photobook@imagecell@clearance
+			-\ht\photobook@imagebox \relax}}%
 \define@boolkey{imagecell@args}{bottom}[true]{%
 	\def\photobook@imagecell@top{\dimexpr 
 		+\cellheight 
 		-\photobook@imagecell@clearance
-		-\ht\photobook@imagebox \relax}}%
+		-\ht\photobook@imagebox \relax}
+	\def\photobook@imagecell@captiontop{%
+		\photobook@imagecell@top}}%
 % clearance=<len>...
 \define@key{imagecell@args}{clearance}{%
 	\setlength\photobook@imagecell@clearance{#1}}%
@@ -1335,9 +1348,6 @@
 \define@choicekey{imagecell@args}{caption-align}{t,c,b}[t]{%
 	\def\photobook@imagecell@captionalign{#1}}%
 
-% XXX can't seem to get rid of small placement errors...
-%		...feels like we've still got a stray space someplace...
-%		see: \photobook@HOFFSETFIX
 % XXX can we make this an env???
 \newcommand\imagecell[3][]{%
 	\begingroup%
@@ -1378,43 +1388,39 @@
 		% XXX for some odd reason without this the alignment completely breaks...
 		\vspace{0pt}%
 		\adjustbox{%
-			margin=
-				{\photobook@imagecell@left - \photobook@HOFFSETFIX}
-				0pt 0pt 
-				{\photobook@imagecell@top}}{%
+			margin={\photobook@imagecell@left} 0pt 0pt {\photobook@imagecell@top}}{%
 			% image....
 			\usebox\photobook@imagebox%
 			% caption cell...
-			% XXX the \ifx here does not work...
-			\ifx #2 \empty \else%
-				\begingroup%
-					% XXX test for portrait images...
-					\hspace{-\mindim{%
-								\wd\photobook@imagebox
+			% XXX do not do this if no caption is given... 
+			\begingroup%
+				\hspace{-\mindim{%
+							\wd\photobook@imagebox
+						}{%
+							+\cellwidth 
+							-\photobook@imagecell@captionleft
+							-0.5\dimexpr 
+								+\cellwidth 
+								-\wd\photobook@imagebox \relax }}{%
+					% prep for caption cell...
+					\setlength\cellwidth{%
+						\mindim{\wd\photobook@imagebox}{\cellwidth}}%
+					\setlength\cellheight{%
+						\mindim{\ht\photobook@imagebox}{\cellheight}}% 
+					\setlength\fboxsep{0pt}%
+					%
+					% adjust top if image is taller than cell...
+					\raisebox{-\mindim{%
+								0pt
 							}{%
-								\cellwidth 
-								-0.5\dimexpr 
-									\cellwidth 
-									-\wd\photobook@imagebox \relax }}{%
-						% prep for caption cell...
-						\setlength\cellwidth{\dimexpr%
-							-2\photobook@HOFFSETFIX
-							+\mindim{\wd\photobook@imagebox}{\cellwidth} \relax}%
-						\setlength\cellheight{%
-							\mindim{\ht\photobook@imagebox}{\cellheight}}% 
-						\setlength\fboxsep{0pt}%
-						%
-						% adjust top if image is taller than cell...
-						\raisebox{-\mindim{%
-									0pt
-								}{%
-									0.5\dimexpr 
-										\cellheight 
-										-\ht\photobook@imagebox \relax}}{%
-							\begin{minipage}[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth}%
-								#2%
-							\end{minipage}}}
-				\endgroup\fi}%
+								+ 0.5\dimexpr 
+									+\cellheight 
+									-\ht\photobook@imagebox 
+								-\photobook@imagecell@captiontop \relax}}{%
+						\begin{minipage}[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth}%
+							#2%
+						\end{minipage}}}
+			\endgroup}%
 	\endgroup}
 
 
