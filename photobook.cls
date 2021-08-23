@@ -1352,7 +1352,11 @@
 \newcommand\imagecell[3][]{%
 	\begingroup%
 		% args...
-		\setkeys{imagecell@args}{fit,center,clearance=0pt,#1}%
+		\setkeys{imagecell@args}{
+			fit,
+			center,
+			clearance=0pt,
+			#1}%
 		% preload image...
 		% fit...
 		\ifKV@imagecell@args@fit%
@@ -1448,23 +1452,69 @@
 %% \end{minipage}
 %%
 
-% XXX revise keywords...
-\define@boolkey{captioncell@args}{above}[true]{}
-\define@boolkey{captioncell@args}{top}[true]{}
-\define@boolkey{captioncell@args}{bottom}[true]{}
-\define@boolkey{captioncell@args}{below}[true]{}
+\renewcommand\photobook@captioncell@formatTopAlign[1]{%
+	\begin{\photobook@captioncell@align}%
+		#1%
+	\end{\photobook@captioncell@align}}
+\renewcommand\photobook@captioncell@formatBottomAlign[1]{%
+	\begin{minipage}[t][\cellheight][b]{\cellwidth}%
+		\begin{\photobook@captioncell@align}%
+			#1%
+		\end{\photobook@captioncell@align}%
+	\end{minipage}}
+
+\def\photobook@captioncell@format#1{%
+	\photobook@captioncell@formatTopAlign{#1}}
+
+\define@boolkey{captioncell@args}{above}[true]{%
+	\def\photobook@captioncell@format##1{%
+		\vspace{-\dimexpr \cellheight + 2\fboxsep \relax}%
+		\photobook@captioncell@formatBottomAlign{##1}}}
+
+\define@boolkey{captioncell@args}{top}[true]{%
+	\def\photobook@captioncell@format##1{%
+		\photobook@captioncell@formatTopAlign{##1}}}
+
+\define@boolkey{captioncell@args}{center}[true]{%
+	\def\photobook@captioncell@format##1{%
+		\begin{minipage}[t][\cellheight][c]{\cellwidth}%
+			\begin{\photobook@captioncell@align}%
+				##1%
+			\end{\photobook@captioncell@align}%
+		\end{minipage}}}
+
+\define@boolkey{captioncell@args}{bottom}[true]{%
+	\def\photobook@captioncell@format##1{%
+		\photobook@captioncell@formatBottomAlign{##1}}}
+
+\define@boolkey{captioncell@args}{below}[true]{%
+	\def\photobook@captioncell@format##1{%
+		\vspace{\dimexpr \cellheight + 2\fboxsep \relax}%
+		\photobook@captioncell@formatTopAlign{##1}}}
 
 % XXX add fields: before/left/right/after... (vertical???)
 % XXX add vertical fields direction: up/down
 
-% XXX expand choices...
-\define@choicekey{captioncell@args}{align}{flushleft,center,flushright}{}
+% XXX expand values...
+\def\photobook@captioncell@align{}
+\define@choicekey{captioncell@args}{align}{flushleft,center,flushright}{%
+	\def\photobook@captioncell@align{#1}}
+
+\def\photobook@captioncell@margin{0pt}
+\define@key{captioncell@args}{margin}{
+	\def\photobook@captioncell@margin{#1}}
 
 
 \newcommand\captioncell[2][]{%
-	\setkeys{captioncell@args}{top, align=flushleft,#1}%
-	% XXX
-}
+	\setkeys{captioncell@args}{
+		top, 
+		align=flushright,
+		margin=1pt,
+		#1}%
+	%
+	\photobook@captioncell@format{%
+		\adjustbox{margin=\photobook@captioncell@margin}{#2}}}
+
 
 % XXX HACK -- make over/under/... an argument...
 \newcommand\captioncellunder[1]{
