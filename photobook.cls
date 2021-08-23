@@ -1388,9 +1388,7 @@
 			% XXX the \ifx here does not work...
 			\ifx #2 \empty \else%
 				\begingroup%
-					% XXX broken for fill...
 					% XXX test for portrait images...
-					\vspace{-1em}%
 					\hspace{-\mindim{%
 								\wd\photobook@imagebox
 							}{%
@@ -1405,12 +1403,17 @@
 						\setlength\cellheight{%
 							\mindim{\ht\photobook@imagebox}{\cellheight}}% 
 						\setlength\fboxsep{0pt}%
-						\fbox{%
-						\begin{minipage}[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth}%
-							%\fbox{clearance: \the\photobook@imagecell@clearance \space offset top: \the\photobook@imagecell@top}\newline\newline%
-							#2%
-						\end{minipage}}%
-						}%\fbox
+						%
+						% adjust top if image is taller than cell...
+						\raisebox{-\mindim{%
+									0pt
+								}{%
+									0.5\dimexpr 
+										\cellheight 
+										-\ht\photobook@imagebox \relax}}{%
+							\begin{minipage}[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth}%
+								#2%
+							\end{minipage}}}
 				\endgroup\fi}%
 	\endgroup}
 
