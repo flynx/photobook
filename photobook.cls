@@ -1435,7 +1435,7 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%    [ above         ]
+%%    [ over          ]
 %%   +-----------------+
 %%   |[ top           ]|
 %%   |                 |
@@ -1446,7 +1446,7 @@
 %%   |                 |
 %%   |[ bottom        ]|
 %%   +-----------------+
-%%    [ below         ]
+%%    [ under         ]
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -1466,7 +1466,7 @@
 \def\photobook@captioncell@format#1{%
 	\photobook@captioncell@formatTopAlign{#1}}
 
-\define@boolkey{captioncell@args}{above}[true]{%
+\define@boolkey{captioncell@args}{over}[true]{%
 	\def\photobook@captioncell@format##1{%
 		\vspace{-\dimexpr \cellheight + 2\fboxsep \relax}%
 		\photobook@captioncell@formatBottomAlign{##1}}}
@@ -1487,7 +1487,7 @@
 	\def\photobook@captioncell@format##1{%
 		\photobook@captioncell@formatBottomAlign{##1}}}
 
-\define@boolkey{captioncell@args}{below}[true]{%
+\define@boolkey{captioncell@args}{under}[true]{%
 	\def\photobook@captioncell@format##1{%
 		\vspace{\dimexpr \cellheight + 2\fboxsep \relax}%
 		\photobook@captioncell@formatTopAlign{##1}}}
@@ -1554,7 +1554,8 @@
 % XXX do we need this???
 % XXX revise caption for vertical images...
 \newcommand\cimagetocellfit[3][0mm]{%
-	\imagecell[center, clearance=#1]{\captioncellunder{#2}}{#3}}
+	\imagecell[center, clearance=#1]{%
+		\captioncell[under,align=flushright]{#2}}{#3}}
 
 
 % XXX like fill but trim to cell...
