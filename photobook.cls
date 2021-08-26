@@ -431,7 +431,7 @@
 \RequirePackage{colorspace}
 \RequirePackage{graphicx}
 \RequirePackage{adjustbox}
-\RequirePackage[overlay,absolute]{textpos}
+\RequirePackage[absolute]{textpos}
 \RequirePackage[linewidth=1pt]{mdframed}
 \RequirePackage{rotating}
 % XXX flow text frames...
@@ -1111,7 +1111,8 @@
 %% This is similar to |\newsavebox{..}| and |\sbox{..}| but adds 
 %% cell functionality.
 %%
-% XXX can we make this and env???
+% XXX can we make this an env???
+% XXX should this be split into \newsavecell{..} and \scell{..} ???
 \newcommand\savecell[4]{%
 	% only define a savebox once...
 	\@ifundefined{#1}{%
@@ -1124,8 +1125,6 @@
 
 %% \DescribeMacro{\usecell\{..\}}
 %
-%% \fbox{EXPERIMENTAL}
-%%
 %% Use a saved cell.
 %%
 % XXX needs a better API...
@@ -1134,9 +1133,9 @@
 %% This is similar to |\usebox{..}| but defines a box and aligns the 
 %% content to it.
 %%
+% XXX how we align things feels a bit odd...
 \newcommand\usecell[5]{%
 	\begin{inlinecell}{#2}{#3}%
-		% XXX how we align things feels a bit odd...
 		\vspace{-\dimexpr #5 \relax}%
 		\adjustbox{margin={-\dimexpr #4 \relax} 0pt 0pt 0pt}{%
 			\expandafter\usebox\csname #1\endcsname}%
@@ -1145,14 +1144,14 @@
 
 %% \DescribeMacro{\useclippedcell\{..\}}
 %
-%% \fbox{EXPERIMENTAL}
-%%
 %% Like |\usecell{..}| but also clips the saved cell.
 %%
+% XXX how we align things feels a bit odd...
+% XXX \usecell{..} and \useclippedcell{..} differ only in the cliptocell 
+%		env, can/should we reuse here???
 \newcommand\useclippedcell[5]{%
 	\begin{inlinecell}{#2}{#3}%
 		\begin{cliptocell}%
-			% XXX how we align things feels a bit odd...
 			\vspace{-\dimexpr #5 \relax}%
 			\adjustbox{margin={-\dimexpr #4 \relax} 0pt 0pt 0pt}{%
 				\expandafter\usebox\csname #1\endcsname}%
@@ -1165,13 +1164,6 @@
 %
 %% Cell macros require a cell environment to function correctly.
 %%
-
-% XXX move to a better location...
-\newcommand\captionformat[1]{%
-	\adjustbox{margin=0.1em 0.2em}{%
-		\captionsize #1}}
-
-
 
 %% \DescribeEnv{cliptocell}
 %
@@ -1324,6 +1316,9 @@
 %% containing cell and provides all the cell functionality.
 %%
 
+\newlength\photobook@imagecell@imgratio
+\newlength\photobook@imagecell@cellratio
+
 % XXX TODO:
 %		- offset fix for fill mode...
 %		- caption cell in fill mode...
@@ -1439,21 +1434,28 @@
 			% preload image to get its proportions...
 			\sbox{\photobook@imagebox}{\includegraphics{#3}}
 			% constrain minimal dimension of image...
-			\ifdim \dimexpr \wd\photobook@imagebox / \ht\photobook@imagebox \relax%
-					< \dimexpr \cellwidth / \cellheight \relax%
+			% NOTE: here we calculate image/cell eccentricity to decide 
+			%		to fit to width or heigh of cell...
+			% NOTE: did I say that I "love" how LaTeX does basic math??
+			\setlength\photobook@imagecell@imgratio{1pt
+				* \ratio{\wd\photobook@imagebox}{\ht\photobook@imagebox}}
+			\setlength\photobook@imagecell@cellratio{1pt
+				* \ratio{\cellwidth}{\cellheight}}
+			\ifdim \photobook@imagecell@imgratio < \photobook@imagecell@cellratio
 				\sbox{\photobook@imagebox}{%
 					\includegraphics[%
 						keepaspectratio, 
 						width=\dimexpr 
-							+\cellwidth 
+							+ \cellwidth
 							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 			\else%
 				\sbox{\photobook@imagebox}{%
 					\includegraphics[%
 						keepaspectratio, 
 						height=\dimexpr 
-							+\cellheight 
-							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}\fi\fi\fi%
+							+ \cellheight 
+							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}
+			\fi\fi\fi%
 		% place image box...
 		% XXX for some odd reason without this the alignment completely breaks...
 		\vspace{0pt}%
@@ -1492,6 +1494,7 @@
 						\end{minipage}}}
 			\endgroup}%
 	\endgroup}
+
 
 
 %% \DescribeMacro{\captioncell\{..\}}
@@ -1550,6 +1553,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+% XXX would be nice to create cells above/below/left/right of image...
 
 % helpers...
 \renewcommand\photobook@captioncell@formatTopAlign[1]{%
@@ -1577,9 +1581,9 @@
 \define@boolkey{captioncell@args}{center}[true]{%
 	\def\photobook@captioncell@format##1{%
 		\begin{minipage}[t][\cellheight][c]{\cellwidth}%
-			\begin{\photobook@captioncell@align}%
-				##1%
-			\end{\photobook@captioncell@align}%
+		\begin{\photobook@captioncell@align}%
+			##1%
+		\end{\photobook@captioncell@align}%
 		\end{minipage}}}
 \define@boolkey{captioncell@args}{bottom}[true]{%
 	\def\photobook@captioncell@format##1{%
@@ -1589,7 +1593,25 @@
 		\vspace{\dimexpr \cellheight + 2\fboxsep \relax}%
 		\photobook@captioncell@formatTopAlign{##1}}}
 
-% XXX add fields: before/left/right/after... (vertical???)
+% XXX
+\define@boolkey{captioncell@args}{left}[true]{%
+	\def\photobook@captioncell@format##1{%
+		% XXX need to set width correctly...
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}%
+		\begin{\photobook@captioncell@align}%
+			##1%
+		\end{\photobook@captioncell@align}
+		\end{\minipage}}}
+\define@boolkey{captioncell@args}{right}[true]{%
+	\def\photobook@captioncell@format##1{%
+		% XXX need to set width correctly...
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}%
+		\begin{\photobook@captioncell@align}%
+			##1%
+		\end{\photobook@captioncell@align}
+		\end{\minipage}}}
+
+
 % XXX add vertical fields direction: up/down
 
 % XXX add more values...
@@ -1615,11 +1637,35 @@
 
 %% \DescribeMacro{spreadcell}
 %
-%% \fbox{EXPERIMENTAL}
 %%
 %%	>> \begin{spreadcell} .. \end{spreadcell}
 %%	>> \begin{spreadcell}[<pagecount>] .. \end{spreadcell}
 %%
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +----------------------------------- -                 
+%%   |                                                      <-- input cell
+%%   |          .          .          .                     
+%%   |     Oversized content cell...                        
+%%   |          .          .          .                     
+%%   |                                                      
+%%   +----------.----------.----------.-- -                 
+%%   .          . .         . .         .  .
+%%   .          .   .         .   .         .    .         
+%%   +----------+    +----------+    +----------+    +-- -  
+%%   |          |    |          |    |          |    |      <-- output pages
+%%   |          |    |          |    |          |    |      
+%%   |     Overs|    |ized conte|    |nt cell...|    |      
+%%   |          |    |          |    |          |    |      
+%%   |          |    |          |    |          |    |    
+%%   +----------+    +----------+    +----------+    +-- -
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+% XXX this seams to cover page numbers, should we do this in shipout???
 \NewEnviron{spreadcell}[1][2]{%
 	\begingroup%
 		% create the actual cell...
@@ -1637,6 +1683,12 @@
 			\clearpage}%
 	\endgroup}
 
+
+
+% XXX move to a better location... (???)
+\newcommand\captionformat[1]{%
+	\adjustbox{margin=0.1em 0.2em}{%
+		\captionsize #1}}
 
 
 %% \DescribeMacro{\imagetocellfit\{..\}}
@@ -1676,7 +1728,7 @@
 % XXX do we need this???
 \newcommand\imagetocellclip[3][0pt]{%
 	\begin{cliptocell}%
-		\imagecell[fill,clearance=#1]{#2}{#3}%
+		\imagecell[fill,clearance=#1]{\captionformat{#2}}{#3}%
 	\end{cliptocell}}
 
 
@@ -1771,6 +1823,16 @@
 	\begin{cell}{0mm, 0mm}{\bleedblockwidth}{\bleedblockheight}%
 }{%
 	\end{cell}}
+
+
+
+% XXX
+\NewEnviron{shipoutbgcell}{%
+	\AddToShipoutPictureBG*{%
+		\begin{pagecell}%
+			\BODY%
+		\end{pagecell}}}
+
 
 
 % XXX EXPERIMENTAL
