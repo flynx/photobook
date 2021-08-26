@@ -1316,15 +1316,9 @@
 %% containing cell and provides all the cell functionality.
 %%
 
-\newlength\photobook@imagecell@imgratio
-\newlength\photobook@imagecell@cellratio
-
-% XXX TODO:
-%		- offset fix for fill mode...
-%		- caption cell in fill mode...
-%		- do we need to reverse left/right for fill? (feels counter-intuitive)
-
-% XXX should these be lengths or macros???
+% NOTE: these are macros and not lengths as we need to "resolve" these 
+%		as late as possible, i.e. after all the arguments have been 
+%		processed.
 \def\photobook@imagecell@top{0pt}
 \def\photobook@imagecell@left{0pt}
 \def\photobook@imagecell@captiontop{0pt}
@@ -1332,6 +1326,10 @@
 
 \newlength\photobook@imagecell@clearance
 \setlength\photobook@imagecell@clearance{0pt}
+
+% NOTE: these feel like a hack...
+\newlength\photobook@imagecell@imgratio
+\newlength\photobook@imagecell@cellratio
 
 % fit/fill...
 \define@boolkey{imagecell@args}{fit}[true]{%
@@ -1408,6 +1406,10 @@
 \define@choicekey{imagecell@args}{caption-align}{t,c,b}[t]{%
 	\def\photobook@imagecell@captionalign{#1}}%
 
+% XXX add offset support...
+%		...i.e. an argument that will shift the image v/h from base position.
+%		also need to shift the caption box accordingly but still keep it 
+%		within the cell...
 % XXX can we make this an env???
 \newcommand\imagecell[3][]{%
 	\begingroup%
@@ -1460,7 +1462,7 @@
 		% XXX for some odd reason without this the alignment completely breaks...
 		\vspace{0pt}%
 		\adjustbox{%
-			margin={\photobook@imagecell@left} 0pt 0pt {\photobook@imagecell@top}}{%
+				margin={\photobook@imagecell@left} 0pt 0pt {\photobook@imagecell@top}}{%
 			% image....
 			\usebox\photobook@imagebox%
 			% caption cell...
