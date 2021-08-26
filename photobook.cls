@@ -30,6 +30,7 @@
 %%% \newcommand\DescribeGlobal[1]{%
 %%%	\DescribeMacro{#1}}
 %%
+%% \newcommand\LEGACY{\fbox{LEGACY}}
 %%
 %% \begin{document}
 %%
@@ -1035,7 +1036,7 @@
 %
 %% Create a basic inline cell.
 %
-%%	>> \begin{inline}<width>}{<height>} ... \end{inlinecell}
+%%	>> \begin{inlinecell}{<width>}{<height>} ... \end{inlinecell}
 %
 %% This is just like |minipage| but provides cell mechanics.
 %%
@@ -1085,6 +1086,7 @@
 %% the cell.
 %%
 %% Note that this uses |clip| and |cliptocell| environments internally.
+%%
 \newenvironment{clipcell}[3]{%
 	\begin{cell}{#1}{#2}{#3}%
 	\begin{cliptocell}%
@@ -1094,17 +1096,80 @@
 	\end{cell}}
 
 
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Saved cells
+
+%% \DescribeMacro{\savecell\{..\}}
+%
+%% \fbox{EXPERIMENTAL}
+%%
+%% Create a saved cell.
+%%
+%%	>> \savecell{<name>}{<width>}{<height>}{ .. }
+%%
+%% This is similar to |\newsavebox{..}| and |\sbox{..}| but adds 
+%% cell functionality.
+%%
+% XXX can we make this and env???
+\newcommand\savecell[4]{%
+	% only define a savebox once...
+	\@ifundefined{#1}{%
+		\expandafter\newsavebox\csname #1\endcsname}{}
+	\expandafter\sbox\csname #1\endcsname{%
+		\begin{inlinecell}{#2}{#3}%
+			#4%
+		\end{inlinecell}}}
+
+
+%% \DescribeMacro{\usecell\{..\}}
+%
+%% \fbox{EXPERIMENTAL}
+%%
+%% Use a saved cell.
+%%
+% XXX needs a better API...
+%%	>> \usecell{<name>}{<width>}{<height>}{<offset-x>}{<offset-y>}
+%%
+%% This is similar to |\usebox{..}| but defines a box and aligns the 
+%% content to it.
+%%
+\newcommand\usecell[5]{%
+	\begin{inlinecell}{#2}{#3}%
+		% XXX how we align things feels a bit odd...
+		\vspace{-\dimexpr #5 \relax}%
+		\adjustbox{margin={-\dimexpr #4 \relax} 0pt 0pt 0pt}{%
+			\expandafter\usebox\csname #1\endcsname}%
+	\end{inlinecell}}
+
+
+%% \DescribeMacro{\useclippedcell\{..\}}
+%
+%% \fbox{EXPERIMENTAL}
+%%
+%% Like |\usecell{..}| but also clips the saved cell.
+%%
+\newcommand\useclippedcell[5]{%
+	\begin{inlinecell}{#2}{#3}%
+		\begin{cliptocell}%
+			% XXX how we align things feels a bit odd...
+			\vspace{-\dimexpr #5 \relax}%
+			\adjustbox{margin={-\dimexpr #4 \relax} 0pt 0pt 0pt}{%
+				\expandafter\usebox\csname #1\endcsname}%
+		\end{cliptocell}%
+	\end{inlinecell}}
+
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Cell macros
 %
 %% Cell macros require a cell environment to function correctly.
 %%
 
-% XXX
+% XXX move to a better location...
 \newcommand\captionformat[1]{%
-	\begin{flushright}%
-		\captionsize #1%
-	\end{flushright}}
+	\adjustbox{margin=0.1em 0.2em}{%
+		\captionsize #1}}
 
 
 
@@ -1374,7 +1439,8 @@
 			% preload image to get its proportions...
 			\sbox{\photobook@imagebox}{\includegraphics{#3}}
 			% constrain minimal dimension of image...
-			\ifdim \wd\photobook@imagebox < \ht\photobook@imagebox%
+			\ifdim \dimexpr \wd\photobook@imagebox / \ht\photobook@imagebox \relax%
+					< \dimexpr \cellwidth / \cellheight \relax%
 				\sbox{\photobook@imagebox}{%
 					\includegraphics[%
 						keepaspectratio, 
@@ -1430,7 +1496,19 @@
 
 %% \DescribeMacro{\captioncell\{..\}}
 %
-%% \fbox{XXX EXPERIMENTAL}
+%% Caption cell
+%%
+%% Placement
+%%
+%% Default:
+%%	>> \captioncell{<caption>}
+%%	>> \captioncell[top]{<caption>}
+%%
+%%	>> \captioncell[center]{<caption>}
+%%	>> \captioncell[bottom]{<caption>}
+%%
+%%	>> \captioncell[over]{<caption>}
+%%	>> \captioncell[under]{<caption>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -1444,6 +1522,7 @@
 %%   |                 |
 %%   |                 |
 %%   |                 |
+%%   |                 |
 %%   |[ bottom        ]|
 %%   +-----------------+
 %%    [ under         ]
@@ -1451,7 +1530,28 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+%% Horizontal alignment
+%%
+%% Default:
+%%	>> \captioncell{<caption>}
+%%	>> \captioncell[align=flushleft]{<caption>}
+%%
+%%	>> \captioncell[align=center]{<caption>}
+%%	>> \captioncell[align=flushright]{<caption>}
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +-----------------+    +-----------------+    +-----------------+
+%%   |flushleft        |    |     center      |    |       flushright|
+%%   |                 |    |                 |    |                 |
+%%   |                 |    |                 |    |                 |
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
 
+% helpers...
 \renewcommand\photobook@captioncell@formatTopAlign[1]{%
 	\begin{\photobook@captioncell@align}%
 		#1%
@@ -1462,19 +1562,18 @@
 			#1%
 		\end{\photobook@captioncell@align}%
 	\end{minipage}}
-
+% format...
 \def\photobook@captioncell@format#1{%
 	\photobook@captioncell@formatTopAlign{#1}}
 
+% over/top/center/bottom/under...
 \define@boolkey{captioncell@args}{over}[true]{%
 	\def\photobook@captioncell@format##1{%
 		\vspace{-\dimexpr \cellheight + 2\fboxsep \relax}%
 		\photobook@captioncell@formatBottomAlign{##1}}}
-
 \define@boolkey{captioncell@args}{top}[true]{%
 	\def\photobook@captioncell@format##1{%
 		\photobook@captioncell@formatTopAlign{##1}}}
-
 \define@boolkey{captioncell@args}{center}[true]{%
 	\def\photobook@captioncell@format##1{%
 		\begin{minipage}[t][\cellheight][c]{\cellwidth}%
@@ -1482,11 +1581,9 @@
 				##1%
 			\end{\photobook@captioncell@align}%
 		\end{minipage}}}
-
 \define@boolkey{captioncell@args}{bottom}[true]{%
 	\def\photobook@captioncell@format##1{%
 		\photobook@captioncell@formatBottomAlign{##1}}}
-
 \define@boolkey{captioncell@args}{under}[true]{%
 	\def\photobook@captioncell@format##1{%
 		\vspace{\dimexpr \cellheight + 2\fboxsep \relax}%
@@ -1495,7 +1592,7 @@
 % XXX add fields: before/left/right/after... (vertical???)
 % XXX add vertical fields direction: up/down
 
-% XXX expand values...
+% XXX add more values...
 \def\photobook@captioncell@align{}
 \define@choicekey{captioncell@args}{align}{flushleft,center,flushright}{%
 	\def\photobook@captioncell@align{#1}}
@@ -1503,7 +1600,6 @@
 \def\photobook@captioncell@margin{0pt}
 \define@key{captioncell@args}{margin}{
 	\def\photobook@captioncell@margin{#1}}
-
 
 \newcommand\captioncell[2][]{%
 	\setkeys{captioncell@args}{
@@ -1516,20 +1612,38 @@
 		\adjustbox{margin=\photobook@captioncell@margin}{#2}}}
 
 
-% XXX HACK -- make over/under/... an argument...
-\newcommand\captioncellunder[1]{
-	\vspace{\cellheight}%
-	\begin{flushright}%
-		\captionformat{%
-			\adjustbox{margin=0pt 0.5em}{#1}}%
-	\end{flushright}}
+
+%% \DescribeMacro{spreadcell}
+%
+%% \fbox{EXPERIMENTAL}
+%%
+%%	>> \begin{spreadcell} .. \end{spreadcell}
+%%	>> \begin{spreadcell}[<pagecount>] .. \end{spreadcell}
+%%
+\NewEnviron{spreadcell}[1][2]{%
+	\begingroup%
+		% create the actual cell...
+		\setlength\cellwidth{#1\pageblockwidth}%
+		\setlength\cellheight{\pageblockheight}%
+		\savecell{photobook@spreadcell}{\cellwidth}{\cellheight}{\BODY}%
+		%
+		\foreach \photobook@spreadcell@page in {0, ...,\numexpr #1 - 1 \relax}{%
+			\null
+			\begin{pagecell}%
+				\usecell{photobook@spreadcell}%
+					{\cellwidth}{\cellheight}%
+					{\photobook@spreadcell@page\cellwidth}{0pt}%
+			\end{pagecell}%
+			\clearpage}%
+	\endgroup}
 
 
-%% \DescribeMacro{\cimagetocellfit\{..\}}
+
+%% \DescribeMacro{\imagetocellfit\{..\}}
 %
 %% Fit an image to cell (centered).
 %
-%%	>> \cimagetocellfit[<clearence>]{<caption>}{<image>}
+%%	>> \imagetocellfit[<clearence>]{<caption>}{<image>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -1553,16 +1667,16 @@
 %
 % XXX do we need this???
 % XXX revise caption for vertical images...
-\newcommand\cimagetocellfit[3][0mm]{%
+\newcommand\imagetocellfit[3][0mm]{%
 	\imagecell[center, clearance=#1]{%
-		\captioncell[under,align=flushright]{#2}}{#3}}
+		\captioncell[under,align=flushright]{\captionformat{#2}}}{#3}}
 
 
 % XXX like fill but trim to cell...
 % XXX do we need this???
 \newcommand\imagetocellclip[3][0pt]{%
 	\begin{cliptocell}%
-		\imagecell[clearance=#1,fill]{#2}{#3}%
+		\imagecell[fill,clearance=#1]{#2}{#3}%
 	\end{cliptocell}}
 
 
@@ -2180,7 +2294,8 @@
 						\begin{inlinecell}%
 								{\imageblockwidth\pagetextwidth}%
 								{\imageblockheight\pagetextheight}%
-							\imagecell[fit]{\captioncellunder{#1}}{#2}%
+							\imagecell[fit]{%
+								\captioncell[under,align=flushright]{\captionformat{#1}}}{#2}%
 						\end{inlinecell}}%
 				\end{center}%
 			\end{minipage}%
@@ -2210,7 +2325,7 @@
 %%   | |   .   .   | |
 %%   | |  .     .  | |
 %%   | | .       . | |
-%%   | |.         .| |
+%%   | |.        c.| |
 %%   +---------------+
 %%     . . . . . . .
 %%
@@ -2220,8 +2335,8 @@
 \newcommand\imagepagefit[3][\clearimage]{%
 	\null%
 	\begin{pagecell}%
-		%\cimagetocellfit[#1]{#2}{#3}%
-		\imagecell[center, clearance=#1]{\captioncellunder{#2}}{#3}%
+		\imagecell[center, clearance=#1]{%
+			\captioncell[under,align=flushright]{\captionformat{#2}}}{#3}%
 	\end{pagecell}%
 	\clearpage }
 
