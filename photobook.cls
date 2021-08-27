@@ -259,19 +259,8 @@
 % XXX in cover layout setup pdf boxes in a way to use \bleed as foldover...
 % 		...see hyperref docs to set pdf view/print area (???)
 %		.....should also set \bleed default to something like 17mm
-% XXX also need a way to:
-%			- setup front-cover
-%			- setup pine
-%			- setup back-cover
-%		...envs??
 % XXX do we need to implement cover fold over???
-% XXX not yet sure how to go about this -- should we update \blockwidth 
-%		or should we define a new length and let some templates 
-%		use one and some use the other???
-%		...I'm leaning towards the later...
 % XXX fold/cut marks???
-% XXX write all the dimensions to pdf comment...
-% XXX EXPERIMENTAL...
 \DeclareStringOption[block]{layoutmode}[block]
 \@DeclareLiteralOptionTo{layoutmode}{block}
 %\@DeclareLiteralOptionTo{layoutmode}{web}
@@ -328,8 +317,6 @@
 %
 %% Image block size relative to text block.
 %%
-%
-% XXX better name...
 \DeclareStringOption[0.85]{imageblockwidth}[1]
 \DeclareStringOption[0.85]{imageblockheight}[1]
 \DeclareStringOption[-0.05]{imageblockoffsettop}[0]
@@ -416,11 +403,7 @@
 \RequirePackage{iftex}
 \RequirePackage{pgffor}
 \RequirePackage{listofitems}
-
-% XXX argument processing -- use one of the following two...
-%\RequirePackage{pgfkeys}
 \RequirePackage{xkeyval} 
-
 \RequirePackage{etoolbox}
 \RequirePackage{atbegshi}
 %\RequirePackage{afterpage}
@@ -923,43 +906,6 @@
 			\hbox{}\newpage
 			\if@twocolumn
 				\hbox{}\newpage \fi\fi\fi }
-
-
-%% \DescribeMacro{\pdfpagecount\{..\}}
-%
-%%	Get pdf page count
-%%
-%%	>>	\pdfpagecount{<file.pdf>}
-%%
-\newcommand\pdfpagecount[1]{
-	\ifpdftex
-		\pdfximage{#1}
-    	\number\pdflastximagepages%
-	\else\ifxetex
-		\number\XeTeXpdfpagecount"#1"%
-	\else\ifluatex
-		\number\directlua{%
-			local pages = 0
-			local doc = pdfe.open("\luaescapestring{#1}")
-			if doc then
-				pages = pdfe.getnofpages(doc)
-				pdfe.close(doc)
-			end
-			tex.write(pages) } \fi\fi }
-
-
-%% \DescribeMacro{\pdfspinewidth\{..\}}
-%
-%%	Calculate spine thickness
-%%
-%%	>>	\pdfspinewidth{<paper-thikness>}{<cover-thikness>}{<block-pdf>}
-%%
-% NOTE: really "like" how LaTeX overcomplicats simple math...
-\newcommand\pdfspinewidth[3]{%
-	\setlength\spinewidth{\dimexpr
-			(#1 mm) * \numexpr \pdfpagecount{#3} / 2 \relax
-			+ ((#2 mm) * 2) 
-		\relax} }
 
 
 % XXX workaround a problem with xelatex vs. lualatex...
@@ -3006,6 +2952,43 @@
 			\photobook@TemplateCell[#1]{BACK FLAP}
 		\end{backflap}
 	\end{page} }
+
+
+%% \DescribeMacro{\pdfpagecount\{..\}}
+%
+%%	Get pdf page count
+%%
+%%	>>	\pdfpagecount{<file.pdf>}
+%%
+\newcommand\pdfpagecount[1]{
+	\ifpdftex
+		\pdfximage{#1}
+    	\number\pdflastximagepages%
+	\else\ifxetex
+		\number\XeTeXpdfpagecount"#1"%
+	\else\ifluatex
+		\number\directlua{%
+			local pages = 0
+			local doc = pdfe.open("\luaescapestring{#1}")
+			if doc then
+				pages = pdfe.getnofpages(doc)
+				pdfe.close(doc)
+			end
+			tex.write(pages) } \fi\fi }
+
+
+%% \DescribeMacro{\pdfspinewidth\{..\}}
+%
+%%	Calculate spine thickness
+%%
+%%	>>	\pdfspinewidth{<paper-thikness>}{<cover-thikness>}{<block-pdf>}
+%%
+% NOTE: really "like" how LaTeX overcomplicats simple math...
+\newcommand\pdfspinewidth[3]{%
+	\setlength\spinewidth{\dimexpr
+			(#1 mm) * \numexpr \pdfpagecount{#3} / 2 \relax
+			+ ((#2 mm) * 2) 
+		\relax} }
 
 
 
