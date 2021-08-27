@@ -10,7 +10,6 @@
 % XXX see where we need to \ignorespaces...
 %
 % XXX BUG: fix \OFFSETFIX
-% XXX BUG: fix \CAPTIONWIDTHFIX
 %
 % XXX might be a good idea to add a spine calculator...
 %
@@ -978,23 +977,13 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % XXX HACKS...
 
-% XXX for some reason we are pushed away from the left edge...
 \newlength{\OFFSETFIX}
 \setlength{\OFFSETFIX}{-4mm}
-
-% This compensates for caption width being miscalcualted for right 
-% alingned captions...
-\newlength{\CAPTIONWIDTHFIX}
-\setlength{\CAPTIONWIDTHFIX}{-5mm}
 
 
 
 %----------------------------------------------------------------------
 %%%% Environments and Cells
-%
-% XXX need a way to place images / templates into these...
-% XXX should these only be visible in respective modes or for non-zero widths???
-
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Generic
@@ -1011,7 +1000,6 @@
 }{%
 	\null
 	\clearpage }
-
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1142,10 +1130,8 @@
 	\end{cell}}
 
 
-
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-%%%%% Saved cells
-
+%%%%% Save cells
 
 %% \DescribeMacro{\savecell\{..\}}
 %
@@ -1217,7 +1203,6 @@
 	\begin{inlinecell}{#3}{#4}%
 		\photobook@usecell@placecell{#1}(#2)%
 	\end{inlinecell}}
-
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1719,63 +1704,6 @@
 		\adjustbox{margin=\photobook@captioncell@margin}{#2}}}
 
 
-%% \DescribeMacro{spreadtopages}
-%
-%%
-%%	>> \begin{spreadtopages} .. \end{spreadtopages}
-%%	>> \begin{spreadtopages}[<pagecount>] .. \end{spreadtopages}
-%%
-%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%   +----------------------------------- -                 
-%%   |                                                      <-- input cell
-%%   |          .          .          .                     
-%%   |     Oversized content cell...                        
-%%   |          .          .          .                     
-%%   |                                                      
-%%   +----------.----------.----------.-- -                 
-%%   .          . .         . .         .  .
-%%   .          .   .         .   .         .    .         
-%%   +----------+    +----------+    +----------+    +-- -  
-%%   |          |    |          |    |          |    |      <-- output pages
-%%   |          |    |          |    |          |    |      
-%%   |     Overs|    |ized conte|    |nt cell...|    |      
-%%   |          |    |          |    |          |    |      
-%%   |          |    |          |    |          |    |    
-%%   +----------+    +----------+    +----------+    +-- -
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%%
-% XXX add a manual version of this...
-%		...i.e. name + use...
-% XXX add nudge/grow support...
-% XXX revise name...
-\NewEnviron{spreadtopages}[1][2]{%
-	\begingroup%
-		% create the actual cell...
-		\setlength\cellparentwidth{\cellwidth}%
-		\setlength\cellparentheight{\cellheight}%
-		\setlength\cellwidth{#1\pageblockwidth}%
-		\setlength\cellheight{\pageblockheight}%
-		%
-		\savecell{photobook@spreadtopages}{\cellwidth}{\cellheight}{\BODY}%
-		%
-		% generate pages...
-		\foreach \photobook@spreadtopages@page in {0, ...,\numexpr #1 - 1 \relax}{%
-			\null
-			\begin{pagecell}%
-				% NOTE: \cellwidth and \cellheight here are for a single page...
-				\usecell*{photobook@spreadtopages}%
-					(0pt, \photobook@spreadtopages@page\cellwidth)%
-					{\cellwidth}{\cellheight}%
-			\end{pagecell}%
-			\clearpage}%
-	\endgroup}
-
-
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Paper cells
 
@@ -1909,6 +1837,63 @@
 	\begin{inlinecell}{\textwidth}{\textheight}%
 }{%
 	\end{inlinecell}}
+
+
+%% \DescribeMacro{spreadtopages}
+%
+%% Spread cell into pages.
+%%
+%%	>> \begin{spreadtopages} .. \end{spreadtopages}
+%%	>> \begin{spreadtopages}[<pagecount>] .. \end{spreadtopages}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +----------------------------------- -                 
+%%   |                                                      <-- input cell
+%%   |          .          .          .                     
+%%   |     Oversized content cell...                        
+%%   |          .          .          .                     
+%%   |                                                      
+%%   +----------.----------.----------.-- -                 
+%%   .          . .         . .         .  .
+%%   .          .   .         .   .         .    .         
+%%   +----------+    +----------+    +----------+    +-- -  
+%%   |          |    |          |    |          |    |      <-- output pages
+%%   |          |    |          |    |          |    |      
+%%   |     Overs|    |ized conte|    |nt cell...|    |      
+%%   |          |    |          |    |          |    |      
+%%   |          |    |          |    |          |    |    
+%%   +----------+    +----------+    +----------+    +-- -
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+% XXX add a manual version of this...
+%		...i.e. name + use...
+% XXX add nudge/grow support...
+% XXX revise name...
+\NewEnviron{spreadtopages}[1][2]{%
+	\begingroup%
+		% create the actual cell...
+		\setlength\cellparentwidth{\cellwidth}%
+		\setlength\cellparentheight{\cellheight}%
+		\setlength\cellwidth{#1\pageblockwidth}%
+		\setlength\cellheight{\pageblockheight}%
+		%
+		\savecell{photobook@spreadtopages}{\cellwidth}{\cellheight}{\BODY}%
+		%
+		% generate pages...
+		\foreach \photobook@spreadtopages@page in {0, ...,\numexpr #1 - 1 \relax}{%
+			\null
+			\begin{pagecell}%
+				% NOTE: \cellwidth and \cellheight here are for a single page...
+				\usecell*{photobook@spreadtopages}%
+					(0pt, \photobook@spreadtopages@page\cellwidth)%
+					{\cellwidth}{\cellheight}%
+			\end{pagecell}%
+			\clearpage}%
+	\endgroup}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2087,12 +2072,6 @@
 		\end{cell} \fi }
 
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% pages...
-
-% XXX
-
-
 
 %----------------------------------------------------------------------
 %%%% Caption Templates
@@ -2226,19 +2205,19 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%                                . . . . . . .
-%%     +-----------------+      +---------------+
-%%     |                 |      | |.         .| |
-%%   . +-----------------+ .    | | .       . | |
-%%   . | .             . | .    | |  .     .  | |
-%%   . |    .       .    | .    | |   .   .   | |
-%%   . |      image      | .    | |   image   | |
-%%   . |    .       .    | .    | |   .   .   | |
-%%   . | .             . | .    | |  .     .  | |
-%%   . +-----------------+ .    | | .       . | |
-%%     |               c |      | |.        c.| |
-%%     +-----------------+      +---------------+
-%%                                . . . . . . .
+%%                              . . . . . . .
+%%   +-----------------+      +---------------+
+%%   |                 |      | |.         .| |
+%% . +-----------------+ .    | | .       . | |
+%% . | .             . | .    | |  .     .  | |
+%% . |    .       .    | .    | |   .   .   | |
+%% . |      image      | .    | |   image   | |
+%% . |    .       .    | .    | |   .   .   | |
+%% . | .             . | .    | |  .     .  | |
+%% . +-----------------+ .    | | .       . | |
+%%   |               c |      | |.        c.| |
+%%   +-----------------+      +---------------+
+%%                              . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
