@@ -32,6 +32,9 @@
 %%
 %% \newcommand\LEGACY{\fbox{LEGACY}}
 %%
+%% \setlength\parindent{0pt}
+%% \setlength\parskip{0.5em}
+%%
 %% \begin{document}
 %%
 %% \title{\textsf{photobook} --- Document class for building photo-books
@@ -1586,7 +1589,29 @@
 %
 %% Caption cell
 %%
-%% Placement
+%% Placement:
+%
+%%	>> \captioncell[<position>]{<caption>}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%    [ over          ]
+%%   +-----------------+
+%%   |[ top           ]|
+%%   |                 |
+%%   |                 |
+%%   |                 |
+%%   |[ center        ]|
+%%   |                 |
+%%   |                 |
+%%   |                 |
+%%   |[ bottom        ]|
+%%   +-----------------+
+%%    [ under         ]
+%%
+%% \end{verbatim}
+%% \end{minipage}
 %%
 %% Default:
 %%	>> \captioncell{<caption>}
@@ -1598,35 +1623,10 @@
 %%	>> \captioncell[over]{<caption>}
 %%	>> \captioncell[under]{<caption>}
 %%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%    [ over          ]
-%%   +-----------------+
-%%   |[ top           ]|
-%%   |                 |
-%%   |                 |
-%%   |                 |
-%%   |                 |
-%%   |                 |
-%%   |                 |
-%%   |                 |
-%%   |[ bottom        ]|
-%%   +-----------------+
-%%    [ under         ]
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%%
 %% Horizontal alignment
-%%
-%% Default:
-%%	>> \captioncell{<caption>}
-%%	>> \captioncell[align=flushleft]{<caption>}
-%%
-%%	>> \captioncell[align=center]{<caption>}
-%%	>> \captioncell[align=flushright]{<caption>}
-%%
+%
+%%	>> \captioncell[align=<mode>]{<caption>}
+%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
@@ -1638,11 +1638,20 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+%% Default:
+%%	>> \captioncell{<caption>}
+%%	>> \captioncell[align=flushleft]{<caption>}
+%%
+%%	>> \captioncell[align=center]{<caption>}
+%%	>> \captioncell[align=flushright]{<caption>}
+%%
 % XXX would be nice to create cells above/below/left/right of image...
 
 % helpers...
 % XXX set minipage height to available cell height...
 \renewcommand\photobook@captioncell@formatTopAlign[1]{%
+	% XXX for some reason without this things are misaligned...
+	\vspace{0pt}%
 	\begin{\photobook@captioncell@align}%
 		#1%
 	\end{\photobook@captioncell@align}}
@@ -1680,13 +1689,11 @@
 		\vspace{\dimexpr \cellheight + 2\fboxsep \relax}%
 		\photobook@captioncell@formatTopAlign{##1}}}
 
-% XXX left/right...
-
-% XXX add vertical fields direction: up/down
-
 % XXX add more values...
 \def\photobook@captioncell@align{}
-\define@choicekey{captioncell@args}{align}{flushleft,center,flushright}{%
+% XXX for some reason \define@choicekey{..} does not expand macros...
+%\define@choicekey{captioncell@args}{align}{flushleft,center,flushright}{%
+\define@key{captioncell@args}{align}{%
 	\def\photobook@captioncell@align{#1}}
 
 \def\photobook@captioncell@margin{0pt}
@@ -1702,6 +1709,92 @@
 	%
 	\photobook@captioncell@format{%
 		\adjustbox{margin=\photobook@captioncell@margin}{#2}}}
+
+
+
+%% \DescribeMacro{\vcaptioncell\{..\}}
+%
+%% Vertical caption cell
+%%
+\def\photobook@vcaptioncell@position{top}
+\define@boolkey{vcaptioncell@args}{before}[true]{%
+	\def\photobook@vcaptioncell@position{%
+		\ifphotobook@vcaptioncell@bottomup%
+			over%
+		\else%
+			under\fi}}
+\define@boolkey{vcaptioncell@args}{left}[true]{%
+	\def\photobook@vcaptioncell@position{%
+		\ifphotobook@vcaptioncell@bottomup%
+			top%
+		\else%
+			bottom\fi}}
+\define@boolkey{vcaptioncell@args}{center}[true]{%
+	\def\photobook@vcaptioncell@position{center}}
+\define@boolkey{vcaptioncell@args}{right}[true]{%
+	\def\photobook@vcaptioncell@position{%
+		\ifphotobook@vcaptioncell@bottomup%
+			bottom%
+		\else%
+			top\fi}}
+\define@boolkey{vcaptioncell@args}{after}[true]{%
+	\def\photobook@vcaptioncell@position{%
+		\ifphotobook@vcaptioncell@bottomup%
+			under%
+		\else%
+			over\fi}}
+
+\newif\ifphotobook@vcaptioncell@bottomup
+\photobook@vcaptioncell@bottomuptrue
+\def\photobook@vcaptioncell@orientation{bottomup}
+\define@boolkey{vcaptioncell@args}{bottomup}[true]{%
+	\photobook@vcaptioncell@bottomuptrue
+	\def\photobook@vcaptioncell@orientation{bottomup}}
+\define@boolkey{vcaptioncell@args}{topdown}[true]{%
+	\photobook@vcaptioncell@bottomupfalse
+	\def\photobook@vcaptioncell@orientation{topdown}}
+
+\def\photobook@vcaptioncell@align{}
+% XXX for some reason \define@choicekey{..} does not expand macros...
+%\define@choicekey{vcaptioncell@args}{align}{flushleft,center,flushright}{%
+\define@key{vcaptioncell@args}{align}{%
+	\def\photobook@vcaptioncell@align{#1}}
+
+\def\photobook@vcaptioncell@margin{0pt}
+\define@key{vcaptioncell@args}{margin}{
+	\def\photobook@vcaptioncell@margin{#1}}
+
+\def\photobook@vcaptioncell@nested#1{%
+	\captioncell[%
+			\photobook@vcaptioncell@position,
+			align=\photobook@vcaptioncell@align,
+			margin=\photobook@vcaptioncell@margin]{#1}}
+
+\newcommand\vcaptioncell[2][]{%
+	\setkeys{vcaptioncell@args}{
+		left,
+		bottomup, 
+		align=flushleft,
+		margin=1pt,
+		#1}%
+	%
+	%% XXX for some reason this errs with:
+	%%			"LaTeX Error: \begin{bottomup} on input line 432 ended by \end{bottomup}"
+	%\begin{\photobook@vcaptioncell@orientation}%
+	%	\captioncell[%
+	%			\photobook@vcaptioncell@position,
+	%			align=\photobook@vcaptioncell@align,
+	%			margin=\photobook@vcaptioncell@margin]{#2}%
+	%\end{\photobook@vcaptioncell@orientation}}
+	\ifphotobook@vcaptioncell@bottomup%
+		\begin{bottomup}%
+			\photobook@vcaptioncell@nested{#2}
+		\end{bottomup}%
+	\else
+		\begin{topdown}%
+			\photobook@vcaptioncell@nested{#2}
+		\end{topdown}%
+	\fi}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
