@@ -1719,11 +1719,11 @@
 		\adjustbox{margin=\photobook@captioncell@margin}{#2}}}
 
 
-%% \DescribeMacro{spreadcell}
+%% \DescribeMacro{spreadtopages}
 %
 %%
-%%	>> \begin{spreadcell} .. \end{spreadcell}
-%%	>> \begin{spreadcell}[<pagecount>] .. \end{spreadcell}
+%%	>> \begin{spreadtopages} .. \end{spreadtopages}
+%%	>> \begin{spreadtopages}[<pagecount>] .. \end{spreadtopages}
 %%
 %
 %% \begin{minipage}{\textwidth}
@@ -1751,7 +1751,9 @@
 %%
 % XXX add a manual version of this...
 %		...i.e. name + use...
-\NewEnviron{spreadcell}[1][2]{%
+% XXX add nudge/grow support...
+% XXX revise name...
+\NewEnviron{spreadtopages}[1][2]{%
 	\begingroup%
 		% create the actual cell...
 		\setlength\cellparentwidth{\cellwidth}%
@@ -1759,67 +1761,19 @@
 		\setlength\cellwidth{#1\pageblockwidth}%
 		\setlength\cellheight{\pageblockheight}%
 		%
-		\savecell{photobook@spreadcell}{\cellwidth}{\cellheight}{\BODY}%
+		\savecell{photobook@spreadtopages}{\cellwidth}{\cellheight}{\BODY}%
 		%
 		% generate pages...
-		\foreach \photobook@spreadcell@page in {0, ...,\numexpr #1 - 1 \relax}{%
+		\foreach \photobook@spreadtopages@page in {0, ...,\numexpr #1 - 1 \relax}{%
 			\null
 			\begin{pagecell}%
 				% NOTE: \cellwidth and \cellheight here are for a single page...
-				\usecell*{photobook@spreadcell}%
-					(0pt, \photobook@spreadcell@page\cellwidth)%
+				\usecell*{photobook@spreadtopages}%
+					(0pt, \photobook@spreadtopages@page\cellwidth)%
 					{\cellwidth}{\cellheight}%
-					%{\photobook@spreadcell@page\cellwidth}{0pt}%
 			\end{pagecell}%
 			\clearpage}%
 	\endgroup}
-
-
-% XXX move to a better location... (???)
-\newcommand\captionformat[1]{%
-	\adjustbox{margin=0.1em 0.2em}{%
-		\captionsize #1}}
-
-
-%% \DescribeMacro{\imagetocellfit\{..\}}
-%
-%% Fit an image to cell (centered).
-%
-%%	>> \imagetocellfit[<clearence>]{<caption>}{<image>}
-%%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%   +-----------------+
-%%   |                 |
-%%   +-----------------+ 
-%%   | .             . | 
-%%   |    .       .    | 
-%%   |      image      | 
-%%   |    .       .    | 
-%%   | .             . | 
-%%   +-----------------+ 
-%%   |               c |
-%%   +-----------------+ 
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%%
-%% Image position can be tweaked via |\vspace{..}| or |\hspace{..}|
-%
-% XXX do we need this???
-% XXX revise caption for vertical images...
-\newcommand\imagetocellfit[3][0mm]{%
-	\imagecell[center, clearance=#1]{%
-		\captioncell[under,align=flushright]{\captionformat{#2}}}{#3}}
-
-
-% XXX like fill but trim to cell...
-% XXX do we need this???
-\newcommand\imagetocellclip[3][0pt]{%
-	\begin{cliptocell}%
-		\imagecell[fill,clearance=#1]{\captionformat{#2}}{#3}%
-	\end{cliptocell}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2151,32 +2105,15 @@
 \newcommand\captionsize{\fontsize{6.5pt}{8pt}\selectfont}
 
 
-%% \DescribeMacro{\imagecaption\{..\}}
-%
-%%	>> \imagecaption{<caption>}{<location-date>}
-%%
-\newcommand\imagecaption[2]{
-	{\captionsize%
-		#1 %
-		\par\vspace{-\parskip}%
-		#2}}
-
-
-%% \DescribeMacro{\overlaycaption\{..\}}
-%
-%%	>> \overlaycaption{<caption>}{<location-date>}
-%%
-\newcommand\overlaycaption[2]{
-	\begin{flushright}
-		\captionsize%
-		\color{black}{%
-			\colorbox{white}{ #1 }%
-			\par\vspace{-\parskip}%
-			\colorbox{white}{ #2 }}
-	\end{flushright}}
+% XXX move to a better location... (???)
+\newcommand\captionformat[1]{%
+	\adjustbox{margin=0.1em 0.2em}{%
+		\captionsize #1}}
 
 
 %% \DescribeMacro{\captionsidebox\{..\}}
+%
+%% \LEGACY
 %
 %%	>> \captionsidebox[<offset>]{<imagebox>}{<text>}
 %%
@@ -2195,6 +2132,8 @@
 
 %% \DescribeMacro{\captionboxleft\{..\}}
 %% \DescribeMacro{\captionboxright\{..\}}
+%
+%% \LEGACY
 %
 %%	>> \captionboxleft[<offset>]{<imagebox>}{<text>}
 %%	>> \captionboxright[<offset>]{<imagebox>}{<text>}
@@ -2219,40 +2158,6 @@
 	\end{flushright}}
 
 
-% XXX \CAPTIONWIDTHFIX
-%% \DescribeMacro{\captionbottombox\{..\}}
-%
-%%	>> \captionbottombox[<offset>]{<imagebox>}{<text>}
-%%
-% XXX for some reason the width is wrong here...
-\newcommand\captionbottombox[3][0mm]{
-	\hspace{ #1 }{
-		% XXX the \CAPTIONWIDTHFIX factor is compensating for an odd alignment error...
-		\begin{minipage}{\dimexpr \CAPTIONWIDTHFIX + \wd#2 \relax}
-			{ \captionsize #3 }
-		\end{minipage}}}
-
-
-%% \DescribeMacro{\graycaptionpage\{..\}}
-%
-%%	>> \graycaptionpage{<text>}
-%%
-% XXX should this be \captionsize or \scriptsize
-\newcommand\graycaptionpage[1]{
-	\pagestyle{empty}
-	\pagecolor{normgray}
-	\color{white}
-	\null
-	\vfill
-	\hspace{0.66\textwidth}{%
-		\begin{minipage}{0.33\textwidth}
-			\setlength{\parskip}{0.5em}%
-			\captionsize\it%
-			#1
-		\end{minipage} }
-	\newpage
-	\nopagecolor
-	\color{black} }
 
 
 
@@ -2295,7 +2200,6 @@
 	\begin{page}%
 		\begin{pagecell}%
 			% XXX should we reduce width by bindingoffset???
-			%\begin{minipage}[t][\cellheight][c]{\dimexpr \cellwidth - \bindingoffset \relax}%
 			\begin{minipage}[t][\cellheight][c]{\cellwidth}%
 				\vspace{\imageblockoffsettop\pagetextheight}%
 				\begin{center}%
@@ -2313,40 +2217,40 @@
 	\end{page}}
 
 
-
-% XXX
-% XXX captions wrong... 
 %% \DescribeMacro{\imagepagefit\{..\}}
 %
 %% Similar to |\imagepage| but will fit an image into page...
 %
-%%	>> \imagepagefit[<clearence>]{<caption>}{<image>}
+%%	>> \imagepagefit[<options>]{<caption>}{<image>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%     . . . . . . .
-%%   +---------------+
-%%   | |.         .| |
-%%   | | .       . | |
-%%   | |  .     .  | |
-%%   | |   .   .   | |
-%%   | |   image   | |
-%%   | |   .   .   | |
-%%   | |  .     .  | |
-%%   | | .       . | |
-%%   | |.        c.| |
-%%   +---------------+
-%%     . . . . . . .
+%%                                . . . . . . .
+%%     +-----------------+      +---------------+
+%%     |                 |      | |.         .| |
+%%   . +-----------------+ .    | | .       . | |
+%%   . | .             . | .    | |  .     .  | |
+%%   . |    .       .    | .    | |   .   .   | |
+%%   . |      image      | .    | |   image   | |
+%%   . |    .       .    | .    | |   .   .   | |
+%%   . | .             . | .    | |  .     .  | |
+%%   . +-----------------+ .    | | .       . | |
+%%     |               c |      | |.        c.| |
+%%     +-----------------+      +---------------+
+%%                                . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
 %%
-\newcommand\imagepagefit[3][\clearimage]{%
+% XXX caption template...
+% XXX add options to better control caption...
+% XXX add nudge/grow support...
+\newcommand\imagepagefit[3][]{%
 	\null%
 	\begin{pagecell}%
-		\imagecell[center, clearance=#1]{%
-			\captioncell[under,align=flushright]{\captionformat{#2}}}{#3}%
+		\imagecell[center, clearance=\clearimage, #1]{%
+			\captioncell[under, align=flushright]{\captionformat{#2}}}{#3}%
 	\end{pagecell}%
 	\clearpage }
 
@@ -2355,7 +2259,7 @@
 %
 %%	Like |\imagepage| but will fill page with image.
 %
-%%	>> \imagepagefill[<clearence>]{<caption>}{<image>}
+%%	>> \imagepagefill[<options>]{<caption>}{<image>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -2377,11 +2281,14 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+% XXX caption template...
+% XXX add options to better control caption...
 % XXX add nudge/grow support...
-\newcommand\imagepagefill[3][\clearimage]{
+\newcommand\imagepagefill[3][]{
 	\null%
 	\begin{pagecell}%
-		\imagecell[clearance=#1,fill]{#2}{#3}%
+		\imagecell[fill, clearance=\clearimage, #1]{%
+			\captioncell[top, align=flushright]{\captionformat{#2}}}{#3}%
 	\end{pagecell}%
 	\clearpage }
 
