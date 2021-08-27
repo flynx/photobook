@@ -95,13 +95,13 @@
 %%
 %%   + - - - - - - - - - - - - - - - - - - - - - + - +   ^
 %%   .                                           .   .   | bleed
-%%   .   +---------------------------------------+-----  v   .   .  ---
+%%   .   +--------------------------------------+-----  v   .   .  ---
 %%   .   |                           ^       .   =   .
 %%   .   |   .   .   .   .   .   .   |   .   .   =   .               ^
 %%   .   |<-- blockwidth ----------------------->=   .               |
 %%   .   |   .                       |   .   .   =   .               |
 %%   .   |                           |       .   =   .       textheight
-%%   .   |   .                       |   .   .   =   .               |
+%%   .   |   .             Page      |   .   .   =   .               |
 %%   .   |                      blockheight  .   =   .               |
 %%   .   |   .                       |   .   .   =   .               |
 %%   .   |                           |       <---> bindingoffset     |
@@ -151,7 +151,7 @@
 %%   +---------------+
 %%   |               |
 %%   |               |
-%%   |               |
+%%   |     page      |
 %%   |               |
 %%   |               |
 %%   +---------------+
@@ -173,7 +173,7 @@
 %%   +---------------+---------------+
 %%   |               .               |
 %%   |               .               |
-%%   |               .               |
+%%   |           endpaper            |
 %%   |               .               |
 %%   |               .               |
 %%   +---------------+---------------+
@@ -1596,19 +1596,19 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%    [ over          ]
+%%     over            
 %%   +-----------------+
-%%   |[ top           ]|
+%%   | top             |
 %%   |                 |
 %%   |                 |
 %%   |                 |
-%%   |[ center        ]|
+%%   | center          |
 %%   |                 |
 %%   |                 |
 %%   |                 |
-%%   |[ bottom        ]|
+%%   | bottom          |
 %%   +-----------------+
-%%    [ under         ]
+%%     under           
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -1701,11 +1701,7 @@
 	\def\photobook@captioncell@margin{#1}}
 
 \newcommand\captioncell[2][]{%
-	\setkeys{captioncell@args}{
-		top, 
-		align=flushright,
-		margin=1pt,
-		#1}%
+	\setkeys{captioncell@args}{top, align=flushright, margin=1pt, #1}%
 	%
 	\photobook@captioncell@format{%
 		\adjustbox{margin=\photobook@captioncell@margin}{#2}}}
@@ -1715,6 +1711,27 @@
 %% \DescribeMacro{\vcaptioncell\{..\}}
 %
 %% Vertical caption cell
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   (topdown)                   (bottomup)
+%%     +-----------------+         +-----------------+
+%%   b | l      c      r | a       |                 |
+%%   e | e      e      i | f       |                 |
+%%   f | f      n      g | t       |                 |
+%%   o | t      t      h | e     e |        r        |
+%%   r |        e      t | r     r |        e      t | r
+%%   e |        r        |       o | t      t      h | e
+%%     |                 |       f | f      n      g | t
+%%     |                 |       e | e      e      i | f
+%%     |                 |       b | l      c      r | a
+%%     +-----------------+         +-----------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% See samples for better illustration.
 %%
 \def\photobook@vcaptioncell@position{top}
 \define@boolkey{vcaptioncell@args}{before}[true]{%
@@ -1771,12 +1788,7 @@
 			margin=\photobook@vcaptioncell@margin]{#1}}
 
 \newcommand\vcaptioncell[2][]{%
-	\setkeys{vcaptioncell@args}{
-		left,
-		bottomup, 
-		align=flushleft,
-		margin=1pt,
-		#1}%
+	\setkeys{vcaptioncell@args}{left, bottomup, align=flushleft, margin=1pt, #1}%
 	%
 	%% XXX for some reason this errs with:
 	%%			"LaTeX Error: \begin{bottomup} on input line 432 ended by \end{bottomup}"
@@ -1795,6 +1807,10 @@
 			\photobook@vcaptioncell@nested{#2}
 		\end{topdown}%
 	\fi}
+
+
+% XXX need to do a caption block -- a cell to one side of an image to the 
+% 		end of the page...
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
