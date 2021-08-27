@@ -7,9 +7,10 @@
 %	- adds basic templates for image pages (XXX)
 %
 %
+% XXX see where we need to \ignorespaces...
+%
 % XXX BUG: fix \OFFSETFIX
 % XXX BUG: fix \CAPTIONWIDTHFIX
-% XXX BUG: there seems to be a slight offset bias...
 %
 % XXX might be a good idea to add a spine calculator...
 %
@@ -412,6 +413,7 @@
 \RequirePackage{ifthen}
 \RequirePackage{iftex}
 \RequirePackage{pgffor}
+\RequirePackage{listofitems}
 
 % XXX argument processing -- use one of the following two...
 %\RequirePackage{pgfkeys}
@@ -875,15 +877,13 @@
 	\ifdim \dimexpr #1 \relax < \dimexpr #2 \relax%
 		\dimexpr #1 \relax%
 	\else%
-		\dimexpr #2 \relax%
-	\fi }
+		\dimexpr #2 \relax\fi}
 
 \newcommand\maxdim[2]{
 	\ifdim \dimexpr #1 \relax > \dimexpr #2 \relax%
 		\dimexpr #1 \relax%
 	\else%
-		\dimexpr #2 \relax%
-	\fi }
+		\dimexpr #2 \relax\fi}
 
 
 %% \DescribeMacro{\keywords\{..\}}
@@ -1007,9 +1007,11 @@
 %
 % XXX this may span more than one page if there is enoug stuff packed 
 %		into it...
-\newenvironment{page}{}{%
+\newenvironment{page}{%
+}{%
 	\null
 	\clearpage }
+
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1023,12 +1025,26 @@
 %% A cell defines |\cellwidth| and |\cellheight| within it's body that 
 %% store the initial cell dimentions.
 %%
-\newlength\cellwidth
-\newlength\cellheight
 
-% XXX should we treat the page as a cell???
-\setlength\cellwidth{\textwidth}
-\setlength\cellheight{\textheight}
+% XXX should we treat the root page as a cell???
+\newlength\cellparentwidth
+\setlength\cellparentwidth{\paperwidth}
+
+\newlength\cellparentheight
+\setlength\cellparentheight{\paperheight}
+
+\newlength\cellwidth
+\setlength\cellwidth{\cellparentwidth}
+
+\newlength\cellheight
+\setlength\cellheight{\cellparentheight}
+
+\newlength\celloffsetleft
+\setlength\celloffsetleft{0pt}
+
+\newlength\celloffsettop
+\setlength\celloffsettop{0pt}
+
 
 
 % \DescribeMacro{\begin\{inlinecell\}\{..\} ...}
@@ -1037,42 +1053,72 @@
 %% Create a basic inline cell.
 %
 %%	>> \begin{inlinecell}{<width>}{<height>} ... \end{inlinecell}
+%%	>> \begin{inlinecell}[<valign>]{<width>}{<height>} ... \end{inlinecell}
 %
 %% This is just like |minipage| but provides cell mechanics.
 %%
 % XXX
-\newenvironment{inlinecell}[2]{%
+\newenvironment{inlinecell}[3][t]{%
 	\begingroup%
-		\setlength\cellwidth{\dimexpr #1 \relax}%
-		\setlength\cellheight{\dimexpr #2 \relax}%
+		\setlength\cellparentwidth{\cellwidth}%
+		\setlength\cellparentheight{\cellheight}%
+		\setlength\cellwidth{\dimexpr #2 \relax}%
+		\setlength\cellheight{\dimexpr #3 \relax}%
+		\setlength\celloffsettop{0pt}%
+		\setlength\celloffsetleft{0pt}%
 		%
-		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-		\ignorespaces%
+		\begin{minipage}[t][\cellheight][#1]{\cellwidth}% 
+			\ignorespaces%
 }{%
 		\end{minipage}%
 	\endgroup}
 
 
-% \DescribeMacro{\begin\{cell\}\{..\} ...}
+%% \DescribeEnv{vinlinecell}
+%
+%% \fbox{EXPERIMENTAL}
+%
+%%	>> \begin{vinlinecell}{<width>}{<height>} ... \end{vinlinecell}
+%%	>> \begin{vinlinecell}[<valign>]{<width>}{<height>} ... \end{vinlinecell}
+%%
+% XXX test
+% XXX EXPERIMENTAL
+\NewEnviron{vinlinecell}[2][t]{%
+	\begingroup%
+		% NOTE: these are needed to let inlinecell setup parent dimension 
+		%		relative to cell orientation...
+		\setlength\cellwidth{#3}%
+		\setlength\cellheight{#2}%
+		%
+		\rotatebox{90}{%
+			\begin{inlinecell}[#1]{#3}{#2}%
+				\ignorespaces%
+				\BODY%
+			\end{inlinecell}}%
+	\endgroup}
+
+
 %% \DescribeEnv{cell}
 %
 %% Create a basic absolutely positioned cell.
 %
 %%	>> \begin{cell}{<top>, <left>}{<width>}{<height>} ... \end{cell}
-%
-% XXX cells can not be nested -- they will mess up the \cellwidth and 
-%		\cellheight for parents...
+%%
 % XXX SYNTAX: place the second arg in braces...
 %		\begin{cell}(<top>, <left>){<width>}{<height>}
+\edef\photobook@cell@offset{}
+
 \newenvironment{cell}[3]{%
-	\begingroup%
-	\setlength\parindent{0em}%
+	\readlist*\photobook@cell@offset{#1}%
+	%
 	\begin{textblock*}{#2}(#1)%
 	\begin{inlinecell}{#2}{#3}%
+		\setlength\celloffsettop{\photobook@cell@offset[1]}%
+		\setlength\celloffsetleft{\photobook@cell@offset[2]}%
+		\ignorespaces%
 }{%
 	\end{inlinecell}%
-	\end{textblock*}%
-	\endgroup}
+	\end{textblock*}}
 
 
 % \DescribeMacro{\begin\{clipcell\}\{..\} ...}
@@ -1090,7 +1136,7 @@
 \newenvironment{clipcell}[3]{%
 	\begin{cell}{#1}{#2}{#3}%
 	\begin{cliptocell}%
-	\ignorespaces%
+		\ignorespaces%
 }{%
 	\end{cliptocell}%
 	\end{cell}}
@@ -1100,19 +1146,20 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Saved cells
 
+
 %% \DescribeMacro{\savecell\{..\}}
 %
-%% \fbox{EXPERIMENTAL}
-%%
 %% Create a saved cell.
-%%
+%
 %%	>> \savecell{<name>}{<width>}{<height>}{ .. }
-%%
+%
 %% This is similar to |\newsavebox{..}| and |\sbox{..}| but adds 
 %% cell functionality.
 %%
 % XXX can we make this an env???
 % XXX should this be split into \newsavecell{..} and \scell{..} ???
+% XXX can we use root cells inside this???
+%		...i.e. things using textbox*...
 \newcommand\savecell[4]{%
 	% only define a savebox once...
 	\@ifundefined{#1}{%
@@ -1123,40 +1170,54 @@
 		\end{inlinecell}}}
 
 
+% \usecell{..} variants...
+%
+\def\usecell{\@ifstar{%
+	\photobook@usecell%
+}{%
+	\photobook@usecell@clipped}}
+
+% reuse cell content...
+% NOTE: this is not intended for direct use -- depends closure/context...
+\edef\photobook@usecell@offset{}
+\def\photobook@usecell@placecell#1(#2){%
+	\readlist*\photobook@usecell@offset{#2}%
+	% XXX how we align things feels a bit odd...
+	\vspace{-\dimexpr \photobook@usecell@offset[1] \relax}%
+	\adjustbox{margin={-\dimexpr \photobook@usecell@offset[2] \relax} 0pt 0pt 0pt}{%
+		\expandafter\usebox\csname #1\endcsname}}
+
 %% \DescribeMacro{\usecell\{..\}}
 %
-%% Use a saved cell.
+%% Use part of a saved cell.
 %%
-% XXX needs a better API...
-%%	>> \usecell{<name>}{<width>}{<height>}{<offset-x>}{<offset-y>}
+%%	>> \usecell{<name>}(<top>, <left>){<width>}{<height>}
+%%
+%% This will clip the content to cell.
 %%
 %% This is similar to |\usebox{..}| but defines a box and aligns the 
 %% content to it.
 %%
-% XXX how we align things feels a bit odd...
-\newcommand\usecell[5]{%
-	\begin{inlinecell}{#2}{#3}%
-		\vspace{-\dimexpr #5 \relax}%
-		\adjustbox{margin={-\dimexpr #4 \relax} 0pt 0pt 0pt}{%
-			\expandafter\usebox\csname #1\endcsname}%
+% XXX add option to rotate saved cell...
+\def\photobook@usecell@clipped#1(#2)#3#4{
+	\begin{inlinecell}{#3}{#4}%
+	\begin{cliptocell}%
+		\photobook@usecell@placecell{#1}(#2)%
+	\end{cliptocell}%
 	\end{inlinecell}}
 
-
-%% \DescribeMacro{\useclippedcell\{..\}}
+%% \DescribeMacro{\usecell*\{..\}}
 %
-%% Like |\usecell{..}| but also clips the saved cell.
+%% Like |\usecell{..}| but will not clip the cell content.
 %%
-% XXX how we align things feels a bit odd...
-% XXX \usecell{..} and \useclippedcell{..} differ only in the cliptocell 
-%		env, can/should we reuse here???
-\newcommand\useclippedcell[5]{%
-	\begin{inlinecell}{#2}{#3}%
-		\begin{cliptocell}%
-			\vspace{-\dimexpr #5 \relax}%
-			\adjustbox{margin={-\dimexpr #4 \relax} 0pt 0pt 0pt}{%
-				\expandafter\usebox\csname #1\endcsname}%
-		\end{cliptocell}%
+%%	>> \usecell*{<name>}(<top>, <left>){<width>}{<height>}
+%%
+% XXX add option to rotate saved cell...
+\def\photobook@usecell#1(#2)#3#4{
+	\begin{inlinecell}{#3}{#4}%
+		\photobook@usecell@placecell{#1}(#2)%
 	\end{inlinecell}}
+
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1164,6 +1225,32 @@
 %
 %% Cell macros require a cell environment to function correctly.
 %%
+
+%% \DescribeEnv{topdown}
+%% \DescribeEnv{bottomup}
+%
+%% Rotate cell content vertically, orienting it top-down or bottom-up.
+%
+%%	>> \begin{topdown} ... \end{topdown}
+%%	>> \begin{bottomup} ... \end{bottomup}
+%
+%%
+% XXX EXPERIMENTAL
+\NewEnviron{topdown}{%
+	\begin{flushright}%
+		\rotatebox{270}{%
+			\begin{inlinecell}{\cellheight}{\cellwidth}%
+				\BODY%
+			\end{inlinecell}}
+	\end{flushright}}
+
+% XXX EXPERIMENTAL
+\NewEnviron{bottomup}{%
+	\rotatebox{90}{%
+		\begin{inlinecell}{\cellheight}{\cellwidth}%
+			\BODY%
+		\end{inlinecell}}}
+
 
 %% \DescribeEnv{cliptocell}
 %
@@ -1410,6 +1497,8 @@
 %		...i.e. an argument that will shift the image v/h from base position.
 %		also need to shift the caption box accordingly but still keep it 
 %		within the cell...
+% XXX need to help caption-cell be able to create new cells to left/right/top/left 
+%		of image...
 % XXX can we make this an env???
 \newcommand\imagecell[3][]{%
 	\begingroup%
@@ -1465,38 +1554,47 @@
 				margin={\photobook@imagecell@left} 0pt 0pt {\photobook@imagecell@top}}{%
 			% image....
 			\usebox\photobook@imagebox%
+			%
 			% caption cell...
 			% XXX do not do this if no caption is given... 
 			\begingroup%
-				\hspace{-\mindim{%
+				% setup the cell env...
+				% NOTE: this needs the original \cellwidth...
+				\setlength\celloffsetleft{%
+					\mindim{%
 							\wd\photobook@imagebox
 						}{%
 							+\cellwidth 
 							-\photobook@imagecell@captionleft
 							-0.5\dimexpr 
 								+\cellwidth 
-								-\wd\photobook@imagebox \relax }}{%
-					% prep for caption cell...
-					\setlength\cellwidth{%
-						\mindim{\wd\photobook@imagebox}{\cellwidth}}%
-					\setlength\cellheight{%
-						\mindim{\ht\photobook@imagebox}{\cellheight}}% 
+								-\wd\photobook@imagebox \relax}}%
+				\setlength\cellparentwidth{\cellwidth}%
+				\setlength\cellparentheight{\cellheight}%
+				\setlength\cellwidth{%
+					\mindim{\wd\photobook@imagebox}{\cellwidth}}%
+				\setlength\cellheight{%
+					\mindim{\ht\photobook@imagebox}{\cellheight}}% 
+				% NOTE: this needs the new \cellheight...
+				\setlength\celloffsettop{%
+					\mindim{%
+							0pt
+						}{%
+							+ 0.5\dimexpr 
+								+\cellheight 
+								-\ht\photobook@imagebox 
+							-\photobook@imagecell@captiontop \relax}}%
+				%
+				% place the caption cell...
+				\hspace{-\celloffsetleft}{%
 					\setlength\fboxsep{0pt}%
-					%
 					% adjust top if image is taller than cell...
-					\raisebox{-\mindim{%
-								0pt
-							}{%
-								+ 0.5\dimexpr 
-									+\cellheight 
-									-\ht\photobook@imagebox 
-								-\photobook@imagecell@captiontop \relax}}{%
+					\raisebox{-\celloffsettop}{%
 						\begin{minipage}[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth}%
 							#2%
 						\end{minipage}}}
 			\endgroup}%
 	\endgroup}
-
 
 
 %% \DescribeMacro{\captioncell\{..\}}
@@ -1558,10 +1656,12 @@
 % XXX would be nice to create cells above/below/left/right of image...
 
 % helpers...
+% XXX set minipage height to available cell height...
 \renewcommand\photobook@captioncell@formatTopAlign[1]{%
 	\begin{\photobook@captioncell@align}%
 		#1%
 	\end{\photobook@captioncell@align}}
+% XXX set minipage height to available cell height...
 \renewcommand\photobook@captioncell@formatBottomAlign[1]{%
 	\begin{minipage}[t][\cellheight][b]{\cellwidth}%
 		\begin{\photobook@captioncell@align}%
@@ -1595,24 +1695,7 @@
 		\vspace{\dimexpr \cellheight + 2\fboxsep \relax}%
 		\photobook@captioncell@formatTopAlign{##1}}}
 
-% XXX
-\define@boolkey{captioncell@args}{left}[true]{%
-	\def\photobook@captioncell@format##1{%
-		% XXX need to set width correctly...
-		\begin{minipage}[t][\cellheight][t]{\cellwidth}%
-		\begin{\photobook@captioncell@align}%
-			##1%
-		\end{\photobook@captioncell@align}
-		\end{\minipage}}}
-\define@boolkey{captioncell@args}{right}[true]{%
-	\def\photobook@captioncell@format##1{%
-		% XXX need to set width correctly...
-		\begin{minipage}[t][\cellheight][t]{\cellwidth}%
-		\begin{\photobook@captioncell@align}%
-			##1%
-		\end{\photobook@captioncell@align}
-		\end{\minipage}}}
-
+% XXX left/right...
 
 % XXX add vertical fields direction: up/down
 
@@ -1634,7 +1717,6 @@
 	%
 	\photobook@captioncell@format{%
 		\adjustbox{margin=\photobook@captioncell@margin}{#2}}}
-
 
 
 %% \DescribeMacro{spreadcell}
@@ -1667,24 +1749,30 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% XXX this seams to cover page numbers, should we do this in shipout???
+% XXX add a manual version of this...
+%		...i.e. name + use...
 \NewEnviron{spreadcell}[1][2]{%
 	\begingroup%
 		% create the actual cell...
+		\setlength\cellparentwidth{\cellwidth}%
+		\setlength\cellparentheight{\cellheight}%
 		\setlength\cellwidth{#1\pageblockwidth}%
 		\setlength\cellheight{\pageblockheight}%
+		%
 		\savecell{photobook@spreadcell}{\cellwidth}{\cellheight}{\BODY}%
 		%
+		% generate pages...
 		\foreach \photobook@spreadcell@page in {0, ...,\numexpr #1 - 1 \relax}{%
 			\null
 			\begin{pagecell}%
-				\usecell{photobook@spreadcell}%
+				% NOTE: \cellwidth and \cellheight here are for a single page...
+				\usecell*{photobook@spreadcell}%
+					(0pt, \photobook@spreadcell@page\cellwidth)%
 					{\cellwidth}{\cellheight}%
-					{\photobook@spreadcell@page\cellwidth}{0pt}%
+					%{\photobook@spreadcell@page\cellwidth}{0pt}%
 			\end{pagecell}%
 			\clearpage}%
 	\endgroup}
-
 
 
 % XXX move to a better location... (???)
@@ -1828,7 +1916,7 @@
 
 
 
-% XXX
+% XXX EXPERIMENTAL
 \NewEnviron{shipoutbgcell}{%
 	\AddToShipoutPictureBG*{%
 		\begin{pagecell}%
@@ -2046,70 +2134,6 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-%%%%% Cell helper macros
-
-% XXX should digits/rounding be configurable???
-\newcommand\photobook@TemplateCell[2][mm]{
-	% XXX this seems to be bigger than the size given...
-	%\fbox{\parbox[t][\cellheight][t]{\cellwidth}{%
-	\begin{center}
-		\vfill
-		#2 \\
-		(\lenprint[#1]{\cellwidth} \space x \lenprint[#1]{\cellheight})
-		\vfill
-	\end{center} }
-	%\end{center} }} }
-
-
-%% \DescribeMacro{\GenerateTemplate\{..\}}
-%
-%% Generate template page for current |layoutmode|.
-%
-%%	>> \GenerateTemplate
-%
-%% Cell size can be printed in |mm| (default) or in any explicit unit 
-%% supported by \LaTeX.
-%
-%%	>> \GenerateTemplate{<unit>}
-%
-%% This can be useful if one needs to make the cover/jacket/... in either a 
-%% different software package or by hand.
-%%
-%% This is a no-op for |layoutmode=block|.
-%%
-\newcommand\GenerateTemplate[1][mm]{
-	% XXX undo this after...
-	\TPoptions{showboxes=true}
-	\begin{page}
-		\setlength{\parindent}{0em}
-		% NOTE: only the relevant blocks will be visible...
-		\begin{leftside}
-			\photobook@TemplateCell[#1]{ENDPAPER LEFT}
-		\end{leftside}
-		\begin{rightside}
-			\photobook@TemplateCell[#1]{ENDPAPER RIGHT}
-		\end{rightside}
-		\begin{frontcover}
-			\photobook@TemplateCell[#1]{FRONT COVER}
-		\end{frontcover}
-		%\begin{vspine}[90]
-		%\begin{vspine}[down]
-		\begin{vspine}
-			\photobook@TemplateCell[#1]{SPINE}
-		\end{vspine}
-		\begin{backcover}
-			\photobook@TemplateCell[#1]{BACK COVER}
-		\end{backcover}
-		\begin{frontflap}
-			\photobook@TemplateCell[#1]{FRONT FLAP}
-		\end{frontflap}
-		\begin{backflap}
-			\photobook@TemplateCell[#1]{BACK FLAP}
-		\end{backflap}
-	\end{page} }
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % pages...
 
 % XXX
@@ -2117,7 +2141,7 @@
 
 
 %----------------------------------------------------------------------
-%%%% Captions
+%%%% Caption Templates
 % XXX need to be able to configure/pass/override:
 %		- size / \captionsize...
 %		- color...
@@ -2240,82 +2264,6 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-%% \DescribeMacro{\imagepagefitWH\{..\}}
-%
-%%	>> \imagepagefitWH{<width>}{<height>}{<caption>}{<image>}
-%%
-%
-% NOTE: width and hight are ratios of \textwidth and \textheight 
-%		respectively. 
-%		i.e. \imagepagefitWH{0.5}{0.5}{...} will set image size to half 
-%		the size of the text block....
-%
-% XXX this generates lots of warnings...
-% XXX broblems with captions:
-%		- vertical offset is floating depending on image proportions...
-%		- width is a bit off...
-% XXX BUG: vertical alignment falls apart if page head is changed...
-% XXX replace \ifthenelse\isodd .. with etoolbox equivalent.... (???)
-\newcommand\imagepagefitWH[4]{
-	\sbox{\photobook@imagebox}{
-		\includegraphics[
-			keepaspectratio=true, 
-			width=#1\textwidth, 
-			height=#2\textheight,]{#4} }
-	\null
-	\vfill
-	% image...
-	\vspace{ \imageblockoffsettop\textheight }
-	\begin{center}
-		\usebox\photobook@imagebox
-	\end{center}
-	\vfill
-	% caption...
-	\ShipoutPicture{
-		% XXX for some magical reason \vfill here makes latex err 
-		%		"Missing } inserted", removing it fixes the error but breaks
-		%		captions...
-		%		...also adding a '}' here does not break things...
-		\vfill
-		\vspace{ \dimexpr 
-				% XXX this is not accurate for some reason...
-				( 1em
-					+ (\dimexpr \imageblockoffsettop\textheight / 2 \relax)
-					+ \paperheight 
-					+ \ht\photobook@imagebox ) 
-				/ 2 \relax }
-			\begin{minipage}{\paperwidth}
-				\begin{center}
-					\ifthenelse{\isodd{\thepage}}%
-						% odd pages...
-						{ \captionbottombox[ \bindingoffset ]{\photobook@imagebox}{%
-							\begin{flushright}
-								#3
-							\end{flushright} } }%
-						% even pages...
-						{ \captionbottombox[ -\bindingoffset ]{\photobook@imagebox}{%
-							\begin{flushright}
-								#3
-							\end{flushright} } }%
-				\end{center}
-			\end{minipage} }
-	\newpage }
-
-
-%% \DescribeMacro{\imagepagefitW\{..\}}
-%% \DescribeMacro{\imagepagefitH\{..\}}
-%
-%%	Shorthands to |\imagepagefitWH|
-%
-%%	>> \imagepagefitH[<height>]{<caption>}{<image>}
-%%	>> \imagepagefitW[<width>]{<caption>}{<image>}
-%%
-\newcommand\imagepagefitH[3][\imageblockheight]{
-	\imagepagefitWH{\imageblockwidth}{#1}{#2}{#3} }
-\newcommand\imagepagefitW[3][\imageblockwidth]{
-	\imagepagefitWH{#1}{\imageblockheight}{#2}{#3} }
-
-
 %% \DescribeMacro{\imagepage\{..\}}
 %
 %%	Basic image page
@@ -2325,35 +2273,33 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   +---------------+
-%%   |               |
-%%   | +-----------+ |
-%%   | |.         .| |
-%%   | |  .     .  | |
-%%   | |   image   | |
-%%   | |  .     .  | |
-%%   | |.         .| |
-%%   | +-----------+ |
-%%   |             c |
-%%   |               |
-%%   +---------------+
+%%   +-----------------+
+%%   |                 |
+%%   | +-------------+ |
+%%   | | .         . | |
+%%   | |   .     .   | |
+%%   | |    image    | |
+%%   | |   .     .   | |
+%%   | | .         . | |
+%%   | +-------------+ |
+%%   |               c |
+%%   |                 |
+%%   +-----------------+
 %%
 %% \end{verbatim}
 %% \end{minipage}
 %%
-\newcommand\imagepageO[2]{
-	\imagepagefitWH{\imageblockwidth}{\imageblockheight}{#1}{#2} }
-
-
-% XXX this is not yet 100% the same as \imagepage{..}
-%		- vertical offset seems not to match (not sure who's fault is it)...
-% XXX needs caption...
+% XXX revise captions...
+% XXX should we reduce width by bindingoffset???
 \newcommand\imagepage[2]{%
 	\begin{page}%
 		\begin{pagecell}%
+			% XXX should we reduce width by bindingoffset???
+			%\begin{minipage}[t][\cellheight][c]{\dimexpr \cellwidth - \bindingoffset \relax}%
 			\begin{minipage}[t][\cellheight][c]{\cellwidth}%
 				\vspace{\imageblockoffsettop\pagetextheight}%
 				\begin{center}%
+					% compensate for \bindingoffset...
 					\hspace{\ifnumodd{\thepage}{\bindingoffset}{-\bindingoffset}}{%
 						\begin{inlinecell}%
 								{\imageblockwidth\pagetextwidth}%
@@ -2444,6 +2390,8 @@
 % XXX \OFFSETFIX
 %% \DescribeMacro{\portraitimagepageleft\{..\}}
 %
+%% \LEGACY
+%
 %%  >> portraitimagepageleft[<clearence>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
@@ -2483,6 +2431,8 @@
 
 % XXX
 %% \DescribeMacro{\portraitimagepageright\{..\}}
+%
+%% \LEGACY
 %
 %%	>> portraitimagepageright{<caption>}{<image>}
 %
@@ -2528,6 +2478,8 @@
 % XXX \OFFSETFIX
 %% \DescribeMacro{\imageleftspreadfullbleed\{..\}}
 %
+%% \LEGACY
+%%
 %% Image left page spread with full bleed.
 %
 %%	>> \imageleftspreadfullbleed[<vertical-offset>]{<caption>}{<image>}
@@ -2586,6 +2538,8 @@
 % XXX \OFFSETFIX
 %% \DescribeMacro{\imagerightspreadfullbleed\{..\}}
 %
+%% \LEGACY
+%%
 %% Image spread right page with full bleed.
 %
 %%	>> \imagerightspreadfullbleed[<vertical-offset>]{<caption>}{<image>}
@@ -2723,6 +2677,8 @@
 % XXX
 %% \DescribeMacro{\portraitspreadbleedleft\{..\}}
 %
+%% \LEGACY
+%%
 %%	>> \portraitspreadbleedleft[<clearence>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
@@ -2761,6 +2717,8 @@
 % XXX
 %% \DescribeMacro{\portraitspreadbleedright\{..\}}
 %
+%% \LEGACY
+%%
 %%	>> \portraitspreadbleedright[<clearence>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
@@ -2800,6 +2758,8 @@
 % XXX \OFFSETFIX
 %% \DescribeMacro{\imagespreadleft\{..\}}
 %
+%% \LEGACY
+%%
 %% Image spread aligned left (with bleed).
 %
 %% 	>> \imagespreadleft[<clearence>]{<caption>}{<image>}
@@ -2877,6 +2837,8 @@
 % XXX
 %% \DescribeMacro{\imagespreadright\{..\}}
 %
+%% \LEGACY
+%%
 %% Image spread aligned right (with bleed).
 %
 %%	>> \imagespreadright[<clearence>]{<caption>}{<image>}
@@ -2947,6 +2909,8 @@
 % XXX
 %% \DescribeMacro{\imagespreadfullbleed\{..\}}
 %
+%% \LEGACY
+%%
 %% Image spread with full bleed.
 %
 %%	>> \imagespreadfullbleed[<vertical-offset>]{<caption>}{<image>}
@@ -2982,6 +2946,71 @@
 	\vnudgeimage{\photobook@tmpvnudgeimageby}
 	\vgrowimage{\photobook@tmpvgrowimageby}
 	\imagerightspreadfullbleed[#1]{#2}{#3} }
+
+
+
+%----------------------------------------------------------------------
+%%%% Miscellaneous macros
+
+% XXX should digits/rounding be configurable???
+\newcommand\photobook@TemplateCell[2][mm]{
+	% XXX this seems to be bigger than the size given...
+	%\fbox{\parbox[t][\cellheight][t]{\cellwidth}{%
+	\begin{center}
+		\vfill
+		#2 \\
+		(\lenprint[#1]{\cellwidth} \space x \lenprint[#1]{\cellheight})
+		\vfill
+	\end{center} }
+	%\end{center} }} }
+
+
+%% \DescribeMacro{\GenerateTemplate\{..\}}
+%
+%% Generate template page for current |layoutmode|.
+%
+%%	>> \GenerateTemplate
+%
+%% Cell size can be printed in |mm| (default) or in any explicit unit 
+%% supported by \LaTeX.
+%
+%%	>> \GenerateTemplate{<unit>}
+%
+%% This can be useful if one needs to make the cover/jacket/... in either a 
+%% different software package or by hand.
+%%
+%% This is a no-op for |layoutmode=block|.
+%%
+\newcommand\GenerateTemplate[1][mm]{
+	% XXX undo this after...
+	\TPoptions{showboxes=true}
+	\begin{page}
+		\setlength{\parindent}{0em}
+		% NOTE: only the relevant blocks will be visible...
+		\begin{leftside}
+			\photobook@TemplateCell[#1]{ENDPAPER LEFT}
+		\end{leftside}
+		\begin{rightside}
+			\photobook@TemplateCell[#1]{ENDPAPER RIGHT}
+		\end{rightside}
+		\begin{frontcover}
+			\photobook@TemplateCell[#1]{FRONT COVER}
+		\end{frontcover}
+		%\begin{vspine}[90]
+		%\begin{vspine}[down]
+		\begin{vspine}
+			\photobook@TemplateCell[#1]{SPINE}
+		\end{vspine}
+		\begin{backcover}
+			\photobook@TemplateCell[#1]{BACK COVER}
+		\end{backcover}
+		\begin{frontflap}
+			\photobook@TemplateCell[#1]{FRONT FLAP}
+		\end{frontflap}
+		\begin{backflap}
+			\photobook@TemplateCell[#1]{BACK FLAP}
+		\end{backflap}
+	\end{page} }
 
 
 
