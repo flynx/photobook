@@ -1612,7 +1612,7 @@
 \def\photobook@captioncell@format#1{%
 	\photobook@captioncell@formatTopAlign{#1}}
 
-% over/top/center/bottom/under...
+% over / top / center / bottom / under...
 \define@boolkey{captioncell@args}{over}[true]{%
 	\def\photobook@captioncell@format##1{%
 		\vspace{-\dimexpr \cellheight + 2\fboxsep \relax}%
@@ -1634,14 +1634,13 @@
 	\def\photobook@captioncell@format##1{%
 		\vspace{\dimexpr \cellheight + 2\fboxsep \relax}%
 		\photobook@captioncell@formatTopAlign{##1}}}
-
-% XXX add more values...
+% align...
 \def\photobook@captioncell@align{}
 % XXX for some reason \define@choicekey{..} does not expand macros...
 %\define@choicekey{captioncell@args}{align}{flushleft,center,flushright}{%
 \define@key{captioncell@args}{align}{%
 	\def\photobook@captioncell@align{#1}}
-
+% margin...
 \def\photobook@captioncell@margin{0pt}
 \define@key{captioncell@args}{margin}{
 	\def\photobook@captioncell@margin{#1}}
@@ -1651,7 +1650,6 @@
 	%
 	\photobook@captioncell@format{%
 		\adjustbox{margin=\photobook@captioncell@margin}{#2}}}
-
 
 
 %% \DescribeMacro{\vcaptioncell\{..\}}
@@ -1679,6 +1677,14 @@
 %%
 %% See samples for better illustration.
 %%
+% helper...
+\def\photobook@vcaptioncell@nested#1{%
+	\captioncell[%
+			\photobook@vcaptioncell@position,
+			align=\photobook@vcaptioncell@align,
+			margin=\photobook@vcaptioncell@margin]{#1}}
+
+% before / left / center / right / after...
 \def\photobook@vcaptioncell@position{top}
 \define@boolkey{vcaptioncell@args}{before}[true]{%
 	\def\photobook@vcaptioncell@position{%
@@ -1706,7 +1712,7 @@
 			under%
 		\else%
 			over\fi}}
-
+% bottomup / topdown...
 \newif\ifphotobook@vcaptioncell@bottomup
 \photobook@vcaptioncell@bottomuptrue
 \def\photobook@vcaptioncell@orientation{bottomup}
@@ -1716,22 +1722,16 @@
 \define@boolkey{vcaptioncell@args}{topdown}[true]{%
 	\photobook@vcaptioncell@bottomupfalse
 	\def\photobook@vcaptioncell@orientation{topdown}}
-
+% align...
 \def\photobook@vcaptioncell@align{}
 % XXX for some reason \define@choicekey{..} does not expand macros...
 %\define@choicekey{vcaptioncell@args}{align}{flushleft,center,flushright}{%
 \define@key{vcaptioncell@args}{align}{%
 	\def\photobook@vcaptioncell@align{#1}}
-
+% margin...
 \def\photobook@vcaptioncell@margin{0pt}
 \define@key{vcaptioncell@args}{margin}{
 	\def\photobook@vcaptioncell@margin{#1}}
-
-\def\photobook@vcaptioncell@nested#1{%
-	\captioncell[%
-			\photobook@vcaptioncell@position,
-			align=\photobook@vcaptioncell@align,
-			margin=\photobook@vcaptioncell@margin]{#1}}
 
 \newcommand\vcaptioncell[2][]{%
 	\setkeys{vcaptioncell@args}{left, bottomup, align=flushleft, margin=1pt, #1}%
@@ -2136,7 +2136,8 @@
 % XXX captions seem not to account for \imageblockoffsettop...
 
 %\newcommand\captionsize{\scriptsize}
-\newcommand\captionsize{\fontsize{6.5pt}{8pt}\selectfont}
+\newcommand\captionsize{%
+	\fontsize{6.5pt}{8pt}\selectfont}
 
 
 % XXX move to a better location... (???)
