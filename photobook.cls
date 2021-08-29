@@ -390,7 +390,6 @@
 \LoadClass[9pt, final, openany]{book}
 
 
-
 %----------------------------------------------------------------------
 % Packages...
 %
@@ -954,16 +953,61 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Cells
 %
-%% A cell environments is a box of specified size placed at a specific 
-%% location in a page.
+%% A cell environment is a box of specified size.
 %%
-%% Cells are implemented via |textpos|'s |textblock*| environment.
+%% Cells can be both placed inline relative to other content or in an 
+%% absolute location.
 %%
-%% A cell defines |\cellwidth| and |\cellheight| within it's body that 
-%% store the initial cell dimentions.
+%% Note that absolute cells are placed relative to the page and currently 
+%% can not be placed relative to other absolute cells (this might change
+%% in the future).
 %%
-
-% XXX should we treat the root page as a cell???
+%% \DescribeMacro{\cellwidth=<len>}
+%% \DescribeMacro{\cellheight=<len>}
+%% \DescribeMacro{\cellparentwidth=<len>}
+%% \DescribeMacro{\cellparentheight=<len>}
+%% \DescribeMacro{\celloffsettop=<len>}
+%% \DescribeMacro{\celloffsetleft=<len>}
+%%
+%% A cell defines a set of contextual lengths:
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   <--> celloffsetleft
+%%   .   <--------------> cellwidth
+%%   <----------------------> cellparentwidth
+%%   .   .              .   .
+%%   +----------------------+ . . . . . . .
+%%   |   .              .   |     ^       ^ celloffsettop
+%%   |   .              .   |     |       |
+%%   |   +--------------+ . | . . | . . . v 
+%%   |   |              |   |     |   ^
+%%   |   |              |   |     |   | cellheight
+%%   |   |     cell     |   |     |   |
+%%   |   |              |   |     |   |
+%%   |   |              |   |     |   |
+%%   |   +--------------+ . | . . | . v
+%%   |                      |     |
+%%   |                      |     | cellparentheight
+%%   +----------------------+ . . v
+%%                              
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% For absolutely positioned cells these define the cell offset from 
+%% parent.
+%%
+%% The bare page can be reasonably be treated as a cell.
+%%
+%% Initally, outside of any cells |\cellwidth|, |\cellparentwidth| and 
+%% |\cellheight|, |\cellparentheight| are equal to |\paperwidth| and 
+%% |\paperheight| respectively, and |\celloffsettop| and |\celloffsetleft|
+%% are set to |0pt|.
+%%
+%% Changing these is not recommended, it likely will not affect the 
+%% current cell but can mess up nested cells.
+%%
 \newlength\cellparentwidth
 \setlength\cellparentwidth{\paperwidth}
 
@@ -997,10 +1041,14 @@
 % XXX
 \newenvironment{inlinecell}[3][t]{%
 	\begingroup%
+		% get args by value...
+		\edef\photobook@protect@w{\the\dimexpr #2 \relax}%
+		\edef\photobook@protect@h{\the\dimexpr #3 \relax}%
+		%
 		\setlength\cellparentwidth{\cellwidth}%
 		\setlength\cellparentheight{\cellheight}%
-		\setlength\cellwidth{\dimexpr #2 \relax}%
-		\setlength\cellheight{\dimexpr #3 \relax}%
+		\setlength\cellwidth{\photobook@protect@w}%
+		\setlength\cellheight{\photobook@protect@h}%
 		\setlength\celloffsettop{0pt}%
 		\setlength\celloffsetleft{0pt}%
 		%
@@ -1020,18 +1068,21 @@
 %%
 % XXX test
 % XXX EXPERIMENTAL
-\NewEnviron{vinlinecell}[2][t]{%
+\newenvironment{vinlinecell}[3][t]{%
 	\begingroup%
+		% get args by value...
+		\edef\photobook@protect@w{\the\dimexpr #2 \relax}
+		\edef\photobook@protect@h{\the\dimexpr #3 \relax}
 		% NOTE: these are needed to let inlinecell setup parent dimension 
 		%		relative to cell orientation...
-		\setlength\cellwidth{#3}%
-		\setlength\cellheight{#2}%
+		\setlength\cellwidth{\photobook@protect@h}%
+		\setlength\cellheight{\photobook@protect@w}%
 		%
-		\rotatebox{90}{%
-			\begin{inlinecell}[#1]{#3}{#2}%
-				\ignorespaces%
-				\BODY%
-			\end{inlinecell}}%
+		\begin{turn}{90}%
+		\begin{inlinecell}[#1]{#3}{#2}%
+}{%
+		\end{inlinecell}%
+		\end{turn}%
 	\endgroup}
 
 
@@ -1170,20 +1221,22 @@
 %
 %%
 % XXX EXPERIMENTAL
-\NewEnviron{topdown}{%
+\newenvironment{topdown}[1][t]{%
 	\begin{flushright}%
-		\rotatebox{270}{%
-			\begin{inlinecell}{\cellheight}{\cellwidth}%
-				\BODY%
-			\end{inlinecell}}
+	\begin{turn}{270}%
+	\begin{inlinecell}[#1]{\cellheight}{\cellwidth}%
+}{%
+	\end{inlinecell}%
+	\end{turn}
 	\end{flushright}}
 
 % XXX EXPERIMENTAL
-\NewEnviron{bottomup}{%
-	\rotatebox{90}{%
-		\begin{inlinecell}{\cellheight}{\cellwidth}%
-			\BODY%
-		\end{inlinecell}}}
+\newenvironment{bottomup}[1][t]{%
+	\begin{turn}{90}%
+	\begin{inlinecell}[#1]{\cellheight}{\cellwidth}%
+}{%
+	\end{inlinecell}%
+	\end{turn}}
 
 
 %% \DescribeEnv{cliptocell}
@@ -1595,14 +1648,14 @@
 
 % helpers...
 % XXX set minipage height to available cell height...
-\renewcommand\photobook@captioncell@formatTopAlign[1]{%
+\newcommand\photobook@captioncell@formatTopAlign[1]{%
 	% XXX for some reason without this things are misaligned...
 	\vspace{0pt}%
 	\begin{\photobook@captioncell@align}%
 		#1%
 	\end{\photobook@captioncell@align}}
 % XXX set minipage height to available cell height...
-\renewcommand\photobook@captioncell@formatBottomAlign[1]{%
+\newcommand\photobook@captioncell@formatBottomAlign[1]{%
 	\begin{minipage}[t][\cellheight][b]{\cellwidth}%
 		\begin{\photobook@captioncell@align}%
 			#1%
@@ -1678,6 +1731,18 @@
 %% See samples for better illustration.
 %%
 % helper...
+\newif\ifphotobook@vcaptioncell@bottomup
+\photobook@vcaptioncell@bottomuptrue
+
+% bottomup / topdown...
+\def\photobook@vcaptioncell@orientation{bottomup}
+\define@boolkey{vcaptioncell@args}{bottomup}[true]{%
+	\photobook@vcaptioncell@bottomuptrue
+	\def\photobook@vcaptioncell@orientation{bottomup}}
+\define@boolkey{vcaptioncell@args}{topdown}[true]{%
+	\photobook@vcaptioncell@bottomupfalse
+	\def\photobook@vcaptioncell@orientation{topdown}}
+
 \def\photobook@vcaptioncell@nested#1{%
 	\captioncell[%
 			\photobook@vcaptioncell@position,
@@ -1712,16 +1777,6 @@
 			under%
 		\else%
 			over\fi}}
-% bottomup / topdown...
-\newif\ifphotobook@vcaptioncell@bottomup
-\photobook@vcaptioncell@bottomuptrue
-\def\photobook@vcaptioncell@orientation{bottomup}
-\define@boolkey{vcaptioncell@args}{bottomup}[true]{%
-	\photobook@vcaptioncell@bottomuptrue
-	\def\photobook@vcaptioncell@orientation{bottomup}}
-\define@boolkey{vcaptioncell@args}{topdown}[true]{%
-	\photobook@vcaptioncell@bottomupfalse
-	\def\photobook@vcaptioncell@orientation{topdown}}
 % align...
 \def\photobook@vcaptioncell@align{}
 % XXX for some reason \define@choicekey{..} does not expand macros...
@@ -1975,19 +2030,17 @@
 % XXX for some reason naming this anything starting with endpaper will
 %		make LaTeX complain that that is already defined...
 
-\NewEnviron{leftside}{%
-	\ifendpaperlayout%
-		\begin{pagecell}%
-			\BODY%
-		\end{pagecell} \fi }
+\newenvironment{leftside}{%
+	\begin{pagecell}%
+}{%
+	\end{pagecell}}
 
-\NewEnviron{rightside}{%
-	\ifendpaperlayout%
-		\begin{cell}%
-				{\bleed + \pageblockwidth, \bleed}%
-				{\pageblockwidth}{\pageblockheight}%
-			\BODY%
-		\end{cell} \fi }
+\newenvironment{rightside}{%
+	\begin{cell}%
+			{\bleed + \pageblockwidth, \bleed}%
+			{\pageblockwidth}{\pageblockheight}%
+}{%
+	\end{cell}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2022,109 +2075,92 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-\NewEnviron{frontcover}{%
-	\ifcoverlikelayout%
-		\begin{cell}{
-					\bleed 
-						+ \jacketflapback 
-						+ \coverflap 
-						+ \jacketwrap 
-						+ \coverboardgrow 
-						+ \pageblockwidth 
-						+ 2\spinefold 
-						+ \spinewidth,
-					\bleed 
-						+ \coverflap }%
-				{ \pageblockwidth + \coverboardgrow }%
-				{ \pageblockheight + 2\coverboardgrow }%
-			\BODY%
-		\end{cell} \fi }
+\newenvironment{frontcover}{%
+	\begin{cell}{
+				\bleed 
+					+ \jacketflapback 
+					+ \coverflap 
+					+ \jacketwrap 
+					+ \coverboardgrow 
+					+ \pageblockwidth 
+					+ 2\spinefold 
+					+ \spinewidth,
+				\bleed 
+					+ \coverflap }%
+			{ \pageblockwidth + \coverboardgrow }%
+			{ \pageblockheight + 2\coverboardgrow }%
+}{%
+	\end{cell}}
 
-\NewEnviron{backcover}{%
-	\ifcoverlikelayout%
-		\begin{cell}{
-					\bleed 
-						+ \jacketflapback 
-						+ \coverflap 
-						+ \jacketwrap,
-					\bleed 
-						+ \coverflap }%
-				{ \pageblockwidth + \coverboardgrow }%
-				{ \pageblockheight + 2\coverboardgrow }%
-			\BODY%
-		\end{cell} \fi }
+\newenvironment{backcover}{%
+	\begin{cell}{
+				\bleed 
+					+ \jacketflapback 
+					+ \coverflap 
+					+ \jacketwrap,
+				\bleed 
+					+ \coverflap }%
+			{ \pageblockwidth + \coverboardgrow }%
+			{ \pageblockheight + 2\coverboardgrow }%
+}{%
+	\end{cell}}
 
 
 % spines...
 %
-\NewEnviron{spine}{%
-	\ifcoverlikelayout
-		\begin{cell}{
-					\bleed 
-						+ \jacketflapback 
-						+ \coverflap 
-						+ \jacketwrap 
-						+ \coverboardgrow 
-						+ \pageblockwidth 
-						+ \spinefold,
-					\bleed 
-						+ \coverflap }%
-				{ \spinewidth }%
-				{ \pageblockheight + 2\coverboardgrow }
-			\BODY%
-		\end{cell} \fi }
+\newenvironment{spine}{%
+	\begin{cell}{
+				\bleed 
+					+ \jacketflapback 
+					+ \coverflap 
+					+ \jacketwrap 
+					+ \coverboardgrow 
+					+ \pageblockwidth 
+					+ \spinefold,
+				\bleed 
+					+ \coverflap }%
+			{ \spinewidth }%
+			{ \pageblockheight + 2\coverboardgrow }%
+}{%
+	\end{cell}}
 
-\NewEnviron{vspine}[1][270]{%
-	\ifcoverlikelayout
-		\begin{cell}{
-					\bleed 
-						+ \jacketflapback 
-						+ \coverflap 
-						+ \jacketwrap 
-						+ \coverboardgrow 
-						+ \pageblockwidth 
-						+ \spinefold,
-					\bleed 
-						+ \coverflap }%
-				{ \spinewidth }%
-				{ \pageblockheight + 2\coverboardgrow }
-			\begin{turn}{#1}%
-			\begin{minipage}[t][\cellwidth][t]{\cellheight}% 
-				\BODY%
-			\end{minipage}%
-			\end{turn}%
-		\end{cell} \fi }
+\newenvironment{vspine}[1][topdown]{%
+	\def\photobook@vspine@orientation{#1}%
+	%
+	\begin{spine}%
+	\begin{\photobook@vspine@orientation}%
+}{%
+	\end{\photobook@vspine@orientation}%
+	\end{spine}}
 
 
 % jackets flaps...
 %
-\NewEnviron{frontflap}{%
-	\ifjacketlayout
-		\begin{cell}{
-					\bleed 
-						+ \jacketflapback 
-						+ 2\jacketwrap 
-						+ 2\coverboardgrow 
-						+ 2\pageblockwidth 
-						+ 2\spinefold 
-						+ \spinewidth,
-					\bleed 
-						+ \coverflap }% 
-				{ \jacketflapfront }%
-				{ \pageblockheight + 2\coverboardgrow }%
-			\BODY%
-		\end{cell} \fi }
+\newenvironment{frontflap}{%
+	\begin{cell}{
+				\bleed 
+					+ \jacketflapback 
+					+ 2\jacketwrap 
+					+ 2\coverboardgrow 
+					+ 2\pageblockwidth 
+					+ 2\spinefold 
+					+ \spinewidth,
+				\bleed 
+					+ \coverflap }% 
+			{ \jacketflapfront }%
+			{ \pageblockheight + 2\coverboardgrow }%
+}{%
+	\end{cell}}
 
-\NewEnviron{backflap}{%
-	\ifjacketlayout
-		\begin{cell}{
-					\bleed,
-					\bleed 
-						+ \coverflap }%
-				{ \jacketflapback }%
-				{ \pageblockheight + 2\coverboardgrow }%
-			\BODY%
-		\end{cell} \fi }
+\newenvironment{backflap}{%
+	\begin{cell}{
+				\bleed,
+				\bleed 
+					+ \coverflap }%
+			{ \jacketflapback }%
+			{ \pageblockheight + 2\coverboardgrow }%
+}{%
+	\end{cell}}
 
 
 
@@ -2899,11 +2935,12 @@
 	% XXX this seems to be bigger than the size given...
 	%\fbox{\parbox[t][\cellheight][t]{\cellwidth}{%
 	\begin{center}
-		\vfill
+		\vfill%
 		#2 \\
 		(\lenprint[#1]{\cellwidth} \space x \lenprint[#1]{\cellheight})
-		\vfill
-	\end{center} }
+		\vfill%
+		\vspace{0pt}%
+	\end{center}}
 	%\end{center} }} }
 
 
@@ -2929,29 +2966,30 @@
 	\begin{page}
 		\setlength{\parindent}{0em}
 		% NOTE: only the relevant blocks will be visible...
-		\begin{leftside}
-			\photobook@TemplateCell[#1]{ENDPAPER LEFT}
-		\end{leftside}
-		\begin{rightside}
-			\photobook@TemplateCell[#1]{ENDPAPER RIGHT}
-		\end{rightside}
-		\begin{frontcover}
-			\photobook@TemplateCell[#1]{FRONT COVER}
-		\end{frontcover}
-		%\begin{vspine}[90]
-		%\begin{vspine}[down]
-		\begin{vspine}
-			\photobook@TemplateCell[#1]{SPINE}
-		\end{vspine}
-		\begin{backcover}
-			\photobook@TemplateCell[#1]{BACK COVER}
-		\end{backcover}
-		\begin{frontflap}
-			\photobook@TemplateCell[#1]{FRONT FLAP}
-		\end{frontflap}
-		\begin{backflap}
-			\photobook@TemplateCell[#1]{BACK FLAP}
-		\end{backflap}
+		\ifendpaperlayout%
+			\begin{leftside}
+				\photobook@TemplateCell[#1]{ENDPAPER LEFT}
+			\end{leftside}
+			\begin{rightside}
+				\photobook@TemplateCell[#1]{ENDPAPER RIGHT}
+			\end{rightside}\fi%
+		\ifcoverlikelayout%
+			\begin{frontcover}
+				\photobook@TemplateCell[#1]{FRONT COVER}
+			\end{frontcover}
+			\begin{vspine}%
+				\photobook@TemplateCell[#1]{SPINE}%
+			\end{vspine}
+			\begin{backcover}
+				\photobook@TemplateCell[#1]{BACK COVER}
+			\end{backcover}\fi%
+		\ifjacketlayout%
+			\begin{frontflap}%
+				\photobook@TemplateCell[#1]{FRONT FLAP}%
+			\end{frontflap}
+			\begin{backflap}%
+				\photobook@TemplateCell[#1]{BACK FLAP}
+			\end{backflap}\fi%
 	\end{page} }
 
 

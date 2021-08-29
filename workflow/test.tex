@@ -14,35 +14,22 @@
 ]{photobook}
 
 
-\newlength\spacewidth
-\newsavebox\spacebox
-\newcommand\calcspacewidth{%
-	\sbox{\spacebox}{ }%
-	\setlength\spacewidth{\wd\spacebox}}
-
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \begin{document}
 
-%\TPoptions{showboxes=true}
+\fbox{
+	\begin{inlinecell}{80mm}{40mm}
+		\lenprint[mm]{\cellwidth} x \lenprint[mm]{\cellheight}
+	\end{inlinecell}}
+\newline
+\fbox{
+	\begin{inlinecell}{80mm}{40mm}
+	\begin{bottomup}
+		\lenprint[mm]{\cellwidth} x \lenprint[mm]{\cellheight}
+	\end{bottomup}
+	\end{inlinecell}}
 
-\calcspacewidth
-Space width: \the\spacewidth
-
-\null
-\newpage
-
-\def\imageblockwidth{1}
-\def\imageblockheight{1}
-
-\imagepage{Caption}{DSC00403-2}
-
-\imagepage{Caption}{DSC00403-2}
-
-\imagepage{Caption}{DSC00403-2vert}
-
-%\imagepage{Caption}{DSC00403-2}
-%\imagepage{}{DSC00403-2vert}
 
 \end{document}
 
