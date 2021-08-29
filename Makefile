@@ -27,8 +27,8 @@ TEX := lualatex $(ARGS)
 texToDoc = \
 	@echo "texToDoc: $1 -> $2"; \
 	cat $1 \
-		| egrep '(^%%|^\\\\def\\\\$*@[A-Z]+)' \
-		| sed 's/^\(\\\\def\\\\\)$*@/%%\\1/'\
+		| egrep '(^%%|^\\\\edef\\\\$*@[A-Z][A-Z]+)' \
+		| sed 's/^\(\\\\edef\\\\\)$*@/%%\\1/'\
 		| sed 's/%%%%%% \(.*\)/%%\\\\subsubsection{\1}/' \
 		| sed 's/%%%%% \(.*\)/%%\\\\subsection{\1}/' \
 		| sed 's/%%%% \(.*\)/%%\\\\section{\1}/' \

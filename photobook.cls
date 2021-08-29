@@ -8,17 +8,16 @@
 %
 %
 % XXX see where we need to \ignorespaces...
-%
-% XXX BUG: fix \OFFSETFIX
-%
 % XXX might be a good idea to add a spine calculator...
+% XXX LEGACY BUG: fix \OFFSETFIX
+%
 %
 %----------------------------------------------------------------------
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\def\photobook@FILEVERSION{v0.1}
-\def\photobook@FILEDATE{2021-07-28}
+\edef\photobook@FILEVERSION{v0.1}
+\edef\photobook@FILEDATE{2021-07-28}
 
 
 %% \documentclass{ltxdoc}
@@ -277,8 +276,6 @@
 \@DeclareLiteralOptionTo{layoutmode}{cover}
 %\@DeclareLiteralOptionTo{layoutmode}{hardcover}
 %\@DeclareLiteralOptionTo{layoutmode}{softcover}
-% XXX add flap sizes...
-% XXX not implemented...
 \@DeclareLiteralOptionTo{layoutmode}{jacket}
 
 
@@ -306,7 +303,6 @@
 %% - negative value set image bleed, 
 %% - positive value set distance from paper edge to image.
 %%
-%
 \DeclareStringOption{clearimage}[-5mm]
 
 
@@ -364,8 +360,6 @@
 %%		bindingoffset=\bindingoffset
 %%	\end{verbatim}
 %%
-%
-% XXX better name..
 \DeclareBoolOption{geometrynodefaults}
 
 
@@ -445,7 +439,7 @@
 \newif\ifsoftcoverlayout
 \newif\ifendpaperlayout
 \newif\ifjacketlayout
-% agrigates...
+% aggregates...
 \newif\ifcoverlikelayout
 \newif\ifblocklayout
 
@@ -849,28 +843,6 @@
 %%
 
 
-%% \DescribeMacro{\mindim\{..\}}
-%% \DescribeMacro{\maxdim\{..\}}
-%
-%% Get min/max dimension.
-%
-%%	>> \mindim{A}{B}
-%
-%%	>> \maxdim{A}{B}
-%%
-\newcommand\mindim[2]{
-	\ifdim \dimexpr #1 \relax < \dimexpr #2 \relax%
-		\dimexpr #1 \relax%
-	\else%
-		\dimexpr #2 \relax\fi}
-
-\newcommand\maxdim[2]{
-	\ifdim \dimexpr #1 \relax > \dimexpr #2 \relax%
-		\dimexpr #1 \relax%
-	\else%
-		\dimexpr #2 \relax\fi}
-
-
 %% \DescribeMacro{\keywords\{..\}}
 %
 %%	Set pdf metadata keywords
@@ -895,6 +867,28 @@
 	\def\@subject{#1}}
 
 
+%% \DescribeMacro{\mindim\{..\}}
+%% \DescribeMacro{\maxdim\{..\}}
+%
+%% Get min/max dimension.
+%
+%%	>> \mindim{A}{B}
+%
+%%	>> \maxdim{A}{B}
+%%
+\newcommand\mindim[2]{
+	\ifdim \dimexpr #1 \relax < \dimexpr #2 \relax%
+		\dimexpr #1 \relax%
+	\else%
+		\dimexpr #2 \relax\fi}
+
+\newcommand\maxdim[2]{
+	\ifdim \dimexpr #1 \relax > \dimexpr #2 \relax%
+		\dimexpr #1 \relax%
+	\else%
+		\dimexpr #2 \relax\fi}
+
+
 %% \DescribeMacro{\cleartoleftpage}
 %
 %%	Forces content to left page
@@ -908,6 +902,7 @@
 				\hbox{}\newpage \fi\fi\fi }
 
 
+% XXX LEGACY?
 % XXX workaround a problem with xelatex vs. lualatex...
 \ifxetex
 	\newcommand\ShipoutPicture[1]{%
@@ -921,6 +916,53 @@
 		\AddToShipoutPictureFG*{#1}}
 \fi
 
+
+%% \DescribeMacro{\ResettableMacro\{..\}}
+%
+%% Create a resettable command.
+%
+%%	>> \ResettableMacro{<name>}{<code>}
+%%	>> \ResettableMacro{<name>}[<arg-count>]{<code>}
+%%	>> \ResettableMacro{<name>}[<arg-count>][<default>]{<code>}
+%
+%% This is similar to |\newcommand{..}| but will define two commands:
+%%
+%%	>> \<name>{..}
+%%
+%%	>> \reset<name>
+%%
+%% |\<name>{..}| can be freely redefined or undefined by user.
+%%
+%% |\reset<name>| will reset |\<name>{..}| to its original state.
+%%
+% parse args...
+\def\ResettableMacro#1{%
+	\@ifnextchar[{%
+		\photobook@ResettableMacro@pre{#1}%
+	}{%
+		\photobook@ResettableMacro{#1}}}
+\def\photobook@ResettableMacro@pre#1[#2]{%
+	\@ifnextchar[{%
+		\photobook@ResettableMacro@args@dfl{#1}[#2]%
+	}{%
+		\photobook@ResettableMacro@args{#1}[#2]}}
+% pre -- main command definition...
+\def\photobook@ResettableMacro#1#2{%
+	\expandafter\newcommand\csname photobook@#1\endcsname{#2}%
+	\photobook@ResettableMacro@tail{#1}}
+\def\photobook@ResettableMacro@args#1[#2]#3{%
+	\expandafter\newcommand\csname photobook@#1\endcsname[#2]{#3}%
+	\photobook@ResettableMacro@tail{#1}}
+\def\photobook@ResettableMacro@args@dfl#1[#2][#3]#4{%
+	\expandafter\newcommand\csname photobook@#1\endcsname[#2][#3]{#4}%
+	\photobook@ResettableMacro@tail{#1}}
+% post...
+\def\photobook@ResettableMacro@tail#1{%
+	% \reset<name>
+	\expandafter\newcommand\csname reset#1\endcsname{%
+		\expandafter\let\csname #1\expandafter\endcsname\csname photobook@#1\endcsname}
+	% initialize...
+	\csname reset#1\endcsname}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -942,13 +984,15 @@
 %% Page environment.
 %%
 %% This is mainly designed to wrap other cell environment described later.
-%
-% XXX this may span more than one page if there is enoug stuff packed 
-%		into it...
+%%
+%% Note that this may span more than one page if there is enough stuff 
+%% packed in.
+%%
 \newenvironment{page}{%
-	\null
+	\null%
+	\ignorespaces%
 }{%
-	\clearpage }
+	\clearpage}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1100,7 +1144,8 @@
 		\ignorespaces%
 }{%
 	\end{inlinecell*}%
-	\end{textblock*}}
+	\end{textblock*}%
+	\ignorespaces}
 
 \newenvironment{cell}[3]{%
 	\begin{cell*}{#1}{#2}{#3}%
@@ -1108,7 +1153,8 @@
 		\ignorespaces%
 }{%
 	\end{cliptocell}%
-	\end{cell*}}
+	\end{cell*}%
+	\ignorespaces}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1134,7 +1180,8 @@
 	\expandafter\sbox\csname #1\endcsname{%
 		\begin{inlinecell*}{#2}{#3}%
 			#4%
-		\end{inlinecell*}}}
+		\end{inlinecell*}}%
+	\ignorespaces}
 
 
 % \usecell{..} variants...
@@ -1202,7 +1249,7 @@
 	\begin{inlinecell*}[#1]{\cellheight}{\cellwidth}%
 }{%
 	\end{inlinecell*}%
-	\end{turn}
+	\end{turn}%
 	\end{flushright}}
 
 \newenvironment{bottomup}[1][t]{%
@@ -1215,11 +1262,12 @@
 
 %% \DescribeEnv{cliptocell}
 %
-%% Clip content to cell env.
+%% Clip content to parent cell.
 %%
 \newenvironment{cliptocell}{%
 	\begin{clipbox*}{0cm {\height - \cellheight} {\cellwidth} {\height}}%
 	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+		\ignorespaces%
 }{%
 	\end{minipage}%
 	\end{clipbox*}}
@@ -1458,8 +1506,6 @@
 %		...i.e. an argument that will shift the image v/h from base position.
 %		also need to shift the caption box accordingly but still keep it 
 %		within the cell...
-% XXX need to help caption-cell be able to create new cells to left/right/top/left 
-%		of image...
 % XXX can we make this an env???
 \newcommand\imagecell[3][]{%
 	\begingroup%
@@ -1517,7 +1563,7 @@
 			\usebox\photobook@imagebox%
 			%
 			% caption cell...
-			% XXX do not do this if no caption is given... 
+			% XXX make this conditional -- if caption is not empty...
 			\begingroup%
 				% setup the cell env...
 				% NOTE: this needs the original \cellwidth...
@@ -1552,6 +1598,7 @@
 					% adjust top if image is taller than cell...
 					\raisebox{-\celloffsettop}{%
 						\begin{minipage}[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth}%
+							\ignorespaces%
 							#2%
 						\end{minipage}}}
 			\endgroup}%
@@ -1618,49 +1665,53 @@
 %%	>> \captioncell[align=center]{<caption>}
 %%	>> \captioncell[align=flushright]{<caption>}
 %%
-% XXX would be nice to create cells above/below/left/right of image...
+%% Note that a caption cell does not take up any space in the parent cell
+%% so multiple captions can be used in combination with other elements.
+%%
 
 % helpers...
-% XXX set minipage height to available cell height...
-\newcommand\photobook@captioncell@formatTopAlign[1]{%
-	% XXX for some reason without this things are misaligned...
-	\vspace{0pt}%
-	\begin{\photobook@captioncell@align}%
-		#1%
-	\end{\photobook@captioncell@align}}
-% XXX set minipage height to available cell height...
-\newcommand\photobook@captioncell@formatBottomAlign[1]{%
-	\begin{minipage}[t][\cellheight][b]{\cellwidth}%
-		\begin{\photobook@captioncell@align}%
-			#1%
-		\end{\photobook@captioncell@align}%
-	\end{minipage}}
+% XXX set minipage height to available cell height (???)
+\newcommand\photobook@captioncell@formatalign[3][0pt]{%
+	\smash{\makebox[0pt][l]{%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}%
+			% XXX for some reason without this things get misaligned...
+			\vspace{#1}%
+			% XXX HACK: for some magical reason setting the above minipage to 'b' 
+			%		will make \vspace{..} above break...
+			%		...adding another nested minipage seems to fix the issue...
+			\begin{minipage}[t][\cellheight][#2]{\cellwidth}%
+				\begin{\photobook@captioncell@align}%
+					\ignorespaces%
+					#3%
+				\end{\photobook@captioncell@align}%
+			\end{minipage}
+		\end{minipage}}}}
 % format...
 \def\photobook@captioncell@format#1{%
-	\photobook@captioncell@formatTopAlign{#1}}
+	\photobook@captioncell@formatalign{t}{#1}}
 
 % over / top / center / bottom / under...
 \define@boolkey{captioncell@args}{over}[true]{%
 	\def\photobook@captioncell@format##1{%
-		\vspace{-\dimexpr \cellheight + 2\fboxsep \relax}%
-		\photobook@captioncell@formatBottomAlign{##1}}}
+		\photobook@captioncell@formatalign[-\cellheight]{b}{##1}}}
 \define@boolkey{captioncell@args}{top}[true]{%
 	\def\photobook@captioncell@format##1{%
-		\photobook@captioncell@formatTopAlign{##1}}}
+		\photobook@captioncell@formatalign{t}{##1}}}
 \define@boolkey{captioncell@args}{center}[true]{%
 	\def\photobook@captioncell@format##1{%
-		\begin{minipage}[t][\cellheight][c]{\cellwidth}%
-		\begin{\photobook@captioncell@align}%
-			##1%
-		\end{\photobook@captioncell@align}%
-		\end{minipage}}}
+		\smash{\makebox[0pt][l]{%
+			\begin{minipage}[t][\cellheight][c]{\cellwidth}%
+			\begin{\photobook@captioncell@align}%
+				\ignorespaces%
+				##1%
+			\end{\photobook@captioncell@align}%
+			\end{minipage}}}}}
 \define@boolkey{captioncell@args}{bottom}[true]{%
 	\def\photobook@captioncell@format##1{%
-		\photobook@captioncell@formatBottomAlign{##1}}}
+		\photobook@captioncell@formatalign{b}{##1}}}
 \define@boolkey{captioncell@args}{under}[true]{%
 	\def\photobook@captioncell@format##1{%
-		\vspace{\dimexpr \cellheight + 2\fboxsep \relax}%
-		\photobook@captioncell@formatTopAlign{##1}}}
+		\photobook@captioncell@formatalign[\cellheight]{t}{##1}}}
 % align...
 \def\photobook@captioncell@align{}
 % XXX for some reason \define@choicekey{..} does not expand macros...
@@ -1669,14 +1720,14 @@
 	\def\photobook@captioncell@align{#1}}
 % margin...
 \def\photobook@captioncell@margin{0pt}
-\define@key{captioncell@args}{margin}{
+\define@key{captioncell@args}{margin}{%
 	\def\photobook@captioncell@margin{#1}}
 
 \newcommand\captioncell[2][]{%
 	\setkeys{captioncell@args}{top, align=flushright, margin=1pt, #1}%
-	%
 	\photobook@captioncell@format{%
-		\adjustbox{margin=\photobook@captioncell@margin}{#2}}}
+		\adjustbox{margin=\photobook@captioncell@margin}{#2}}%
+	\ignorespaces}
 
 
 %% \DescribeMacro{\vcaptioncell\{..\}}
@@ -1707,17 +1758,11 @@
 % bottomup / topdown...
 \def\photobook@vcaptioncell@orientation{bottomup}
 \define@boolkey{vcaptioncell@args}{bottomup}[true]{%
-	\KV@vcaptioncell@args@topdownfalse
+	\KV@vcaptioncell@args@topdownfalse%
 	\def\photobook@vcaptioncell@orientation{bottomup}}
 \define@boolkey{vcaptioncell@args}{topdown}[true]{%
-	\KV@vcaptioncell@args@bottomupfalse
+	\KV@vcaptioncell@args@bottomupfalse%
 	\def\photobook@vcaptioncell@orientation{topdown}}
-
-\def\photobook@vcaptioncell@nested#1{%
-	\captioncell[%
-			\photobook@vcaptioncell@position,
-			align=\photobook@vcaptioncell@align,
-			margin=\photobook@vcaptioncell@margin]{#1}}
 
 % before / left / center / right / after...
 \def\photobook@vcaptioncell@position{top}
@@ -1755,29 +1800,41 @@
 	\def\photobook@vcaptioncell@align{#1}}
 % margin...
 \def\photobook@vcaptioncell@margin{0pt}
-\define@key{vcaptioncell@args}{margin}{
+\define@key{vcaptioncell@args}{margin}{%
 	\def\photobook@vcaptioncell@margin{#1}}
+
+\def\photobook@vcaptioncell@valign{%
+	\ifKV@vcaptioncell@args@bottomup%
+		b%
+	\else%
+		t\fi}
 
 \newcommand\vcaptioncell[2][]{%
 	\setkeys{vcaptioncell@args}{left, bottomup, align=flushleft, margin=1pt, #1}%
 	%
-	%% XXX for some reason this errs with:
-	%%			"LaTeX Error: \begin{bottomup} on input line 432 ended by \end{bottomup}"
-	%\begin{\photobook@vcaptioncell@orientation}%
-	%	\captioncell[%
-	%			\photobook@vcaptioncell@position,
-	%			align=\photobook@vcaptioncell@align,
-	%			margin=\photobook@vcaptioncell@margin]{#2}%
-	%\end{\photobook@vcaptioncell@orientation}}
-	\ifKV@vcaptioncell@args@bottomup%
-		\begin{bottomup}%
-			\photobook@vcaptioncell@nested{#2}
-		\end{bottomup}%
-	\else
-		\begin{topdown}%
-			\photobook@vcaptioncell@nested{#2}
-		\end{topdown}%
-	\fi}
+	\smash{\makebox[0pt][l]{%
+		\begin{minipage}[t][\cellheight][\photobook@vcaptioncell@valign]{\cellwidth}%
+		\begin{\photobook@vcaptioncell@orientation}%
+			\captioncell[%
+					\photobook@vcaptioncell@position,
+					align=\photobook@vcaptioncell@align,
+					margin=\photobook@vcaptioncell@margin]{#2}%
+		\end{\photobook@vcaptioncell@orientation}%
+		\end{minipage}}}%
+	\ignorespaces}
+
+
+%% \DescribeMacro{\rcaptioncell\{..\}}
+%
+%% \EXPERIMENTAL
+%%
+% XXX a bit off...
+\newcommand\rcaptioncell[2][]{%
+		\captioncell[align=flushleft, #1]{%
+			\begin{turn}{180}%
+				#2%
+			\end{turn}}%
+	\ignorespaces}
 
 
 % XXX need to do a caption block -- a cell to one side of an image to the 
@@ -1840,7 +1897,6 @@
 %% Note that |layoutmode|'s other than block will change the paper size 
 %% but will not affect this.
 %%
-% XXX
 \newenvironment{pagecell}{%
 	\begin{cell*}{\bleed,\bleed}{\pageblockwidth}{\pageblockheight}%
 }{%
@@ -1870,7 +1926,6 @@
 %% Note that |layoutmode|'s other than block will change the paper size 
 %% but will not affect this.
 %%
-% XXX
 \newenvironment{pagebleedcell}{%
 	\begin{cell*}{0mm, 0mm}{\bleedblockwidth}{\bleedblockheight}%
 }{%
@@ -1878,16 +1933,17 @@
 
 
 
-% XXX EXPERIMENTAL
+% XXX EXPERIMENTAL / TEST...
 \NewEnviron{shipoutbgcell}{%
 	\AddToShipoutPictureBG*{%
 		\begin{pagecell}%
 			\BODY%
-		\end{pagecell}}}
+		\end{pagecell}}%
+	\ignorespaces}
 
 
 
-% XXX EXPERIMENTAL
+% XXX EXPERIMENTAL / TEST...
 %% \DescribeEnv{textcell}
 %
 %% A cell taking up the page text block.
@@ -1912,7 +1968,6 @@
 %% Note that this is an inline cell and if something is on the page it 
 %% may not be centered properly.
 %%
-% XXX test...
 \newenvironment{textcell}{%
 	\begin{inlinecell*}{\textwidth}{\textheight}%
 }{%
@@ -1973,7 +2028,8 @@
 					{\cellwidth}{\cellheight}%
 			\end{pagecell}%
 			\clearpage}%
-	\endgroup}
+	\endgroup%
+	\ignorespaces}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1996,10 +2052,10 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%
-% XXX for some reason naming this anything starting with endpaper will
-%		make LaTeX complain that that is already defined...
 
+% XXX for some reason naming these anything starting with endpaper will
+%		make LaTeX complain that that is already defined...
+%		...collision with bools???
 \newenvironment{leftside}{%
 	\begin{pagecell}%
 }{%
@@ -2141,13 +2197,20 @@
 %		- color...
 % XXX captions seem not to account for \imageblockoffsettop...
 
-%\newcommand\captionsize{\scriptsize}
-\newcommand\captionsize{%
+%% \DescribeMacro{\captionsize\{..\}}
+%
+%% Defines the caption font setup macro
+%%
+\ResettableMacro{captionsize}{%
 	\fontsize{6.5pt}{8pt}\selectfont}
 
 
+%% \DescribeMacro{\captionsize\{..\}}
+%
+%%
+%%
 % XXX move to a better location... (???)
-\newcommand\captionformat[1]{%
+\ResettableMacro{captionformat}[1]{%
 	\adjustbox{margin=0.1em 0.2em}{%
 		\captionsize #1}}
 
@@ -2200,8 +2263,6 @@
 
 
 
-
-
 %----------------------------------------------------------------------
 %%%% Page Templates
 
@@ -2209,28 +2270,6 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % meta-commands...
-
-% \DescribeMacro{\ResettableMacro\{..\}}
-%
-% Create a resettable template command...
-%
-%	>> \ResettableMacro{<name>}[<arg-count>]{<code>}
-%
-% Will define two commands:
-%
-%	>> \<name>{..}
-%
-%	>> \reset<name>
-%
-% |\<name>{..}| can be freely redefined or undefined by user.
-%
-% |\reset<name>| will reset |\<name>{..}| to its original state.
-%
-\def\ResettableMacro#1[#2]#3{%
-	\expandafter\newcommand\csname photobook@#1\endcsname[#2]{#3}%
-	\expandafter\newcommand\csname reset#1\endcsname{%
-		\expandafter\let\csname #1\expandafter\endcsname\csname photobook@#1\endcsname}
-	\csname reset#1\endcsname}
 
 
 % \DescribeMacro{\ImagePageTemplate\{..\}}
@@ -2309,7 +2348,6 @@
 %
 %%	>> \resetimagepagecaption
 %%
-% XXX
 \ResettableMacro{imagepagecaption}[1]{%
 	\captioncell[under, align=flushright]{%
 		\captionformat{#1}}}
@@ -2364,6 +2402,12 @@
 %%
 %% |<options>| is the same as for |\imagecell{..}|.
 %%
+%% Note that fit/fill versions are split mainly to provide ability to 
+%% configure the template defaults separately.
+%%
+%% Default image clearence (|clearimage| option value in |\imagecell{..}|) 
+%% is set by |\clearimage| global length.
+%%
 % XXX make captions adaptive??? 
 \ResettableMacro{imagepagefitcaption}[1]{%
 	\captioncell[under, align=flushright]{%
@@ -2408,17 +2452,15 @@
 %%
 %% |<options>| is the same as for |\imagecell{..}|.
 %%
-% XXX add a way to set this for one image...
+%% Default image clearence (|clearimage| option value in |\imagecell{..}|) 
+%% is set by |\clearimage| global length.
+%%
 \ResettableMacro{imagepagefillcaption}[1]{%
 	\captioncell[top, align=flushright]{%
 		\captionformat{#1}}}
 
 \ImagePageTemplate{imagepagefill}{%
-	\begin{page}%
-	\begin{pagecell}%
-		\imagecell[fill, clearance=\clearimage, #1]{#2}{#3}%
-	\end{pagecell}%
-	\end{page}}
+	\imagepagefit*[fill, #1]{#2}{#3}}
 
 
 % XXX
@@ -2460,8 +2502,8 @@
 		\AtPageLowerLeft{
 			\hspace*{\dimexpr \OFFSETFIX + #1 \relax}{
 			\raisebox{\dimexpr #1 + \bleed \relax}{
-				\usebox\photobook@imagebox } } } }
-	\newpage }
+				\usebox\photobook@imagebox}}}}
+	\newpage}
 
 
 % XXX
@@ -2989,16 +3031,14 @@
 
 % XXX should digits/rounding be configurable???
 \newcommand\photobook@TemplateCell[2][mm]{
-	% XXX this seems to be bigger than the size given...
-	%\fbox{\parbox[t][\cellheight][t]{\cellwidth}{%
 	\begin{center}
 		\vfill%
 		#2 \\
 		(\lenprint[#1]{\cellwidth} \space x \lenprint[#1]{\cellheight})
 		\vfill%
 		\vspace{0pt}%
-	\end{center}}
-	%\end{center} }} }
+	\end{center}%
+	\ignorespaces}
 
 
 %% \DescribeMacro{\GenerateTemplate\{..\}}
@@ -3018,8 +3058,7 @@
 %% This is a no-op for |layoutmode=block|.
 %%
 \newcommand\GenerateTemplate[1][mm]{
-	% XXX undo this after...
-	\TPoptions{showboxes=true}
+	\TPoptions{showboxes=true}%
 	\begin{page}
 		\setlength{\parindent}{0em}
 		% NOTE: only the relevant blocks will be visible...
@@ -3042,12 +3081,12 @@
 			\end{backcover}\fi%
 		\ifjacketlayout%
 			\begin{frontflap}%
-				\photobook@TemplateCell[#1]{FRONT FLAP}%
+				\photobook@TemplateCell[#1]{FRONT FLAP}
 			\end{frontflap}
 			\begin{backflap}%
 				\photobook@TemplateCell[#1]{BACK FLAP}
 			\end{backflap}\fi%
-	\end{page} }
+	\end{page}}
 
 
 %% \DescribeMacro{\pdfpagecount\{..\}}
@@ -3056,13 +3095,13 @@
 %%
 %%	>>	\pdfpagecount{<file.pdf>}
 %%
-\newcommand\pdfpagecount[1]{
-	\ifpdftex
-		\pdfximage{#1}
+\newcommand\pdfpagecount[1]{%
+	\ifpdftex%
+		\pdfximage{#1}%
     	\number\pdflastximagepages%
-	\else\ifxetex
+	\else\ifxetex%
 		\number\XeTeXpdfpagecount"#1"%
-	\else\ifluatex
+	\else\ifluatex%
 		\number\directlua{%
 			local pages = 0
 			local doc = pdfe.open("\luaescapestring{#1}")
@@ -3070,7 +3109,7 @@
 				pages = pdfe.getnofpages(doc)
 				pdfe.close(doc)
 			end
-			tex.write(pages) } \fi\fi }
+			tex.write(pages) }\fi\fi}
 
 
 %% \DescribeMacro{\pdfspinewidth\{..\}}
@@ -3083,8 +3122,8 @@
 \newcommand\pdfspinewidth[3]{%
 	\setlength\spinewidth{\dimexpr
 			(#1 mm) * \numexpr \pdfpagecount{#3} / 2 \relax
-			+ ((#2 mm) * 2) 
-		\relax} }
+			+ ((#2 mm) * 2)
+		\relax}}
 
 
 
