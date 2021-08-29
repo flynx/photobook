@@ -1059,33 +1059,6 @@
 	\endgroup}
 
 
-%% \DescribeEnv{vinlinecell}
-%
-%% \fbox{EXPERIMENTAL}
-%
-%%	>> \begin{vinlinecell}{<width>}{<height>} ... \end{vinlinecell}
-%%	>> \begin{vinlinecell}[<valign>]{<width>}{<height>} ... \end{vinlinecell}
-%%
-% XXX test
-% XXX EXPERIMENTAL
-\newenvironment{vinlinecell}[3][t]{%
-	\begingroup%
-		% get args by value...
-		\edef\photobook@protect@w{\the\dimexpr #2 \relax}
-		\edef\photobook@protect@h{\the\dimexpr #3 \relax}
-		% NOTE: these are needed to let inlinecell setup parent dimension 
-		%		relative to cell orientation...
-		\setlength\cellwidth{\photobook@protect@h}%
-		\setlength\cellheight{\photobook@protect@w}%
-		%
-		\begin{turn}{90}%
-		\begin{inlinecell}[#1]{#3}{#2}%
-}{%
-		\end{inlinecell}%
-		\end{turn}%
-	\endgroup}
-
-
 %% \DescribeEnv{cell}
 %
 %% Create a basic absolutely positioned cell.
@@ -1094,8 +1067,6 @@
 %%
 % XXX SYNTAX: place the second arg in braces...
 %		\begin{cell}(<top>, <left>){<width>}{<height>}
-\edef\photobook@cell@offset{}
-
 \newenvironment{cell}[3]{%
 	\readlist*\photobook@cell@offset{#1}%
 	%
@@ -1165,7 +1136,6 @@
 
 % reuse cell content...
 % NOTE: this is not intended for direct use -- depends closure/context...
-\edef\photobook@usecell@offset{}
 \def\photobook@usecell@placecell#1(#2){%
 	\readlist*\photobook@usecell@offset{#2}%
 	% XXX how we align things feels a bit odd...
@@ -1218,9 +1188,7 @@
 %
 %%	>> \begin{topdown} ... \end{topdown}
 %%	>> \begin{bottomup} ... \end{bottomup}
-%
 %%
-% XXX EXPERIMENTAL
 \newenvironment{topdown}[1][t]{%
 	\begin{flushright}%
 	\begin{turn}{270}%
@@ -1230,7 +1198,6 @@
 	\end{turn}
 	\end{flushright}}
 
-% XXX EXPERIMENTAL
 \newenvironment{bottomup}[1][t]{%
 	\begin{turn}{90}%
 	\begin{inlinecell}[#1]{\cellheight}{\cellwidth}%
@@ -1730,17 +1697,13 @@
 %%
 %% See samples for better illustration.
 %%
-% helper...
-\newif\ifphotobook@vcaptioncell@bottomup
-\photobook@vcaptioncell@bottomuptrue
-
 % bottomup / topdown...
 \def\photobook@vcaptioncell@orientation{bottomup}
 \define@boolkey{vcaptioncell@args}{bottomup}[true]{%
-	\photobook@vcaptioncell@bottomuptrue
+	\KV@vcaptioncell@args@topdownfalse
 	\def\photobook@vcaptioncell@orientation{bottomup}}
 \define@boolkey{vcaptioncell@args}{topdown}[true]{%
-	\photobook@vcaptioncell@bottomupfalse
+	\KV@vcaptioncell@args@bottomupfalse
 	\def\photobook@vcaptioncell@orientation{topdown}}
 
 \def\photobook@vcaptioncell@nested#1{%
@@ -1753,13 +1716,13 @@
 \def\photobook@vcaptioncell@position{top}
 \define@boolkey{vcaptioncell@args}{before}[true]{%
 	\def\photobook@vcaptioncell@position{%
-		\ifphotobook@vcaptioncell@bottomup%
+		\ifKV@vcaptioncell@args@bottomup%
 			over%
 		\else%
 			under\fi}}
 \define@boolkey{vcaptioncell@args}{left}[true]{%
 	\def\photobook@vcaptioncell@position{%
-		\ifphotobook@vcaptioncell@bottomup%
+		\ifKV@vcaptioncell@args@bottomup%
 			top%
 		\else%
 			bottom\fi}}
@@ -1767,13 +1730,13 @@
 	\def\photobook@vcaptioncell@position{center}}
 \define@boolkey{vcaptioncell@args}{right}[true]{%
 	\def\photobook@vcaptioncell@position{%
-		\ifphotobook@vcaptioncell@bottomup%
+		\ifKV@vcaptioncell@args@bottomup%
 			bottom%
 		\else%
 			top\fi}}
 \define@boolkey{vcaptioncell@args}{after}[true]{%
 	\def\photobook@vcaptioncell@position{%
-		\ifphotobook@vcaptioncell@bottomup%
+		\ifKV@vcaptioncell@args@bottomup%
 			under%
 		\else%
 			over\fi}}
@@ -1799,7 +1762,7 @@
 	%			align=\photobook@vcaptioncell@align,
 	%			margin=\photobook@vcaptioncell@margin]{#2}%
 	%\end{\photobook@vcaptioncell@orientation}}
-	\ifphotobook@vcaptioncell@bottomup%
+	\ifKV@vcaptioncell@args@bottomup%
 		\begin{bottomup}%
 			\photobook@vcaptioncell@nested{#2}
 		\end{bottomup}%
@@ -2241,11 +2204,12 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 %% \DescribeMacro{\imagepage\{..\}}
+%% \DescribeMacro{\imagepagecaption\{..\}}
+%% \DescribeMacro{\resetimagepagecaption}
+%% \DescribeMacro{\imagepage*\{..\}}
 %
 %%	Basic image page
-%
-%%	>> \imagepage{<caption>}{<path>}
-%
+%%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
@@ -2265,30 +2229,76 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% XXX revise captions...
+%% Create an image page:
+%
+%%	>> \imagepage{<caption>}{<path>}
+%
+%% Image caption template used by |\imagepage{..}|, this can be redefined
+%% to change the way |\imagepage{..}| behaves:
+%
+%%	>> \imagepagecaption{<caption>}{<path>}
+%
+%% Create image page with a custom caption, this will not use any caption 
+%% templates:
+%
+%%	>> \imagepage*{<caption>}{<path>}
+%
+%% Reset image caption to default:
+%
+%%	>> \resetimagepagecaption
+%%
+% XXX
+%\def\ResettableCommand#1[#2]#3{%
+%	\expandafter\newcommand\csname photobook@#1\endcsname[#2]{#3}%
+%	\expandafter\newcommand\csname reset#1\endcsname{%
+%		\expandafter\let\csname #1\endcsname = \csname photobook@#1\endcsname}
+%	\csname reset#1\endcsname}
+
+%\ResettableCommand{imagepagecaption}[1]{
+%	\captioncell[under, align=flushright]{%
+%		\captionformat{#1}}}
+\newcommand\photobook@imagepagecaption[1]{%
+	\captioncell[under, align=flushright]{%
+		\captionformat{#1}}}
+\newcommand\resetimagepagecaption{%
+	\let\imagepagecaption = \photobook@imagepagecaption}
+\resetimagepagecaption
+
+\def\imagepage{\@ifstar{%
+	\photobook@imagepage
+}{%
+	\photobook@imagepage@captiontpl}}
 % XXX should we reduce width by bindingoffset???
-\newcommand\imagepage[2]{%
+\newcommand\photobook@imagepage[2]{%
 	\begin{page}%
-		\begin{pagecell}%
-			% XXX should we reduce width by bindingoffset???
-			\begin{minipage}[t][\cellheight][c]{\cellwidth}%
-				\vspace{\imageblockoffsettop\pagetextheight}%
-				\begin{center}%
-					% compensate for \bindingoffset...
-					\hspace{\ifnumodd{\thepage}{\bindingoffset}{-\bindingoffset}}{%
-						\begin{inlinecell}%
-								{\imageblockwidth\pagetextwidth}%
-								{\imageblockheight\pagetextheight}%
-							\imagecell[fit]{%
-								\captioncell[under,align=flushright]{\captionformat{#1}}}{#2}%
-						\end{inlinecell}}%
-				\end{center}%
-			\end{minipage}%
-		\end{pagecell}%
+	\begin{pagecell}%
+	% XXX should we reduce width by bindingoffset???
+	\begin{minipage}[t][\cellheight][c]{\cellwidth}%
+		\vspace{\imageblockoffsettop\pagetextheight}%
+		\begin{center}%
+			% compensate for \bindingoffset...
+			\hspace{\ifnumodd{\thepage}{\bindingoffset}{-\bindingoffset}}{%
+				\begin{inlinecell}%
+						{\imageblockwidth\pagetextwidth}%
+						{\imageblockheight\pagetextheight}%
+					\imagecell[fit]{#1}{#2}%
+				\end{inlinecell}}%
+		\end{center}%
+	\end{minipage}%
+	\end{pagecell}%
 	\end{page}}
+\newcommand\photobook@imagepage@captiontpl[2]{%
+	\photobook@imagepage{%
+		\@ifundefined{imagepagecaption}{%
+			#1%
+		}{%
+			\imagepagecaption{#1}}}{#2}}
 
 
 %% \DescribeMacro{\imagepagefit\{..\}}
+%% \DescribeMacro{\imagepagefitcaption\{..\}}
+%% \DescribeMacro{\resetimagepagefitcaption}
+%% \DescribeMacro{\imagepagefit*\{..\}}
 %
 %% Similar to |\imagepage| but will fit an image into page...
 %
@@ -2314,19 +2324,40 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% XXX caption template...
+%% |<options>| is the same as for |\imagecell{..}|.
+%%
+% XXX add a way to set this for one image...
 % XXX add options to better control caption...
+\newcommand\photobook@imagepagefitcaption[1]{%
+	\captioncell[under, align=flushright]{%
+		\captionformat{#1}}}
+\newcommand\resetimagepagefitcaption{%
+	\let\imagepagefitcaption = \photobook@imagepagefitcaption}
+\resetimagepagefitcaption
+
+\def\imagepagefit{\@ifstar{%
+	\photobook@imagepagefit
+}{%
+	\photobook@imagepagefit@captiontpl}}
 % XXX add nudge/grow support...
-\newcommand\imagepagefit[3][]{%
-	\null%
+\newcommand\photobook@imagepagefit[3][]{%
+	\begin{page}%
 	\begin{pagecell}%
-		\imagecell[center, clearance=\clearimage, #1]{%
-			\captioncell[under, align=flushright]{\captionformat{#2}}}{#3}%
+		\imagecell[center, clearance=\clearimage, #1]{#2}{#3}%
 	\end{pagecell}%
-	\clearpage }
+	\end{page}}
+\newcommand\photobook@imagepagefit@captiontpl[3][]{%
+	\photobook@imagepagefit[#1]{%
+		\@ifundefined{imagepagefitcaption}{%
+			#2%
+		}{%
+			\imagepagefitcaption{#2}}}{#3}}
 
 
 %% \DescribeMacro{\imagepagefill\{..\}}
+%% \DescribeMacro{\imagepagefillcaption\{..\}}
+%% \DescribeMacro{\resetimagepagefillcaption}
+%% \DescribeMacro{\imagepagefill*\{..\}}
 %
 %%	Like |\imagepage| but will fill page with image.
 %
@@ -2352,16 +2383,33 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% XXX caption template...
-% XXX add options to better control caption...
+%% |<options>| is the same as for |\imagecell{..}|.
+%%
+% XXX add a way to set this for one image...
+\newcommand\photobook@imagepagefillcaption[1]{
+	\captioncell[top, align=flushright]{%
+		\captionformat{#1}}}
+\newcommand\resetimagepagefillcaption{%
+	\let\imagepagefillcaption = \photobook@imagepagefillcaption}
+\resetimagepagefillcaption
+
+\def\imagepagefill{\@ifstar{%
+	\photobook@imagepagefill
+}{%
+	\photobook@imagepagefill@captiontpl}}
 % XXX add nudge/grow support...
-\newcommand\imagepagefill[3][]{
-	\null%
+\newcommand\photobook@imagepagefill[3][]{
+	\begin{page}%
 	\begin{pagecell}%
-		\imagecell[fill, clearance=\clearimage, #1]{%
-			\captioncell[top, align=flushright]{\captionformat{#2}}}{#3}%
+		\imagecell[fill, clearance=\clearimage, #1]{#2}{#3}%
 	\end{pagecell}%
-	\clearpage }
+	\end{page}}
+\newcommand\photobook@imagepagefill@captiontpl[3][]{%
+	\photobook@imagepagefill[#1]{%
+		\@ifundefined{imagepagefillcaption}{%
+			#2%
+		}{%
+			\imagepagefillcaption{#2}}}{#3}}
 
 
 % XXX
