@@ -31,6 +31,7 @@
 %%%	\DescribeMacro{#1}}
 %%
 %% \newcommand\LEGACY{\fbox{LEGACY}}
+%% \newcommand\EXPERIMENTAL{\fbox{EXPERIMENTAL}}
 %%
 %% \setlength\parindent{0pt}
 %% \setlength\parskip{0.5em}
@@ -1028,18 +1029,26 @@
 
 
 
-% \DescribeMacro{\begin\{inlinecell\}\{..\} ...}
 %% \DescribeEnv{inlinecell}
+%% \DescribeEnv{inlinecell*}
 %
 %% Create a basic inline cell.
 %
 %%	>> \begin{inlinecell}{<width>}{<height>} ... \end{inlinecell}
 %%	>> \begin{inlinecell}[<valign>]{<width>}{<height>} ... \end{inlinecell}
 %
-%% This is just like |minipage| but provides cell mechanics.
+%% This will clip oversized content.
 %%
-% XXX
-\newenvironment{inlinecell}[3][t]{%
+%% |inlinecell*| is like |inlinecell| but will not clip.
+%
+%%	>> \begin{inlinecell*}{<width>}{<height>} ... \end{inlinecell*}
+%%	>> \begin{inlinecell*}[<valign>]{<width>}{<height>} ... \end{inlinecell*}
+%
+%% |<valign>| can be one of |t| (default) for top, |c| for center or |b| for bottom.
+%%
+%% These are just like |minipage| but provide cell mechanics.
+%%
+\newenvironment{inlinecell*}[3][t]{%
 	\begingroup%
 		% get args by value...
 		\edef\photobook@protect@w{\the\dimexpr #2 \relax}%
@@ -1058,47 +1067,48 @@
 		\end{minipage}%
 	\endgroup}
 
+\newenvironment{inlinecell}[3][t]{%
+	\begin{inlinecell*}[#1]{#2}{#3}%
+	\begin{cliptocell}%
+}{%
+	\end{cliptocell}%
+	\end{inlinecell*}}
+
 
 %% \DescribeEnv{cell}
+%% \DescribeEnv{cell*}
 %
 %% Create a basic absolutely positioned cell.
 %
 %%	>> \begin{cell}{<top>, <left>}{<width>}{<height>} ... \end{cell}
+%
+%% Oversized content will be clipped.
+%%
+%% |cell*| is just like |cell| but will not clip its content.
+%
+%%	>> \begin{cell*}{<top>, <left>}{<width>}{<height>} ... \end{cell*}
 %%
 % XXX SYNTAX: place the second arg in braces...
-%		\begin{cell}(<top>, <left>){<width>}{<height>}
-\newenvironment{cell}[3]{%
+%		\begin{cell*}(<top>, <left>){<width>}{<height>}
+\newenvironment{cell*}[3]{%
 	\readlist*\photobook@cell@offset{#1}%
 	%
 	\begin{textblock*}{#2}(#1)%
-	\begin{inlinecell}{#2}{#3}%
+	\begin{inlinecell*}{#2}{#3}%
 		\setlength\celloffsettop{\photobook@cell@offset[1]}%
 		\setlength\celloffsetleft{\photobook@cell@offset[2]}%
 		\ignorespaces%
 }{%
-	\end{inlinecell}%
+	\end{inlinecell*}%
 	\end{textblock*}}
 
-
-% \DescribeMacro{\begin\{clipcell\}\{..\} ...}
-%% \DescribeEnv{clipcell}
-%
-%% Create a clipped cell.
-%
-%%	>> \begin{clipcell}{<top>, <left>}{<width>}{<height>} ... \end{clipcell}
-%
-%% This is like the |cell| environment but will clip everything not in the 
-%% the cell.
-%%
-%% Note that this uses |clip| and |cliptocell| environments internally.
-%%
-\newenvironment{clipcell}[3]{%
-	\begin{cell}{#1}{#2}{#3}%
+\newenvironment{cell}[3]{%
+	\begin{cell*}{#1}{#2}{#3}%
 	\begin{cliptocell}%
 		\ignorespaces%
 }{%
 	\end{cliptocell}%
-	\end{cell}}
+	\end{cell*}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1122,9 +1132,9 @@
 	\@ifundefined{#1}{%
 		\expandafter\newsavebox\csname #1\endcsname}{}
 	\expandafter\sbox\csname #1\endcsname{%
-		\begin{inlinecell}{#2}{#3}%
+		\begin{inlinecell*}{#2}{#3}%
 			#4%
-		\end{inlinecell}}}
+		\end{inlinecell*}}}
 
 
 % \usecell{..} variants...
@@ -1144,6 +1154,7 @@
 		\expandafter\usebox\csname #1\endcsname}}
 
 %% \DescribeMacro{\usecell\{..\}}
+%% \DescribeMacro{\usecell*\{..\}}
 %
 %% Use part of a saved cell.
 %%
@@ -1151,28 +1162,24 @@
 %%
 %% This will clip the content to cell.
 %%
-%% This is similar to |\usebox{..}| but defines a box and aligns the 
-%% content to it.
+%% |\usecell*{..}| is similar to |\usecell{..}| but will not clip the 
+%% cell content.
+%%
+%%	>> \usecell*{<name>}(<top>, <left>){<width>}{<height>}
+%%
+%% These are similar to |\usebox{..}|.
 %%
 % XXX add option to rotate saved cell...
 \def\photobook@usecell@clipped#1(#2)#3#4{
 	\begin{inlinecell}{#3}{#4}%
-	\begin{cliptocell}%
 		\photobook@usecell@placecell{#1}(#2)%
-	\end{cliptocell}%
 	\end{inlinecell}}
 
-%% \DescribeMacro{\usecell*\{..\}}
-%
-%% Like |\usecell{..}| but will not clip the cell content.
-%%
-%%	>> \usecell*{<name>}(<top>, <left>){<width>}{<height>}
-%%
 % XXX add option to rotate saved cell...
 \def\photobook@usecell#1(#2)#3#4{
-	\begin{inlinecell}{#3}{#4}%
+	\begin{inlinecell*}{#3}{#4}%
 		\photobook@usecell@placecell{#1}(#2)%
-	\end{inlinecell}}
+	\end{inlinecell*}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1192,17 +1199,17 @@
 \newenvironment{topdown}[1][t]{%
 	\begin{flushright}%
 	\begin{turn}{270}%
-	\begin{inlinecell}[#1]{\cellheight}{\cellwidth}%
+	\begin{inlinecell*}[#1]{\cellheight}{\cellwidth}%
 }{%
-	\end{inlinecell}%
+	\end{inlinecell*}%
 	\end{turn}
 	\end{flushright}}
 
 \newenvironment{bottomup}[1][t]{%
 	\begin{turn}{90}%
-	\begin{inlinecell}[#1]{\cellheight}{\cellwidth}%
+	\begin{inlinecell*}[#1]{\cellheight}{\cellwidth}%
 }{%
-	\end{inlinecell}%
+	\end{inlinecell*}%
 	\end{turn}}
 
 
@@ -1220,13 +1227,13 @@
 
 %% \DescribeMacro{\imagecell\{..\}}
 %
-%% Fit image to cell.
+%% Place image in cell.
 %
 %%	>> \imagecell{<caption-cell>}{<image>}
 %%	>> \imagecell[<key>=<value>, ..]{<caption-cell>}{<image>}
 %%
-%%	>> \imagecell[fit]{}{landscape-image}
-%%	>> \imagecell[fill]{}{landscape-image}
+%%	>> \imagecell[fit]{}{<image>}
+%%	>> \imagecell[fill]{}{<image>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -1249,13 +1256,13 @@
 %%
 %% Centering. The image will be centered by default.
 %%
-%%	>> \imagecell{}{landscape-image}
-%%	>> \imagecell[center]{}{landscape-image}
+%%	>> \imagecell{}{<image>}
+%%	>> \imagecell[center]{}{<image>}
 %%
-%% Vertical alignment for landscape images.
+%% Vertical alignment
 %%
-%%	>> \imagecell[top]{}{landscape-image}
-%%	>> \imagecell[bottom]{}{landscape-image}
+%%	>> \imagecell[top]{}{<image>}
+%%	>> \imagecell[bottom]{}{<image>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -1276,10 +1283,10 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%% Horizontal alignment for portrait images.
+%% Horizontal alignment
 %%
-%%	>> \imagecell[left]{}{portrait-image}
-%%	>> \imagecell[right]{}{portrait-image}
+%%	>> \imagecell[left]{}{<image>}
+%%	>> \imagecell[right]{}{<image>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -1306,7 +1313,7 @@
 %% Image |clearance|. This sets the amount of clearance around an image 
 %% (default: |0pt|).
 %%
-%%	>> \imagecell[clearance=-4mm]{}{landscape-image}
+%%	>> \imagecell[clearance=-4mm]{}{<image>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -1787,9 +1794,9 @@
 %% This does not include bleeds and is independent of |layoutmode|.
 %%
 \newenvironment{papercell}{%
-	\begin{cell}{\bleed, \bleed}{\blockwidth}{\blockheight}%
+	\begin{cell*}{\bleed, \bleed}{\blockwidth}{\blockheight}%
 }{%
-	\end{cell}}
+	\end{cell*}}
 
 
 %% \DescribeEnv{paperbleedcell}
@@ -1799,9 +1806,9 @@
 %% Like |papercell| but includes bleeds.
 %%
 \newenvironment{paperbleedcell}{%
-	\begin{cell}{0, 0}{\bleedblockwidth}{\bleedblockheight}%
+	\begin{cell*}{0, 0}{\bleedblockwidth}{\bleedblockheight}%
 }{%
-	\end{cell}}
+	\end{cell*}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1835,9 +1842,9 @@
 %%
 % XXX
 \newenvironment{pagecell}{%
-	\begin{cell}{\bleed,\bleed}{\pageblockwidth}{\pageblockheight}%
+	\begin{cell*}{\bleed,\bleed}{\pageblockwidth}{\pageblockheight}%
 }{%
-	\end{cell}}
+	\end{cell*}}
 
 
 %% \DescribeEnv{pagebleedcell}
@@ -1865,9 +1872,9 @@
 %%
 % XXX
 \newenvironment{pagebleedcell}{%
-	\begin{cell}{0mm, 0mm}{\bleedblockwidth}{\bleedblockheight}%
+	\begin{cell*}{0mm, 0mm}{\bleedblockwidth}{\bleedblockheight}%
 }{%
-	\end{cell}}
+	\end{cell*}}
 
 
 
@@ -1907,9 +1914,9 @@
 %%
 % XXX test...
 \newenvironment{textcell}{%
-	\begin{inlinecell}{\textwidth}{\textheight}%
+	\begin{inlinecell*}{\textwidth}{\textheight}%
 }{%
-	\end{inlinecell}}
+	\end{inlinecell*}}
 
 
 %% \DescribeMacro{spreadtopages}
@@ -1999,11 +2006,11 @@
 	\end{pagecell}}
 
 \newenvironment{rightside}{%
-	\begin{cell}%
+	\begin{cell*}%
 			{\bleed + \pageblockwidth, \bleed}%
 			{\pageblockwidth}{\pageblockheight}%
 }{%
-	\end{cell}}
+	\end{cell*}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2039,7 +2046,7 @@
 %% \end{minipage}
 %%
 \newenvironment{frontcover}{%
-	\begin{cell}{
+	\begin{cell*}{
 				\bleed 
 					+ \jacketflapback 
 					+ \coverflap 
@@ -2053,10 +2060,10 @@
 			{ \pageblockwidth + \coverboardgrow }%
 			{ \pageblockheight + 2\coverboardgrow }%
 }{%
-	\end{cell}}
+	\end{cell*}}
 
 \newenvironment{backcover}{%
-	\begin{cell}{
+	\begin{cell*}{
 				\bleed 
 					+ \jacketflapback 
 					+ \coverflap 
@@ -2066,13 +2073,13 @@
 			{ \pageblockwidth + \coverboardgrow }%
 			{ \pageblockheight + 2\coverboardgrow }%
 }{%
-	\end{cell}}
+	\end{cell*}}
 
 
 % spines...
 %
 \newenvironment{spine}{%
-	\begin{cell}{
+	\begin{cell*}{
 				\bleed 
 					+ \jacketflapback 
 					+ \coverflap 
@@ -2085,7 +2092,7 @@
 			{ \spinewidth }%
 			{ \pageblockheight + 2\coverboardgrow }%
 }{%
-	\end{cell}}
+	\end{cell*}}
 
 \newenvironment{vspine}[1][topdown]{%
 	\def\photobook@vspine@orientation{#1}%
@@ -2100,7 +2107,7 @@
 % jackets flaps...
 %
 \newenvironment{frontflap}{%
-	\begin{cell}{
+	\begin{cell*}{
 				\bleed 
 					+ \jacketflapback 
 					+ 2\jacketwrap 
@@ -2113,17 +2120,17 @@
 			{ \jacketflapfront }%
 			{ \pageblockheight + 2\coverboardgrow }%
 }{%
-	\end{cell}}
+	\end{cell*}}
 
 \newenvironment{backflap}{%
-	\begin{cell}{
+	\begin{cell*}{
 				\bleed,
 				\bleed 
 					+ \coverflap }%
 			{ \jacketflapback }%
 			{ \pageblockheight + 2\coverboardgrow }%
 }{%
-	\end{cell}}
+	\end{cell*}}
 
 
 
@@ -2200,6 +2207,61 @@
 
 \newsavebox\photobook@imagebox
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% meta-commands...
+
+% \DescribeMacro{\ResettableMacro\{..\}}
+%
+% Create a resettable template command...
+%
+%	>> \ResettableMacro{<name>}[<arg-count>]{<code>}
+%
+% Will define two commands:
+%
+%	>> \<name>{..}
+%
+%	>> \reset<name>
+%
+% |\<name>{..}| can be freely redefined or undefined by user.
+%
+% |\reset<name>| will reset |\<name>{..}| to its original state.
+%
+\def\ResettableMacro#1[#2]#3{%
+	\expandafter\newcommand\csname photobook@#1\endcsname[#2]{#3}%
+	\expandafter\newcommand\csname reset#1\endcsname{%
+		\expandafter\let\csname #1\expandafter\endcsname\csname photobook@#1\endcsname}
+	\csname reset#1\endcsname}
+
+
+% \DescribeMacro{\ImagePageTemplate\{..\}}
+%
+%	>> \ImagePageTemplate{<name>}{<code>}
+%
+% This will define two commands:
+%
+%	>> \<name>[<options>]{<caption>}{<code>}
+%
+%	>> \<name>*[<options>]{<caption>}{<code>}
+%
+% |\<name>{..}| will use |\<name>caption{..}| template command to typeset 
+% the image caption while |\<name>*{..}| will show the caption as-is.
+%
+\def\ImagePageTemplate#1#2{%
+	% handle <macro>* version...
+	\expandafter\def\csname #1\endcsname{\@ifstar{%
+		\csname photobook@#1\endcsname%
+	}{%
+		\csname photobook@#1@captiontpl\endcsname}}%
+	% main implementation (raw caption)...
+	\expandafter\newcommand\csname photobook@#1\endcsname[3][]{#2}%
+	% main implementation with caption template...
+	\expandafter\newcommand\csname photobook@#1@captiontpl\endcsname[3][]{%
+		\csname photobook@#1\endcsname[##1]{%
+			\@ifundefined{#1caption}{%
+				##2%
+			}{%
+				\csname #1caption\endcsname{##2}}}{##3}}}
+
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2248,51 +2310,27 @@
 %%	>> \resetimagepagecaption
 %%
 % XXX
-%\def\ResettableCommand#1[#2]#3{%
-%	\expandafter\newcommand\csname photobook@#1\endcsname[#2]{#3}%
-%	\expandafter\newcommand\csname reset#1\endcsname{%
-%		\expandafter\let\csname #1\endcsname = \csname photobook@#1\endcsname}
-%	\csname reset#1\endcsname}
-
-%\ResettableCommand{imagepagecaption}[1]{
-%	\captioncell[under, align=flushright]{%
-%		\captionformat{#1}}}
-\newcommand\photobook@imagepagecaption[1]{%
+\ResettableMacro{imagepagecaption}[1]{%
 	\captioncell[under, align=flushright]{%
 		\captionformat{#1}}}
-\newcommand\resetimagepagecaption{%
-	\let\imagepagecaption = \photobook@imagepagecaption}
-\resetimagepagecaption
 
-\def\imagepage{\@ifstar{%
-	\photobook@imagepage
-}{%
-	\photobook@imagepage@captiontpl}}
-% XXX should we reduce width by bindingoffset???
-\newcommand\photobook@imagepage[2]{%
+\ImagePageTemplate{imagepage}{%
 	\begin{page}%
 	\begin{pagecell}%
-	% XXX should we reduce width by bindingoffset???
 	\begin{minipage}[t][\cellheight][c]{\cellwidth}%
 		\vspace{\imageblockoffsettop\pagetextheight}%
 		\begin{center}%
 			% compensate for \bindingoffset...
 			\hspace{\ifnumodd{\thepage}{\bindingoffset}{-\bindingoffset}}{%
-				\begin{inlinecell}%
+				\begin{inlinecell*}%
 						{\imageblockwidth\pagetextwidth}%
 						{\imageblockheight\pagetextheight}%
-					\imagecell[fit]{#1}{#2}%
-				\end{inlinecell}}%
+					\imagecell[fit]{#2}{#3}%
+				\end{inlinecell*}}%
 		\end{center}%
 	\end{minipage}%
 	\end{pagecell}%
 	\end{page}}
-\newcommand\photobook@imagepage@captiontpl[2]{%
-	\photobook@imagepage{%
-		\@ifundefined{imagepagecaption}{%
-			#1%
-		}{%
-			\imagepagecaption{#1}}}{#2}}
 
 
 %% \DescribeMacro{\imagepagefit\{..\}}
@@ -2307,51 +2345,36 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%                              . . . . . . .
-%%   +-----------------+      +---------------+
-%%   |                 |      | |.         .| |
-%% . +-----------------+ .    | | .       . | |
-%% . | .             . | .    | |  .     .  | |
-%% . |    .       .    | .    | |   .   .   | |
-%% . |      image      | .    | |   image   | |
-%% . |    .       .    | .    | |   .   .   | |
-%% . | .             . | .    | |  .     .  | |
-%% . +-----------------+ .    | | .       . | |
-%%   |               c |      | |.        c.| |
-%%   +-----------------+      +---------------+
-%%                              . . . . . . .
+%%                               . . . . . . .
+%%   +-----------------+      +-----------------+
+%%   |                 |      |  |.         .|  |
+%% . +-----------------+ .    |  | .       . |  |
+%% . | .             . | .    |  |  .     .  |  |
+%% . |    .       .    | .    |  |   .   .   |  |
+%% . |      image      | .    |  |   image   |  |
+%% . |    .       .    | .    |  |   .   .   |  |
+%% . | .             . | .    |  |  .     .  |  |
+%% . +-----------------+ .    |  | .       . |  |
+%%   |               c |      |  |.        c.|  |
+%%   +-----------------+      +-----------------+
+%%                               . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
 %%
 %% |<options>| is the same as for |\imagecell{..}|.
 %%
-% XXX add a way to set this for one image...
-% XXX add options to better control caption...
-\newcommand\photobook@imagepagefitcaption[1]{%
+% XXX make captions adaptive??? 
+\ResettableMacro{imagepagefitcaption}[1]{%
 	\captioncell[under, align=flushright]{%
 		\captionformat{#1}}}
-\newcommand\resetimagepagefitcaption{%
-	\let\imagepagefitcaption = \photobook@imagepagefitcaption}
-\resetimagepagefitcaption
 
-\def\imagepagefit{\@ifstar{%
-	\photobook@imagepagefit
-}{%
-	\photobook@imagepagefit@captiontpl}}
-% XXX add nudge/grow support...
-\newcommand\photobook@imagepagefit[3][]{%
+\ImagePageTemplate{imagepagefit}{%
 	\begin{page}%
 	\begin{pagecell}%
 		\imagecell[center, clearance=\clearimage, #1]{#2}{#3}%
 	\end{pagecell}%
 	\end{page}}
-\newcommand\photobook@imagepagefit@captiontpl[3][]{%
-	\photobook@imagepagefit[#1]{%
-		\@ifundefined{imagepagefitcaption}{%
-			#2%
-		}{%
-			\imagepagefitcaption{#2}}}{#3}}
 
 
 %% \DescribeMacro{\imagepagefill\{..\}}
@@ -2367,17 +2390,17 @@
 %% \begin{verbatim}
 %%
 %%   . . . . . . . . . . . . . . . . . . .
-%%   . .       +---------------+       . .
-%%   .    .    |             c |    .    .
-%%   .       . |               | .       .
-%%   .         |.             .|         .
-%%   .         |   .       .   |         .
-%%   .         |     image     |         .
-%%   .         |   .       .   |         .
-%%   .         |.             .|         .
-%%   .       . |               | .       .
-%%   .    .    |               |    .    .
-%%   . .       +---------------+       . .
+%%   . .      +-----------------+      . .
+%%   .    .   |              c  |   .    .
+%%   .       .|                 |.       .
+%%   .        | .             . |        .
+%%   .        |    .       .    |        .
+%%   .        |      image      |        .
+%%   .        |    .       .    |        .
+%%   .        | .             . |        .
+%%   .       .|                 |.       .
+%%   .    .   |                 |   .    .
+%%   . .      +-----------------+      . .
 %%   . . . . . . . . . . . . . . . . . . .
 %%
 %% \end{verbatim}
@@ -2386,30 +2409,16 @@
 %% |<options>| is the same as for |\imagecell{..}|.
 %%
 % XXX add a way to set this for one image...
-\newcommand\photobook@imagepagefillcaption[1]{
+\ResettableMacro{imagepagefillcaption}[1]{%
 	\captioncell[top, align=flushright]{%
 		\captionformat{#1}}}
-\newcommand\resetimagepagefillcaption{%
-	\let\imagepagefillcaption = \photobook@imagepagefillcaption}
-\resetimagepagefillcaption
 
-\def\imagepagefill{\@ifstar{%
-	\photobook@imagepagefill
-}{%
-	\photobook@imagepagefill@captiontpl}}
-% XXX add nudge/grow support...
-\newcommand\photobook@imagepagefill[3][]{
+\ImagePageTemplate{imagepagefill}{%
 	\begin{page}%
 	\begin{pagecell}%
 		\imagecell[fill, clearance=\clearimage, #1]{#2}{#3}%
 	\end{pagecell}%
 	\end{page}}
-\newcommand\photobook@imagepagefill@captiontpl[3][]{%
-	\photobook@imagepagefill[#1]{%
-		\@ifundefined{imagepagefillcaption}{%
-			#2%
-		}{%
-			\imagepagefillcaption{#2}}}{#3}}
 
 
 % XXX
@@ -2424,17 +2433,17 @@
 %% \begin{verbatim}
 %%
 %%   . . . . . . . .
-%%   . +---------------+
-%%   . |.         .|   |
-%%   . | .       . |   |
-%%   . |  .     .  |   |
-%%   . |   .   .   |   |
-%%   . |   image   |   |
-%%   . |   .   .   |   |
-%%   . |  .     .  |   |
-%%   . | .       . |   |
-%%   . |.         .| c |
-%%   . +---------------+
+%%   . +-----------------+
+%%   . |.         .|     |
+%%   . | .       . |     |
+%%   . |  .     .  |     |
+%%   . |   .   .   |     |
+%%   . |   image   |     |
+%%   . |   .   .   |     |
+%%   . |  .     .  |     |
+%%   . | .       . |     |
+%%   . |.         .| c   |
+%%   . +-----------------+
 %%   . . . . . . . .
 %%
 %% \end{verbatim}
@@ -2466,17 +2475,17 @@
 %% \begin{verbatim}
 %%
 %%       . . . . . . . .
-%%   +---------------+ .
-%%   |   |.         .| .
-%%   |   | .       . | .
-%%   |   |  .     .  | .
-%%   |   |   .   .   | .
-%%   |   |   image   | .
-%%   |   |   .   .   | .
-%%   |   |  .     .  | .
-%%   |   | .       . | .
-%%   | c |.         .| .
-%%   +---------------+ .
+%%   +-----------------+ .
+%%   |     |.         .| .
+%%   |     | .       . | .
+%%   |     |  .     .  | .
+%%   |     |   .   .   | .
+%%   |     |   image   | .
+%%   |     |   .   .   | .
+%%   |     |  .     .  | .
+%%   |     | .       . | .
+%%   |   c |.         .| .
+%%   +-----------------+ .
 %%       . . . . . . . .
 %%
 %% \end{verbatim}
@@ -2513,19 +2522,19 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%  . . . . . . . . . . . . 
-%%  . +---------------+     
-%%  . |   .           |     
-%%  . |      .        |     
-%%  . |         .     |     
-%%  . |            .  |     
-%%  . |             image
-%%  . |            .  |     
-%%  . |         .     |     
-%%  . |      .        |     
-%%  . |   .         c |     
-%%  . +---------------+     
-%%  . . . . . . . . . . . . 
+%%  . . . . . . . . . . . . . 
+%%  . +-----------------+     
+%%  . |   .             |     
+%%  . |       .         |     
+%%  . |           .     |     
+%%  . |               . |     
+%%  . |               image
+%%  . |               . |     
+%%  . |           .     |     
+%%  . |       .         |     
+%%  . |   .           c |     
+%%  . +-----------------+     
+%%  . . . . . . . . . . . . . 
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -2573,19 +2582,19 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%  . . . . . . . . . . . .
-%%      +---------------+ .
-%%      |           .   | .
-%%      |        .      | .
-%%      |     .         | .
-%%      |  .            | .
-%%    image             | .
-%%      |  .            | .
-%%      |     .         | .
-%%      |        .      | .
-%%      |           . c | .
-%%      +---------------+ .
-%%  . . . . . . . . . . . .
+%%  . . . . . . . . . . . . .
+%%      +-----------------+ .
+%%      |             .   | .
+%%      |         .       | .
+%%      |     .           | .
+%%      | .               | .
+%%    image               | .
+%%      | .               | .
+%%      |     .           | .
+%%      |         .       | .
+%%      |             . c | .
+%%      +-----------------+ .
+%%  . . . . . . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
