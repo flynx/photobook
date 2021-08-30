@@ -948,19 +948,19 @@
 		\photobook@ResettableMacro@args{#1}[#2]}}
 % pre -- main command definition...
 \def\photobook@ResettableMacro#1#2{%
-	\expandafter\newcommand\csname photobook@#1\endcsname{#2}%
+	\expandafter\newcommand\csname photobook@ResettableMacro@#1\endcsname{#2}%
 	\photobook@ResettableMacro@tail{#1}}
 \def\photobook@ResettableMacro@args#1[#2]#3{%
-	\expandafter\newcommand\csname photobook@#1\endcsname[#2]{#3}%
+	\expandafter\newcommand\csname photobook@ResettableMacro@#1\endcsname[#2]{#3}%
 	\photobook@ResettableMacro@tail{#1}}
 \def\photobook@ResettableMacro@args@dfl#1[#2][#3]#4{%
-	\expandafter\newcommand\csname photobook@#1\endcsname[#2][#3]{#4}%
+	\expandafter\newcommand\csname photobook@ResettableMacro@#1\endcsname[#2][#3]{#4}%
 	\photobook@ResettableMacro@tail{#1}}
 % post...
 \def\photobook@ResettableMacro@tail#1{%
 	% \reset<name>
 	\expandafter\newcommand\csname reset#1\endcsname{%
-		\expandafter\let\csname #1\expandafter\endcsname\csname photobook@#1\endcsname}
+		\expandafter\let\csname #1\expandafter\endcsname\csname photobook@ResettableMacro@#1\endcsname}
 	% initialize...
 	\csname reset#1\endcsname}
 
@@ -1161,6 +1161,7 @@
 %%%%% Save cells
 
 %% \DescribeMacro{\savecell\{..\}}
+%% \DescribeMacro{\gsavecell\{..\}}
 %
 %% Create a saved cell.
 %
@@ -1168,6 +1169,9 @@
 %
 %% This is similar to |\newsavebox{..}| and |\sbox{..}| but adds 
 %% cell functionality.
+%%
+%% |\gsavecell{..}| is the same as |\savecell{..}| but greates a global 
+%% cell.
 %%
 % XXX can we make this an env???
 % XXX should this be split into \newsavecell{..} and \scell{..} ???
@@ -1178,6 +1182,16 @@
 	\@ifundefined{#1}{%
 		\expandafter\newsavebox\csname #1\endcsname}{}
 	\expandafter\sbox\csname #1\endcsname{%
+		\begin{inlinecell*}{#2}{#3}%
+			#4%
+		\end{inlinecell*}}%
+	\ignorespaces}
+
+\newcommand\gsavecell[4]{%
+	% only define a savebox once...
+	\@ifundefined{#1}{%
+		\expandafter\newsavebox\csname #1\endcsname}{}
+	\global\expandafter\sbox\csname #1\endcsname{%
 		\begin{inlinecell*}{#2}{#3}%
 			#4%
 		\end{inlinecell*}}%
@@ -1975,6 +1989,7 @@
 
 
 %% \DescribeMacro{spreadtopages}
+%% \DescribeMacro{spreadtopages*}
 %
 %% Spread cell into pages.
 %%
@@ -2008,6 +2023,38 @@
 %		...i.e. name + use...
 % XXX add nudge/grow support...
 % XXX revise name...
+
+\NewEnviron{spreadtopages*}[2][2]{%
+	\newcounter{spreadtopages#2page}
+	\setcounter{spreadtopages#2page}{1}
+	\begingroup%
+		% create the actual cell...
+		\setlength\cellparentwidth{\cellwidth}%
+		\setlength\cellparentheight{\cellheight}%
+		\setlength\cellwidth{#1\pageblockwidth}%
+		\setlength\cellheight{\pageblockheight}%
+		%
+		\gsavecell{#2}{\cellwidth}{\cellheight}{\BODY}%
+	\endgroup%
+	\ignorespaces}
+
+\newcommand\usespreadpage[2][]{%
+	\begin{page}%
+	\begin{pagecell}%
+		% auto advance pages...
+		\ifthenelse{\equal{#1}{}}{%
+			\usecell*{#2}%
+				(0pt, \numexpr \value{spreadtopages#2page} - 1 \relax\cellwidth)%
+				{\cellwidth}{\cellheight}%
+			\stepcounter{spreadtopages#2page}%
+		% manual page selected...
+		}{%
+			\usecell*{#2}%
+				(0pt, \numexpr #1 - 1 \relax\cellwidth)%
+				{\cellwidth}{\cellheight}}%
+	\end{pagecell}%
+	\end{page}}
+
 \NewEnviron{spreadtopages}[1][2]{%
 	\begingroup%
 		% create the actual cell...
@@ -2019,15 +2066,8 @@
 		\savecell{photobook@spreadtopages}{\cellwidth}{\cellheight}{\BODY}%
 		%
 		% generate pages...
-		\foreach \photobook@spreadtopages@page in {0, ...,\numexpr #1 - 1 \relax}{%
-			\null
-			\begin{pagecell}%
-				% NOTE: \cellwidth and \cellheight here are for a single page...
-				\usecell*{photobook@spreadtopages}%
-					(0pt, \photobook@spreadtopages@page\cellwidth)%
-					{\cellwidth}{\cellheight}%
-			\end{pagecell}%
-			\clearpage}%
+		\foreach \photobook@spreadtopages@page in {1, ..., #1}{%
+			\usespreadpage[\photobook@spreadtopages@page]{photobook@spreadtopages}}%
 	\endgroup%
 	\ignorespaces}
 
@@ -2288,14 +2328,14 @@
 \def\ImagePageTemplate#1#2{%
 	% handle <macro>* version...
 	\expandafter\def\csname #1\endcsname{\@ifstar{%
-		\csname photobook@#1\endcsname%
+		\csname photobook@ImagePageTemplate@#1\endcsname%
 	}{%
-		\csname photobook@#1@captiontpl\endcsname}}%
+		\csname photobook@ImagePageTemplate@#1@captiontpl\endcsname}}%
 	% main implementation (raw caption)...
-	\expandafter\newcommand\csname photobook@#1\endcsname[3][]{#2}%
+	\expandafter\newcommand\csname photobook@ImagePageTemplate@#1\endcsname[3][]{#2}%
 	% main implementation with caption template...
-	\expandafter\newcommand\csname photobook@#1@captiontpl\endcsname[3][]{%
-		\csname photobook@#1\endcsname[##1]{%
+	\expandafter\newcommand\csname photobook@ImagePageTemplate@#1@captiontpl\endcsname[3][]{%
+		\csname photobook@ImagePageTemplate@#1\endcsname[##1]{%
 			\@ifundefined{#1caption}{%
 				##2%
 			}{%
