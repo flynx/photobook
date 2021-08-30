@@ -1988,14 +1988,13 @@
 	\end{inlinecell*}}
 
 
-%% \DescribeMacro{spreadtopages}
-%% \DescribeMacro{spreadtopages*}
+%% \DescribeEnv{spreadtopages}
+%% \DescribeEnv{spreadtopages*}
+%% \DescribeMacro{\usespreadpage\{..\}}
+%% \DescribeMacro{\usespreadpage*\{..\}}
 %
 %% Spread cell into pages.
 %%
-%%	>> \begin{spreadtopages} .. \end{spreadtopages}
-%%	>> \begin{spreadtopages}[<pagecount>] .. \end{spreadtopages}
-%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
@@ -2019,10 +2018,31 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% XXX add a manual version of this...
-%		...i.e. name + use...
+%% |spreadtopages| creates a cell and spreads it into pages right away.
+%%
+%%	>> \begin{spreadtopages} .. \end{spreadtopages}
+%%	>> \begin{spreadtopages}[<page-count>] .. \end{spreadtopages}
+%%
+%% |spreadtopages*| creates a named save cell.
+%%
+%%	>> \begin{spreadtopages*}{<name>} .. \end{spreadtopages*}
+%%	>> \begin{spreadtopages*}[<page-count>]{<name>} .. \end{spreadtopages*}
+%%
+%% |\usespreadpage{..}| places a page from a saved cell.
+%%
+%%	>> \usespreadpage{<name>}
+%%	>> \usespreadpage[<page-num>]{<name>}
+%%
+%% |\usespreadpage*{..}| is the same as the non-star version but will 
+%%	not use a |page| environment, enabling the user to populate the page
+%%	with other elements.
+%%
+%% Page numbers a re 1-based.
+%%
+%% Note that the cell created by |spreadtopages*| env is a normal save 
+%% cell and can be manipulated via |\usecell{..}| and |\usecell*{..}|.
+%%
 % XXX add nudge/grow support...
-% XXX revise name...
 
 \NewEnviron{spreadtopages*}[2][2]{%
 	% setup page count...
@@ -2041,8 +2061,14 @@
 	\endgroup%
 	\ignorespaces}
 
-\newcommand\usespreadpage[2][]{%
-	\begin{page}%
+% NOTE: this essentially counts pages, \usecell{..} / \usecell*{..} are 
+%		better suited for custom stuff...
+% NOTE: page is a 1 based offset in pages and can be fractional...
+\def\usespreadpage{\@ifstar{%
+		\photobook@usespreadpage@star%
+	}{%
+		\photobook@usespreadpage}}
+\newcommand\photobook@usespreadpage@star[2][]{%
 	\begin{pagecell}%
 		% auto advance pages...
 		\ifthenelse{\equal{#1}{}}{%
@@ -2055,7 +2081,10 @@
 			\usecell*{#2}%
 				(0pt, \numexpr #1 - 1 \relax\cellwidth)%
 				{\cellwidth}{\cellheight}}%
-	\end{pagecell}%
+	\end{pagecell}}
+\newcommand\photobook@usespreadpage[2][]{%
+	\begin{page}%
+		\usespreadpage*[#1]{#2}%
 	\end{page}}
 
 \NewEnviron{spreadtopages}[1][2]{%
@@ -2067,6 +2096,8 @@
 		\setlength\cellheight{\pageblockheight}%
 		%
 		\savecell{photobook@spreadtopages}{\cellwidth}{\cellheight}{\BODY}%
+		%
+		% place the pages...
 		\foreach \photobook@spreadtopages@page in {1, ..., #1}{%
 			\usespreadpage[\photobook@spreadtopages@page]{photobook@spreadtopages}}%
 	\endgroup%
