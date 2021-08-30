@@ -2064,6 +2064,7 @@
 % NOTE: this essentially counts pages, \usecell{..} / \usecell*{..} are 
 %		better suited for custom stuff...
 % NOTE: page is a 1 based offset in pages and can be fractional...
+% NOTE: \usecell*{..} takes care of all the bleed calculations...
 \def\usespreadpage{\@ifstar{%
 		\photobook@usespreadpage@star%
 	}{%
@@ -2903,12 +2904,11 @@
 	\newpage }
 
 
-% XXX
-% XXX \OFFSETFIX
 %% \DescribeMacro{\imagespreadleft\{..\}}
+%% \DescribeMacro{\imagespreadleftcaption\{..\}}
+%% \DescribeMacro{\resetimagespreadleftcaption}
+%% \DescribeMacro{\imagespreadleft*\{..\}}
 %
-%% \LEGACY
-%%
 %% Image spread aligned left (with bleed).
 %
 %% 	>> \imagespreadleft[<clearence>]{<caption>}{<image>}
@@ -2933,64 +2933,29 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% XXX might be a good idea to do a version of this with min/max width of 
-%		the caption block...
-\newcommand\imagespreadleft[3][\clearimage]{
-	\sbox{\photobook@imagebox}{
-		\includegraphics[
-			keepaspectratio, 
-			height=\dimexpr \blockheight - ((#1) * 2) + \vgrowimageby \relax,]{#3} }
-	% left page...
-	% XXX BUG: this in some cases creates an extra empty spread before this...
-	%		...appears to be a problem where we have a tweak.tex
-	\cleartoleftpage
-	\null
-	\ShipoutPicture{
-		\AtPageLowerLeft{
-			\hspace*{\dimexpr 
-					\OFFSETFIX 
-					-(\nudgeimageby)
-					+#1 
-					+\bleed 
-				\relax}{
-			\raisebox{\dimexpr 
-						#1 
-						+ \bleed 
-						- 0.5\vgrowimageby 
-						- \vnudgeimageby 
-					\relax}{
-				\usebox\photobook@imagebox } } } }
-	\newpage
-	% right page...
-	\captionboxright[\blockwidth]{\photobook@imagebox}{#2}
-	\ShipoutPicture{
-		\AtPageLowerLeft{
-			\hspace*{\dimexpr 
-					\OFFSETFIX 
-					-(\nudgeimageby)
-					+#1 
-					-\blockwidth 
-					+\bleed 
-				\relax}{
-			\raisebox{\dimexpr 
-						#1 
-						+ \bleed 
-						- 0.5\vgrowimageby 
-						- \vnudgeimageby 
-					\relax}{
-				\usebox\photobook@imagebox } } } }
-	\newpage 
-	\resetnudgeimage }
+% XXX do a better default...
+% XXX need a caption box...
+\ResettableMacro{imagespreadleftcaption}[1]{%
+	\vcaptioncell[after, align=flushleft]{%
+		\captionformat{#1}}}
+
+% XXX add nudge/grow support...
+\ImagePageTemplate{imagespreadleft}{%
+	\cleartoleftpage%
+	\begin{spreadtopages}[2]%
+		\imagecell[fit, left, clearance=\clearimage, #1]{#2}{#3}%
+	\end{spreadtopages}}
 
 
 % XXX
 %% \DescribeMacro{\imagespreadright\{..\}}
+%% \DescribeMacro{\imagespreadrightcaption\{..\}}
+%% \DescribeMacro{\resetimagespreadrightcaption}
+%% \DescribeMacro{\imagespreadright*\{..\}}
 %
-%% \LEGACY
-%%
 %% Image spread aligned right (with bleed).
 %
-%%	>> \imagespreadright[<clearence>]{<caption>}{<image>}
+%%	>> \imagespreadright[<options>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -3012,57 +2977,28 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-\newcommand\imagespreadright[3][\clearimage]{
-	\sbox{\photobook@imagebox}{
-		\includegraphics[
-			keepaspectratio, 
-			height=\dimexpr \blockheight - ((#1) * 2) + \vgrowimageby \relax,]{#3} }
-	% left page...
-	\cleartoleftpage
-	\null
-	\captionboxleft[\blockwidth]{\photobook@imagebox}{#2}
-	\ShipoutPicture{
-		\AtPageLowerLeft{
-			\hspace*{\dimexpr 
-				-#1
-				+0.5\OFFSETFIX
-				+(\nudgeimageby)
-				+2\blockwidth
-				+\bleed
-				-\wd\photobook@imagebox \relax}{
-			\raisebox{\dimexpr 
-					#1 + \bleed 
-					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
-				\usebox\photobook@imagebox } } } }
-	\newpage
-	% right page...
-	\null
-	\ShipoutPicture{
-		\AtPageLowerLeft{
-			\hspace*{\dimexpr 
-				-#1
-				+0.5\OFFSETFIX
-				+(\nudgeimageby)
-				+\blockwidth
-				+\bleed
-				-\wd\photobook@imagebox \relax}{
-			\raisebox{\dimexpr 
-					#1 + \bleed 
-					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
-				\usebox\photobook@imagebox } } } }
-	\newpage 
-	\resetnudgeimage }
+% XXX need a caption box...
+% XXX do a better default...
+\ResettableMacro{imagespreadrightcaption}[1]{%
+	\vcaptioncell[before, align=flushleft]{%
+		\captionformat{#1}}}
+
+% XXX add nudge/grow support...
+\ImagePageTemplate{imagespreadright}{%
+	\cleartoleftpage%
+	\begin{spreadtopages}[2]%
+		\imagecell[fit, right, clearance=\clearimage, #1]{#2}{#3}%
+	\end{spreadtopages}}
 
 
-% XXX BUG?: this is not centered vertically...
-% XXX
-%% \DescribeMacro{\imagespreadfullbleed\{..\}}
+%% \DescribeMacro{\imagespreadfill\{..\}}
+%% \DescribeMacro{\imagespreadfillcaption\{..\}}
+%% \DescribeMacro{\resetimagespreadfillcaption}
+%% \DescribeMacro{\imagespreadfill*\{..\}}
 %
-%% \LEGACY
-%%
 %% Image spread with full bleed.
 %
-%%	>> \imagespreadfullbleed[<vertical-offset>]{<caption>}{<image>}
+%%	>> \imagespreadfill[<options>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -3084,17 +3020,18 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% XXX do we need the same thing but with a left caption???
-\newcommand\imagespreadfullbleed[3][0mm]{
-	\setlength{\photobook@tmpnudgeimageby}{\nudgeimageby}
-	\setlength{\photobook@tmpvnudgeimageby}{\vnudgeimageby}
-	\setlength{\photobook@tmpvgrowimageby}{\vgrowimageby}
-	\cleartoleftpage
-	\imageleftspreadfullbleed[#1]{}{#3}
-	\nudgeimage{\photobook@tmpnudgeimageby}
-	\vnudgeimage{\photobook@tmpvnudgeimageby}
-	\vgrowimage{\photobook@tmpvgrowimageby}
-	\imagerightspreadfullbleed[#1]{#2}{#3} }
+
+% XXX do a better default...
+\ResettableMacro{imagespreadfillcaption}[1]{%
+	\captioncell[bottom, align=flushright]{%
+		\captionformat{#1}}}
+
+% XXX add nudge/grow support...
+\ImagePageTemplate{imagespreadfill}{%
+	\cleartoleftpage%
+	\begin{spreadtopages}[2]%
+		\imagecell[fill, clearance=\clearimage, #1]{#2}{#3}%
+	\end{spreadtopages}}
 
 
 
