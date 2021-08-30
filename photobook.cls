@@ -2025,8 +2025,11 @@
 % XXX revise name...
 
 \NewEnviron{spreadtopages*}[2][2]{%
-	\newcounter{spreadtopages#2page}
+	% setup page count...
+	\@ifundefined{thespreadtopages#2page}{%
+		\newcounter{spreadtopages#2page}}{}
 	\setcounter{spreadtopages#2page}{1}
+	%
 	\begingroup%
 		% create the actual cell...
 		\setlength\cellparentwidth{\cellwidth}%
@@ -2064,8 +2067,6 @@
 		\setlength\cellheight{\pageblockheight}%
 		%
 		\savecell{photobook@spreadtopages}{\cellwidth}{\cellheight}{\BODY}%
-		%
-		% generate pages...
 		\foreach \photobook@spreadtopages@page in {1, ..., #1}{%
 			\usespreadpage[\photobook@spreadtopages@page]{photobook@spreadtopages}}%
 	\endgroup%
