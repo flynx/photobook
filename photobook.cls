@@ -1874,17 +1874,47 @@
 %
 %% \EXPERIMENTAL
 %%
+%% Upside-down caption cell.
+%%
 % XXX a bit off...
 \newcommand\rcaptioncell[2][]{%
 		\captioncell[align=flushleft, #1]{%
 			\begin{turn}{180}%
-				#2%
+				% XXX this is hackish -- need to shift by x-height...
+				%		...currently this is set to 1/(golden ratio) would
+				%		be nice to make this parametric / font-derived...
+				\raisebox{\heightof{a} * \real{-0.618033988749855}}{#2}%
 			\end{turn}}%
 	\ignorespaces}
 
 
+% \begin{minipage}{\textwidth}
+% \begin{verbatim}
+%
+%   <------>                    v celloffsetleft
+%   .       <-------------->    <--------------> cellwidth
+%   <---------------------->    <----------------------> cellparentwidth
+%   .       .              .    ..             .       .
+%   +----------------------+    +----------------------+ 
+%   |                      |    |                      | 
+%   |                      |    |                      | 
+%   +-------+ - - - - - - +|    |+ - - - - - - +-------+ 
+%   |       |             .|    |.             |       | 
+%   |       |             .|    |.             |       | 
+%   |  cap. |     cell    .|    |.    cell     |  cap. | 
+%   |       |             .|    |.             |       | 
+%   |       |             .|    |.             |       | 
+%   +-------+ - - - - - - +|    |+ - - - - - - +-------+ 
+%   |                      |    |                      | 
+%   |                      |    |                      | 
+%   +----------------------+    +----------------------+ 
+%                              
+% \end{verbatim}
+% \end{minipage}
 % XXX need to do a caption block -- a cell to one side of an image to the 
 % 		end of the page...
+% XXX can we use the normal caption and simply insert a minipage of the 
+%		appropriate width???
 \newcommand\captionblockcell[2][]{%
 	% XXX
 }
@@ -2313,7 +2343,7 @@
 	\fontsize{6.5pt}{8pt}\selectfont}
 
 
-%% \DescribeMacro{\captionsize\{..\}}
+%% \DescribeMacro{\captionformat\{..\}}
 %
 %%
 %%
@@ -2326,11 +2356,31 @@
 
 %----------------------------------------------------------------------
 %%%% Page Templates
-
-\newsavebox\photobook@imagebox
-
+%
+%% This section contains a set of predefined configurable single-page
+%% templates.
+%%
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Tweaking
+%
+%% Most page/spread templates provide an ability to externally "tweak" 
+%% some image proportions.
+%%
+%% This is an alternative means to setting template properties, e.g:
+%
+%% \begin{verbatim}
+%%		\tweakimagescale{0.8}
+%%		\ImagePage{image}
+%% \end{verbatim}
+%
+%% Is equivalent to:
+%
+%%	>> \ImagePage[scale=0.8]{image}
+%
+%% Tweaks get reset after each template.
+%%
+
 
 %% \DescribeMacro{\imagescale=<num>}
 %% \DescribeMacro{\imageoffsettop=<len>}
@@ -2338,7 +2388,14 @@
 %
 %% Tweak next image templates scale/offsettop/offsetleft
 %%
+%% Note that |\imagescale| is not a length.
+%
+%%	>> \edef\imagescale{<scale>}
+%%	>> \setlength\imageoffsettop{<len>}
+%%	>> \setlength\imageoffsetleft{<len>}
+%%
 \edef\imagescale{1}
+% NOTE: these are initialized later by \resetimagetweaks...
 \newlength\imageoffsettop
 \newlength\imageoffsetleft
 
@@ -2347,6 +2404,12 @@
 %% \DescribeMacro{\tweakimageoffsetleft\{..\}}
 %
 %% Convenience commands
+%%
+%% These provide a uniform interface for tweaking.
+%
+%%	>> \tweakimagescale{<scale>}
+%%	>> \tweakimageoffsettop{<len>}
+%%	>> \tweakimageoffsetleft{<len>}
 %%
 \newcommand\tweakimagescale[1]{%
 	\edef\imagescale{#1}}
@@ -2370,7 +2433,6 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % meta-commands...
-
 
 % \DescribeMacro{\ImagePageTemplate\{..\}}
 %
@@ -2406,6 +2468,43 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+\newsavebox\photobook@imagebox
+
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Templates
+%
+%% A templates provide a uniform interface consisting of several commands:
+%%
+%% Base template command:
+%
+%%	>> \<template-name>{<caption>}{<image>}
+%%	>> \<template-name>[<options>]{<caption>}{<image>}
+%
+%% |<options>| is the same as for |\imagecell{..}|.
+%%
+%% Template-specific caption command:
+%
+%%	>> \<template-name>Caption{<caption>}
+%
+%% This can be redefined to control typesetting the caption for all 
+%% consecutive templates.
+%%
+%% Reset template caption to default:
+%
+%%	>> \reset<template-name>Caption
+%
+%% An equivalent to the non-star version but use the caption as-is:
+%
+%%	>> \<template-name>*{<caption>}{<image>}
+%%	>> \<template-name>*[<options>]{<caption>}{<image>}
+%
+%% Note that thogh some template versions differ only in |<options>| 
+%% defaults passed to |\imagecell{..}|, they are split to provide ability 
+%% to configure the template defaults separately.
+%%
+
 %% \DescribeMacro{\ImagePage\{..\}}
 %% \DescribeMacro{\ImagePageCaption\{..\}}
 %% \DescribeMacro{\resetImagePageCaption}
@@ -2433,22 +2532,10 @@
 %% \end{minipage}
 %%
 %% Create an image page:
-%
-%%	>> \ImagePage{<caption>}{<path>}
-%
-%% Image caption template used by |\ImagePage{..}|, this can be redefined
-%% to change the way |\ImagePage{..}| behaves:
-%
-%%	>> \ImagePageCaption{<caption>}{<path>}
-%
-%% Create image page with a custom caption, this will not use any caption 
-%% templates:
-%
-%%	>> \ImagePage*{<caption>}{<path>}
-%
-%% Reset image caption to default:
-%
-%%	>> \resetImagePageCaption
+%%
+%% Note that |\ImagePage{..}| only supports tweaking |scale|, this is 
+%% intentional ad tweaking offset will mess up page alignment relative 
+%% to other pages in a book.
 %%
 \ResettableMacro{ImagePageCaption}[1]{%
 	\captioncell[under, align=flushright]{%
@@ -2480,7 +2567,7 @@
 %% \DescribeMacro{\resetImagePageFitCaption}
 %% \DescribeMacro{\ImagePageFit*\{..\}}
 %
-%% Similar to |\ImagePage| but will fit an image into page...
+%% Fit image into page...
 %
 %%	>> \ImagePageFit[<options>]{<caption>}{<image>}
 %%
@@ -2503,11 +2590,6 @@
 %%
 %% \end{verbatim}
 %% \end{minipage}
-%%
-%% |<options>| is the same as for |\imagecell{..}|.
-%%
-%% Note that fit/fill versions are split mainly to provide ability to 
-%% configure the template defaults separately.
 %%
 %% Default image clearence (|clearimage| option value in |\imagecell{..}|) 
 %% is set by |\clearimage| global length.
@@ -2558,8 +2640,6 @@
 %%
 %% \end{verbatim}
 %% \end{minipage}
-%%
-%% |<options>| is the same as for |\imagecell{..}|.
 %%
 %% Default image clearence (|clearimage| option value in |\imagecell{..}|) 
 %% is set by |\clearimage| global length.
@@ -2660,10 +2740,10 @@
 	\newpage }
 
 
-%% \DescribeMacro{\ImageLeftHalfPage\{..\}}
-%% \DescribeMacro{\ImageLeftHalfPageCaption\{..\}}
-%% \DescribeMacro{\resetImageLeftHalfPageCaption}
-%% \DescribeMacro{\ImageLeftHalfPage*\{..\}}
+%% \DescribeMacro{\ImageHalfPageL\{..\}}
+%% \DescribeMacro{\ImageHalfPageLCaption\{..\}}
+%% \DescribeMacro{\resetImageHalfPageLCaption}
+%% \DescribeMacro{\ImageHalfPageL*\{..\}}
 %
 %% Left half of image filling page with full bleed.
 %
@@ -2691,13 +2771,12 @@
 %%
 % XXX TEST...
 % XXX do a better default...
-\ResettableMacro{ImageLeftHalfPageCaption}[1]{%
+\ResettableMacro{ImageHalfPageLCaption}[1]{%
 	\captioncell[bottom, align=flushright]{%
 		\captionformat{#1}}}
 
-% XXX add nudge/grow support...
-\ImagePageTemplate{ImageLeftHalfPage}{%
-	\begin{spreadtopages*}[2]{photobook@ImageLeftHalfPage@cell}%
+\ImagePageTemplate{ImageHalfPageL}{%
+	\begin{spreadtopages*}[2]{photobook@ImageHalfPageL@cell}%
 		\imagecell[fill, 
 			clearance=\clearimage, 
 			scale=\imagescale,
@@ -2707,14 +2786,14 @@
 	\end{spreadtopages*}%
 	%
 	\cleartoleftpage%
-	\usespreadpage[1]{photobook@ImageLeftHalfPage@cell}}
+	\usespreadpage[1]{photobook@ImageHalfPageL@cell}}
 
 
 
-%% \DescribeMacro{\ImageRightHalfPage\{..\}}
-%% \DescribeMacro{\ImageRightHalfPageCaption\{..\}}
-%% \DescribeMacro{\resetImageRightHalfPageCaption}
-%% \DescribeMacro{\ImageRightHalfPage*\{..\}}
+%% \DescribeMacro{\ImageHalfPageR\{..\}}
+%% \DescribeMacro{\ImageHalfPageRCaption\{..\}}
+%% \DescribeMacro{\resetImageHalfPageRCaption}
+%% \DescribeMacro{\ImageHalfPageR*\{..\}}
 %
 %% Right half of image filling page with full bleed.
 %
@@ -2742,13 +2821,12 @@
 %%
 % XXX TEST...
 % XXX do a better default...
-\ResettableMacro{ImageRightHalfPageCaption}[1]{%
+\ResettableMacro{ImageHalfPageRCaption}[1]{%
 	\captioncell[bottom, align=flushright]{%
 		\captionformat{#1}}}
 
-% XXX add nudge/grow support...
-\ImagePageTemplate{ImageRightHalfPage}{%
-	\begin{spreadtopages*}[2]{photobook@ImageRightHalfPage@cell}%
+\ImagePageTemplate{ImageHalfPageR}{%
+	\begin{spreadtopages*}[2]{photobook@ImageHalfPageR@cell}%
 		\imagecell[fill, 
 			clearance=\clearimage, 
 			scale=\imagescale,
@@ -2758,7 +2836,7 @@
 	\end{spreadtopages*}%
 	%
 	\cleartoleftpage%
-	\usespreadpage[2]{photobook@ImageRightHalfPage@cell}}
+	\usespreadpage[2]{photobook@ImageHalfPageR@cell}}
 
 
 
