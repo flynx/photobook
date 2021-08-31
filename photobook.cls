@@ -7,6 +7,10 @@
 %	- adds basic templates for image pages (XXX)
 %
 %
+% XXX add nudge/grow support -> renamed vars...
+%		- add relevant vars -- DONE
+%		- API -- DONE (revise)
+%		- reset state -- DONE
 % XXX revise command naming -- should be obvious from name what is what:
 %		- meta commands -- ??? (currently same as templates)
 %		- general macros -- \usecell{..}
@@ -1429,6 +1433,7 @@
 %% |<caption-cell>| occupies the same space as the image clipped by the 
 %% containing cell and provides all the cell functionality.
 %%
+% XXX document scale/offsettop/offsetleft...
 
 % NOTE: these are macros and not lengths as we need to "resolve" these 
 %		as late as possible, i.e. after all the arguments have been 
@@ -1516,6 +1521,21 @@
 \define@key{imagecell@args}{clearance}{%
 	\setlength\photobook@imagecell@clearance{#1}}%
 
+% offsettop=<len> / offsetleft=<len>...
+\newlength\photobook@imagecell@offsettop%
+\setlength\photobook@imagecell@offsettop{0pt}%
+\define@key{imagecell@args}{offsettop}[0pt]{%
+	\setlength\photobook@imagecell@offsettop{#1}}%
+\newlength\photobook@imagecell@offsetleft%
+\setlength\photobook@imagecell@offsetleft{0pt}%
+\define@key{imagecell@args}{offsetleft}[0pt]{%
+	\setlength\photobook@imagecell@offsetleft{#1}}%
+
+% scale=<num>...
+\edef\photobook@imagecell@scale{1}%
+\define@key{imagecell@args}{scale}[1]{%
+	\edef\photobook@imagecell@scale{#1}}%
+
 \def\photobook@imagecell@captionalign{t}
 \define@choicekey{imagecell@args}{caption-align}{t,c,b}[t]{%
 	\def\photobook@imagecell@captionalign{#1}}%
@@ -1539,10 +1559,10 @@
 			\sbox{\photobook@imagebox}{%
 				\includegraphics[%
 					keepaspectratio, 
-					width=\dimexpr 
+					width=\photobook@imagecell@scale\dimexpr 
 						\cellwidth 
 						- ((\photobook@imagecell@clearance) * 2) \relax,
-					height=\dimexpr 
+					height=\photobook@imagecell@scale\dimexpr 
 						\cellheight 
 						- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 		% fill...
@@ -1561,14 +1581,14 @@
 				\sbox{\photobook@imagebox}{%
 					\includegraphics[%
 						keepaspectratio, 
-						width=\dimexpr 
+						width=\photobook@imagecell@scale\dimexpr 
 							+ \cellwidth
 							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 			\else%
 				\sbox{\photobook@imagebox}{%
 					\includegraphics[%
 						keepaspectratio, 
-						height=\dimexpr 
+						height=\photobook@imagecell@scale\dimexpr 
 							+ \cellheight 
 							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}
 			\fi\fi\fi%
@@ -1576,7 +1596,15 @@
 		% XXX for some odd reason without this the alignment completely breaks...
 		\vspace{0pt}%
 		\adjustbox{%
-				margin={\photobook@imagecell@left} 0pt 0pt {\photobook@imagecell@top}}{%
+				%margin={\photobook@imagecell@left} 0pt 0pt {\photobook@imagecell@top}}{%
+				margin=
+					{\dimexpr 
+						\photobook@imagecell@offsetleft 
+						+ \photobook@imagecell@left \relax} 
+					0pt 0pt 
+					{\dimexpr 
+						\photobook@imagecell@offsettop
+						+ \photobook@imagecell@top \relax}}{%
 			% image....
 			\usebox\photobook@imagebox%
 			%
@@ -1857,6 +1885,9 @@
 
 % XXX need to do a caption block -- a cell to one side of an image to the 
 % 		end of the page...
+\newcommand\captionblockcell[2][]{%
+	% XXX
+}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2292,58 +2323,50 @@
 		\captionsize #1}}
 
 
-%% \DescribeMacro{\captionsidebox\{..\}}
-%
-%% \LEGACY
-%
-%%	>> \captionsidebox[<offset>]{<imagebox>}{<text>}
-%%
-\newcommand\captionsidebox[3][0mm]{
-	\begin{minipage}{\dimexpr 
-			% caption-image distance...
-			-1em
-			-\clearimage 
-			+\blockwidth
-			-(\wd#2 - #1)
-			+(\nudgeimageby)
-			-(0.5\blockwidth - 0.5\textwidth) \relax}%
-		{ \captionsize #3 }
-	\end{minipage}}
-
-
-%% \DescribeMacro{\captionboxleft\{..\}}
-%% \DescribeMacro{\captionboxright\{..\}}
-%
-%% \LEGACY
-%
-%%	>> \captionboxleft[<offset>]{<imagebox>}{<text>}
-%%	>> \captionboxright[<offset>]{<imagebox>}{<text>}
-%%
-\newcommand\captionboxleft[3][0mm]{
-	\null
-	\vfill
-	\begin{flushleft}
-	\captionsidebox[#1]{#2}{%
-		\begin{flushright}
-			#3
-		\end{flushright}}
-	\end{flushleft}}
-\newcommand\captionboxright[3][0mm]{
-	\null
-	\vfill
-	\begin{flushright}
-	\captionsidebox[#1]{#2}{%
-		\begin{flushleft}
-			#3
-		\end{flushleft}}
-	\end{flushright}}
-
-
 
 %----------------------------------------------------------------------
 %%%% Page Templates
 
 \newsavebox\photobook@imagebox
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+%% \DescribeMacro{\imagescale=<num>}
+%% \DescribeMacro{\imageoffsettop=<len>}
+%% \DescribeMacro{\imageoffsetleft=<len>}
+%
+%% Tweak next image templates scale/offsettop/offsetleft
+%%
+\edef\imagescale{1}
+\newlength\imageoffsettop
+\newlength\imageoffsetleft
+
+%% \DescribeMacro{\tweakimagescale\{..\}}
+%% \DescribeMacro{\tweakimageoffsetleft\{..\}}
+%% \DescribeMacro{\tweakimageoffsetleft\{..\}}
+%
+%% Convenience commands
+%%
+\newcommand\tweakimagescale[1]{%
+	\edef\imagescale{#1}}
+\newcommand\tweakimageoffsettop[1]{%
+	\setlength\imageoffsettop{#1}}
+\newcommand\tweakimageoffsetleft[1]{%
+	\setlength\imageoffsetleft{#1}}
+
+%% \DescribeMacro{\resetimagetweaks\{..\}}
+%
+%% Reset tweaked values.
+%%
+\newcommand\resetimagetweaks{%
+	\edef\imagescale{1}%
+	\setlength\imageoffsettop{0pt}%
+	\setlength\imageoffsetleft{0pt}}
+
+% setup initial state...
+\resetimagetweaks
+
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % meta-commands...
@@ -2365,14 +2388,16 @@
 \def\ImagePageTemplate#1#2{%
 	% handle <macro>* version...
 	\expandafter\def\csname #1\endcsname{\@ifstar{%
-		\csname photobook@ImagePageTemplate@#1\endcsname%
+		\csname photobook@ImagePageTemplate@#1@star\endcsname%
 	}{%
-		\csname photobook@ImagePageTemplate@#1@captiontpl\endcsname}}%
+		\csname photobook@ImagePageTemplate@#1\endcsname}}%
 	% main implementation (raw caption)...
-	\expandafter\newcommand\csname photobook@ImagePageTemplate@#1\endcsname[3][]{#2}%
+	\expandafter\newcommand\csname photobook@ImagePageTemplate@#1@star\endcsname[3][]{%
+		#2%
+		\resetimagetweaks}%
 	% main implementation with caption template...
-	\expandafter\newcommand\csname photobook@ImagePageTemplate@#1@captiontpl\endcsname[3][]{%
-		\csname photobook@ImagePageTemplate@#1\endcsname[##1]{%
+	\expandafter\newcommand\csname photobook@ImagePageTemplate@#1\endcsname[3][]{%
+		\csname photobook@ImagePageTemplate@#1@star\endcsname[##1]{%
 			\@ifundefined{#1Caption}{%
 				##2%
 			}{%
@@ -2440,7 +2465,9 @@
 				\begin{inlinecell*}%
 						{\imageblockwidth\pagetextwidth}%
 						{\imageblockheight\pagetextheight}%
-					\imagecell[fit]{#2}{#3}%
+					\imagecell[fit,
+						scale=\imagescale,
+						#1]{#2}{#3}%
 				\end{inlinecell*}}%
 		\end{center}%
 	\end{minipage}%
@@ -2493,7 +2520,12 @@
 \ImagePageTemplate{ImagePageFit}{%
 	\begin{page}%
 	\begin{pagecell}%
-		\imagecell[center, clearance=\clearimage, #1]{#2}{#3}%
+		\imagecell[center, 
+			clearance=\clearimage, 
+			scale=\imagescale,
+			offsettop=\imageoffsettop,
+			offsetleft=\imageoffsetleft,
+			#1]{#2}{#3}%
 	\end{pagecell}%
 	\end{page}}
 
@@ -2574,7 +2606,7 @@
 			keepaspectratio, 
 			height=\dimexpr \blockheight - ((#1) * 2) \relax,]{#3} }
 	\clearpage
-	\captionboxright[-#1]{\photobook@imagebox}{#2}
+	%\captionboxright[-#1]{\photobook@imagebox}{#2}
 	\ShipoutPicture{
 		\AtPageLowerLeft{
 			\hspace*{\dimexpr \OFFSETFIX + #1 \relax}{
@@ -2616,7 +2648,7 @@
 			keepaspectratio, 
 			height=\dimexpr \blockheight - ((#1) * 2) \relax,]{#3} }
 	\clearpage
-	\captionboxleft[-#1]{\photobook@imagebox}{#2}
+	%\captionboxleft[-#1]{\photobook@imagebox}{#2}
 	\ShipoutPicture{
 		\AtPageLowerLeft{
 			\hspace*{\dimexpr 
@@ -2666,11 +2698,17 @@
 % XXX add nudge/grow support...
 \ImagePageTemplate{ImageLeftHalfPage}{%
 	\begin{spreadtopages*}[2]{photobook@ImageLeftHalfPage@cell}%
-		\imagecell[fill, clearance=\clearimage, #1]{#2}{#3}%
+		\imagecell[fill, 
+			clearance=\clearimage, 
+			scale=\imagescale,
+			offsettop=\imageoffsettop,
+			offsetleft=\imageoffsetleft,
+			#1]{#2}{#3}%
 	\end{spreadtopages*}%
 	%
 	\cleartoleftpage%
 	\usespreadpage[1]{photobook@ImageLeftHalfPage@cell}}
+
 
 
 %% \DescribeMacro{\ImageRightHalfPage\{..\}}
@@ -2711,7 +2749,12 @@
 % XXX add nudge/grow support...
 \ImagePageTemplate{ImageRightHalfPage}{%
 	\begin{spreadtopages*}[2]{photobook@ImageRightHalfPage@cell}%
-		\imagecell[fill, clearance=\clearimage, #1]{#2}{#3}%
+		\imagecell[fill, 
+			clearance=\clearimage, 
+			scale=\imagescale,
+			offsettop=\imageoffsettop,
+			offsetleft=\imageoffsetleft,
+			#1]{#2}{#3}%
 	\end{spreadtopages*}%
 	%
 	\cleartoleftpage%
@@ -2721,79 +2764,6 @@
 
 %----------------------------------------------------------------------
 %%%% Spread Templates
-
-\newlength{\photobook@tmpnudgeimageby}
-\newlength{\photobook@tmpvnudgeimageby}
-\newlength{\photobook@tmpvgrowimageby}
-
-\newlength{\nudgeimageby}
-\setlength{\nudgeimageby}{0mm}
-
-\newlength{\vnudgeimageby}
-\setlength{\vnudgeimageby}{0mm}
-
-\newlength{\vgrowimageby}
-\setlength{\vgrowimageby}{0mm}
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-%% \DescribeMacro{\nudgeimage\{..\}}
-%
-%% Nudge an image horizontally within bleeds. Positive values nudge/move 
-%% to the right negative values nudge left.
-%
-%%	>> \nudgeimage{<amount>}
-%
-%% in addition to spread commands below this is also used by |\captionsidebox{..}|
-%%
-\newcommand\nudgeimage[1]{%
-	\setlength{\nudgeimageby}{#1}}
-
-%% \DescribeMacro{\vnudgeimage\{..\}}
-%
-%% Like |\nudgeimage{..}| but nudges vertically.
-%
-%%	>> \vnudgeimage{<amount>}
-%%
-%
-% NOTE: this should not be used in conjunction with \vgrowimage{..} and 
-%		should not exceed 1/2 of the amount given to \vgrowimage{..}
-\newcommand\vnudgeimage[1]{%
-	\setlength{\vnudgeimageby}{#1}}
-
-%% \DescribeMacro{\vgrowimage\{..\}}
-%
-%% Grow an image within bleeds. 
-%
-%%	>> \vgrowimage{<amount>}
-%
-%% This sizes the image relative to its center this adding 1/2 the 
-%% amount to the top and 1/2 to the bottom.
-%%
-\newcommand\vgrowimage[1]{%
-	\setlength{\vgrowimageby}{#1}}
-
-
-%% \DescribeMacro{\resetnudgeimage}
-%
-%% Reset the effects of nudging and growing back to 0.
-%
-%%	>> \resetnudgeimage
-%
-%% When working with shipout place this after |\newpage| as when 
-%% placed before this will reset the |\nudgeimageby{..}| BEFORE the image
-%% placing commands have a chance to execute.
-%%
-% XXX rename
-\newcommand\resetnudgeimage{%
-	\setlength{\vgrowimageby}{0mm}%
-	\setlength{\vnudgeimageby}{0mm}%
-	\setlength{\nudgeimageby}{0mm}}
-
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 % XXX
 %% \DescribeMacro{\portraitspreadbleedleft\{..\}}
@@ -2910,11 +2880,16 @@
 	\vcaptioncell[after, align=flushleft]{%
 		\captionformat{#1}}}
 
-% XXX add nudge/grow support...
 \ImagePageTemplate{ImageSpreadLeft}{%
 	\cleartoleftpage%
 	\begin{spreadtopages}[2]%
-		\imagecell[fit, left, clearance=\clearimage, #1]{#2}{#3}%
+		\imagecell[fit, 
+			left, 
+			clearance=\clearimage, 
+			scale=\imagescale,
+			offsettop=\imageoffsettop,
+			offsetleft=\imageoffsetleft,
+			#1]{#2}{#3}%
 	\end{spreadtopages}}
 
 
@@ -2954,11 +2929,16 @@
 	\vcaptioncell[before, align=flushleft]{%
 		\captionformat{#1}}}
 
-% XXX add nudge/grow support...
 \ImagePageTemplate{ImageSpreadRight}{%
 	\cleartoleftpage%
 	\begin{spreadtopages}[2]%
-		\imagecell[fit, right, clearance=\clearimage, #1]{#2}{#3}%
+		\imagecell[fit, 
+			right, 
+			clearance=\clearimage, 
+			scale=\imagescale,
+			offsettop=\imageoffsettop,
+			offsetleft=\imageoffsetleft,
+			#1]{#2}{#3}%
 	\end{spreadtopages}}
 
 
@@ -2997,11 +2977,15 @@
 	\captioncell[bottom, align=flushright]{%
 		\captionformat{#1}}}
 
-% XXX add nudge/grow support...
 \ImagePageTemplate{ImageSpreadFill}{%
 	\cleartoleftpage%
 	\begin{spreadtopages}[2]%
-		\imagecell[fill, clearance=\clearimage, #1]{#2}{#3}%
+		\imagecell[fill, 
+			clearance=\clearimage, 
+			scale=\imagescale,
+			offsettop=\imageoffsettop,
+			offsetleft=\imageoffsetleft,
+			#1]{#2}{#3}%
 	\end{spreadtopages}}
 
 
