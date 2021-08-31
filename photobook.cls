@@ -7,6 +7,10 @@
 %	- adds basic templates for image pages (XXX)
 %
 %
+% XXX revise command naming -- should be obvious from name what is what:
+%		- meta commands -- ??? (currently same as templates)
+%		- general macros -- \usecell{..}
+%		- templates --  \ImagePage{..}
 % XXX see where we need to \ignorespaces...
 % XXX might be a good idea to add a spine calculator...
 % XXX LEGACY BUG: fix \OFFSETFIX
@@ -2355,7 +2359,7 @@
 %
 %	>> \<name>*[<options>]{<caption>}{<code>}
 %
-% |\<name>{..}| will use |\<name>caption{..}| template command to typeset 
+% |\<name>{..}| will use |\<name>Caption{..}| template command to typeset 
 % the image caption while |\<name>*{..}| will show the caption as-is.
 %
 \def\ImagePageTemplate#1#2{%
@@ -2369,18 +2373,18 @@
 	% main implementation with caption template...
 	\expandafter\newcommand\csname photobook@ImagePageTemplate@#1@captiontpl\endcsname[3][]{%
 		\csname photobook@ImagePageTemplate@#1\endcsname[##1]{%
-			\@ifundefined{#1caption}{%
+			\@ifundefined{#1Caption}{%
 				##2%
 			}{%
-				\csname #1caption\endcsname{##2}}}{##3}}}
+				\csname #1Caption\endcsname{##2}}}{##3}}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-%% \DescribeMacro{\imagepage\{..\}}
-%% \DescribeMacro{\imagepagecaption\{..\}}
-%% \DescribeMacro{\resetimagepagecaption}
-%% \DescribeMacro{\imagepage*\{..\}}
+%% \DescribeMacro{\ImagePage\{..\}}
+%% \DescribeMacro{\ImagePageCaption\{..\}}
+%% \DescribeMacro{\resetImagePageCaption}
+%% \DescribeMacro{\ImagePage*\{..\}}
 %
 %%	Basic image page
 %%
@@ -2405,27 +2409,27 @@
 %%
 %% Create an image page:
 %
-%%	>> \imagepage{<caption>}{<path>}
+%%	>> \ImagePage{<caption>}{<path>}
 %
-%% Image caption template used by |\imagepage{..}|, this can be redefined
-%% to change the way |\imagepage{..}| behaves:
+%% Image caption template used by |\ImagePage{..}|, this can be redefined
+%% to change the way |\ImagePage{..}| behaves:
 %
-%%	>> \imagepagecaption{<caption>}{<path>}
+%%	>> \ImagePageCaption{<caption>}{<path>}
 %
 %% Create image page with a custom caption, this will not use any caption 
 %% templates:
 %
-%%	>> \imagepage*{<caption>}{<path>}
+%%	>> \ImagePage*{<caption>}{<path>}
 %
 %% Reset image caption to default:
 %
-%%	>> \resetimagepagecaption
+%%	>> \resetImagePageCaption
 %%
-\ResettableMacro{imagepagecaption}[1]{%
+\ResettableMacro{ImagePageCaption}[1]{%
 	\captioncell[under, align=flushright]{%
 		\captionformat{#1}}}
 
-\ImagePageTemplate{imagepage}{%
+\ImagePageTemplate{ImagePage}{%
 	\begin{page}%
 	\begin{pagecell}%
 	\begin{minipage}[t][\cellheight][c]{\cellwidth}%
@@ -2444,14 +2448,14 @@
 	\end{page}}
 
 
-%% \DescribeMacro{\imagepagefit\{..\}}
-%% \DescribeMacro{\imagepagefitcaption\{..\}}
-%% \DescribeMacro{\resetimagepagefitcaption}
-%% \DescribeMacro{\imagepagefit*\{..\}}
+%% \DescribeMacro{\ImagePageFit\{..\}}
+%% \DescribeMacro{\ImagePageFitCaption\{..\}}
+%% \DescribeMacro{\resetImagePageFitCaption}
+%% \DescribeMacro{\ImagePageFit*\{..\}}
 %
-%% Similar to |\imagepage| but will fit an image into page...
+%% Similar to |\ImagePage| but will fit an image into page...
 %
-%%	>> \imagepagefit[<options>]{<caption>}{<image>}
+%%	>> \ImagePageFit[<options>]{<caption>}{<image>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -2482,11 +2486,11 @@
 %% is set by |\clearimage| global length.
 %%
 % XXX make captions adaptive??? 
-\ResettableMacro{imagepagefitcaption}[1]{%
+\ResettableMacro{ImagePageFitCaption}[1]{%
 	\captioncell[under, align=flushright]{%
 		\captionformat{#1}}}
 
-\ImagePageTemplate{imagepagefit}{%
+\ImagePageTemplate{ImagePageFit}{%
 	\begin{page}%
 	\begin{pagecell}%
 		\imagecell[center, clearance=\clearimage, #1]{#2}{#3}%
@@ -2494,14 +2498,14 @@
 	\end{page}}
 
 
-%% \DescribeMacro{\imagepagefill\{..\}}
-%% \DescribeMacro{\imagepagefillcaption\{..\}}
-%% \DescribeMacro{\resetimagepagefillcaption}
-%% \DescribeMacro{\imagepagefill*\{..\}}
+%% \DescribeMacro{\ImagePageFill\{..\}}
+%% \DescribeMacro{\ImagePageFillCaption\{..\}}
+%% \DescribeMacro{\resetImagePageFillCaption}
+%% \DescribeMacro{\ImagePageFill*\{..\}}
 %
-%%	Like |\imagepage| but will fill page with image.
+%%	Like |\ImagePage| but will fill page with image.
 %
-%%	>> \imagepagefill[<options>]{<caption>}{<image>}
+%%	>> \ImagePageFill[<options>]{<caption>}{<image>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -2528,12 +2532,12 @@
 %% Default image clearence (|clearimage| option value in |\imagecell{..}|) 
 %% is set by |\clearimage| global length.
 %%
-\ResettableMacro{imagepagefillcaption}[1]{%
+\ResettableMacro{ImagePageFillCaption}[1]{%
 	\captioncell[top, align=flushright]{%
 		\captionformat{#1}}}
 
-\ImagePageTemplate{imagepagefill}{%
-	\imagepagefit*[fill, #1]{#2}{#3}}
+\ImagePageTemplate{ImagePageFill}{%
+	\ImagePageFit*[fill, #1]{#2}{#3}}
 
 
 % XXX
@@ -2624,13 +2628,12 @@
 	\newpage }
 
 
-% XXX
-% XXX \OFFSETFIX
-%% \DescribeMacro{\imageleftspreadfullbleed\{..\}}
+%% \DescribeMacro{\ImageLeftHalfPage\{..\}}
+%% \DescribeMacro{\ImageLeftHalfPageCaption\{..\}}
+%% \DescribeMacro{\resetImageLeftHalfPageCaption}
+%% \DescribeMacro{\ImageLeftHalfPage*\{..\}}
 %
-%% \LEGACY
-%%
-%% Image left page spread with full bleed.
+%% Left half of image filling page with full bleed.
 %
 %%	>> \imageleftspreadfullbleed[<vertical-offset>]{<caption>}{<image>}
 %
@@ -2654,43 +2657,28 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-\newcommand\imageleftspreadfullbleed[3][0mm]{
-	\sbox{\photobook@imagebox}{
-		\includegraphics[
-			keepaspectratio, 
-			width=\dimexpr 
-				2\blockwidth - 2\clearimage + \vgrowimageby \relax,]{#3} }
-	\clearpage
-	\null
-	\vfill
-	\begin{flushright}
-		#2
-	\end{flushright}
-	\ShipoutPicture{
-		\AtPageCenter{
-			\hspace{\dimexpr 
-				\OFFSETFIX
-				-(\nudgeimageby)
-				+\clearimage
-				-0.5\blockwidth \relax}{
-			\raisebox{\dimexpr
-					(#1)
-					+\clearimage
-					-(0.5\blockheight
-						+(0.5\ht\photobook@imagebox - 0.5\blockheight)) 
-					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
-				\usebox\photobook@imagebox } } } }
-	\newpage 
-	\resetnudgeimage }
+% XXX TEST...
+% XXX do a better default...
+\ResettableMacro{ImageLeftHalfPageCaption}[1]{%
+	\captioncell[bottom, align=flushright]{%
+		\captionformat{#1}}}
+
+% XXX add nudge/grow support...
+\ImagePageTemplate{ImageLeftHalfPage}{%
+	\begin{spreadtopages*}[2]{photobook@ImageLeftHalfPage@cell}%
+		\imagecell[fill, clearance=\clearimage, #1]{#2}{#3}%
+	\end{spreadtopages*}%
+	%
+	\cleartoleftpage%
+	\usespreadpage[1]{photobook@ImageLeftHalfPage@cell}}
 
 
-% XXX
-% XXX \OFFSETFIX
-%% \DescribeMacro{\imagerightspreadfullbleed\{..\}}
+%% \DescribeMacro{\ImageRightHalfPage\{..\}}
+%% \DescribeMacro{\ImageRightHalfPageCaption\{..\}}
+%% \DescribeMacro{\resetImageRightHalfPageCaption}
+%% \DescribeMacro{\ImageRightHalfPage*\{..\}}
 %
-%% \LEGACY
-%%
-%% Image spread right page with full bleed.
+%% Right half of image filling page with full bleed.
 %
 %%	>> \imagerightspreadfullbleed[<vertical-offset>]{<caption>}{<image>}
 %
@@ -2714,37 +2702,20 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-\newcommand\imagerightspreadfullbleed[3][0mm]{
-	\sbox{\photobook@imagebox}{
-		\includegraphics[
-			keepaspectratio, 
-			width=\dimexpr 
-				2\blockwidth - 2\clearimage + \vgrowimageby \relax,]{#3} }
-	\clearpage
-	\null
-	\vfill
-	% XXX for some reason the last line here is a bit off...
-	% XXX do we need to restrict caption width here??? ...0.5\textwidth??
-	% XXX make caption sizing a bit more flexible...
-	\begin{flushright}
-		\captionsize #2
-	\end{flushright}
-	\ShipoutPicture{
-		\AtPageCenter{
-			\hspace{\dimexpr 
-				\OFFSETFIX
-				-(\nudgeimageby)
-				+\clearimage
-				-1.5\blockwidth \relax}{
-			\raisebox{\dimexpr
-					(#1)
-					+\clearimage
-					-(0.5\blockheight
-						+(0.5\ht\photobook@imagebox - 0.5\blockheight))
-					- 0.5\vgrowimageby - \vnudgeimageby \relax}{
-				\usebox\photobook@imagebox } } } }
-	\newpage 
-	\resetnudgeimage }
+% XXX TEST...
+% XXX do a better default...
+\ResettableMacro{ImageRightHalfPageCaption}[1]{%
+	\captioncell[bottom, align=flushright]{%
+		\captionformat{#1}}}
+
+% XXX add nudge/grow support...
+\ImagePageTemplate{ImageRightHalfPage}{%
+	\begin{spreadtopages*}[2]{photobook@ImageRightHalfPage@cell}%
+		\imagecell[fill, clearance=\clearimage, #1]{#2}{#3}%
+	\end{spreadtopages*}%
+	%
+	\cleartoleftpage%
+	\usespreadpage[2]{photobook@ImageRightHalfPage@cell}}
 
 
 
@@ -2904,14 +2875,14 @@
 	\newpage }
 
 
-%% \DescribeMacro{\imagespreadleft\{..\}}
-%% \DescribeMacro{\imagespreadleftcaption\{..\}}
-%% \DescribeMacro{\resetimagespreadleftcaption}
-%% \DescribeMacro{\imagespreadleft*\{..\}}
+%% \DescribeMacro{\ImageSpreadLeft\{..\}}
+%% \DescribeMacro{\ImageSpreadLeftCaption\{..\}}
+%% \DescribeMacro{\resetImageSpreadLeftCaption}
+%% \DescribeMacro{\ImageSpreadLeft*\{..\}}
 %
 %% Image spread aligned left (with bleed).
 %
-%% 	>> \imagespreadleft[<clearence>]{<caption>}{<image>}
+%% 	>> \ImageSpreadLeft[<options>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -2935,12 +2906,12 @@
 %%
 % XXX do a better default...
 % XXX need a caption box...
-\ResettableMacro{imagespreadleftcaption}[1]{%
+\ResettableMacro{ImageSpreadLeftCaption}[1]{%
 	\vcaptioncell[after, align=flushleft]{%
 		\captionformat{#1}}}
 
 % XXX add nudge/grow support...
-\ImagePageTemplate{imagespreadleft}{%
+\ImagePageTemplate{ImageSpreadLeft}{%
 	\cleartoleftpage%
 	\begin{spreadtopages}[2]%
 		\imagecell[fit, left, clearance=\clearimage, #1]{#2}{#3}%
@@ -2948,14 +2919,14 @@
 
 
 % XXX
-%% \DescribeMacro{\imagespreadright\{..\}}
-%% \DescribeMacro{\imagespreadrightcaption\{..\}}
-%% \DescribeMacro{\resetimagespreadrightcaption}
-%% \DescribeMacro{\imagespreadright*\{..\}}
+%% \DescribeMacro{\ImageSpreadRight\{..\}}
+%% \DescribeMacro{\ImageSpreadRightCaption\{..\}}
+%% \DescribeMacro{\resetImageSpreadRightCaption}
+%% \DescribeMacro{\ImageSpreadRight*\{..\}}
 %
 %% Image spread aligned right (with bleed).
 %
-%%	>> \imagespreadright[<options>]{<caption>}{<image>}
+%%	>> \ImageSpreadRight[<options>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -2979,26 +2950,26 @@
 %%
 % XXX need a caption box...
 % XXX do a better default...
-\ResettableMacro{imagespreadrightcaption}[1]{%
+\ResettableMacro{ImageSpreadRightCaption}[1]{%
 	\vcaptioncell[before, align=flushleft]{%
 		\captionformat{#1}}}
 
 % XXX add nudge/grow support...
-\ImagePageTemplate{imagespreadright}{%
+\ImagePageTemplate{ImageSpreadRight}{%
 	\cleartoleftpage%
 	\begin{spreadtopages}[2]%
 		\imagecell[fit, right, clearance=\clearimage, #1]{#2}{#3}%
 	\end{spreadtopages}}
 
 
-%% \DescribeMacro{\imagespreadfill\{..\}}
-%% \DescribeMacro{\imagespreadfillcaption\{..\}}
-%% \DescribeMacro{\resetimagespreadfillcaption}
-%% \DescribeMacro{\imagespreadfill*\{..\}}
+%% \DescribeMacro{\ImageSpreadFill\{..\}}
+%% \DescribeMacro{\ImageSpreadFillCaption\{..\}}
+%% \DescribeMacro{\resetImageSpreadFillCaption}
+%% \DescribeMacro{\ImageSpreadFill*\{..\}}
 %
 %% Image spread with full bleed.
 %
-%%	>> \imagespreadfill[<options>]{<caption>}{<image>}
+%%	>> \ImageSpreadFill[<options>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -3022,12 +2993,12 @@
 %%
 
 % XXX do a better default...
-\ResettableMacro{imagespreadfillcaption}[1]{%
+\ResettableMacro{ImageSpreadFillCaption}[1]{%
 	\captioncell[bottom, align=flushright]{%
 		\captionformat{#1}}}
 
 % XXX add nudge/grow support...
-\ImagePageTemplate{imagespreadfill}{%
+\ImagePageTemplate{ImageSpreadFill}{%
 	\cleartoleftpage%
 	\begin{spreadtopages}[2]%
 		\imagecell[fill, clearance=\clearimage, #1]{#2}{#3}%
