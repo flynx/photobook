@@ -13,6 +13,9 @@
 	9pt,final,openany
 ]{photobook}
 
+\usepackage{lipsum}
+\usepackage{ragged2e}
+
 \setlength\parindent{0pt}
 
 \edef\TestImage{DSC00403-2}
@@ -21,9 +24,18 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \begin{document}
+
+
+%\savecell{foo}{10cm}{10cm}{fooo!}
+
+\begin{cell*}{2cm, 2cm}{10cm}{10cm}
+	absolute cell
+\end{cell*}
+
 
 
 \end{document}

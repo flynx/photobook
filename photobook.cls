@@ -7,10 +7,7 @@
 %	- adds basic templates for image pages (XXX)
 %
 %
-% XXX add nudge/grow support -> renamed vars...
-%		- add relevant vars -- DONE
-%		- API -- DONE (revise)
-%		- reset state -- DONE
+% XXX unify API -- see CellContent env...
 % XXX revise command naming -- should be obvious from name what is what:
 %		- meta commands -- ??? (currently same as templates)
 %		- general macros -- \usecell{..}
@@ -1005,7 +1002,46 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Cells
+
+% meta helpers...
+
+% XXX figure out how to align and pad without messing with geometry...
+\newcommand\CellContentOptions[1]{%
+	%% align...
+	%\expandafter\def\csname photobook@#1@align\endcsname{flushleft}%
+	%\define@key{#1@args}{align}{%
+	%	\expandafter\edef\csname photobook@#1@align\endcsname{##1}}%
+	% valign...
+	\expandafter\def\csname photobook@#1@valign\endcsname{t}%
+	\define@key{#1@args}{valign}{%
+		\expandafter\edef\csname photobook@#1@valign\endcsname{##1}}%
+	%% margin...
+	%\expandafter\def\csname photobook@#1@margin\endcsname{0pt}%
+	%\define@key{#1@args}{margin}{%
+	%	\expandafter\edef\csname photobook@#1@margin\endcsname{##1}}%
+	%% padding...
+	%\expandafter\def\csname photobook@#1@padding\endcsname{0pt}%
+	%\define@key{#1@args}{padding}{%
+	%	\expandafter\edef\csname photobook@#1@padding\endcsname{##1}}%
+}
+
 %
+%	>> \begin{CellContent}[<parent-align>]{<name>} ... \end{CellContent}
+%	>> \begin{CellContent*}[<parent-align>]{<name>}{<width>}{<height>} ... \end{CellContent}
+%
+\newenvironment{CellContent}[2][t]{%
+	\begin{CellContent*}[#1]{#2}{\cellwidth}{\cellheight}%
+}{%
+	\end{CellContent*}}
+
+\newenvironment{CellContent*}[4][t]{%
+	\begin{minipage}[#1][#4][\csname photobook@#2@valign\endcsname]{#3}%
+		\ignorespaces%
+}{%
+	\end{minipage}}
+
+
+
 %% A cell environment is a box of specified size.
 %%
 %% Cells can be both placed inline relative to other content or in an 
@@ -1080,7 +1116,6 @@
 \newlength\celloffsettop
 \setlength\celloffsettop{0pt}
 
-% XXX
 \newlength\clearance
 \setlength\clearance{0pt}
 
@@ -1104,8 +1139,43 @@
 %%
 %% These are just like |minipage| but provide cell mechanics.
 %%
-\newenvironment{inlinecell*}[3][t]{%
+%\newenvironment{inlinecell*}[3][t]{%
+%	\begingroup%
+%		% get args by value...
+%		\edef\photobook@protect@w{\the\dimexpr #2 \relax}%
+%		\edef\photobook@protect@h{\the\dimexpr #3 \relax}%
+%		%
+%		\setlength\cellparentwidth{\cellwidth}%
+%		\setlength\cellparentheight{\cellheight}%
+%		\setlength\cellwidth{\photobook@protect@w}%
+%		\setlength\cellheight{\photobook@protect@h}%
+%		\setlength\celloffsettop{0pt}%
+%		\setlength\celloffsetleft{0pt}%
+%		\setlength\clearance{0pt}%
+%		%
+%		\begin{minipage}[t][\cellheight][#1]{\cellwidth}% 
+%			\ignorespaces%
+%}{%
+%		\end{minipage}%
+%	\endgroup}
+
+% XXX EXPERIMENTAL
+\CellContentOptions{inlinecell}
+
+\def\photobook@inlinecell@parentvalign{t}
+\define@boolkey{inlinecell@args}{t}[true]{%
+	\def\photobook@inlinecell@parentvalign{t}}
+\define@boolkey{inlinecell@args}{c}[true]{%
+	\def\photobook@inlinecell@parentvalign{c}}
+\define@boolkey{inlinecell@args}{b}[true]{%
+	\def\photobook@inlinecell@parentvalign{b}}
+
+\newenvironment{inlinecell*}[3][]{%
 	\begingroup%
+		\setkeys{inlinecell@args}{
+			t,
+			#1}%
+		%
 		% get args by value...
 		\edef\photobook@protect@w{\the\dimexpr #2 \relax}%
 		\edef\photobook@protect@h{\the\dimexpr #3 \relax}%
@@ -1117,10 +1187,9 @@
 		\setlength\celloffsettop{0pt}%
 		\setlength\celloffsetleft{0pt}%
 		%
-		\begin{minipage}[t][\cellheight][#1]{\cellwidth}% 
-			\ignorespaces%
+		\begin{CellContent}[\photobook@inlinecell@parentvalign]{inlinecell}%
 }{%
-		\end{minipage}%
+		\end{CellContent}%
 	\endgroup}
 
 \newenvironment{inlinecell}[3][t]{%
@@ -1129,6 +1198,36 @@
 }{%
 	\end{cliptocell}%
 	\end{inlinecell*}}
+
+
+% XXX EXPERIMENTAL
+%% \DescribeEnv{zinlinecell}
+%% \DescribeEnv{zinlinecell*}
+%
+%% \EXPERIMENTAL
+%%
+%% Like |inlinecell| / |inlinecell*| but will take up zero space.
+%%
+%%	>> \begin{zinlinecell}{<width>}{<height>} ... \end{zinlinecell}
+%%	>> \begin{zinlinecell}[<valign>]{<width>}{<height>} ... \end{zinlinecell}
+%%
+% XXX for some reason either the (parent) cell is lowered a bit or it's content 
+%		is raised -- still experimenting with this...
+\NewEnviron{zinlinecell*}[1][]{%
+	\smash{\makebox[0pt][l]{%
+		% XXX HACK: RAISEBOX -- feels hackish...
+		\raisebox{0pt - \totalheightof{O}}{%
+			\begin{inlinecell*}[#1]{\cellwidth}{\cellheight}%
+				\BODY%
+			\end{inlinecell*}}}}}
+
+\NewEnviron{zinlinecell}[1][]{%
+	\smash{\makebox[0pt][l]{%
+		% XXX HACK: RAISEBOX -- feels hackish...
+		\raisebox{0pt - \totalheightof{O}}{%
+			\begin{inlinecell}[#1]{\cellwidth}{\cellheight}%
+				\BODY%
+			\end{inlinecell}}}}}
 
 
 %% \DescribeEnv{cell}
@@ -1185,46 +1284,30 @@
 %% |\gsavecell{..}| is the same as |\savecell{..}| but greates a global 
 %% cell.
 %%
-% XXX can we make this an env???
+% XXX can/should we make this an env???
 % XXX should this be split into \newsavecell{..} and \scell{..} ???
 % XXX can we use root cells inside this???
 %		...i.e. things using textbox*...
-\newcommand\savecell[4]{%
+\newcommand\savecell[5][]{%
 	% only define a savebox once...
-	\@ifundefined{#1}{%
-		\expandafter\newsavebox\csname #1\endcsname}{}
-	\expandafter\sbox\csname #1\endcsname{%
-		\begin{inlinecell*}{#2}{#3}%
-			#4%
+	\@ifundefined{#2}{%
+		\expandafter\newsavebox\csname #2\endcsname}{}
+	\expandafter\sbox\csname #2\endcsname{%
+		\begin{inlinecell*}[#1]{#3}{#4}%
+			#5%
 		\end{inlinecell*}}%
 	\ignorespaces}
 
-\newcommand\gsavecell[4]{%
+\newcommand\gsavecell[5][]{%
 	% only define a savebox once...
-	\@ifundefined{#1}{%
-		\expandafter\newsavebox\csname #1\endcsname}{}
-	\global\expandafter\sbox\csname #1\endcsname{%
-		\begin{inlinecell*}{#2}{#3}%
-			#4%
+	\@ifundefined{#2}{%
+		\expandafter\newsavebox\csname #2\endcsname}{}
+	\global\expandafter\sbox\csname #2\endcsname{%
+		\begin{inlinecell*}[#1]{#3}{#4}%
+			#5%
 		\end{inlinecell*}}%
 	\ignorespaces}
 
-
-% \usecell{..} variants...
-%
-\def\usecell{\@ifstar{%
-	\photobook@usecell%
-}{%
-	\photobook@usecell@clipped}}
-
-% reuse cell content...
-% NOTE: this is not intended for direct use -- depends closure/context...
-\def\photobook@usecell@placecell#1(#2){%
-	\readlist*\photobook@usecell@offset{#2}%
-	% XXX how we align things feels a bit odd...
-	\vspace{-\dimexpr \photobook@usecell@offset[1] \relax}%
-	\adjustbox{margin={-\dimexpr \photobook@usecell@offset[2] \relax} 0pt 0pt 0pt}{%
-		\expandafter\usebox\csname #1\endcsname}}
 
 %% \DescribeMacro{\usecell\{..\}}
 %% \DescribeMacro{\usecell*\{..\}}
@@ -1242,8 +1325,22 @@
 %%
 %% These are similar to |\usebox{..}|.
 %%
+\def\usecell{\@ifstar{%
+	\photobook@usecell%
+}{%
+	\photobook@usecell@star}}
+
+% cell content...
+% NOTE: this is not intended for direct use -- depends closure/context...
+\def\photobook@usecell@placecell#1(#2){%
+	\readlist*\photobook@usecell@offset{#2}%
+	% XXX how we align things feels a bit odd...
+	\vspace{-\dimexpr \photobook@usecell@offset[1] \relax}%
+	\adjustbox{margin={-\dimexpr \photobook@usecell@offset[2] \relax} 0pt 0pt 0pt}{%
+		\expandafter\usebox\csname #1\endcsname}}
+
 % XXX add option to rotate saved cell...
-\def\photobook@usecell@clipped#1(#2)#3#4{
+\def\photobook@usecell@star#1(#2)#3#4{
 	\begin{inlinecell}{#3}{#4}%
 		\photobook@usecell@placecell{#1}(#2)%
 	\end{inlinecell}}
@@ -1437,6 +1534,13 @@
 %% |<caption-cell>| occupies the same space as the image clipped by the 
 %% containing cell and provides all the cell functionality.
 %%
+% XXX might be a good idea to split this into two parts:
+%		- \aligncell{..}
+%		- \imagecell{caption}{image}
+%			-> size image
+%			-> \aligncell{
+%					image
+%					caption}
 % XXX document scale/offsettop/offsetleft...
 
 % NOTE: these are macros and not lengths as we need to "resolve" these 
@@ -1540,8 +1644,9 @@
 \define@key{imagecell@args}{scale}[1]{%
 	\edef\photobook@imagecell@scale{#1}}%
 
+% captionalign=t|c|b...
 \def\photobook@imagecell@captionalign{t}
-\define@choicekey{imagecell@args}{caption-align}{t,c,b}[t]{%
+\define@choicekey{imagecell@args}{captionalign}{t,c,b}[t]{%
 	\def\photobook@imagecell@captionalign{#1}}%
 
 % XXX add offset support...
@@ -1719,27 +1824,14 @@
 %% Note that a caption cell does not take up any space in the parent cell
 %% so multiple captions can be used in combination with other elements.
 %%
-
-% helpers...
-% XXX set minipage height to available cell height (???)
-\newcommand\photobook@captioncell@formatalign[3][0pt]{%
-	\smash{\makebox[0pt][l]{%
-		\begin{minipage}[t][\cellheight][t]{\cellwidth}%
-			% XXX for some reason without this things get misaligned...
-			\vspace{#1}%
-			% XXX HACK: for some magical reason setting the above minipage to 'b' 
-			%		will make \vspace{..} above break...
-			%		...adding another nested minipage seems to fix the issue...
-			\begin{minipage}[t][\cellheight][#2]{\cellwidth}%
-				\begin{\photobook@captioncell@align}%
-					\ignorespaces%
-					#3%
-				\end{\photobook@captioncell@align}%
-			\end{minipage}
-		\end{minipage}}}}
-% format...
-\def\photobook@captioncell@format#1{%
-	\photobook@captioncell@formatalign{t}{#1}}
+%% Note that caption cells currently do not play well with other content
+%% in the same cell that takes up space, e.g. text, pictures, ...etc.
+%% Captions are mainly suited to play well with image cells.
+%%
+% XXX need a way to make caption boxes independent of other cell content...
+%		...two ways to do this that come to mind:
+%			- place cell content into a 0-space cell
+%			- place captions outside of the actual cell...
 
 % over / top / center / bottom / under...
 \define@boolkey{captioncell@args}{over}[true]{%
@@ -1763,19 +1855,44 @@
 \define@boolkey{captioncell@args}{under}[true]{%
 	\def\photobook@captioncell@format##1{%
 		\photobook@captioncell@formatalign[\cellheight]{t}{##1}}}
-% align...
+% align=<len>...
 \def\photobook@captioncell@align{}
 % XXX for some reason \define@choicekey{..} does not expand macros...
 %\define@choicekey{captioncell@args}{align}{flushleft,center,flushright}{%
 \define@key{captioncell@args}{align}{%
 	\def\photobook@captioncell@align{#1}}
-% margin...
+% margin=<len>...
 \def\photobook@captioncell@margin{0pt}
 \define@key{captioncell@args}{margin}{%
 	\def\photobook@captioncell@margin{#1}}
 
+% helpers...
+% XXX set minipage height to available cell height (???)
+\newcommand\photobook@captioncell@formatalign[3][0pt]{%
+	\smash{\makebox[0pt][l]{%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}%
+			% XXX for some reason without this things get misaligned...
+			\vspace{#1}%
+			% XXX HACK: for some magical reason setting the above minipage to 'b' 
+			%		will make \vspace{..} above break...
+			%		...adding another nested minipage seems to fix the issue...
+			\begin{minipage}[t][\cellheight][#2]{\cellwidth}%
+				\begin{\photobook@captioncell@align}%
+					\ignorespaces%
+					#3%
+				\end{\photobook@captioncell@align}%
+			\end{minipage}
+		\end{minipage}}}}
+% format...
+\def\photobook@captioncell@format#1{%
+	\photobook@captioncell@formatalign{t}{#1}}
+
 \newcommand\captioncell[2][]{%
-	\setkeys{captioncell@args}{top, align=flushright, margin=1pt, #1}%
+	\setkeys{captioncell@args}{
+		top, 
+		align=flushright, 
+		margin=1pt, 
+		#1}%
 	\photobook@captioncell@format{%
 		\adjustbox{margin=\photobook@captioncell@margin}{#2}}%
 	\ignorespaces}
@@ -1862,7 +1979,12 @@
 		t\fi}
 
 \newcommand\vcaptioncell[2][]{%
-	\setkeys{vcaptioncell@args}{left, bottomup, align=flushleft, margin=1pt, #1}%
+	\setkeys{vcaptioncell@args}{
+		left, 
+		bottomup, 
+		align=flushleft, 
+		margin=1pt, 
+		#1}%
 	%
 	\smash{\makebox[0pt][l]{%
 		\begin{minipage}[t][\cellheight][\photobook@vcaptioncell@valign]{\cellwidth}%
@@ -1886,10 +2008,10 @@
 \newcommand\rcaptioncell[2][]{%
 		\captioncell[align=flushleft, #1]{%
 			\begin{turn}{180}%
-				% XXX this is hackish -- need to shift by x-height...
+				% XXX HACK: RAISEBOX -- need to shift by x-height...
 				%		...currently this is set to 1/(golden ratio) would
 				%		be nice to make this parametric / font-derived...
-				\raisebox{\heightof{a} * \real{-0.618033988749855}}{#2}%
+				\raisebox{1ex * \real{-0.618033988749855}}{#2}%
 			\end{turn}}%
 	\ignorespaces}
 
@@ -1930,37 +2052,51 @@
 
 \newlength\photobook@captionblockcell@tmplen
 
-
-
+% left / right
 \define@boolkey{captionblockcell@args}{left}[true]{%
 	\KV@captionblockcell@args@rightfalse}
 \define@boolkey{captionblockcell@args}{right}[true]{%
 	\KV@captionblockcell@args@leftfalse}
 
+% align=flushright|center|flushright
 % XXX this should depend on left/right...
 \def\photobook@captionblockcell@align{flushright}
 \define@key{captionblockcell@args}{align}{%
 	\edef\photobook@captionblockcell@align{#1}}
 
+% valign=t|c|b
 % XXX should be a boolkey -- t|c|b???
 \edef\photobook@captionblockcell@valign{b}
 \define@key{captionblockcell@args}{valign}{%
 	\edef\photobook@captionblockcell@valign{#1}}
 
-% XXX clearance=.., 
+% clearance=<len>
 \newlength\clearcaption
 \setlength\clearcaption{0pt}
 \newlength\photobook@captionblockcell@clearance
 \define@key{captionblockcell@args}{clearance}{%
 	\setlength\photobook@captionblockcell@clearance{#1}}
 
+% width=<len>
 \newlength\photobook@captionblockcell@width
 \setlength\photobook@captionblockcell@width{0pt}
 \define@key{captionblockcell@args}{width}{%
 	\setlength\photobook@captionblockcell@width{#1}}
 
+% showbox
+\define@boolkey{captionblockcell@args}{showbox}[true]{}
+
+\newcommand\photobook@captionblockcell@content[1]{%
+	\begin{minipage}[t][\cellheight][\photobook@captionblockcell@valign]{\cellwidth}%
+	\begin{\photobook@captionblockcell@align}%
+		\ignorespaces%
+		#1%
+	\end{\photobook@captionblockcell@align}%
+	\end{minipage}}
+
 % XXX padding... ???
 
+% XXX revise how \clearance is handled...
 % XXX do we need top/bottom boxes???
 %		...if yes do we need lop/left, top/right, bottom/left and bottom/right???
 % XXX should we keep within parent cell if imagecell has negative clearance???
@@ -1998,12 +2134,11 @@
 					\cellparentwidth\fi}%
 			%
 			\hspace{\celloffsetleft}{%
-				\begin{minipage}[t][\cellheight][\photobook@captionblockcell@valign]{\cellwidth}%
-				\begin{\photobook@captionblockcell@align}%
-					\ignorespaces%
-					#2%
-				\end{\photobook@captionblockcell@align}%
-				\end{minipage}}%
+				\ifKV@captionblockcell@args@showbox%
+					\fbox{%
+						\photobook@captionblockcell@content{#2}}%
+				\else%
+					\photobook@captionblockcell@content{#2}\fi}%
 		\endgroup}}%
 	\ignorespaces}
 
