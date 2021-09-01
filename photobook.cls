@@ -1021,6 +1021,7 @@
 %% \DescribeMacro{\cellparentheight=<len>}
 %% \DescribeMacro{\celloffsettop=<len>}
 %% \DescribeMacro{\celloffsetleft=<len>}
+%% \DescribeMacro{\clearance=<len>}
 %%
 %% A cell defines a set of contextual lengths:
 %%
@@ -1079,6 +1080,9 @@
 \newlength\celloffsettop
 \setlength\celloffsettop{0pt}
 
+% XXX
+\newlength\clearance
+\setlength\clearance{0pt}
 
 
 %% \DescribeEnv{inlinecell}
@@ -1612,6 +1616,7 @@
 			% XXX make this conditional -- if caption is not empty...
 			\begingroup%
 				% setup the cell env...
+				\setlength\clearance{\photobook@imagecell@clearance}%
 				% NOTE: this needs the original \cellwidth...
 				\setlength\celloffsetleft{%
 					\mindim{%
@@ -1849,6 +1854,7 @@
 \define@key{vcaptioncell@args}{margin}{%
 	\def\photobook@vcaptioncell@margin{#1}}
 
+% valign
 \def\photobook@vcaptioncell@valign{%
 	\ifKV@vcaptioncell@args@bottomup%
 		b%
@@ -1888,36 +1894,118 @@
 	\ignorespaces}
 
 
-% \begin{minipage}{\textwidth}
-% \begin{verbatim}
+%% \DescribeMacro{\captionblockcell\{..\}}
 %
-%   <------>                    v celloffsetleft
-%   .       <-------------->    <--------------> cellwidth
-%   <---------------------->    <----------------------> cellparentwidth
-%   .       .              .    ..             .       .
-%   +----------------------+    +----------------------+ 
-%   |                      |    |                      | 
-%   |                      |    |                      | 
-%   +-------+ - - - - - - +|    |+ - - - - - - +-------+ 
-%   |       |             .|    |.             |       | 
-%   |       |             .|    |.             |       | 
-%   |  cap. |     cell    .|    |.    cell     |  cap. | 
-%   |       |             .|    |.             |       | 
-%   |       |             .|    |.             |       | 
-%   +-------+ - - - - - - +|    |+ - - - - - - +-------+ 
-%   |                      |    |                      | 
-%   |                      |    |                      | 
-%   +----------------------+    +----------------------+ 
-%                              
-% \end{verbatim}
-% \end{minipage}
+%% \EXPERIMENTAL
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%    celloffsetleft              celloffsetleft
+%%   <------>                    v 
+%%   .       <-------------->    <--------------> cellwidth
+%%   <---------------------->    <----------------------> cellparentwidth
+%%   .       .              .    ..             .       .
+%%   +----------------------+    +----------------------+ 
+%%   |                      |    |                      | 
+%%   |                      |    |                      | 
+%%   +-------+ - - - - - - +|    |+ - - - - - - +-------+ 
+%%   |       |             .|    |.             |       | 
+%%   |       |             .|    |.             |       | 
+%%   |  cap. |     cell    .|    |.    cell     |  cap. | 
+%%   |       |             .|    |.             |       | 
+%%   |       |             .|    |.             |       | 
+%%   +-------+ - - - - - - +|    |+ - - - - - - +-------+ 
+%%   |                      |    |                      | 
+%%   |                      |    |                      | 
+%%   +----------------------+    +----------------------+ 
+%%                              
+%% \end{verbatim}
+%% \end{minipage}
+%%                              
 % XXX need to do a caption block -- a cell to one side of an image to the 
 % 		end of the page...
 % XXX can we use the normal caption and simply insert a minipage of the 
 %		appropriate width???
+
+\newlength\photobook@captionblockcell@tmplen
+
+
+
+\define@boolkey{captionblockcell@args}{left}[true]{%
+	\KV@captionblockcell@args@rightfalse}
+\define@boolkey{captionblockcell@args}{right}[true]{%
+	\KV@captionblockcell@args@leftfalse}
+
+% XXX this should depend on left/right...
+\def\photobook@captionblockcell@align{flushright}
+\define@key{captionblockcell@args}{align}{%
+	\edef\photobook@captionblockcell@align{#1}}
+
+% XXX should be a boolkey -- t|c|b???
+\edef\photobook@captionblockcell@valign{b}
+\define@key{captionblockcell@args}{valign}{%
+	\edef\photobook@captionblockcell@valign{#1}}
+
+% XXX clearance=.., 
+\newlength\clearcaption
+\setlength\clearcaption{0pt}
+\newlength\photobook@captionblockcell@clearance
+\define@key{captionblockcell@args}{clearance}{%
+	\setlength\photobook@captionblockcell@clearance{#1}}
+
+\newlength\photobook@captionblockcell@width
+\setlength\photobook@captionblockcell@width{0pt}
+\define@key{captionblockcell@args}{width}{%
+	\setlength\photobook@captionblockcell@width{#1}}
+
+% XXX padding... ???
+
+% XXX do we need top/bottom boxes???
+%		...if yes do we need lop/left, top/right, bottom/left and bottom/right???
+% XXX should we keep within parent cell if imagecell has negative clearance???
+% XXX need to auto-place within images via \offsetleft...
+% XXX add tweak support...
 \newcommand\captionblockcell[2][]{%
-	% XXX
-}
+	% XXX should this be within the group???
+	\setkeys{captionblockcell@args}{
+		left, 
+		align=flushright, 
+		valign=b,
+		clearance=\clearcaption, 
+		#1}%
+	%
+	\smash{\makebox[0pt][l]{%
+		\begingroup%
+			% setup cell context...
+			\setlength\clearcaption{\photobook@captionblockcell@clearance}%
+			\setlength\photobook@captionblockcell@tmplen{\cellwidth}%
+			\setlength\cellwidth{%
+				\ifnum \photobook@captionblockcell@width = 0%
+					\dimexpr 
+					\cellparentwidth 
+					- \cellwidth 
+					- \clearcaption 
+					% XXX this is only present in images...
+					- \clearance \relax%
+				\else%
+					\photobook@captionblockcell@width\fi}%
+			\setlength\cellparentwidth{\photobook@captionblockcell@tmplen}%
+			\setlength\celloffsetleft{%
+				\ifKV@captionblockcell@args@left%
+					-\cellwidth%
+				\else%
+					\cellparentwidth\fi}%
+			%
+			\hspace{\celloffsetleft}{%
+				\begin{minipage}[t][\cellheight][\photobook@captionblockcell@valign]{\cellwidth}%
+				\begin{\photobook@captionblockcell@align}%
+					\ignorespaces%
+					#2%
+				\end{\photobook@captionblockcell@align}%
+				\end{minipage}}%
+		\endgroup}}%
+	\ignorespaces}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
