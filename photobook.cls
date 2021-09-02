@@ -1029,22 +1029,39 @@
 %	>> \begin{CellContent}[<parent-align>]{<name>} ... \end{CellContent}
 %	>> \begin{CellContent*}[<parent-align>]{<name>}{<width>}{<height>} ... \end{CellContent}
 %
+% XXX TEST params...
 \newenvironment{CellContent}[2][t]{%
 	\begin{CellContent*}[#1]{#2}{\cellwidth}{\cellheight}%
 }{%
 	\end{CellContent*}}
 
 \newenvironment{CellContent*}[4][t]{%
-	%\begin{minipage}[#1][#4][\csname photobook@#2@valign\endcsname]{#3}%
 	\begin{adjustbox}{
-			%fbox=0.1pt, 
 			minipage=[#1][#4][\csname photobook@#2@valign\endcsname]{#3},
 			valign=#1}%
 		\ignorespaces%
 }{%
+		% prevent empty "minipage" from collapsing...
+		% XXX does this affect the height???
+		\hspace{\fill}%
 	\end{adjustbox}}
-	%\end{minipage}}
 
+
+%
+%	>> \begin{MinipageCellContent}[<parent-align>]{<name>} ... \end{MinipageCellContent}
+%	>> \begin{MinipageCellContent*}[<parent-align>]{<name>}{<width>}{<height>} ... \end{MinipageCellContent}
+%
+% XXX TEST...
+% XXX doc...
+\newenvironment{MinipageCellContent}[2][t]{%
+	\begin{MinipageCellContent*}[#1]{#2}{\cellwidth}{\cellheight}%
+}{%
+	\end{MinipageCellContent*}}
+
+\newenvironment{MinipageCellContent*}[4][t]{%
+	\begin{minipage}[#1][#4][\csname photobook@#2@valign\endcsname]{#3}%
+}{%
+	\end{minipage}}
 
 
 %% A cell environment is a box of specified size.
@@ -1144,26 +1161,6 @@
 %%
 %% These are just like |minipage| but provide cell mechanics.
 %%
-%\newenvironment{inlinecell*}[3][t]{%
-%	\begingroup%
-%		% get args by value...
-%		\edef\photobook@protect@w{\the\dimexpr #2 \relax}%
-%		\edef\photobook@protect@h{\the\dimexpr #3 \relax}%
-%		%
-%		\setlength\cellparentwidth{\cellwidth}%
-%		\setlength\cellparentheight{\cellheight}%
-%		\setlength\cellwidth{\photobook@protect@w}%
-%		\setlength\cellheight{\photobook@protect@h}%
-%		\setlength\celloffsettop{0pt}%
-%		\setlength\celloffsetleft{0pt}%
-%		\setlength\clearance{0pt}%
-%		%
-%		\begin{minipage}[t][\cellheight][#1]{\cellwidth}% 
-%			\ignorespaces%
-%}{%
-%		\end{minipage}%
-%	\endgroup}
-
 % XXX EXPERIMENTAL
 \CellContentOptions{inlinecell}
 
@@ -1206,6 +1203,56 @@
 
 
 % XXX EXPERIMENTAL
+%% \DescribeEnv{minipagecell}
+%% \DescribeEnv{minipagecell*}
+%
+%% \EXPERIMENTAL
+%%
+\CellContentOptions{minipagecell}
+
+\def\photobook@minipagecell@parentvalign{t}
+\define@boolkey{minipagecell@args}{t}[true]{%
+	\def\photobook@minipagecell@parentvalign{t}}
+\define@boolkey{minipagecell@args}{c}[true]{%
+	\def\photobook@minipagecell@parentvalign{c}}
+\define@boolkey{minipagecell@args}{b}[true]{%
+	\def\photobook@minipagecell@parentvalign{b}}
+
+\newenvironment{minipagecell*}[3][]{%
+	\begingroup%
+		\setkeys{minipagecell@args}{
+			t,
+			#1}%
+		% get args by value...
+		\edef\photobook@protect@w{\the\dimexpr #2 \relax}%
+		\edef\photobook@protect@h{\the\dimexpr #3 \relax}%
+		%
+		\setlength\cellparentwidth{\cellwidth}%
+		\setlength\cellparentheight{\cellheight}%
+		\setlength\cellwidth{\photobook@protect@w}%
+		\setlength\cellheight{\photobook@protect@h}%
+		\setlength\celloffsettop{0pt}%
+		\setlength\celloffsetleft{0pt}%
+		\setlength\clearance{0pt}%
+		%
+		\begin{MinipageCellContent}[\photobook@minipagecell@parentvalign]{minipagecell}%
+}{%
+		\end{MinipageCellContent}%
+	\endgroup}
+
+\newenvironment{minipagecell}[3][t]{%
+	\begin{minipagecell*}[#1]{#2}{#3}%
+	\begin{cliptocell}%
+}{%
+	\end{cliptocell}%
+	\end{minipagecell*}}
+
+
+% XXX add a direct \adjboxcell{..} -- directly passing args to \adjustbox{..}...
+% XXX
+
+
+% XXX EXPERIMENTAL
 %% \DescribeEnv{zinlinecell}
 %% \DescribeEnv{zinlinecell*}
 %
@@ -1216,6 +1263,7 @@
 %%	>> \begin{zinlinecell}{<width>}{<height>} ... \end{zinlinecell}
 %%	>> \begin{zinlinecell}[<valign>]{<width>}{<height>} ... \end{zinlinecell}
 %%
+% XXX need to get rid of the raisebox here...
 \NewEnviron{zinlinecell*}[1][]{%
 	\smash{\makebox[0pt][l]{%
 		% XXX HACK: RAISEBOX -- feels hackish...
