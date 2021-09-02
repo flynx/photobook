@@ -30,6 +30,7 @@
 %% \usepackage[a4paper,margin=25mm,left=55mm,nohead]{geometry}
 %% \usepackage[numbered]{hypdoc}
 %% \usepackage{doctools}
+%% \usepackage{environ}
 %%
 %%% \newcommand\DescribeGlobal[1]{%
 %%%	\DescribeMacro{#1}}
@@ -39,6 +40,13 @@
 %%
 %% \setlength\parindent{0pt}
 %% \setlength\parskip{0.5em}
+%%
+%% \def\MetaDoc{}
+%% \NewEnviron{MetaDocSection}{%
+%%	\edef\MetaDoc{%
+%%		\MetaDoc%
+%%
+%%		\BODY}}
 %%
 %% \begin{document}
 %%
@@ -388,6 +396,7 @@
 % Parent class...
 %
 \LoadClass[9pt, final, openany]{book}
+
 
 
 %----------------------------------------------------------------------
@@ -3343,6 +3352,13 @@
 			#1]{#2}{#3}%
 	\end{spreadtopages}}
 
+
+
+%----------------------------------------------------------------------
+%%%% Meta macros
+%%
+%% \MetaDoc
+%%
 
 
 %----------------------------------------------------------------------

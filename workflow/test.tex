@@ -23,18 +23,24 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+\edef\addValue{}
+\def\add#1{
+	\edef\addValue{
+		\addValue
+		#1 \\ }}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \begin{document}
 
+\add{abc}
+\add{def}
+\add{ghi}
 
-%\savecell{foo}{10cm}{10cm}{fooo!}
+---
 
-\begin{cell*}{2cm, 2cm}{10cm}{10cm}
-	absolute cell
-\end{cell*}
+\addValue
 
 
 
