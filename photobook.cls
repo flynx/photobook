@@ -1035,10 +1035,15 @@
 	\end{CellContent*}}
 
 \newenvironment{CellContent*}[4][t]{%
-	\begin{minipage}[#1][#4][\csname photobook@#2@valign\endcsname]{#3}%
+	%\begin{minipage}[#1][#4][\csname photobook@#2@valign\endcsname]{#3}%
+	\begin{adjustbox}{
+			%fbox=0.1pt, 
+			minipage=[#1][#4][\csname photobook@#2@valign\endcsname]{#3},
+			valign=#1}%
 		\ignorespaces%
 }{%
-	\end{minipage}}
+	\end{adjustbox}}
+	%\end{minipage}}
 
 
 
@@ -1211,8 +1216,6 @@
 %%	>> \begin{zinlinecell}{<width>}{<height>} ... \end{zinlinecell}
 %%	>> \begin{zinlinecell}[<valign>]{<width>}{<height>} ... \end{zinlinecell}
 %%
-% XXX for some reason either the (parent) cell is lowered a bit or it's content 
-%		is raised -- still experimenting with this...
 \NewEnviron{zinlinecell*}[1][]{%
 	\smash{\makebox[0pt][l]{%
 		% XXX HACK: RAISEBOX -- feels hackish...
@@ -2060,9 +2063,13 @@
 
 % align=flushright|center|flushright
 % XXX this should depend on left/right...
-\def\photobook@captionblockcell@align{flushright}
+\def\photobook@captionblockcell@align{%
+	\ifKV@captionblockcell@args@left%
+		flushright%
+	\else%
+		flushleft\fi}
 \define@key{captionblockcell@args}{align}{%
-	\edef\photobook@captionblockcell@align{#1}}
+	\def\photobook@captionblockcell@align{#1}}
 
 % valign=t|c|b
 % XXX should be a boolkey -- t|c|b???
@@ -2106,7 +2113,6 @@
 	% XXX should this be within the group???
 	\setkeys{captionblockcell@args}{
 		left, 
-		align=flushright, 
 		valign=b,
 		clearance=\clearcaption, 
 		#1}%
