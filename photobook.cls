@@ -579,10 +579,12 @@
 %----------------------------------------------------------------------
 %%%% Initialization
 %%
-%% \DescribeMacro{\InitPages}
+%%% \DescribeMacro{\InitPages}
 %
-%%	Initialize page dimensions.
-%%
+%%% Initialize page dimensions.
+%%%
+% XXX do we need to document this??
+%		...is there a usecase for calling this manually?
 \newcommand\InitPages{
 	% layout bools/tests...
 	\coverlayoutfalse
