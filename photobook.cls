@@ -32,12 +32,16 @@
 %% \usepackage{doctools}
 %% \usepackage{environ}
 %%
-%%% \usepackage{imakeidx}
-%%% \makeindex[
-%%%		columns=3, 
-%%%		title=Alphabetical Index, 
-%%%		intoc,
-%%%		options= -s photobook.cls]
+%% \usepackage[toc]{multitoc}
+%% \renewcommand*{\multicolumntoc}{2}
+%% \setlength{\columnseprule}{0.5pt}
+%%
+%% \usepackage{imakeidx}
+%% \makeindex[
+%%		columns=3, 
+%%		title=Alphabetical Index, 
+%%		intoc,
+%%		options= -s photobook.ist]
 %%
 %%% \newcommand\DescribeGlobal[1]{%
 %%%	\DescribeMacro{#1}}
@@ -67,11 +71,19 @@
 %%
 %% \maketitle
 %%
-%% \fbox{\bf%
-%%		Note: all legacy templates/commnads/macros will get reworked soon! }
+%% \begin{abstract}
+%%	The |photobook| \LaTeX\space document class extends the |book| class 
+%%	defining a set of parameters, meta-macros, macros and environments 
+%%	with reasonable defaults to help typeset, build and print books mainly 
+%%	based on visual/image content.
+%% \end{abstract}
 %%
 %% \tableofcontents
 %%
+%%%% Introduction
+%
+%% XXX parameters, page spreads, templates, cell concept, ...
+%
 %%%% Usage
 %
 %%	>> \documentclass[<options>]{photobook}
@@ -2718,7 +2730,7 @@
 \newlength\imageoffsetleft
 
 %% \DescribeMacro{\tweakimagescale\{..\}}
-%% \DescribeMacro{\tweakimageoffsetleft\{..\}}
+%% \DescribeMacro{\tweakimageoffsettop\{..\}}
 %% \DescribeMacro{\tweakimageoffsetleft\{..\}}
 %
 %% Convenience commands
@@ -2731,10 +2743,13 @@
 %%
 \newcommand\tweakimagescale[1]{%
 	\edef\imagescale{#1}}
+
 \newcommand\tweakimageoffsettop[1]{%
 	\setlength\imageoffsettop{#1}}
+
 \newcommand\tweakimageoffsetleft[1]{%
 	\setlength\imageoffsetleft{#1}}
+
 
 %% \DescribeMacro{\resetimagetweaks\{..\}}
 %
@@ -2790,7 +2805,7 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-%%%%% Templates
+%%%%% General interface
 %
 %% A templates provide a uniform interface consisting of several commands:
 %%
@@ -2821,6 +2836,9 @@
 %% defaults passed to |\imagecell{..}|, they are split to provide ability 
 %% to configure the template defaults separately.
 %%
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% No bleed
 
 %% \DescribeMacro{\ImagePage\{..\}}
 %% \DescribeMacro{\ImagePageCaption\{..\}}
@@ -2879,6 +2897,9 @@
 	\end{page}}
 
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Partial bleed
+
 %% \DescribeMacro{\ImagePageFit\{..\}}
 %% \DescribeMacro{\ImagePageFitCaption\{..\}}
 %% \DescribeMacro{\resetImagePageFitCaption}
@@ -2927,46 +2948,6 @@
 			#1]{#2}{#3}%
 	\end{pagecell}%
 	\end{page}}
-
-
-%% \DescribeMacro{\ImagePageFill\{..\}}
-%% \DescribeMacro{\ImagePageFillCaption\{..\}}
-%% \DescribeMacro{\resetImagePageFillCaption}
-%% \DescribeMacro{\ImagePageFill*\{..\}}
-%
-%%	Like |\ImagePage| but will fill page with image.
-%
-%%	>> \ImagePageFill[<options>]{<caption>}{<image>}
-%%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%   . . . . . . . . . . . . . . . . . . .
-%%   . .      +-----------------+      . .
-%%   .    .   |              c  |   .    .
-%%   .       .|                 |.       .
-%%   .        | .             . |        .
-%%   .        |    .       .    |        .
-%%   .        |      image      |        .
-%%   .        |    .       .    |        .
-%%   .        | .             . |        .
-%%   .       .|                 |.       .
-%%   .    .   |                 |   .    .
-%%   . .      +-----------------+      . .
-%%   . . . . . . . . . . . . . . . . . . .
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%%
-%% Default image clearence (|clearimage| option value in |\imagecell{..}|) 
-%% is set by |\clearimage| global length.
-%%
-\ResettableMacro{ImagePageFillCaption}[1]{%
-	\captioncell[top, align=flushright]{%
-		\captionformat{#1}}}
-
-\ImagePageTemplate{ImagePageFill}{%
-	\ImagePageFit*[fill, #1]{#2}{#3}}
 
 
 % XXX
@@ -3022,7 +3003,7 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%       . . . . . . . .
+%%         . . . . . . . .
 %%   +-----------------+ .
 %%   |     |.         .| .
 %%   |     | .       . | .
@@ -3034,7 +3015,7 @@
 %%   |     | .       . | .
 %%   |   c |.         .| .
 %%   +-----------------+ .
-%%       . . . . . . . .
+%%         . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -3055,6 +3036,49 @@
 			\raisebox{\dimexpr #1 + \bleed \relax}{
 				\usebox\photobook@imagebox } } } }
 	\newpage }
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Full bleed
+
+%% \DescribeMacro{\ImagePageFill\{..\}}
+%% \DescribeMacro{\ImagePageFillCaption\{..\}}
+%% \DescribeMacro{\resetImagePageFillCaption}
+%% \DescribeMacro{\ImagePageFill*\{..\}}
+%
+%%	Like |\ImagePage| but will fill page with image.
+%
+%%	>> \ImagePageFill[<options>]{<caption>}{<image>}
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   . . . . . . . . . . . . . . . . . . .
+%%   . .      +-----------------+      . .
+%%   .    .   |              c  |   .    .
+%%   .       .|                 |.       .
+%%   .        | .             . |        .
+%%   .        |    .       .    |        .
+%%   .        |      image      |        .
+%%   .        |    .       .    |        .
+%%   .        | .             . |        .
+%%   .       .|                 |.       .
+%%   .    .   |                 |   .    .
+%%   . .      +-----------------+      . .
+%%   . . . . . . . . . . . . . . . . . . .
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% Default image clearence (|clearimage| option value in |\imagecell{..}|) 
+%% is set by |\clearimage| global length.
+%%
+\ResettableMacro{ImagePageFillCaption}[1]{%
+	\captioncell[top, align=flushright]{%
+		\captionformat{#1}}}
+
+\ImagePageTemplate{ImagePageFill}{%
+	\ImagePageFit*[fill, #1]{#2}{#3}}
 
 
 %% \DescribeMacro{\ImageHalfPageL\{..\}}
@@ -3159,6 +3183,10 @@
 
 %----------------------------------------------------------------------
 %%%% Spread Templates
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Partial bleed
 
 % XXX
 %% \DescribeMacro{\portraitspreadbleedleft\{..\}}
@@ -3337,6 +3365,9 @@
 	\end{spreadtopages}}
 
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Full bleed
+
 %% \DescribeMacro{\ImageSpreadFill\{..\}}
 %% \DescribeMacro{\ImageSpreadFillCaption\{..\}}
 %% \DescribeMacro{\resetImageSpreadFillCaption}
@@ -3386,7 +3417,7 @@
 
 
 %----------------------------------------------------------------------
-%%%% Meta macros and environments
+%%%% Meta Macros / Environments
 %
 %% These macros and environments are used internally to help define cells
 %% and templates and thus can be useful when extending the functionality 
@@ -3500,8 +3531,9 @@
 
 
 %----------------------------------------------------------------------
-% Tail stuff...
+% Index...
 %
+% XXX this prints trash at this point...
 %%% \printindex
 
 
