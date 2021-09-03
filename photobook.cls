@@ -32,6 +32,13 @@
 %% \usepackage{doctools}
 %% \usepackage{environ}
 %%
+%%% \usepackage{imakeidx}
+%%% \makeindex[
+%%%		columns=3, 
+%%%		title=Alphabetical Index, 
+%%%		intoc,
+%%%		options= -s photobook.cls]
+%%
 %%% \newcommand\DescribeGlobal[1]{%
 %%%	\DescribeMacro{#1}}
 %%
@@ -61,7 +68,9 @@
 %% \maketitle
 %%
 %% \fbox{\bf%
-%%		Note: all older templates/commnads/macros will get reworked soon! }
+%%		Note: all legacy templates/commnads/macros will get reworked soon! }
+%%
+%% \tableofcontents
 %%
 %%%% Usage
 %
@@ -3491,6 +3500,12 @@
 
 
 %----------------------------------------------------------------------
+% Tail stuff...
+%
+%%% \printindex
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%% XXX DEBUG...
 %%%\AtBeginDocument{
 %%%}

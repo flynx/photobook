@@ -3,7 +3,8 @@
 
 ARGS :=
 
-TEX := lualatex $(ARGS)
+#TEX := lualatex $(ARGS)
+TEX := latexmk -lualatex $(ARGS)
 
 
 
@@ -88,7 +89,7 @@ install: dist
 
 .PHONY: sweep
 sweep:
-	rm -f *.{aux,fls,glo,gls,hd,idx,ilg,ind,ins,log,out}
+	rm -f *.{aux,fls,glo,gls,hd,idx,ilg,ind,ins,log,out,toc,fdb_latexmk}
 
 
 .PHONY: clean
