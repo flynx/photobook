@@ -27,12 +27,12 @@ TEX := lualatex $(ARGS)
 texToDoc = \
 	@echo "texToDoc: $1 -> $2"; \
 	cat $1 \
-		| egrep '(^%%|^\\\\edef\\\\$*@[A-Z][A-Z]+)' \
-		| sed 's/^\(\\\\edef\\\\\)$*@/%%\\1/'\
-		| sed 's/%%%%%% \(.*\)/%%\\\\subsubsection{\1}/' \
-		| sed 's/%%%%% \(.*\)/%%\\\\subsection{\1}/' \
-		| sed 's/%%%% \(.*\)/%%\\\\section{\1}/' \
-		| sed 's/%%\s\+>>\s\+\(.*\)/%%\\\\begin{verbatim} \1 \\\\end{verbatim}/' \
+		| egrep '(^%$3|^\\\\edef\\\\$*@[A-Z][A-Z]+)' \
+		| sed 's/^\(\\\\edef\\\\\)$*@/%$3\\1/'\
+		| sed 's/%$3%%%% \(.*\)/%$3\\\\subsubsection{\1}/' \
+		| sed 's/%$3%%% \(.*\)/%$3\\\\subsection{\1}/' \
+		| sed 's/%$3%% \(.*\)/%$3\\\\section{\1}/' \
+		| sed 's/%$3\s\+>>\s\+\(.*\)/%$3\\\\begin{verbatim} \1 \\\\end{verbatim}/' \
 		| cut -c 3- - > $2
 
 
@@ -45,11 +45,20 @@ texToDoc = \
 
 # NOTE: .sty and .cls are essentially the same in terms of documentation 
 # 		generation...
-%.tex: %.sty
-	$(call texToDoc,$<,$@)
+%.tex: %.sty %-meta.tex
+	$(call texToDoc,$<,$@,%)
 
-%.tex: %.cls
-	$(call texToDoc,$<,$@)
+%.tex: %.cls %-meta.tex
+	$(call texToDoc,$<,$@,%)
+
+
+# NOTE: this is a bit ugly, but allot less so than trying to push \verb
+# 		into a LaTeX macro/env and then getting it out again in one pice...
+%-meta.tex: %.sty
+	$(call texToDoc,$<,$@,M)
+
+%-meta.tex: %.cls
+	$(call texToDoc,$<,$@,M)
 
 
 

@@ -16,6 +16,7 @@
 \usepackage{lipsum}
 \usepackage{ragged2e}
 
+
 \setlength\parindent{0pt}
 
 \edef\TestImage{DSC00403-2}
@@ -23,25 +24,11 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\edef\addValue{}
-\def\add#1{
-	\edef\addValue{
-		\addValue
-		#1 \\ }}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \begin{document}
-
-\add{abc}
-\add{def}
-\add{ghi}
-
----
-
-\addValue
-
 
 
 \end{document}

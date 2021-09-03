@@ -43,7 +43,7 @@
 %%
 %% \def\MetaDoc{}
 %% \NewEnviron{MetaDocSection}{%
-%%	\edef\MetaDoc{%
+%%	\global\edef\MetaDoc{%
 %%		\MetaDoc%
 %%
 %%		\BODY}}
@@ -933,24 +933,24 @@
 \fi
 
 
-%% \DescribeMacro{\ResettableMacro\{..\}}
+%M \DescribeMacro{\ResettableMacro\{..\}}
 %
-%% Create a resettable command.
+%M Create a resettable command.
 %
-%%	>> \ResettableMacro{<name>}{<code>}
-%%	>> \ResettableMacro{<name>}[<arg-count>]{<code>}
-%%	>> \ResettableMacro{<name>}[<arg-count>][<default>]{<code>}
+%M	>> \ResettableMacro{<name>}{<code>}
+%M	>> \ResettableMacro{<name>}[<arg-count>]{<code>}
+%M	>> \ResettableMacro{<name>}[<arg-count>][<default>]{<code>}
 %
-%% This is similar to |\newcommand{..}| but will define two commands:
-%%
-%%	>> \<name>{..}
-%%
-%%	>> \reset<name>
-%%
-%% |\<name>{..}| can be freely redefined or undefined by user.
-%%
-%% |\reset<name>| will reset |\<name>{..}| to its original state.
-%%
+%M This is similar to |\newcommand{..}| but will define two commands:
+%M
+%M	>> \<name>{..}
+%M
+%M	>> \reset<name>
+%M
+%M |\<name>{..}| can be freely redefined or undefined by user.
+%M
+%M |\reset<name>| will reset |\<name>{..}| to its original state.
+%M
 % parse args...
 \def\ResettableMacro#1{%
 	\@ifnextchar[{%
@@ -1016,6 +1016,12 @@
 
 % meta helpers...
 
+%M \DescribeMacro{\CellContentOptions\{..\}}
+%
+%M \EXPERIMENTAL
+%M
+%M Define standard cell options.
+%M
 % XXX figure out how to align and pad without messing with geometry...
 \newcommand\CellContentOptions[1]{%
 	%% align...
@@ -1036,9 +1042,19 @@
 	%	\expandafter\edef\csname photobook@#1@padding\endcsname{##1}}%
 }
 
+%M \DescribeEnv{CellContent}
+%M \DescribeEnv{CellContent*}
 %
-%	>> \begin{CellContent}[<parent-align>]{<name>} ... \end{CellContent}
-%	>> \begin{CellContent*}[<parent-align>]{<name>}{<width>}{<height>} ... \end{CellContent}
+%M \EXPERIMENTAL
+%M
+%M Standard cell content wrapper, used by |inlinecell|.
+%
+%M	>> \begin{CellContent}[<parent-align>]{<name>} ... \end{CellContent}
+%M	>> \begin{CellContent*}[<parent-align>]{<name>}{<width>}{<height>} ... \end{CellContent}
+%
+%M The star version requires width/height to be manually passed while the
+%M non-star version will get the values from |\cellwidth| and |\cellheight|
+%M respectively.
 %
 % XXX TEST params...
 \newenvironment{CellContent}[2][t]{%
@@ -1052,15 +1068,20 @@
 			valign=#1}%
 		\ignorespaces%
 }{%
-		% prevent empty "minipage" from collapsing...
-		% XXX does this affect the height???
+		% NOTE: prevent empty "minipage" from collapsing...
 		\hspace{\fill}%
 	\end{adjustbox}}
 
 
+%M \DescribeEnv{CellContent}
+%M \DescribeEnv{CellContent*}
 %
-%	>> \begin{MinipageCellContent}[<parent-align>]{<name>} ... \end{MinipageCellContent}
-%	>> \begin{MinipageCellContent*}[<parent-align>]{<name>}{<width>}{<height>} ... \end{MinipageCellContent}
+%M \EXPERIMENTAL
+%M
+%M Like |CellContent| / |CellContent*| but will use |minipage| as the wrapper.
+%
+%M	>> \begin{MinipageCellContent}[<parent-align>]{<name>} ... \end{MinipageCellContent}
+%M	>> \begin{MinipageCellContent*}[<parent-align>]{<name>}{<width>}{<height>} ... \end{MinipageCellContent}
 %
 % XXX TEST...
 % XXX doc...
@@ -2722,19 +2743,18 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % meta-commands...
 
-% \DescribeMacro{\ImagePageTemplate\{..\}}
+%M \DescribeMacro{\ImagePageTemplate\{..\}}
 %
-%	>> \ImagePageTemplate{<name>}{<code>}
+%M	>> \ImagePageTemplate{<name>}{<code>}
 %
-% This will define two commands:
+%M This will define two commands:
 %
-%	>> \<name>[<options>]{<caption>}{<code>}
+%M	>> \<name>[<options>]{<caption>}{<code>}
+%M	>> \<name>*[<options>]{<caption>}{<code>}
 %
-%	>> \<name>*[<options>]{<caption>}{<code>}
-%
-% |\<name>{..}| will use |\<name>Caption{..}| template command to typeset 
-% the image caption while |\<name>*{..}| will show the caption as-is.
-%
+%M |\<name>{..}| will use |\<name>Caption{..}| template command to typeset 
+%M the image caption while |\<name>*{..}| will show the caption as-is.
+%M
 \def\ImagePageTemplate#1#2{%
 	% handle <macro>* version...
 	\expandafter\def\csname #1\endcsname{\@ifstar{%
@@ -3357,14 +3377,20 @@
 
 
 %----------------------------------------------------------------------
-%%%% Meta macros
+%%%% Meta macros and environments
+%
+%% These macros and environments are used internally to help define cells
+%% and templates and thus can be useful when extending the functionality 
+%% of this class both when authoring styles and when creating user 
+%% macros/templates.
 %%
-%% \MetaDoc
+%% \input{photobook-meta}
 %%
+
 
 
 %----------------------------------------------------------------------
-%%%% Miscellaneous macros
+%%%% Miscellaneous
 
 % XXX should digits/rounding be configurable???
 \newcommand\photobook@TemplateCell[2][mm]{
