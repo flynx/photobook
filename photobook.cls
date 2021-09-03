@@ -28,9 +28,15 @@
 %% \documentclass{ltxdoc}
 %%
 %% \usepackage[a4paper,margin=25mm,left=55mm,nohead]{geometry}
+%%
+%% % NOTE: this needs to load before hyperref or bookmarks will break...
+%% % NOTE: loading hyperref here will break it loading later in one of 
+%% %		the packages...
+%% \usepackage{titlesec}
+%%
 %% \usepackage[numbered]{hypdoc}
 %% \usepackage{doctools}
-%% \usepackage{environ}
+%% \usepackage{needspace}
 %%
 %% \usepackage[toc]{multitoc}
 %% \renewcommand*{\multicolumntoc}{2}
@@ -49,15 +55,16 @@
 %% \newcommand\LEGACY{\fbox{LEGACY}}
 %% \newcommand\EXPERIMENTAL{\fbox{EXPERIMENTAL}}
 %%
+%%% sections to new pages...
+%% \newcommand\sectionbreak{\Needspace{5\baselineskip}}
+%%
+%% % remove section numbering...
+%% \setcounter{secnumdepth}{0}
+%%
+%% % paragraph configuration...
 %% \setlength\parindent{0pt}
 %% \setlength\parskip{0.5em}
 %%
-%% \def\MetaDoc{}
-%% \NewEnviron{MetaDocSection}{%
-%%	\global\edef\MetaDoc{%
-%%		\MetaDoc%
-%%
-%%		\BODY}}
 %%
 %% \begin{document}
 %%
@@ -458,6 +465,7 @@
 
 %----------------------------------------------------------------------
 %%%% Globals
+% XXX move these out to relevant sections + add a separate globals glossary...
 %
 % NOTE: most of these are setup in \InitPages...
 
@@ -597,12 +605,30 @@
 \newlength\pagetextheight
 \setlength\pagetextheight{\textheight}
 
-
 %% \DescribeMacro{\imageblockoffsettop=<ratio>}
 %
 %%
 %%
 \edef\imageblockoffsettop{\photobook@imageblockoffsettop}
+
+%% \DescribeMacro{\clearcaption=<ratio>}
+%
+%% Block caption clearance from edge of parent cell.
+%%
+%% Used as default by |\captionblockcell{..}|
+%%
+\newlength\clearcaption
+\setlength\clearcaption{0pt}
+
+%% \DescribeMacro{\captioncellspacing=<ratio>}
+%
+%% Block caption spacing from parent cell.
+%%
+%% Used as default by |\captionblockcell{..}|
+%%
+% XXX should this be used in other caption cells???
+\newlength\captioncellspacing
+\setlength\captioncellspacing{5pt}
 
 
 
@@ -773,6 +799,9 @@
 %----------------------------------------------------------------------
 % Setup...
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% on-import...
+
 % init/update lengths...
 \InitPages
 
@@ -783,9 +812,8 @@
 ]{geometry}
 
 
-
-%----------------------------------------------------------------------
-% Setup (pre-document)...
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% pre-document...
 
 \AtEndPreamble{
 
@@ -913,6 +941,10 @@
 %
 %%	>> \maxdim{A}{B}
 %%
+% XXX do we actually need these??
+%		...should be simple to replace with calc's: 
+%			0pt + \minof{..}
+%			0pt + \maxof{..}
 \newcommand\mindim[2]{
 	\ifdim \dimexpr #1 \relax < \dimexpr #2 \relax%
 		\dimexpr #1 \relax%
@@ -1030,6 +1062,18 @@
 	\ignorespaces%
 }{%
 	\clearpage}
+
+
+%% \DescribeEnv{leftpage}
+%
+%% \EXPERIMENTAL
+%%
+% XXX not sure about this...
+\newenvironment{leftpage}{%
+	\begin{page}%
+		\cleartoleftpage%
+}{%
+	\end{page}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2127,28 +2171,31 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%    celloffsetleft              celloffsetleft
-%%   <------>                    v 
-%%   .       <-------------->    <--------------> cellwidth
-%%   <---------------------->    <----------------------> cellparentwidth
-%%   .       .              .    ..             .       .
-%%   +----------------------+    +----------------------+ 
-%%   |                      |    |                      | 
-%%   |                      |    |                      | 
-%%   +-------+ - - - - - - +|    |+ - - - - - - +-------+ 
-%%   |       |             .|    |.             |       | 
-%%   |       |             .|    |.             |       | 
-%%   |  cap. |     cell    .|    |.    cell     |  cap. | 
-%%   |       |             .|    |.             |       | 
-%%   |       |             .|    |.             |       | 
-%%   +-------+ - - - - - - +|    |+ - - - - - - +-------+ 
-%%   |                      |    |                      | 
-%%   |                      |    |                      | 
-%%   +----------------------+    +----------------------+ 
+%%    celloffsetleft                celloffsetleft
+%%   <------->                     v 
+%%   .        <-------------->     .<-------------> cellwidth
+%%   <------------------------>    <------------------------> cellparentwidth
+%%   .       ..              ..    ..             .         .
+%%   +------------------------+    +------------------------+ 
+%%   |                        |    |                        | 
+%%   |                        |    |                        | 
+%%   |+-------++ - - - - - - +|    |+ - - - - - - ++-------+| 
+%%   ||       |.             .|    |.             .|       || 
+%%   ||       |.             .|    |.             .|       || 
+%%   ||  cap. |.     cell    .|    |.    cell     .|  cap. || 
+%%   ||       |.             .|    |.             .|       || 
+%%   ||       |.             .|    |.             .|       || 
+%%   |+-------++ - - - - - - +|    |+ - - - - - - ++-------+| 
+%%   |                        |    |                        | 
+%%   |                        |    |                        | 
+%%   +------------------------+    +------------------------+ 
+%%   <> clearcaption                              ..       <> clearcaption
+%%            <> spacing                          <> spacing
 %%                              
 %% \end{verbatim}
 %% \end{minipage}
 %%                              
+% XXX add cell spacing...
 % XXX need to do a caption block -- a cell to one side of an image to the 
 % 		end of the page...
 % XXX can we use the normal caption and simply insert a minipage of the 
@@ -2178,12 +2225,16 @@
 \define@key{captionblockcell@args}{valign}{%
 	\edef\photobook@captionblockcell@valign{#1}}
 
-% clearance=<len>
-\newlength\clearcaption
-\setlength\clearcaption{0pt}
+% clearance=<len> (defaults: \clearcaption)
 \newlength\photobook@captionblockcell@clearance
 \define@key{captionblockcell@args}{clearance}{%
 	\setlength\photobook@captionblockcell@clearance{#1}}
+
+% spacing=<len> (default: \captioncellspacing)
+\newlength\photobook@captionblockcell@spacing
+\setlength\photobook@captionblockcell@spacing{0pt}
+\define@key{captionblockcell@args}{spacing}{%
+	\setlength\photobook@captionblockcell@spacing{#1}}
 
 % width=<len>
 \newlength\photobook@captionblockcell@width
@@ -2216,6 +2267,7 @@
 		left, 
 		valign=b,
 		clearance=\clearcaption, 
+		spacing=\captioncellspacing,
 		#1}%
 	%
 	\smash{\makebox[0pt][l]{%
@@ -2226,19 +2278,25 @@
 			\setlength\cellwidth{%
 				\ifnum \photobook@captionblockcell@width = 0%
 					\dimexpr 
-					\cellparentwidth 
-					- \cellwidth 
-					- \clearcaption 
-					% XXX this is only present in images...
-					- \clearance \relax%
+						\cellparentwidth 
+						- \photobook@captionblockcell@spacing
+						- \cellwidth 
+						- \clearcaption 
+						% XXX this is only present in images...
+						- \clearance \relax%
 				\else%
 					\photobook@captionblockcell@width\fi}%
 			\setlength\cellparentwidth{\photobook@captionblockcell@tmplen}%
 			\setlength\celloffsetleft{%
 				\ifKV@captionblockcell@args@left%
-					-\cellwidth%
+					\dimexpr
+						- \cellwidth%
+						- \photobook@captionblockcell@spacing \relax%
 				\else%
-					\cellparentwidth\fi}%
+					\dimexpr
+						\cellparentwidth
+						+ \photobook@captionblockcell@spacing \relax%
+					\fi}%
 			%
 			\hspace{\celloffsetleft}{%
 				\ifKV@captionblockcell@args@showbox%
@@ -3424,7 +3482,7 @@
 %% of this class both when authoring styles and when creating user 
 %% macros/templates.
 %%
-%% \input{photobook-meta}
+%% \input{\jobname-meta}
 %%
 
 
