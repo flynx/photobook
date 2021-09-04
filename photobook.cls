@@ -14,7 +14,6 @@
 %		- templates --  \ImagePage{..}
 % XXX see where we need to \ignorespaces...
 % XXX might be a good idea to add a spine calculator...
-% XXX LEGACY BUG: fix \OFFSETFIX
 %
 %
 %----------------------------------------------------------------------
@@ -44,10 +43,10 @@
 %%
 %% \usepackage{imakeidx}
 %% \makeindex[
-%%		columns=3, 
+%%		columns=1, 
 %%		title=Alphabetical Index, 
 %%		intoc,
-%%		options= -s photobook.ist]
+%%		options= -s photobook.ist ]
 %%
 %%% \newcommand\DescribeGlobal[1]{%
 %%%	\DescribeMacro{#1}}
@@ -971,21 +970,6 @@
 				\hbox{}\newpage \fi\fi\fi }
 
 
-% XXX LEGACY?
-% XXX workaround a problem with xelatex vs. lualatex...
-\ifxetex
-	\newcommand\ShipoutPicture[1]{%
-		\AddToShipoutPicture*{#1}}
-
-\else
-	% XXX for some reason in pdflatex and lualatex \pagecolor{..} and 
-	%		\AddToShipoutPicture*{..} start fighting over space...
-	% XXX this draws over page numbers...
-	\newcommand\ShipoutPicture[1]{%
-		\AddToShipoutPictureFG*{#1}}
-\fi
-
-
 %M \DescribeMacro{\ResettableMacro\{..\}}
 %
 %M Create a resettable command.
@@ -1032,13 +1016,6 @@
 		\expandafter\let\csname #1\expandafter\endcsname\csname photobook@ResettableMacro@#1\endcsname}
 	% initialize...
 	\csname reset#1\endcsname}
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% XXX HACKS...
-
-\newlength{\OFFSETFIX}
-\setlength{\OFFSETFIX}{-4mm}
 
 
 
@@ -2895,6 +2872,7 @@
 %% to configure the template defaults separately.
 %%
 
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% No bleed
 
@@ -2955,6 +2933,132 @@
 	\end{page}}
 
 
+%% \DescribeMacro{\ImagePageClear\{..\}}
+%% \DescribeMacro{\ImagePageClearCaption\{..\}}
+%% \DescribeMacro{\resetImagePageClearCaption}
+%% \DescribeMacro{\ImagePageClear*\{..\}}
+%
+%%	>> \ImagePageClear[<options>]{<caption>}{<image>}
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%    \clearimage      \clearimage
+%%    v                v
+%%   +-----------------+      +-----------------+  < \clearimage
+%%   |                 |      |  +-----------+  |   
+%%   |+---------------+|      |  | .       . |  |
+%%   || .           . ||      |  |  .     .  |  |
+%%   ||    .     .    ||      |  |   .   .   |  |
+%%   ||     image     ||      |  |   image   |  |
+%%   ||    .     .    ||      |  |   .   .   |  |
+%%   || .           . ||      |  |  .     .  |  |
+%%   |+---------------+|      |  | .       . |  |
+%%   |               c |      |  +-----------+  |
+%%   +-----------------+      +-----------------+  < \clearimage
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% Default image clearance (|clearimage| option value in |\imagecell{..}|) 
+%% is set by |\clearimage| global length.
+%%
+% XXX make captions adaptive??? 
+\ResettableMacro{ImagePageClearCaption}[1]{%
+	\captioncell[under, align=flushright]{%
+		\captionformat{#1}}}
+
+\ImagePageTemplate{ImagePageClear}{%
+	\begin{page}%
+	\begin{pagecell}%
+		\imagecell[%
+			center, 
+			clearance=\clearimage, 
+			scale=\imagescale,
+			offsettop=\imageoffsettop,
+			offsetleft=\imageoffsetleft,
+			#1]{#2}{#3}%
+	\end{pagecell}%
+	\end{page}}
+
+
+%% \DescribeMacro{\ImagePageClear<D>\{..\}}
+%% \DescribeMacro{\ImagePageClear<D>Caption\{..\}}
+%% \DescribeMacro{\resetImagePageClear<D>Caption}
+%% \DescribeMacro{\ImagePageClear<D>*\{..\}}
+%
+%% |<D>| can be one of T, B, L or R, for top, bottom, left and right 
+%% respectively.
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +-----------------+    +-----------------+ 
+%%   |+---------------+|    |                 |   
+%%   || .           . ||    | c               | 
+%%   ||    .     .    ||    |+---------------+| 
+%%   ||     image     ||    || .           . || 
+%%   ||    . (T) .    ||    ||    .     .    || 
+%%   || .           . ||    ||     image     || 
+%%   |+---------------+|    ||    . (B) .    || 
+%%   |               c |    || .           . || 
+%%   |                 |    |+---------------+| 
+%%   +-----------------+    +-----------------+ 
+%%
+%%   +-----------------+    +-----------------+ 
+%%   |+-----------+    |    |    +-----------+| 
+%%   || .       . |    |    |    | .       . || 
+%%   ||  .     .  |    |    |    |  .     .  || 
+%%   ||   .   .   |    |    |    |   .   .   || 
+%%   ||   image   |    |    |    |   image   || 
+%%   ||   .(L).   |    |    |    |   .(R).   || 
+%%   ||  .     .  |    |    |    |  .     .  || 
+%%   || .       . |    |    |    | .       . || 
+%%   |+-----------+ c  |    |  c +-----------+| 
+%%   +-----------------+    +-----------------+ 
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+% TEST...
+\ResettableMacro{ImagePageClearTCaption}[1]{%
+	\captioncell[under, align=flushright]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImagePageClearT}{%
+	\ImagePageClear*[%
+		top,
+		clearance=-\clearimage, 
+		#1]{#2}{#3}}
+
+\ResettableMacro{ImagePageClearBCaption}[1]{%
+	\captioncell[over, align=flushright]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImagePageClearB}{%
+	\ImagePageClear*[%
+		bottom,
+		clearance=-\clearimage, 
+		#1]{#2}{#3}}
+
+\ResettableMacro{ImagePageClearLCaption}[1]{%
+	\captionblockcell[right]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImagePageClearL}{%
+	\ImagePageClear*[%
+		left,
+		clearance=-\clearimage, 
+		#1]{#2}{#3}}
+
+\ResettableMacro{ImagePageClearRCaption}[1]{%
+	\captionblockcell[left]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImagePageClearR}{%
+	\ImagePageClear*[%
+		right,
+		clearance=-\clearimage, 
+		#1]{#2}{#3}}
+
+
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Partial bleed
 
@@ -2987,7 +3091,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%% Default image clearence (|clearimage| option value in |\imagecell{..}|) 
+%% Default image clearance (|clearimage| option value in |\imagecell{..}|) 
 %% is set by |\clearimage| global length.
 %%
 % XXX make captions adaptive??? 
@@ -2996,104 +3100,89 @@
 		\captionformat{#1}}}
 
 \ImagePageTemplate{ImagePageFit}{%
-	\begin{page}%
-	\begin{pagecell}%
-		\imagecell[center, 
-			clearance=\clearimage, 
-			scale=\imagescale,
-			offsettop=\imageoffsettop,
-			offsetleft=\imageoffsetleft,
-			#1]{#2}{#3}%
-	\end{pagecell}%
-	\end{page}}
+	\ImagePageClear*[%
+		clearance=-\bleed, 
+		#1]{#2}{#3}}
 
 
-% XXX
-% XXX \OFFSETFIX
-%% \DescribeMacro{\portraitimagepageleft\{..\}}
+% XXX add top/bottom versions...
+%		....and combine docs...
+
+
+%% \DescribeMacro{\ImagePageFit<D>\{..\}}
+%% \DescribeMacro{\ImagePageFit<D>Caption\{..\}}
+%% \DescribeMacro{\resetImagePageFit<D>Caption}
+%% \DescribeMacro{\ImagePageFit<D>*\{..\}}
 %
-%% \LEGACY
-%
-%%  >> portraitimagepageleft[<clearence>]{<caption>}{<image>}
-%
+%% |<D>| can be one of T, B, L or R, for top, bottom, left and right 
+%% respectively.
+%%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   . . . . . . . .
-%%   . +-----------------+
-%%   . |.         .|     |
-%%   . | .       . |     |
-%%   . |  .     .  |     |
-%%   . |   .   .   |     |
-%%   . |   image   |     |
-%%   . |   .   .   |     |
-%%   . |  .     .  |     |
-%%   . | .       . |     |
-%%   . |.         .| c   |
-%%   . +-----------------+
-%%   . . . . . . . .
+%%   . . . . . . . . . . . .  
+%%   . +-----------------+ .    +-----------------+
+%%   . |  .           .  | .    |                 |
+%%   . |     .     .     | .    |                 |
+%%   . |      image      | .    |                 |
+%%   . |     . (T) .     | .  . |-----------------| .
+%%   . |  .           .  | .  . |  .           .  | .
+%%   . |-----------------| .  . |     .     .     | .
+%%     |                 |    . |      image      | .
+%%     |                 |    . |     . (B) .     | .
+%%     |                 |    . |  .           .  | .
+%%     +-----------------+    . +-----------------+ .
+%%                            . . . . . . . . . . . .
+%%   
+%%   . . . . . . . .                  . . . . . . . .
+%%   . +-----------------+      +-----------------+ .
+%%   . |.         .|     |      |     |.         .| .
+%%   . | .       . |     |      |     | .       . | .
+%%   . |  .     .  |     |      |     |  .     .  | .
+%%   . |   .   .   |     |      |     |   .   .   | .
+%%   . |   image   |     |      |     |   image   | .
+%%   . |   .(L).   |     |      |     |   .(R).   | .
+%%   . |  .     .  |     |      |     |  .     .  | .
+%%   . | .       . |     |      |     | .       . | .
+%%   . |.         .| c   |      |   c |.         .| .
+%%   . +-----------------+      +-----------------+ .
+%%   . . . . . . . .                  . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
 %%
-\newcommand\portraitimagepageleft[3][\clearimage]{
-	\sbox{\photobook@imagebox}{
-		\includegraphics[
-			keepaspectratio, 
-			height=\dimexpr \blockheight - ((#1) * 2) \relax,]{#3} }
-	\clearpage
-	%\captionboxright[-#1]{\photobook@imagebox}{#2}
-	\ShipoutPicture{
-		\AtPageLowerLeft{
-			\hspace*{\dimexpr \OFFSETFIX + #1 \relax}{
-			\raisebox{\dimexpr #1 + \bleed \relax}{
-				\usebox\photobook@imagebox}}}}
-	\newpage}
+% XXX TEST...
+\ResettableMacro{ImagePageFitTCaption}[1]{%
+	\captionblockcell[under]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImagePageFitT}{%
+	\ImagePageFit*[%
+		top, 
+		#1]{#2}{#3}}
 
+\ResettableMacro{ImagePageFitBCaption}[1]{%
+	\captioncell[over]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImagePageFitB}{%
+	\ImagePageFit*[%
+		bottom, 
+		#1]{#2}{#3}}
 
-% XXX
-%% \DescribeMacro{\portraitimagepageright\{..\}}
-%
-%% \LEGACY
-%
-%%	>> portraitimagepageright{<caption>}{<image>}
-%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%         . . . . . . . .
-%%   +-----------------+ .
-%%   |     |.         .| .
-%%   |     | .       . | .
-%%   |     |  .     .  | .
-%%   |     |   .   .   | .
-%%   |     |   image   | .
-%%   |     |   .   .   | .
-%%   |     |  .     .  | .
-%%   |     | .       . | .
-%%   |   c |.         .| .
-%%   +-----------------+ .
-%%         . . . . . . . .
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%%
-\newcommand\portraitimagepageright[3][\clearimage]{
-	\sbox{\photobook@imagebox}{
-		\includegraphics[
-			keepaspectratio, 
-			height=\dimexpr \blockheight - ((#1) * 2) \relax,]{#3} }
-	\clearpage
-	%\captionboxleft[-#1]{\photobook@imagebox}{#2}
-	\ShipoutPicture{
-		\AtPageLowerLeft{
-			\hspace*{\dimexpr 
-				-#1 
-				+\blockwidth 
-				-\wd\photobook@imagebox \relax}{
-			\raisebox{\dimexpr #1 + \bleed \relax}{
-				\usebox\photobook@imagebox } } } }
-	\newpage }
+\ResettableMacro{ImagePageFitLCaption}[1]{%
+	\captionblockcell[right]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImagePageFitL}{%
+	\ImagePageFit*[%
+		left, 
+		#1]{#2}{#3}}
+
+\ResettableMacro{ImagePageFitRCaption}[1]{%
+	\captionblockcell[left]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImagePageFitR}{%
+	\ImagePageFit*[%
+		right, 
+		#1]{#2}{#3}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3128,7 +3217,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%% Default image clearence (|clearimage| option value in |\imagecell{..}|) 
+%% Default image clearance (|clearimage| option value in |\imagecell{..}|) 
 %% is set by |\clearimage| global length.
 %%
 \ResettableMacro{ImagePageFillCaption}[1]{%
@@ -3136,7 +3225,9 @@
 		\captionformat{#1}}}
 
 \ImagePageTemplate{ImagePageFill}{%
-	\ImagePageFit*[fill, #1]{#2}{#3}}
+	\ImagePageFit*[%
+		fill, 
+		#1]{#2}{#3}}
 
 
 %% \DescribeMacro{\ImageHalfPageL\{..\}}
@@ -3176,8 +3267,9 @@
 
 \ImagePageTemplate{ImageHalfPageL}{%
 	\begin{spreadtopages*}[2]{photobook@ImageHalfPageL@cell}%
-		\imagecell[fill, 
-			clearance=\clearimage, 
+		\imagecell[%
+			fill, 
+			clearance=-\bleed,
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
@@ -3226,8 +3318,9 @@
 
 \ImagePageTemplate{ImageHalfPageR}{%
 	\begin{spreadtopages*}[2]{photobook@ImageHalfPageR@cell}%
-		\imagecell[fill, 
-			clearance=\clearimage, 
+		\imagecell[%
+			fill, 
+			clearance=-\bleed, 
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
@@ -3244,86 +3337,131 @@
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% No bleed
+
+% XXX TEST!!
+% XXX doc...
+% XXX Should we make this just like with pages, i.e. \imagePage{..} and 
+%		\ImagePageFit{..}, the first places relative to text and raises 
+%		slightly while the second simply centers...
+%% \DescribeMacro{\ImageSpread\{..\}}
+%% \DescribeMacro{\ImageSpreadCaption\{..\}}
+%% \DescribeMacro{\resetImageSpreadCaption}
+%% \DescribeMacro{\ImageSpread*\{..\}}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%    +---------------+---------------+ 
+%%    | +-------------+-------------+ | 
+%%    | |  .          .          .  | | 
+%%    | |      .      .      .      | | 
+%%    | |          .  .  .          | | 
+%%    | |           image           | | 
+%%    | |          .  .  .          | | 
+%%    | |      .      .      .      | | 
+%%    | |  .          .          .  | | 
+%%    | +-------------+-------------+ | 
+%%    +---------------+---------------+ 
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+% XXX do a better default...
+%		...adaptive???
+\ResettableMacro{ImageSpreadCaption}[1]{%
+	\captioncell[under, align=flushleft]{%
+		\captionformat{#1}}}
+
+\ImagePageTemplate{ImageSpread}{%
+	\cleartoleftpage%
+	\begin{spreadtopages}[2]%
+		\imagecell[%
+			fit, 
+			clearance=-\bleed, 
+			scale=\imagescale,
+			offsettop=\imageoffsettop,
+			offsetleft=\imageoffsetleft,
+			#1]{#2}{#3}%
+	\end{spreadtopages}}
+
+
+%% \DescribeMacro{\ImageSpread<D>\{..\}}
+%% \DescribeMacro{\ImageSpread<D>Caption\{..\}}
+%% \DescribeMacro{\resetImageSpread<D>Caption}
+%% \DescribeMacro{\ImageSpread<D>*\{..\}}
+%
+%% |<D>| can be one of T, B, L or R, for top, bottom, left and right 
+%% respectively.
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%    +---------------+---------------+  +---------------+---------------+   
+%%    | +-------------+-------------+ |  |               .               |   
+%%    | |  .          .          .  | |  |  c            .               |   
+%%    | |       .     .     .       | |  | +-------------+-------------+ |   
+%%    | |           image           | |  | |  .          .          .  | |   
+%%    | |       .    (T)    .       | |  | |       .     .     .       | |   
+%%    | |  .          .          .  | |  | |           image           | |   
+%%    | +-------------+-------------+ |  | |       .    (B)    .       | |   
+%%    |               .            c  |  | |  .          .          .  | |   
+%%    |               .               |  | +-------------+-------------+ |   
+%%    +---------------+---------------+  +---------------+---------------+   
+%%
+%%    +---------------+---------------+  +---------------+---------------+ 
+%%    | +-------------+---------+     |  |     +---------+-------------+ | 
+%%    | |  .          .      .  |     |  |     |  .      .          .  | | 
+%%    | |     .       .   .     |     |  |     |     .   .       .     | | 
+%%    | |        .    ..        |     |  |     |        ..    .        | | 
+%%    | |         image         |     |  |     |         image         | | 
+%%    | |        . (L)..        |     |  |     |        ..(R) .        | | 
+%%    | |     .       .   .     |     |  |     |     .   .       .     | | 
+%%    | |  .          .      .  |     |  |     |  .      .          .  | | 
+%%    | +-------------+---------+ c   |  |   c +---------+-------------+ | 
+%%    +---------------+---------------+  +---------------+---------------+ 
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+\ResettableMacro{ImageSpreadTCaption}[1]{%
+	\captionblockcell[under]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImageSpreadT}{%
+	\ImageSpread*[%
+		top, 
+		#1]{#2}{#3}}
+
+\ResettableMacro{ImageSpreadBCaption}[1]{%
+	\captioncell[over]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImageSpreadB}{%
+	\ImageSpread*[%
+		bottom, 
+		#1]{#2}{#3}}
+
+\ResettableMacro{ImageSpreadLCaption}[1]{%
+	\captionblockcell[right]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImageSpreadL}{%
+	\ImageSpread*[%
+		left, 
+		#1]{#2}{#3}}
+
+\ResettableMacro{ImageSpreadRCaption}[1]{%
+	\captionblockcell[left]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImageSpreadR}{%
+	\ImageSpread*[%
+		right, 
+		#1]{#2}{#3}}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Partial bleed
 
-% XXX
-%% \DescribeMacro{\portraitspreadbleedleft\{..\}}
-%
-%% \LEGACY
-%%
-%%	>> \portraitspreadbleedleft[<clearence>]{<caption>}{<image>}
-%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%       . . . . . . . .
-%%   +---------------+---------------+
-%%   |   |.         .|               |
-%%   |   | .       . |               |
-%%   |   |  .     .  |               |
-%%   |   |   .   .   |               |
-%%   |   |   image   |               |
-%%   |   |   .   .   |               |
-%%   |   |  .     .  |               |
-%%   |   | .       . |               |
-%%   |   |.         .| c             |
-%%   +---------------+---------------+
-%%       . . . . . . . .
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%%
-\newcommand\portraitspreadbleedleft[3][\clearimage]{
-	\cleartoleftpage
-	% style the caption...
-	\null
-	\vfill
-	\begin{flushright}
-		#2%
-	\end{flushright}
-	\newpage
-	% XXX add \bleed
-	\portraitimagepageleft[#1]{}{#3} }
 
-
-% XXX
-%% \DescribeMacro{\portraitspreadbleedright\{..\}}
-%
-%% \LEGACY
-%%
-%%	>> \portraitspreadbleedright[<clearence>]{<caption>}{<image>}
-%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%                 . . . . . . . .
-%%   +---------------+---------------+
-%%   |               |.         .|   |
-%%   |               | .       . |   |
-%%   |               |  .     .  |   |
-%%   |               |   .   .   |   |
-%%   |               |   image   |   |
-%%   |               |   .   .   |   |
-%%   |               |  .     .  |   |
-%%   |               | .       . |   |
-%%   |             c |.         .|   |
-%%   +---------------+---------------+
-%%                 . . . . . . . .
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%%
-\newcommand\portraitspreadbleedright[3][\clearimage]{
-	\cleartoleftpage
-	% style the caption...
-	% XXX add \bleed
-	\portraitimagepageright[#1]{}{#3} 
-	\null
-	\vfill
-	\begin{flushleft}
-		#2%
-	\end{flushleft}
-	\newpage }
+% XXX make these T/B/L/R and combine docs...
 
 
 %% \DescribeMacro{\ImageSpreadLeft\{..\}}
@@ -3364,9 +3502,10 @@
 \ImagePageTemplate{ImageSpreadLeft}{%
 	\cleartoleftpage%
 	\begin{spreadtopages}[2]%
-		\imagecell[fit, 
+		\imagecell[%
+			fit, 
 			left, 
-			clearance=\clearimage, 
+			clearance=-\bleed, 
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
@@ -3413,9 +3552,10 @@
 \ImagePageTemplate{ImageSpreadRight}{%
 	\cleartoleftpage%
 	\begin{spreadtopages}[2]%
-		\imagecell[fit, 
+		\imagecell[%
+			fit, 
 			right, 
-			clearance=\clearimage, 
+			clearance=-\bleed, 
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
@@ -3464,8 +3604,9 @@
 \ImagePageTemplate{ImageSpreadFill}{%
 	\cleartoleftpage%
 	\begin{spreadtopages}[2]%
-		\imagecell[fill, 
-			clearance=\clearimage, 
+		\imagecell[%
+			fill, 
+			clearance=-\bleed, 
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
@@ -3592,6 +3733,8 @@
 % Index...
 %
 % XXX this prints trash at this point...
+%		...I do not want to build the index manually but it seems that
+%		we are slowly moving in that direction...
 %%% \printindex
 
 
