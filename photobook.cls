@@ -2230,8 +2230,6 @@
 	\end{\photobook@captionblockcell@align}%
 	\end{minipage}}
 
-% XXX padding... ???
-
 % XXX revise how \clearance is handled...
 % XXX do we need top/bottom boxes???
 %		...if yes do we need lop/left, top/right, bottom/left and bottom/right???
