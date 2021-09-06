@@ -636,10 +636,12 @@
 %----------------------------------------------------------------------
 %%%% Initialization
 %%
-%%% \DescribeMacro{\InitPages}
+%% \DescribeMacro{\InitPages}
 %
-%%% Initialize page dimensions.
-%%%
+%% Initialize page dimensions.
+%%
+%% This is not intended for direct use.
+%%
 % XXX do we need to document this??
 %		...is there a usecase for calling this manually?
 \newcommand\InitPages{
@@ -2326,15 +2328,17 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   + - - - - - - - - - +
-%%   . +---------------+ .
-%%   . |               | .
-%%   . |               | .
-%%   . |   pagecell    | .
-%%   . |               | .
-%%   . |               | .
-%%   . +---------------+ .
-%%   + - - - - - - - - - +
+%%   <-> bleed         <-> bleed
+%%
+%%   + - - - - - - - - - +    + bleed
+%%   . +---------------+ .    v
+%%   . |               | .   
+%%   . |               | .   
+%%   . |   pagecell    | .   
+%%   . |               | .   
+%%   . |               | .   
+%%   . +---------------+ .    + bleed
+%%   + - - - - - - - - - +    v
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -2355,15 +2359,17 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   +-------------------+
-%%   | + - - - - - - - + |
-%%   | .               . |
-%%   | .               . |
-%%   | . pagebleedcell . |
-%%   | .               . |
-%%   | .               . |
-%%   | + - - - - - - - + |
-%%   +-------------------+
+%%   <-> bleed         <-> bleed
+%%
+%%   +-------------------+    + bleed  
+%%   | + - - - - - - - + |    v        
+%%   | .               . |             
+%%   | .               . |             
+%%   | . pagebleedcell . |             
+%%   | .               . |             
+%%   | .               . |             
+%%   | + - - - - - - - + |    + bleed  
+%%   +-------------------+    v        
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -2391,6 +2397,8 @@
 % XXX EXPERIMENTAL / TEST...
 %% \DescribeEnv{textcell}
 %
+%% \EXPERIMENTAL
+%%
 %% A cell taking up the page text block.
 %
 %%	>> \begin{textcell}{<width>}{<height>} ... \end{textcell}
@@ -2398,14 +2406,21 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%     <-----------> \textwidth
-%%   +---------------+
-%%   | +-----------+ |  ^
-%%   | |           | |  | \textheight
-%%   | | textcell  | |  |
-%%   | |           | |  |
-%%   | +-----------+ |  v
-%%   +---------------+
+%%      <-----------> \textwidth
+%%                          
+%%   <-----------------> \pageblockwidth
+%%
+%%   +-----------------+   ^ \pageblockheight
+%%   |                 |   |
+%%   |  +-----------+  |   |  ^ \textheight
+%%   |  |           |  |   |  |
+%%   |  |           |  |   |  |
+%%   |  | textcell  |  |   |  |
+%%   |  |           |  |   |  |
+%%   |  |           |  |   |  |
+%%   |  +-----------+  |   |  v
+%%   |                 |   | 
+%%   +-----------------+   v 
 %%
 %% \end{verbatim}
 %% \end{minipage}
