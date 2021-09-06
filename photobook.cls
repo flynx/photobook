@@ -8,6 +8,8 @@
 %
 %
 % XXX unify API -- see CellContent env...
+% XXX make this loadable both as a class and as a package...
+%		\@ifclassloaded{photobook}{<true>}{<false>}
 % XXX revise command naming -- should be obvious from name what is what:
 %		- meta commands -- ??? (currently same as templates)
 %		- general macros -- \usecell{..}
@@ -343,7 +345,7 @@
 %% - negative value set image bleed, 
 %% - positive value set distance from paper edge to image.
 %%
-\DeclareStringOption{clearimage}[-5mm]
+\DeclareStringOption{clearimage}[10mm]
 
 
 %%%%% Image block layout
@@ -763,7 +765,8 @@
 	% default image clearance...
 	\ifdim\clearimage=\maxdimen
 		\ifx\photobook@clearimage\empty
-			\setlength\clearimage{-\bleed}
+			%\setlength\clearimage{-\bleed}
+			\setlength\clearimage{10mm}
 		\else
 			\setlength\clearimage{\photobook@clearimage}
 		\fi
@@ -2958,8 +2961,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%% Default image clearance (|clearimage| option value in |\imagecell{..}|) 
-%% is set by |\clearimage| global length.
+%% Default image clearance is set by |\clearimage| global length.
 %%
 % XXX make captions adaptive??? 
 \ResettableMacro{ImagePageClearCaption}[1]{%
@@ -3025,7 +3027,6 @@
 \ImagePageTemplate{ImagePageClearT}{%
 	\ImagePageClear*[%
 		top,
-		clearance=-\clearimage, 
 		#1]{#2}{#3}}
 
 \ResettableMacro{ImagePageClearBCaption}[1]{%
@@ -3034,7 +3035,6 @@
 \ImagePageTemplate{ImagePageClearB}{%
 	\ImagePageClear*[%
 		bottom,
-		clearance=-\clearimage, 
 		#1]{#2}{#3}}
 
 \ResettableMacro{ImagePageClearLCaption}[1]{%
@@ -3043,7 +3043,6 @@
 \ImagePageTemplate{ImagePageClearL}{%
 	\ImagePageClear*[%
 		left,
-		clearance=-\clearimage, 
 		#1]{#2}{#3}}
 
 \ResettableMacro{ImagePageClearRCaption}[1]{%
@@ -3052,7 +3051,6 @@
 \ImagePageTemplate{ImagePageClearR}{%
 	\ImagePageClear*[%
 		right,
-		clearance=-\clearimage, 
 		#1]{#2}{#3}}
 
 
@@ -3089,8 +3087,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%% Default image clearance (|clearimage| option value in |\imagecell{..}|) 
-%% is set by |\clearimage| global length.
+%% Default image clearance is set by |\bleed| global length.
 %%
 % XXX make captions adaptive??? 
 \ResettableMacro{ImagePageFitCaption}[1]{%
@@ -3215,8 +3212,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%% Default image clearance (|clearimage| option value in |\imagecell{..}|) 
-%% is set by |\clearimage| global length.
+%% Default image clearance is set by |\bleed| global length.
 %%
 \ResettableMacro{ImagePageFillCaption}[1]{%
 	\captioncell[top, align=flushright]{%
@@ -3376,7 +3372,7 @@
 	\begin{spreadtopages}[2]%
 		\imagecell[%
 			fit, 
-			clearance=-\clearimage, 
+			clearance=\clearimage, 
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
