@@ -75,7 +75,6 @@ shopt -s nullglob extglob
 #
 # XXX TODO:
 #		- revise printed comments...
-#		- add --help support...
 #		- add real arg handling...
 #		- add abbility to apply template to a specific page in spread...
 #			...something like:
@@ -114,6 +113,8 @@ printhelp(){
 	echo "Usage: `basename $0` [ARGUMENTS] [PATH]"
 	echo "       `basename $0` [ARGUMENTS] PATH FROM [COUNT]"
 	echo
+	echo "Generate LaTeX layout from directory structure."
+	echo
 	echo "Arguments:"
 	echo "  -h --help   - print this help and exit."
 	echo "  --templates=PATH"
@@ -137,6 +138,14 @@ printhelp(){
 	echo "NOTE: COUNT is relevant iff FROM is given, otherwise all available "
 	echo "        spreads are generated."
 	echo
+	echo "Examples:"
+	echo "  $ `basename $0` ./pages > pages.tex"
+	echo "              - generate a layout fron the contents of ./pages"
+	echo
+	echo "  $ IMAGE_HIRES_DIR=images/hi-res `basename $0` ./pages"
+	echo "              - generate a layout fron the contents of ./pages and "
+	echo "                replaceing local images with images in ./images/hi-res"
+	echo
 }
 
 
@@ -149,6 +158,7 @@ while true ; do
 			printhelp
 			exit
 			;;
+
 		--templates)
 			TEMPLATE_PATH=$2
 			shift
