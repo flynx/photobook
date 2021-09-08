@@ -7,6 +7,25 @@
 %	- adds basic templates for image pages (XXX)
 %
 %
+%
+% This file contains both the code and the reference, but in a slightly 
+% more readable format than the traditional LaTeX .dtx format. In general
+% there are two main sections:
+%	- code
+%	- reference
+%		lines starting with "%%" or "%X" where X is a section id
+% Sections are parts of the reference that are logically ordered differently 
+% than the code, e.g. main user tools should have priority in the reference 
+% while meta code (identified by "%M") can be described later, while in code
+% we strictly need to define macros before they are used thus meta-macros
+% and other building blocks and components come before the user tools.
+%
+% Docs are build by the Makefile, so reference it for more info.
+%
+%	$ make doc
+%
+%
+%
 % XXX unify API -- see CellContent env...
 % XXX make this loadable both as a class and as a package...
 %		\@ifclassloaded{photobook}{<true>}{<false>}
@@ -77,7 +96,12 @@
 %%
 %% \date{Released \FILEDATE}
 %%
+%%
 %% \maketitle
+%%
+%% \begin{center}
+%% 	\fbox{This class is still unstable}
+%% \end{center}
 %%
 %% \begin{abstract}
 %%	The |photobook| \LaTeX\space document class extends the |book| class 
@@ -3792,7 +3816,7 @@
 	\end{page}}
 
 
-%% \DescribeMacro{\pdfmargincomment\{..\}}
+%% \DescribeMacro{\pdfcommentcell\{..\}}
 %
 %% Add pdf comment as margin overlay.
 %%
