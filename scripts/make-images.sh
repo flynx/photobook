@@ -132,6 +132,8 @@ printhelp(){
 	echo "Environment:"
 	echo "  \$IMAGE_HIRES_DIR "
 	echo "              - source directory for replacement hi-res images."
+	echo "  \$ANOTATE_IMAGE_PATHS "
+	echo "              - if true add image paths in anotations."
 	echo
 	echo "Configuration defaults can be stored in a config file: $CFG_FILE"
 	echo
@@ -189,6 +191,7 @@ else
 fi
 
 
+# calculate spread index range...
 # XXX add support for negative indexing...
 FROM=$2
 COUNT=$( [ -z $3 ] && echo 1 || echo $3 )
@@ -212,7 +215,6 @@ getCaption(){
 
 	echo ${C[*]}
 }
-
 
 getTemplate(){
 	local SPREAD=$1
@@ -240,7 +242,7 @@ anotatePath(){
 	# NOTE: did not figure out how to make a verbatim comment in latex 
 	#		so here we are, doing it in shell...
 	path=${path//_/\\_}
-	echo "\\marginpar{\\pdfcomment{Image: $path}}"
+	echo "\\pdfmargincomment{Image: $path}%"
 }
 
 

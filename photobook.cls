@@ -1365,16 +1365,16 @@
 %
 %% Create a basic absolutely positioned cell.
 %
-%%	>> \begin{cell}{<top>, <left>}{<width>}{<height>} ... \end{cell}
+%%	>> \begin{cell}{<left>, <top>}{<width>}{<height>} ... \end{cell}
 %
 %% Oversized content will be clipped.
 %%
 %% |cell*| is just like |cell| but will not clip its content.
 %
-%%	>> \begin{cell*}{<top>, <left>}{<width>}{<height>} ... \end{cell*}
+%%	>> \begin{cell*}{<left>, <top>}{<width>}{<height>} ... \end{cell*}
 %%
 % XXX SYNTAX: place the second arg in braces...
-%		\begin{cell*}(<top>, <left>){<width>}{<height>}
+%		\begin{cell*}(<left>, <top>){<width>}{<height>}
 \newenvironment{cell*}[3]{%
 	\readlist*\photobook@cell@offset{#1}%
 	%
@@ -1730,7 +1730,7 @@
 	\photobook@imagecell@RIGHT}
 % inside/outside...
 \define@boolkey{imagecell@args}{inside}[true]{%
-	\ifthenelse{\isodd{\thepage}}{
+	\ifthenelse{\isodd{\thepage}}{%
 		\photobook@imagecell@LEFT%
 	}{%
 		\photobook@imagecell@RIGHT}}%
@@ -1742,8 +1742,8 @@
 % top/bottom...
 \define@boolkey{imagecell@args}{top}[true]{%
 	\def\photobook@imagecell@top{%
-		\photobook@imagecell@clearance}
-	\def\photobook@imagecell@captiontop{
+		\photobook@imagecell@clearance}%
+	\def\photobook@imagecell@captiontop{%
 		-\dimexpr 
 			+\cellheight 
 			-\photobook@imagecell@clearance
@@ -1752,7 +1752,7 @@
 	\def\photobook@imagecell@top{\dimexpr 
 		+\cellheight 
 		-\photobook@imagecell@clearance
-		-\ht\photobook@imagebox \relax}
+		-\ht\photobook@imagebox \relax}%
 	\def\photobook@imagecell@captiontop{%
 		\photobook@imagecell@top}}%
 % clearance=<len>...
@@ -1777,7 +1777,7 @@
 % captionalign=t|c|b...
 \def\photobook@imagecell@captionalign{t}
 \define@choicekey{imagecell@args}{captionalign}{t,c,b}[t]{%
-	\def\photobook@imagecell@captionalign{#1}}%
+	\def\photobook@imagecell@captionalign{#1}}
 
 % XXX add offset support...
 %		...i.e. an argument that will shift the image v/h from base position.
@@ -1787,13 +1787,14 @@
 \newcommand\imagecell[3][]{%
 	\begingroup%
 		% args...
-		\setkeys{imagecell@args}{
+		\setkeys{imagecell@args}{%
 			fit,
 			center,
 			clearance=0pt,
 			#1}%
 		% preload image...
 		% fit...
+		% XXX make this respect \bindingoffset when \clearance > 0...
 		\ifKV@imagecell@args@fit%
 			\sbox{\photobook@imagebox}{%
 				\includegraphics[%
@@ -1816,7 +1817,7 @@
 				* \ratio{\wd\photobook@imagebox}{\ht\photobook@imagebox}}
 			\setlength\photobook@imagecell@cellratio{1pt
 				* \ratio{\cellwidth}{\cellheight}}
-			\ifdim \photobook@imagecell@imgratio < \photobook@imagecell@cellratio
+			\ifdim \photobook@imagecell@imgratio < \photobook@imagecell@cellratio%
 				\sbox{\photobook@imagebox}{%
 					\includegraphics[%
 						keepaspectratio, 
@@ -1835,7 +1836,6 @@
 		% XXX for some odd reason without this the alignment completely breaks...
 		\vspace{0pt}%
 		\adjustbox{%
-				%margin={\photobook@imagecell@left} 0pt 0pt {\photobook@imagecell@top}}{%
 				margin=
 					{\dimexpr 
 						\photobook@imagecell@offsetleft 
@@ -1958,6 +1958,7 @@
 %% in the same cell that takes up space, e.g. text, pictures, ...etc.
 %% Captions are mainly suited to play well with image cells.
 %%
+% XXX make captions clear left/right of page...
 % XXX need a way to make caption boxes independent of other cell content...
 %		...two ways to do this that come to mind:
 %			- place cell content into a 0-space cell
@@ -2053,6 +2054,7 @@
 %%
 %% See samples for better illustration.
 %%
+% XXX make captions clear top/bottom of page...
 % bottomup / topdown...
 \def\photobook@vcaptioncell@orientation{bottomup}
 \define@boolkey{vcaptioncell@args}{bottomup}[true]{%
@@ -2177,6 +2179,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%                              
+% XXX make captions clear top/bottom of page...
 % XXX add cell spacing...
 % XXX need to do a caption block -- a cell to one side of an image to the 
 % 		end of the page...
@@ -2319,6 +2322,7 @@
 %%%%% Page cells
 
 %% \DescribeEnv{pagecell}
+%% \DescribeEnv{pagecell*}
 %
 %% Page cell. 
 %%
@@ -2343,11 +2347,22 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+%% The star version accounts for |\bindingoffset|. 
+%%
 %% Note that |layoutmode|'s other than block will change the paper size 
 %% but will not affect this.
 %%
 \newenvironment{pagecell}{%
 	\begin{cell*}{\bleed,\bleed}{\pageblockwidth}{\pageblockheight}%
+}{%
+	\end{cell*}}
+
+\newenvironment{pagecell*}{%
+	\begin{cell*}{%
+			\bleed + \ifnumodd{\thepage}{\bindingoffset}{0pt}%
+			,\bleed}%
+		{\pageblockwidth - \bindingoffset}%
+		{\pageblockheight}%
 }{%
 	\end{cell*}}
 
@@ -2929,23 +2944,22 @@
 		\captionformat{#1}}}
 
 \ImagePageTemplate{ImagePage}{%
+	\clearpage%
 	\begin{page}%
-	\begin{pagecell}%
+	\begin{pagecell*}%
 	\begin{minipage}[t][\cellheight][c]{\cellwidth}%
 		\vspace{\imageblockoffsettop\pagetextheight}%
 		\begin{center}%
-			% compensate for \bindingoffset...
-			\hspace{\ifnumodd{\thepage}{\bindingoffset}{-\bindingoffset}}{%
-				\begin{inlinecell*}%
-						{\imageblockwidth\pagetextwidth}%
-						{\imageblockheight\pagetextheight}%
-					\imagecell[fit,
-						scale=\imagescale,
-						#1]{#2}{#3}%
-				\end{inlinecell*}}%
+			\begin{inlinecell*}%
+					{\imageblockwidth\pagetextwidth}%
+					{\imageblockheight\pagetextheight}%
+				\imagecell[fit,
+					scale=\imagescale,
+					#1]{#2}{#3}%
+			\end{inlinecell*}%
 		\end{center}%
 	\end{minipage}%
-	\end{pagecell}%
+	\end{pagecell*}%
 	\end{page}}
 
 
@@ -2978,14 +2992,17 @@
 %%
 %% Default image clearance is set by |\clearimage| global length.
 %%
+%% This respects |\bindingoffset|.
+%%
 % XXX make captions adaptive??? 
 \ResettableMacro{ImagePageClearCaption}[1]{%
 	\captioncell[under, align=flushright]{%
 		\captionformat{#1}}}
 
 \ImagePageTemplate{ImagePageClear}{%
+	\clearpage%
 	\begin{page}%
-	\begin{pagecell}%
+	\begin{pagecell*}%
 		\imagecell[%
 			center, 
 			clearance=\clearimage, 
@@ -2993,7 +3010,7 @@
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
 			#1]{#2}{#3}%
-	\end{pagecell}%
+	\end{pagecell*}%
 	\end{page}}
 
 
@@ -3035,17 +3052,18 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% TEST...
+% XXX TEST...
 \ResettableMacro{ImagePageClearTCaption}[1]{%
-	\captioncell[under, align=flushright]{%
+	\captioncell[under]{%
 		\captionformat{#1}}}
+% XXX the image seems to be a line too low...
 \ImagePageTemplate{ImagePageClearT}{%
 	\ImagePageClear*[%
 		top,
 		#1]{#2}{#3}}
 
 \ResettableMacro{ImagePageClearBCaption}[1]{%
-	\captioncell[over, align=flushright]{%
+	\captioncell[over]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImagePageClearB}{%
 	\ImagePageClear*[%
@@ -3104,19 +3122,68 @@
 %%
 %% Default image clearance is set by |\bleed| global length.
 %%
+%% If centered image fits vertically this will account for |\bindingoffset|.
+%%
 % XXX make captions adaptive??? 
 \ResettableMacro{ImagePageFitCaption}[1]{%
 	\captioncell[under, align=flushright]{%
 		\captionformat{#1}}}
 
+\newif\ifphotobook@ImagePageFit@centered
+\photobook@ImagePageFit@centeredfalse
+
+\newlength\photobook@ImagePageFit@imgratio
+\newlength\photobook@ImagePageFit@cellratio
+\def\photobook@ImagePageFit@opt{}
+\def\photobook@ImagePageFit@args{}
+
 \ImagePageTemplate{ImagePageFit}{%
-	\ImagePageClear*[%
-		clearance=-\bleed, 
-		#1]{#2}{#3}}
-
-
-% XXX add top/bottom versions...
-%		....and combine docs...
+	\begingroup%
+		% see if default alignment is overridden...
+		\ignoreemptyitems%
+		\readlist*\photobook@ImagePageFit@args{moo, #1}%
+		\foreachitem\photobook@ImagePageFit@opt\in\photobook@ImagePageFit@args{%
+			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{top}}{%
+				\photobook@ImagePageFit@centeredtrue}{}
+			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{left}}{%
+				\photobook@ImagePageFit@centeredtrue}{}
+			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{bottom}}{%
+				\photobook@ImagePageFit@centeredtrue}{}
+			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{right}}{%
+				\photobook@ImagePageFit@centeredtrue}{}}
+		% align center -> check if image fits vertically...
+		\ifphotobook@ImagePageFit@centered\else%
+			\sbox{\photobook@imagebox}{\includegraphics{#3}}%
+			\setlength\photobook@ImagePageFit@imgratio{1pt
+				* \ratio{\wd\photobook@imagebox}{\ht\photobook@imagebox}}%
+			% NOTE: subtracting \bindingoffset from \cellwidth here makes sure that
+			%		we avoid offsetting images close enough in ratio to the page and
+			%		messing up bleeds...
+			\setlength\photobook@ImagePageFit@cellratio{1pt
+				* \ratio{\cellwidth - \bindingoffset}{\cellheight}}%
+			\ifdim \photobook@ImagePageFit@imgratio > \photobook@ImagePageFit@cellratio%
+				\photobook@ImagePageFit@centeredtrue\fi\fi%
+		%
+		% ignore \bindingoffset -> center the image...
+		\ifphotobook@ImagePageFit@centered%
+			\clearpage%
+			\begin{page}%
+			\begin{pagecell}%
+				\imagecell[%
+					center, 
+					clearance=-\bleed, 
+					scale=\imagescale,
+					offsettop=\imageoffsettop,
+					offsetleft=\imageoffsetleft,
+					#1]{#2}{#3}%
+			\end{pagecell}%
+			\end{page}%
+		% special case: centered vertical image -> account for \bindingoffset...
+		\else%
+			\ImagePageClear*[%
+				clearance=-\bleed, 
+				#1]{#2}{#3}\fi%
+	\endgroup}
 
 
 %% \DescribeMacro{\ImagePageFit<D>\{..\}}
@@ -3161,9 +3228,8 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% XXX TEST...
 \ResettableMacro{ImagePageFitTCaption}[1]{%
-	\captionblockcell[under]{%
+	\captioncell[under]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImagePageFitT}{%
 	\ImagePageFit*[%
@@ -3173,6 +3239,7 @@
 \ResettableMacro{ImagePageFitBCaption}[1]{%
 	\captioncell[over]{%
 		\captionformat{#1}}}
+% XXX the image seems a bit too low...
 \ImagePageTemplate{ImagePageFitB}{%
 	\ImagePageFit*[%
 		bottom, 
@@ -3285,7 +3352,7 @@
 			#1]{#2}{#3}%
 	\end{spreadtopages*}%
 	%
-	\cleartoleftpage%
+	\clearpage%
 	\usespreadpage[1]{photobook@ImageHalfPageL@cell}}
 
 
@@ -3336,7 +3403,7 @@
 			#1]{#2}{#3}%
 	\end{spreadtopages*}%
 	%
-	\cleartoleftpage%
+	\clearpage%
 	\usespreadpage[2]{photobook@ImageHalfPageR@cell}}
 
 
@@ -3698,6 +3765,24 @@
 				\photobook@TemplateCell[#1]{BACK FLAP}
 			\end{backflap}\fi%
 	\end{page}}
+
+
+%% \DescribeMacro{\pdfmargincomment\{..\}}
+%
+%% Add pdf comment as overlay.
+%%
+%%	>> \pdfmargincomment{<comment>}
+%%
+\newcommand{\pdfmargincomment}[1]{%
+		\begin{cell*}{
+					\ifnumodd{\thepage}{%
+						\cellwidth - \marginparwidth - 2\bleed - 1cm
+					}{%
+						\bleed + 1cm},
+					\bleed + 1cm
+				}{\marginparwidth}{1pt}%
+			\pdfcomment{#1}%
+		\end{cell*}}
 
 
 %% \DescribeMacro{\pdfpagecount\{..\}}
