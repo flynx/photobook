@@ -242,7 +242,8 @@ anotatePath(){
 	# NOTE: did not figure out how to make a verbatim comment in latex 
 	#		so here we are, doing it in shell...
 	path=${path//_/\\_}
-	echo "\\pdfmargincomment{Image: $path}%"
+	#echo "\\pdfmargincomment{Image: $path}%"
+	echo "\\pdfcommentcell{Image: $path}%"
 }
 
 

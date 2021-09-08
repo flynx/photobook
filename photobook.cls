@@ -1327,10 +1327,6 @@
 	\end{minipagecell*}}
 
 
-% XXX add a direct \adjboxcell{..} -- directly passing args to \adjustbox{..}...
-% XXX
-
-
 % XXX EXPERIMENTAL
 %% \DescribeEnv{zinlinecell}
 %% \DescribeEnv{zinlinecell*}
@@ -1396,6 +1392,31 @@
 	\end{cliptocell}%
 	\end{cell*}%
 	\ignorespaces}
+
+
+% XXX EXPERIMENTAL
+%% \DescribeEnv{adjustcell}
+%% \DescribeEnv{adjustcell*}
+%
+%% \EXPERIMENTAL
+%%
+\newenvironment{adjustcell*}[4][t]{%
+	\begin{adjustbox}{#2}%
+		\vspace{0pt}%
+		\begin{minipagecell*}[#1]{#3}{#4}%
+}{%
+		\end{minipagecell*}%
+	\end{adjustbox}}
+
+\newenvironment{adjustcell}[4][t]{%
+	\begin{adjustbox}{#2}%
+		\vspace{0pt}%
+		\begin{minipagecell}[#1]{#3}{#4}%
+}{%
+		\end{minipagecell}%
+	\end{adjustbox}}
+
+
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3143,19 +3164,23 @@
 		\ignoreemptyitems%
 		\readlist*\photobook@ImagePageFit@args{moo, #1}%
 		\foreachitem\photobook@ImagePageFit@opt\in\photobook@ImagePageFit@args{%
+			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{inner}}{%
+				\photobook@ImagePageFit@centeredtrue}{}%
+			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{outer}}{%
+				\photobook@ImagePageFit@centeredtrue}{}%
 			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{top}}{%
-				\photobook@ImagePageFit@centeredtrue}{}
+				\photobook@ImagePageFit@centeredtrue}{}%
 			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{left}}{%
-				\photobook@ImagePageFit@centeredtrue}{}
+				\photobook@ImagePageFit@centeredtrue}{}%
 			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{bottom}}{%
-				\photobook@ImagePageFit@centeredtrue}{}
+				\photobook@ImagePageFit@centeredtrue}{}%
 			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{right}}{%
-				\photobook@ImagePageFit@centeredtrue}{}}
+				\photobook@ImagePageFit@centeredtrue}{}}%
 		% align center -> check if image fits vertically...
 		\ifphotobook@ImagePageFit@centered\else%
 			\sbox{\photobook@imagebox}{\includegraphics{#3}}%
-			\setlength\photobook@ImagePageFit@imgratio{1pt
-				* \ratio{\wd\photobook@imagebox}{\ht\photobook@imagebox}}%
+			\setlength\photobook@ImagePageFit@imgratio{%
+				1pt * \ratio{\wd\photobook@imagebox}{\ht\photobook@imagebox}}%
 			% NOTE: subtracting \bindingoffset from \cellwidth here makes sure that
 			%		we avoid offsetting images close enough in ratio to the page and
 			%		messing up bleeds...
@@ -3769,20 +3794,20 @@
 
 %% \DescribeMacro{\pdfmargincomment\{..\}}
 %
-%% Add pdf comment as overlay.
+%% Add pdf comment as margin overlay.
 %%
 %%	>> \pdfmargincomment{<comment>}
 %%
-\newcommand{\pdfmargincomment}[1]{%
-		\begin{cell*}{
-					\ifnumodd{\thepage}{%
-						\cellwidth - \marginparwidth - 2\bleed - 1cm
-					}{%
-						\bleed + 1cm},
-					\bleed + 1cm
-				}{\marginparwidth}{1pt}%
-			\pdfcomment{#1}%
-		\end{cell*}}
+\newcommand\pdfcommentcell[1]{%
+	\begin{cell*}{
+				\ifnumodd{\thepage}{%
+					\cellwidth - \marginparwidth - 2\bleed - 1cm
+				}{%
+					\bleed + 1cm},
+				\bleed + 1cm
+			}{\marginparwidth}{1pt}%
+		\pdfcomment{#1}%
+	\end{cell*}}
 
 
 %% \DescribeMacro{\pdfpagecount\{..\}}
