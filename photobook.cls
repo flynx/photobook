@@ -3820,9 +3820,9 @@
 %
 %% Add pdf comment as margin overlay.
 %%
-%%	>> \pdfmargincomment{<comment>}
+%%	>> \pdfcommentcell[<options>]{<comment>}
 %%
-\newcommand\pdfcommentcell[1]{%
+\newcommand\pdfcommentcell[2][]{%
 	\begin{cell*}{
 				\ifnumodd{\thepage}{%
 					\cellwidth - \marginparwidth - 2\bleed - 1cm
@@ -3830,7 +3830,7 @@
 					\bleed + 1cm},
 				\bleed + 1cm
 			}{\marginparwidth}{1pt}%
-		\pdfcomment{#1}%
+		\pdfcomment[color=yellow, #1]{#2}%
 	\end{cell*}}
 
 
