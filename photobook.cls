@@ -3586,106 +3586,118 @@
 %%%%% Partial bleed
 
 
-% XXX make these T/B/L/R and combine docs...
+%% \DescribeMacro{\ImageSpreadFit\{..\}}
+%% \DescribeMacro{\ImageSpreadFitCaption\{..\}}
+%% \DescribeMacro{\resetImageSpreadFitCaption}
+%% \DescribeMacro{\ImageSpreadFit*\{..\}}
+%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%                                                  . . . . . . . . . . .
+%%     +---------------+---------------+      +---------------+---------------+  
+%%     |               .               |      |     |.        .        .|.    |  
+%%   . |-------------------------------| .    |     |  .      .      .  |     |  
+%%   . |    .          .          .    | .    |     |    .    .    .    |     |  
+%%   . |         .     .     .         | .    |     |      .  .  .      |     |  
+%%   . |             image             | .    |     |       image       |     |  
+%%   . |         .     .     .         | .    |     |      .  .  .      |     |  
+%%   . |    .          .          .    | .    |     |    .    .    .    |     |  
+%%   . |-------------------------------| .    |     |  .      .      .  |     |  
+%%     |               .             c |      |     |.        .        .| c   |  
+%%     +---------------+---------------+      +---------------+---------------+  
+%%                                                  . . . . . . . . . . .
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+% XXX TEST...
+% XXX make caption adaptive...
+\ResettableMacro{ImageSpreadFitCaption}[1]{%
+	\captioncell[under]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImageSpreadFit}{%
+	\cleartoleftpage%
+	\begin{spreadtopages}[2]%
+		\imagecell[%
+			fit, 
+			clearance=-\bleed, 
+			scale=\imagescale,
+			offsettop=\imageoffsettop,
+			offsetleft=\imageoffsetleft,
+			#1]{#2}{#3}%
+	\end{spreadtopages}}
 
 
-%% \DescribeMacro{\ImageSpreadLeft\{..\}}
-%% \DescribeMacro{\ImageSpreadLeftCaption\{..\}}
-%% \DescribeMacro{\resetImageSpreadLeftCaption}
-%% \DescribeMacro{\ImageSpreadLeft*\{..\}}
+%% \DescribeMacro{\ImageSpread<D>\{..\}}
+%% \DescribeMacro{\ImageSpread<D>Caption\{..\}}
+%% \DescribeMacro{\resetImageSpread<D>Caption}
+%% \DescribeMacro{\ImageSpread<D>*\{..\}}
 %
 %% Image spread aligned left (with bleed).
 %
-%% 	>> \ImageSpreadLeft[<options>]{<caption>}{<image>}
+%% 	>> \ImageSpread<D>[<options>]{<caption>}{<image>}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
+%%                                           
+%%  . . . . . . . . . . . . . . . . . . .           
+%%  . +---------------+---------------+ .    +---------------+---------------+  
+%%  . |   .           .           .   | .    | c             .               |  
+%%  . |       .       .       .       | .  . |-------------------------------| .
+%%  . |           .   .   .           | .  . |   .           .           .   | .
+%%  . |             image             | .  . |       .       .       .       | .
+%%  . |           .  (T)   .          | .  . |           .   .   .           | .
+%%  . |       .       .       .       | .  . |             image             | .
+%%  . |   .           .           .   | .  . |           .  (B)  .           | .
+%%  . |-------------------------------| .  . |       .       .       .       | .
+%%    |               .             c |    . |   .           .           .   | .
+%%    +---------------+---------------+    . +---------------+---------------+ .
+%%                                         . . . . . . . . . . . . . . . . . . .
 %%
-%%   . . . . . . . . . . . . . . . .
-%%   . +---------------+---------------+
-%%   . | .             .         . |   |
-%%   . |    .          .      .    |   |
-%%   . |       .       .   .       |   |
-%%   . |          .    ..          |   |
-%%   . |           image           |   |
-%%   . |          .    ..          |   |
-%%   . |       .       .   .       |   |
-%%   . |    .          .      .    |   |
-%%   . | .             .         . | c |
-%%   . +---------------+---------------+
-%%   . . . . . . . . . . . . . . . .
+%%  . . . . . . . . . . . . . . . .              . . . . . . . . . . . . . . . .
+%%  . +---------------+---------------+      +---------------+---------------+ .
+%%  . | .             .         . |   |      |   | .         .             . | .
+%%  . |    .          .      .    |   |      |   |    .      .          .    | .
+%%  . |       .       .   .       |   |      |   |       .   .       .       | .
+%%  . |          .    ..          |   |      |   |          ..   .           | .
+%%  . |           image           |   |      |   |          image            | .
+%%  . |          . (L)..          |   |      |   |          .(R) .           | .
+%%  . |       .       .   .       |   |      |   |       .   .       .       | .
+%%  . |    .          .      .    |   |      |   |    .      .          .    | .
+%%  . | .             .         . | c |      | c | .         .             . | .
+%%  . +---------------+---------------+      +---------------+---------------+ .
+%%  . . . . . . . . . . . . . . . .              . . . . . . . . . . . . . . . .
 %%
 %% \end{verbatim}
 %% \end{minipage}
 %%
+% XXX TEST...
 % XXX do a better default...
 % XXX need a caption box...
-\ResettableMacro{ImageSpreadLeftCaption}[1]{%
-	\vcaptioncell[after, align=flushleft]{%
+\ResettableMacro{ImageSpreadFitTCaption}[1]{%
+	\captioncell[under]{%
 		\captionformat{#1}}}
+\ImagePageTemplate{ImageSpreadFitT}{%
+	\ImageSpreadFit*[top, #1]{#2}{#3}}
 
-\ImagePageTemplate{ImageSpreadLeft}{%
-	\cleartoleftpage%
-	\begin{spreadtopages}[2]%
-		\imagecell[%
-			fit, 
-			left, 
-			clearance=-\bleed, 
-			scale=\imagescale,
-			offsettop=\imageoffsettop,
-			offsetleft=\imageoffsetleft,
-			#1]{#2}{#3}%
-	\end{spreadtopages}}
-
-
-% XXX
-%% \DescribeMacro{\ImageSpreadRight\{..\}}
-%% \DescribeMacro{\ImageSpreadRightCaption\{..\}}
-%% \DescribeMacro{\resetImageSpreadRightCaption}
-%% \DescribeMacro{\ImageSpreadRight*\{..\}}
-%
-%% Image spread aligned right (with bleed).
-%
-%%	>> \ImageSpreadRight[<options>]{<caption>}{<image>}
-%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%
-%%       . . . . . . . . . . . . . . . .
-%%   +---------------+---------------+ .
-%%   |   | .         .             . | .
-%%   |   |    .      .          .    | .
-%%   |   |       .   .       .       | .
-%%   |   |          ..   .           | .
-%%   |   |          image            | .
-%%   |   |          ..   .           | .
-%%   |   |       .   .       .       | .
-%%   |   |    .      .          .    | .
-%%   | c | .         .             . | .
-%%   +---------------+---------------+ .
-%%       . . . . . . . . . . . . . . . .
-%%
-%% \end{verbatim}
-%% \end{minipage}
-%%
-% XXX need a caption box...
-% XXX do a better default...
-\ResettableMacro{ImageSpreadRightCaption}[1]{%
-	\vcaptioncell[before, align=flushleft]{%
+\ResettableMacro{ImageSpreadFitBCaption}[1]{%
+	\captioncell[above]{%
 		\captionformat{#1}}}
+\ImagePageTemplate{ImageSpreadFitB}{%
+	\ImageSpreadFit*[bottom, #1]{#2}{#3}}
 
-\ImagePageTemplate{ImageSpreadRight}{%
-	\cleartoleftpage%
-	\begin{spreadtopages}[2]%
-		\imagecell[%
-			fit, 
-			right, 
-			clearance=-\bleed, 
-			scale=\imagescale,
-			offsettop=\imageoffsettop,
-			offsetleft=\imageoffsetleft,
-			#1]{#2}{#3}%
-	\end{spreadtopages}}
+\ResettableMacro{ImageSpreadFitLCaption}[1]{%
+	\captionblockcell[right]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImageSpreadFitL}{%
+	\ImageSpreadFit*[left, #1]{#2}{#3}}
+
+\ResettableMacro{ImageSpreadFitRCaption}[1]{%
+	\captionblockcell[left]{%
+		\captionformat{#1}}}
+\ImagePageTemplate{ImageSpreadFitR}{%
+	\ImageSpreadFit*[right, #1]{#2}{#3}}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
