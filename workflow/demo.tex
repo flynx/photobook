@@ -1,0 +1,133 @@
+%----------------------------------------------------------------------
+
+\documentclass[
+	layoutmode=block,
+	% page size...
+	blockwidth=240mm, blockheight=220mm,
+	bleed=4mm,
+	bindingoffset=5mm,
+	% image block configuration...
+	imageblockwidth=0.98, imageblockheight=0.98,
+	imageblockoffsettop=0,
+	% misc...
+	9pt,final,openany
+]{photobook}
+
+\usepackage{lipsum}
+\usepackage{ragged2e}
+
+
+\setlength\parindent{0pt}
+
+\edef\TestImage{DSC00403-2}
+\edef\TestImageV{DSC00403-2vert}
+
+
+\newcommand\Chapter[1]{
+	\cleartoleftpage%
+	\emptypage%
+	\chapter{#1}}
+
+\newcommand\Section[1]{
+	\cleartoleftpage%
+	\emptypage%
+	\section{#1}}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\begin{document}
+
+\Chapter{Page templates}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\Section{ImagePage}
+
+\ImagePage{Caption text}{\TestImage}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\Section{ImagePageClear}
+
+\ImagePageClear{ImagePageClear}{\TestImage}
+
+% XXX this is a bit off...
+\ImagePageClearT{ImagePageClearT}{\TestImage}
+% XXX caption/image a bit off vertically...
+\ImagePageClearB{ImagePageClearB}{\TestImage}
+\ImagePageClearL{ImagePageClearL}{\TestImageV}
+\ImagePageClearR{ImagePageClearR}{\TestImageV}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\Section{ImagePageFit}
+
+\ImagePageFit{ImagePageFit}{\TestImage}
+
+\cleartoleftpage
+Special case: image that fits vertically will be offset by \verb+\bindingoffset+
+\ImagePageFit{ImagePageFit}{\TestImageV}
+
+\ImagePageFitT{ImagePageFitT}{\TestImage}
+% XXX this is a bit too low...
+\ImagePageFitB{ImagePageFitB}{\TestImage}
+\ImagePageFitL{ImagePageFitL}{\TestImageV}
+\ImagePageFitR{ImagePageFitR}{\TestImageV}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\Section{ImagePageFill}
+
+\ImagePageFill{ImagePageFill}{\TestImage}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\Section{ImageHalfPageL}
+
+\ImageHalfPageL{ImageHalfPageL}{\TestImage}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\Section{ImageHalfPageR}
+
+\ImageHalfPageR{ImageHalfPageR}{\TestImage}
+
+
+
+%----------------------------------------------------------------------
+\Chapter{Spread templates}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\Section{ImageSpread}
+\ImageSpread{ImageSpread}{\TestImage}
+
+% XXX top/bottom have problems...
+\ImageSpreadT{ImageSpreadR}{\TestImage}
+\ImageSpreadB{ImageSpreadB}{\TestImage}
+\ImageSpreadL{ImageSpreadL}{\TestImage}
+\ImageSpreadR{ImageSpreadR}{\TestImage}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\Section{ImageSpreadFit}
+\ImageSpreadFit{ImageSpreadFit}{\TestImage}
+
+\ImageSpreadFitT{ImageSpreadFitT}{\TestImage}
+\ImageSpreadFitB{ImageSpreadFitB}{\TestImage}
+\ImageSpreadFitL{ImageSpreadFitL}{\TestImage}
+\ImageSpreadFitR{ImageSpreadFitR}{\TestImage}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\Section{ImageSpreadFill}
+\ImageSpreadFill{ImageSpreadFill}{\TestImage}
+
+
+
+
+%----------------------------------------------------------------------
+\end{document} %                                    vim:set ts=4 sw=4 :

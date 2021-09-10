@@ -2803,6 +2803,23 @@
 %%
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Generic
+
+%% \DescribeMacro{\emptypage\{..\}}
+%
+%% Create an empty page.
+%
+%%	>> \emptypage
+%%	>> \emptypage[<style>]
+%% 
+\newcommand\emptypage[1][empty]{
+	\begin{page}%
+		\ifthenelse{\equal{#1}{}}{}{
+			\thispagestyle{#1}}
+	\end{page}}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Tweaking
 %
 %% Most page/spread templates provide an ability to externally "tweak" 
@@ -3495,7 +3512,7 @@
 % XXX do a better default...
 %		...adaptive???
 \ResettableMacro{ImageSpreadCaption}[1]{%
-	\captioncell[under, align=flushleft]{%
+	\captioncell[under]{%
 		\captionformat{#1}}}
 
 \ImagePageTemplate{ImageSpread}{%
@@ -3550,7 +3567,7 @@
 %% \end{minipage}
 %%
 \ResettableMacro{ImageSpreadTCaption}[1]{%
-	\captionblockcell[under]{%
+	\captioncell[under]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImageSpreadT}{%
 	\ImageSpread*[%
@@ -3682,7 +3699,7 @@
 	\ImageSpreadFit*[top, #1]{#2}{#3}}
 
 \ResettableMacro{ImageSpreadFitBCaption}[1]{%
-	\captioncell[above]{%
+	\captioncell[over]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImageSpreadFitB}{%
 	\ImageSpreadFit*[bottom, #1]{#2}{#3}}
@@ -3758,9 +3775,15 @@
 %% These macros and environments are used internally to help define cells
 %% and templates and thus can be useful when extending the functionality 
 %% of this class both when authoring styles and when creating user 
-%% macros/templates.
+%% macros/templates.\footnote{%
+%% 		Note that in code the relevant meta-macros are defined in the logical 
+%% 		locations for each macro, i.e. before first use and at the start of 
+%% 		the relevant context. This section in the reference is placed near 
+%% 		the end so as to focus the user's attention on the main class interface,
+%% 		class internal architecture and extension API being secondary.}
 %%
 %% \input{\jobname-meta}
+%%
 %%
 
 
