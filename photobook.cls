@@ -1853,15 +1853,15 @@
 		% fill...
 		\else\ifKV@imagecell@args@fill%
 			% preload image to get its proportions...
-			\sbox{\photobook@imagebox}{\includegraphics{#3}}
+			\sbox{\photobook@imagebox}{\includegraphics{#3}}%
 			% constrain minimal dimension of image...
 			% NOTE: here we calculate image/cell eccentricity to decide 
 			%		to fit to width or heigh of cell...
 			% NOTE: did I say that I "love" how LaTeX does basic math??
-			\setlength\photobook@imagecell@imgratio{1pt
-				* \ratio{\wd\photobook@imagebox}{\ht\photobook@imagebox}}
-			\setlength\photobook@imagecell@cellratio{1pt
-				* \ratio{\cellwidth}{\cellheight}}
+			\setlength\photobook@imagecell@imgratio{%
+				1pt * \ratio{\wd\photobook@imagebox}{\ht\photobook@imagebox}}%
+			\setlength\photobook@imagecell@cellratio{%
+				1pt * \ratio{\cellwidth}{\cellheight}}%
 			\ifdim \photobook@imagecell@imgratio < \photobook@imagecell@cellratio%
 				\sbox{\photobook@imagebox}{%
 					\includegraphics[%
@@ -1875,7 +1875,7 @@
 						keepaspectratio, 
 						height=\photobook@imagecell@scale\dimexpr 
 							+ \cellheight 
-							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}
+							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 			\fi\fi\fi%
 		% place image box...
 		% XXX for some odd reason without this the alignment completely breaks...
