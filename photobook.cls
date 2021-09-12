@@ -1807,8 +1807,6 @@
 	\def\photobook@imagecell@captiontop{%
 		-\dimexpr 
 			+\cellheight 
-			% XXX revise...
-			%-\photobook@imagecell@clearance
 			-\ht\photobook@imagebox \relax}}%
 \define@boolkey{imagecell@args}{bottom}[true]{%
 	\def\photobook@imagecell@top{%
@@ -1819,7 +1817,6 @@
 	\def\photobook@imagecell@captiontop{%
 		\dimexpr
 			\photobook@imagecell@top 
-			% XXX revise...
 			+\photobook@imagecell@clearance \relax}}%
 % clearance=<len>...
 \define@key{imagecell@args}{clearance}{%
