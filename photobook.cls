@@ -485,6 +485,7 @@
 % XXX flow text frames...
 % XXX this messes with geometry....
 %\RequirePackage{flowfram}
+\RequirePackage{fancyhdr}
 
 
 
@@ -986,6 +987,22 @@
 		\dimexpr #2 \relax\fi}
 
 
+%% \DescribeMacro{\emptypage\{..\}}
+%
+%% Create an empty page.
+%
+%%	>> \emptypage
+%%	>> \emptypage[<style>]
+% 
+%% |<style>| is the with |fancyhdr| style name, |empty| is the default.
+%% 
+\newcommand\emptypage[1][empty]{%
+	\begin{page}%
+		\ifthenelse{\equal{#1}{}}{}{%
+			\thispagestyle{#1}}%
+	\end{page}}
+
+
 %% \DescribeMacro{\cleartoleftpage}
 %
 %%	Forces content to left page
@@ -1442,7 +1459,6 @@
 
 
 
-
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Save cells
 
@@ -1791,15 +1807,20 @@
 	\def\photobook@imagecell@captiontop{%
 		-\dimexpr 
 			+\cellheight 
-			-\photobook@imagecell@clearance
+			% XXX revise...
+			%-\photobook@imagecell@clearance
 			-\ht\photobook@imagebox \relax}}%
 \define@boolkey{imagecell@args}{bottom}[true]{%
-	\def\photobook@imagecell@top{\dimexpr 
-		+\cellheight 
-		-\photobook@imagecell@clearance
-		-\ht\photobook@imagebox \relax}%
+	\def\photobook@imagecell@top{%
+		\dimexpr 
+			+\cellheight 
+			-\photobook@imagecell@clearance
+			-\ht\photobook@imagebox \relax}%
 	\def\photobook@imagecell@captiontop{%
-		\photobook@imagecell@top}}%
+		\dimexpr
+			\photobook@imagecell@top 
+			% XXX revise...
+			+\photobook@imagecell@clearance \relax}}%
 % clearance=<len>...
 \define@key{imagecell@args}{clearance}{%
 	\setlength\photobook@imagecell@clearance{#1}}%
@@ -1839,7 +1860,6 @@
 			#1}%
 		% preload image...
 		% fit...
-		% XXX make this respect \bindingoffset when \clearance > 0...
 		\ifKV@imagecell@args@fit%
 			\sbox{\photobook@imagebox}{%
 				\includegraphics[%
@@ -1876,11 +1896,12 @@
 						height=\photobook@imagecell@scale\dimexpr 
 							+ \cellheight 
 							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
-			\fi\fi\fi%
+		\fi\fi\fi%
 		% place image box...
 		% XXX for some odd reason without this the alignment completely breaks...
 		\vspace{0pt}%
 		\adjustbox{%
+				%fbox=0.1pt 0pt 0pt, 
 				margin=
 					{\dimexpr 
 						\photobook@imagecell@offsetleft 
@@ -1921,17 +1942,18 @@
 							+ 0.5\dimexpr 
 								+\cellheight 
 								-\ht\photobook@imagebox 
-							-\photobook@imagecell@captiontop \relax}}%
+								-\photobook@imagecell@captiontop \relax}}%
 				%
 				% place the caption cell...
-				\hspace{-\celloffsetleft}{%
-					\setlength\fboxsep{0pt}%
-					% adjust top if image is taller than cell...
-					\raisebox{-\celloffsettop}{%
-						\begin{minipage}[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth}%
-							\ignorespaces%
-							#2%
-						\end{minipage}}}
+				\smash{\makebox[0pt][l]{%
+					\hspace{-\celloffsetleft}{%
+						\setlength\fboxsep{0pt}%
+						% adjust top if image is taller than cell...
+						\raisebox{-\celloffsettop}{%
+							\begin{minipage}[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth}%
+								\ignorespaces%
+								#2%
+							\end{minipage}}}}}%
 			\endgroup}%
 	\endgroup}
 
@@ -2805,21 +2827,6 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Generic
 
-%% \DescribeMacro{\emptypage\{..\}}
-%
-%% Create an empty page.
-%
-%%	>> \emptypage
-%%	>> \emptypage[<style>]
-%% 
-\newcommand\emptypage[1][empty]{
-	\begin{page}%
-		\ifthenelse{\equal{#1}{}}{}{
-			\thispagestyle{#1}}
-	\end{page}}
-
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Tweaking
 %
 %% Most page/spread templates provide an ability to externally "tweak" 
@@ -3064,6 +3071,7 @@
 \ImagePageTemplate{ImagePageClear}{%
 	\clearpage%
 	\begin{page}%
+	% NOTE: this accounts for \bindingoffset...
 	\begin{pagecell*}%
 		\imagecell[%
 			center, 
@@ -3234,6 +3242,7 @@
 		\ifphotobook@ImagePageFit@centered%
 			\clearpage%
 			\begin{page}%
+			% NOTE: this does not account for \bindingoffset...
 			\begin{pagecell}%
 				\imagecell[%
 					center, 
