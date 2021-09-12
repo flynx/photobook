@@ -994,7 +994,7 @@
 %%	>> \emptypage
 %%	>> \emptypage[<style>]
 % 
-%% |<style>| is the with |fancyhdr| style name, |empty| is the default.
+%% |<style>| is the style name as defined via |fancyhdr| (default: |empty|).
 %% 
 \newcommand\emptypage[1][empty]{%
 	\begin{page}%
@@ -2822,8 +2822,6 @@
 %%
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-%%%%% Generic
-
 %%%%% Tweaking
 %
 %% Most page/spread templates provide an ability to externally "tweak" 
@@ -3855,6 +3853,23 @@
 				\photobook@TemplateCell[#1]{BACK FLAP}
 			\end{backflap}\fi%
 	\end{page}}
+
+
+% XXX place marks in bleed area...
+% XXX do this for all pages... (???)
+\newcommand\ShowMarks[1][1pt]{%
+	% XXX corners...
+	\ifendpaperlayout%
+		% XXX fold...
+	\fi%
+	\ifcoverlikelayout%
+		% XXX spine...
+		% XXX folds...
+	\fi%
+	\ifjacketlayout%
+		% XXX spine...
+		% XXX folds...
+	\fi}
 
 
 %% \DescribeMacro{\pdfcommentcell\{..\}}
