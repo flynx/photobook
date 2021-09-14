@@ -2353,7 +2353,7 @@
 	\setlength\photobook@captionblockcell@clearparent{#1}%
 	\KV@captionblockcell@args@constraintoparenttrue}
 
-% spacing=<len> (default: \captioncellspacing)
+% spacing=<len>
 \newlength\photobook@captionblockcell@spacing
 \setlength\photobook@captionblockcell@spacing{0pt}
 \define@key{captionblockcell@args}{spacing}{%
