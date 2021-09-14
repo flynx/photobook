@@ -20,6 +20,7 @@
 \setlength\parindent{0pt}
 
 \edef\TestImage{DSC00403-2}
+\edef\TestImageV{DSC00403-2vert}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -30,6 +31,19 @@
 
 \begin{document}
 
+\ImagePageClearR{ImagePageClearR}{\TestImageV}
+%\ImagePageClearL[captionclearparent=2cm]{ImagePageClearL}{\TestImage}
+\ImagePageClearL[center, captionclearparent=15mm]{ImagePageClearL}{\TestImageV}
+\ImagePageClearL[captionclearparent=15mm]{ImagePageClearL}{\TestImageV}
+
+\ImagePageFitL[captionclearparent=15mm]{ImagePageFitL}{\TestImageV}
+\ImagePageFitR[captionclearparent=15mm]{ImagePageFitR}{\TestImageV}
+
+\ImagePageFitT[captionclearparent=15mm]{ImagePageFitT}{\TestImage}
+\ImagePageFitB[captionclearparent=15mm]{ImagePageFitB}{\TestImage}
+
+\ImagePageFill{ImagePageFill}{\TestImageV}
+\ImagePageFill[captionclearparent=15mm]{ImagePageFill}{\TestImageV}
 
 \end{document}
 

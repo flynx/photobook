@@ -26,6 +26,9 @@
 %
 %
 %
+% XXX revise \clearcaption / \captionclearpage...
+% XXX add marks -- \ShowMarks{..}
+% XXX add fold support...
 % XXX unify API -- see CellContent env...
 % XXX make this loadable both as a class and as a package...
 %		\@ifclassloaded{photobook}{<true>}{<false>}
@@ -637,16 +640,17 @@
 %%
 \edef\imageblockoffsettop{\photobook@imageblockoffsettop}
 
-%% \DescribeMacro{\clearcaption=<ratio>}
+%% \DescribeMacro{\clearcaption=<len>}
 %
 %% Block caption clearance from edge of parent cell.
 %%
 %% Used as default by |\captionblockcell{..}|
 %%
+% XXX do we need this???
 \newlength\clearcaption
 \setlength\clearcaption{0pt}
 
-%% \DescribeMacro{\captioncellspacing=<ratio>}
+%% \DescribeMacro{\captioncellspacing=<len>}
 %
 %% Block caption spacing from parent cell.
 %%
@@ -655,6 +659,12 @@
 % XXX should this be used in other caption cells???
 \newlength\captioncellspacing
 \setlength\captioncellspacing{5pt}
+
+
+%% \DescribeMacro{\captionclearpage=<len>}
+%
+%%
+\def\captionclearpage{\clearimage}
 
 
 
@@ -1587,6 +1597,7 @@
 	\end{clipbox*}}
 
 
+
 %% \DescribeMacro{\imagecell\{..\}}
 %
 %% Place image in cell.
@@ -1705,19 +1716,19 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%     +-----------------+ - - caption cell size
-%%     .                 .       .
-%%     +-----------------+       .
-%%     |                 |       . 
-%%   ..+-----------------+..  .  +
-%%   . |.caption cell   .| .     |
-%%   . |    .       .    | .     |
-%%   . |        .        | .     | 
-%%   . |    .       .    | .     |
-%%   . |.               .| .     |
-%%   ..+-----------------+..  .  +
-%%     |                 |    
-%%     +-----------------+    
+%%   +-----------------+ - - caption cell size
+%%   .                 .       .
+%%   +-----------------+       .
+%%   |                 |       . 
+%% ..+-----------------+..  .  +
+%% . |.caption cell   .| .     |
+%% . |    .       .    | .     |
+%% . |        .        | .     | 
+%% . |    .       .    | .     |
+%% . |.               .| .     |
+%% ..+-----------------+..  .  +
+%%   |                 |    
+%%   +-----------------+    
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -1725,6 +1736,11 @@
 %% |<caption-cell>| occupies the same space as the image clipped by the 
 %% containing cell and provides all the cell functionality.
 %%
+%% If |captionclearparent| is set, the |<caption-cell>| will fit into an 
+%% intersection between the image area and the parent cell padded by 
+%% |captionclearparent|.
+%%
+% XXX do we need captionclearparent to be directional (a-la margin in adjustbox)???
 % XXX might be a good idea to split this into two parts:
 %		- \aligncell{..}
 %		- \imagecell{caption}{image}
@@ -1823,6 +1839,7 @@
 	\setlength\photobook@imagecell@clearance{#1}}%
 
 % offsettop=<len> / offsetleft=<len>...
+% XXX DOC!!!
 \newlength\photobook@imagecell@offsettop%
 \setlength\photobook@imagecell@offsettop{0pt}%
 \define@key{imagecell@args}{offsettop}[0pt]{%
@@ -1842,10 +1859,14 @@
 \define@choicekey{imagecell@args}{captionalign}{t,c,b}[t]{%
 	\def\photobook@imagecell@captionalign{#1}}
 
-% XXX add offset support...
-%		...i.e. an argument that will shift the image v/h from base position.
-%		also need to shift the caption box accordingly but still keep it 
-%		within the cell...
+% captionclearparent=<len>...
+% XXX DOC!!!
+\newif\ifphotobook@imagecell@captionclearparent
+\newlength\photobook@imagecell@captionclearparent
+\define@key{imagecell@args}{captionclearparent}[0pt]{%
+	\setlength\photobook@imagecell@captionclearparent{#1}%
+	\photobook@imagecell@captionclearparenttrue}
+
 % XXX can we make this an env???
 \newcommand\imagecell[3][]{%
 	\begingroup%
@@ -1894,64 +1915,113 @@
 							+ \cellheight 
 							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 		\fi\fi\fi%
+		%
+		\setlength\celloffsetleft{%
+			\dimexpr 
+				\photobook@imagecell@offsetleft 
+				+ \photobook@imagecell@left \relax}%
+		\setlength\celloffsettop{%
+			\dimexpr 
+				\photobook@imagecell@offsettop
+				+ \photobook@imagecell@top \relax}%
+		%
+		%
 		% place image box...
 		% XXX for some odd reason without this the alignment completely breaks...
 		\vspace{0pt}%
-		\adjustbox{%
-				%fbox=0.1pt 0pt 0pt, 
-				margin=
-					{\dimexpr 
-						\photobook@imagecell@offsetleft 
-						+ \photobook@imagecell@left \relax} 
-					0pt 0pt 
-					{\dimexpr 
-						\photobook@imagecell@offsettop
-						+ \photobook@imagecell@top \relax}}{%
-			% image....
-			\usebox\photobook@imagebox%
-			%
-			% caption cell...
-			% XXX make this conditional -- if caption is not empty...
-			\begingroup%
-				% setup the cell env...
-				\setlength\clearance{\photobook@imagecell@clearance}%
-				% NOTE: this needs the original \cellwidth...
-				\setlength\celloffsetleft{%
-					\mindim{%
-							\wd\photobook@imagebox
-						}{%
-							+\cellwidth 
-							-\photobook@imagecell@captionleft
-							-0.5\dimexpr 
-								+\cellwidth 
-								-\wd\photobook@imagebox \relax}}%
-				\setlength\cellparentwidth{\cellwidth}%
-				\setlength\cellparentheight{\cellheight}%
-				\setlength\cellwidth{%
-					\mindim{\wd\photobook@imagebox}{\cellwidth}}%
-				\setlength\cellheight{%
-					\mindim{\ht\photobook@imagebox}{\cellheight}}% 
-				% NOTE: this needs the new \cellheight...
-				\setlength\celloffsettop{%
-					\mindim{%
-							0pt
-						}{%
-							+ 0.5\dimexpr 
-								+\cellheight 
-								-\ht\photobook@imagebox 
-								-\photobook@imagecell@captiontop \relax}}%
-				%
-				% place the caption cell...
-				\smash{\makebox[0pt][l]{%
-					\hspace{-\celloffsetleft}{%
-						\setlength\fboxsep{0pt}%
-						% adjust top if image is taller than cell...
-						\raisebox{-\celloffsettop}{%
-							\begin{minipage}[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth}%
-								\ignorespaces%
-								#2%
-							\end{minipage}}}}}%
-			\endgroup}%
+		\smash{\makebox[0pt][l]{%
+			\adjustbox{%
+					margin={\celloffsetleft} 0pt 0pt {\celloffsettop},
+					valign=T}{%
+				\usebox\photobook@imagebox}}}%
+		% 
+		%
+		% prepare for caption cell...
+		\setlength\cellparentwidth{\cellwidth}%
+		\setlength\cellparentheight{\cellheight}%
+		\setlength\cellwidth{%
+			\mindim{
+				\wd\photobook@imagebox
+				+ \mindim{\celloffsetleft}{0pt}
+			}{
+				\cellwidth}}%
+		\setlength\cellheight{%
+			\mindim{
+				\ht\photobook@imagebox
+				+ \mindim{\celloffsettop}{0pt}
+			}{
+				\cellheight}}% 
+		\setlength\celloffsetleft{%
+			\maxdim{\celloffsetleft}{0pt}}%
+		\setlength\celloffsettop{%
+			\maxdim{\celloffsettop}{0pt}}%
+		\setlength\clearance{\photobook@imagecell@clearance}%
+		% clear parent...
+		% XXX might be a good idea to put this into a special reusable cell...
+		\ifphotobook@imagecell@captionclearparent%
+			% trim vertical...
+			% XXX this seems overcomplicated...
+			\setlength\cellheight{%
+				\mindim{
+					\cellheight
+				% trim from both sides....
+				}{\mindim{
+					\cellparentheight
+					- 2\photobook@imagecell@captionclearparent
+				% trim from bottom...
+				}{\mindim{
+					\cellheight
+					+ \celloffsettop
+					- \photobook@imagecell@captionclearparent
+				% trim from top...
+				}{
+					\cellparentheight
+					- \photobook@imagecell@captionclearparent 
+					- \celloffsettop}}}}%
+			% offset top...
+			\setlength\celloffsettop{
+				\maxdim{
+					\celloffsettop
+						+ (\photobook@imagecell@captionclearparent - \celloffsettop)
+				}{
+					\celloffsettop}}%
+			% trim horizontal...
+			% XXX this seems overcomplicated...
+			\setlength\cellwidth{%
+				\mindim{
+					\cellwidth
+				% trim from both sides....
+				}{\mindim{
+					\cellparentwidth
+					- 2\photobook@imagecell@captionclearparent
+				% trim from right...
+				}{\mindim{
+					\cellwidth
+					+ \celloffsetleft
+					- \photobook@imagecell@captionclearparent
+				% trim from left...
+				}{
+					\cellparentwidth
+					- \photobook@imagecell@captionclearparent 
+					- \celloffsetleft}}}}%
+			% offset left...
+			\setlength\celloffsetleft{
+				\maxdim{
+					\celloffsetleft
+						+ (\photobook@imagecell@captionclearparent - \celloffsetleft)
+				}{
+					\celloffsetleft}}\fi%
+		%
+		%
+		% place caption box...
+		\smash{\makebox[0pt][l]{%
+			\adjustbox{%
+					%cfbox=gray 0.5pt 0pt 0pt,
+					margin={\celloffsetleft} 0pt 0pt {\celloffsettop},
+					minipage=[b][\cellheight][\photobook@imagecell@captionalign]{\cellwidth},
+					valign=T}{%
+				\ignorespaces%
+				#2}}}%
 	\endgroup}
 
 
@@ -2022,11 +2092,6 @@
 %% in the same cell that takes up space, e.g. text, pictures, ...etc.
 %% Captions are mainly suited to play well with image cells.
 %%
-% XXX make captions clear left/right of page...
-% XXX need a way to make caption boxes independent of other cell content...
-%		...two ways to do this that come to mind:
-%			- place cell content into a 0-space cell
-%			- place captions outside of the actual cell...
 
 % over / top / center / bottom / under...
 \define@boolkey{captioncell@args}{over}[true]{%
@@ -2118,7 +2183,7 @@
 %%
 %% See samples for better illustration.
 %%
-% XXX make captions clear top/bottom of page...
+
 % bottomup / topdown...
 \def\photobook@vcaptioncell@orientation{bottomup}
 \define@boolkey{vcaptioncell@args}{bottomup}[true]{%
@@ -2214,7 +2279,7 @@
 
 %% \DescribeMacro{\captionblockcell\{..\}}
 %
-%% \EXPERIMENTAL
+%% Add caption into a box left/right of current cell.
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -2244,7 +2309,6 @@
 %% \end{minipage}
 %%                              
 % XXX make captions clear top/bottom of page...
-% XXX add cell spacing...
 % XXX need to do a caption block -- a cell to one side of an image to the 
 % 		end of the page...
 % XXX can we use the normal caption and simply insert a minipage of the 
@@ -2279,6 +2343,16 @@
 \define@key{captionblockcell@args}{clearance}{%
 	\setlength\photobook@captionblockcell@clearance{#1}}
 
+% XXX should this clear only top/bottom or all sides???
+% XXX doc!!
+% XXX do we need this here???
+\define@boolkey{captionblockcell@args}{constraintoparent}[true]{}
+\newlength\photobook@captionblockcell@clearparent
+\setlength\photobook@captionblockcell@clearparent{0pt}
+\define@key{captionblockcell@args}{clearparent}{%
+	\setlength\photobook@captionblockcell@clearparent{#1}%
+	\KV@captionblockcell@args@constraintoparenttrue}
+
 % spacing=<len> (default: \captioncellspacing)
 \newlength\photobook@captionblockcell@spacing
 \setlength\photobook@captionblockcell@spacing{0pt}
@@ -2294,13 +2368,20 @@
 % showbox
 \define@boolkey{captionblockcell@args}{showbox}[true]{}
 
-\newcommand\photobook@captionblockcell@content[1]{%
-	\begin{minipage}[t][\cellheight][\photobook@captionblockcell@valign]{\cellwidth}%
-	\begin{\photobook@captionblockcell@align}%
-		\ignorespaces%
-		#1%
-	\end{\photobook@captionblockcell@align}%
-	\end{minipage}}
+\newcommand\photobook@captionblockcell@content[2][0pt]{%
+	\hspace{\celloffsetleft}{%
+		\begin{adjustbox}{
+				% NOTE: we need to draw the border before we set margins 
+				%		to show the original box...
+				fbox=#1 0pt 0pt,
+				margin=0pt 0pt 0pt \celloffsettop,
+				minipage=[t][\cellheight][\photobook@captionblockcell@valign]{\cellwidth},
+				valign=T}%
+		\begin{\photobook@captionblockcell@align}%
+			\ignorespaces%
+			#2%
+		\end{\photobook@captionblockcell@align}%
+		\end{adjustbox}}}
 
 % XXX revise how \clearance is handled...
 % XXX do we need top/bottom boxes???
@@ -2310,7 +2391,7 @@
 % XXX add tweak support...
 \newcommand\captionblockcell[2][]{%
 	% XXX should this be within the group???
-	\setkeys{captionblockcell@args}{
+	\setkeys{captionblockcell@args}{%
 		left, 
 		valign=b,
 		clearance=\clearcaption, 
@@ -2320,7 +2401,8 @@
 	\smash{\makebox[0pt][l]{%
 		\begingroup%
 			% setup cell context...
-			\setlength\clearcaption{\photobook@captionblockcell@clearance}%
+			\setlength\clearcaption{%
+				\photobook@captionblockcell@clearance}%
 			\setlength\photobook@captionblockcell@tmplen{\cellwidth}%
 			\setlength\cellwidth{%
 				\ifnum \photobook@captionblockcell@width = 0%
@@ -2333,7 +2415,8 @@
 						- \clearance \relax%
 				\else%
 					\photobook@captionblockcell@width\fi}%
-			\setlength\cellparentwidth{\photobook@captionblockcell@tmplen}%
+			\setlength\cellparentwidth{%
+				\photobook@captionblockcell@tmplen}%
 			\setlength\celloffsetleft{%
 				\ifKV@captionblockcell@args@left%
 					\dimexpr
@@ -2344,25 +2427,59 @@
 						\cellparentwidth
 						+ \photobook@captionblockcell@spacing \relax%
 					\fi}%
+			% clear parent...
+			% XXX do we need this here???
+			\ifKV@captionblockcell@args@constraintoparent%
+				% offset top...
+				\setlength\celloffsettop{%
+					\mindim{
+						\photobook@captionblockcell@clearparent - \celloffsettop
+					}{
+						\photobook@captionblockcell@clearparent}}%
+				% trim cell top... 
+				\ifdim \celloffsettop > 0pt%
+					\setlength\cellheight{%
+						\cellheight - \celloffsettop}\fi%
+				% trim cell bottom...
+				\ifdim \dimexpr 
+							\cellheight 
+							+ \celloffsettop \relax%
+						> \dimexpr 
+							\cellparentheight 
+							- \photobook@captionblockcell@clearparent \relax%
+					\setlength\cellheight{%
+						\dimexpr
+							\cellparentheight 
+								- \mindim{
+									\cellheight - \cellparentheight
+								}{
+									2\photobook@captionblockcell@clearparent} \relax}\fi%
+			% do not clear parent...
+			\else%
+				\setlength\celloffsettop{0pt}\fi%
 			%
-			\hspace{\celloffsetleft}{%
-				\ifKV@captionblockcell@args@showbox%
-					\fbox{%
-						\photobook@captionblockcell@content{#2}}%
-				\else%
-					\photobook@captionblockcell@content{#2}\fi}%
+			% place...
+			\ifKV@captionblockcell@args@showbox%
+				\photobook@captionblockcell@content[0.1pt]{#2}%
+			\else%
+				\photobook@captionblockcell@content{#2}\fi%
 		\endgroup}}%
 	\ignorespaces}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Paper cells
+%
+%% Paper and page cells are very similar but differ in one aspect -- paper
+%% cells represent the paper as indicated by |layoutmode=<layout>| while
+%% page cells are always the size of the page block, i.e. |layoutmode=block|.
+%%
 
 %% \DescribeEnv{papercell}
 %
 %% Paper cell.
 %%
-%% This does not include bleeds and is independent of |layoutmode|.
+%% This does not include bleeds.
 %%
 \newenvironment{papercell}{%
 	\begin{cell*}{\bleed, \bleed}{\blockwidth}{\blockheight}%
@@ -2384,6 +2501,10 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Page cells
+%
+%% Page cells always correspond to the page block size, i.e. |layoutmode=block| 
+%% regardless of the actual |layoutmode| set currently.
+%%
 
 %% \DescribeEnv{pagecell}
 %% \DescribeEnv{pagecell*}
@@ -2414,8 +2535,10 @@
 %% The star version accounts for |\bindingoffset|. 
 %%
 %% Note that |layoutmode|'s other than block will change the paper size 
-%% but will not affect this.
+%% but will not affect this either in size (block size) or in position 
+%% (top-left).
 %%
+% XXX should there be a way to position this is layout modes other than block???
 \newenvironment{pagecell}{%
 	\begin{cell*}{\bleed,\bleed}{\pageblockwidth}{\pageblockheight}%
 }{%
@@ -2453,8 +2576,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%% Note that |layoutmode|'s other than block will change the paper size 
-%% but will not affect this.
+%% Note that as with |pagecell| this is not affected by |layoutmode|.
 %%
 \newenvironment{pagebleedcell}{%
 	\begin{cell*}{0mm, 0mm}{\bleedblockwidth}{\bleedblockheight}%
@@ -2548,7 +2670,8 @@
 %%	>> \begin{spreadtopages} .. \end{spreadtopages}
 %%	>> \begin{spreadtopages}[<page-count>] .. \end{spreadtopages}
 %%
-%% |spreadtopages*| creates a named save cell.
+%% |spreadtopages*| creates a named save cell only allowing the pages 
+%% to be placed manually via |\usespreadpage{..}|.
 %%
 %%	>> \begin{spreadtopages*}{<name>} .. \end{spreadtopages*}
 %%	>> \begin{spreadtopages*}[<page-count>]{<name>} .. \end{spreadtopages*}
@@ -2562,7 +2685,7 @@
 %%	not use a |page| environment, enabling the user to populate the page
 %%	with other elements.
 %%
-%% Page numbers a re 1-based.
+%% Page numbers are 1-based.
 %%
 %% Note that the cell created by |spreadtopages*| env is a normal save 
 %% cell and can be manipulated via |\usecell{..}| and |\usecell*{..}|.
@@ -3006,7 +3129,6 @@
 \ResettableMacro{ImagePageCaption}[1]{%
 	\captioncell[under, align=flushright]{%
 		\captionformat{#1}}}
-
 \ImagePageTemplate{ImagePage}{%
 	\clearpage%
 	\begin{page}%
@@ -3019,6 +3141,7 @@
 					{\imageblockheight\pagetextheight}%
 				\imagecell[fit,
 					scale=\imagescale,
+					%captionclearparent=\captionclearpage,
 					#1]{#2}{#3}%
 			\end{inlinecell*}%
 		\end{center}%
@@ -3062,7 +3185,6 @@
 \ResettableMacro{ImagePageClearCaption}[1]{%
 	\captioncell[under, align=flushright]{%
 		\captionformat{#1}}}
-
 \ImagePageTemplate{ImagePageClear}{%
 	\clearpage%
 	\begin{page}%
@@ -3074,6 +3196,7 @@
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
+			captionclearparent=\captionclearpage,
 			#1]{#2}{#3}%
 	\end{pagecell*}%
 	\end{page}}
@@ -3136,7 +3259,7 @@
 		#1]{#2}{#3}}
 
 \ResettableMacro{ImagePageClearLCaption}[1]{%
-	\captionblockcell[right]{%
+	\captionblockcell[right, clearance=\captionclearpage]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImagePageClearL}{%
 	\ImagePageClear*[%
@@ -3144,7 +3267,7 @@
 		#1]{#2}{#3}}
 
 \ResettableMacro{ImagePageClearRCaption}[1]{%
-	\captionblockcell[left]{%
+	\captionblockcell[left, clearance=\captionclearpage]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImagePageClearR}{%
 	\ImagePageClear*[%
@@ -3245,6 +3368,7 @@
 					scale=\imagescale,
 					offsettop=\imageoffsettop,
 					offsetleft=\imageoffsetleft,
+					captionclearparent=\captionclearpage,
 					#1]{#2}{#3}%
 			\end{pagecell}%
 			\end{page}%
@@ -3316,7 +3440,7 @@
 		#1]{#2}{#3}}
 
 \ResettableMacro{ImagePageFitLCaption}[1]{%
-	\captionblockcell[right]{%
+	\captionblockcell[right, clearance=\captionclearpage]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImagePageFitL}{%
 	\ImagePageFit*[%
@@ -3324,7 +3448,7 @@
 		#1]{#2}{#3}}
 
 \ResettableMacro{ImagePageFitRCaption}[1]{%
-	\captionblockcell[left]{%
+	\captionblockcell[left, clearance=\captionclearpage]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImagePageFitR}{%
 	\ImagePageFit*[%
@@ -3369,7 +3493,6 @@
 \ResettableMacro{ImagePageFillCaption}[1]{%
 	\captioncell[top, align=flushright]{%
 		\captionformat{#1}}}
-
 \ImagePageTemplate{ImagePageFill}{%
 	\ImagePageFit*[%
 		fill, 
@@ -3410,7 +3533,6 @@
 \ResettableMacro{ImageHalfPageLCaption}[1]{%
 	\captioncell[bottom, align=flushright]{%
 		\captionformat{#1}}}
-
 \ImagePageTemplate{ImageHalfPageL}{%
 	\begin{spreadtopages*}[2]{photobook@ImageHalfPageL@cell}%
 		\imagecell[%
@@ -3419,6 +3541,7 @@
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
+			captionclearparent=\captionclearpage,
 			#1]{#2}{#3}%
 	\end{spreadtopages*}%
 	%
@@ -3461,7 +3584,6 @@
 \ResettableMacro{ImageHalfPageRCaption}[1]{%
 	\captioncell[bottom, align=flushright]{%
 		\captionformat{#1}}}
-
 \ImagePageTemplate{ImageHalfPageR}{%
 	\begin{spreadtopages*}[2]{photobook@ImageHalfPageR@cell}%
 		\imagecell[%
@@ -3470,6 +3592,7 @@
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
+			captionclearparent=\captionclearpage,
 			#1]{#2}{#3}%
 	\end{spreadtopages*}%
 	%
@@ -3518,7 +3641,6 @@
 \ResettableMacro{ImageSpreadCaption}[1]{%
 	\captioncell[under]{%
 		\captionformat{#1}}}
-
 \ImagePageTemplate{ImageSpread}{%
 	\cleartoleftpage%
 	\begin{spreadtopages}[2]%
@@ -3528,6 +3650,7 @@
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
+			captionclearparent=\captionclearpage,
 			#1]{#2}{#3}%
 	\end{spreadtopages}}
 
@@ -3587,7 +3710,7 @@
 		#1]{#2}{#3}}
 
 \ResettableMacro{ImageSpreadLCaption}[1]{%
-	\captionblockcell[right]{%
+	\captionblockcell[right, clearance=\captionclearpage]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImageSpreadL}{%
 	\ImageSpread*[%
@@ -3595,7 +3718,7 @@
 		#1]{#2}{#3}}
 
 \ResettableMacro{ImageSpreadRCaption}[1]{%
-	\captionblockcell[left]{%
+	\captionblockcell[left, clearance=\captionclearpage]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImageSpreadR}{%
 	\ImageSpread*[%
@@ -3646,6 +3769,7 @@
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
+			captionclearparent=\captionclearpage,
 			#1]{#2}{#3}%
 	\end{spreadtopages}}
 
@@ -3709,13 +3833,13 @@
 	\ImageSpreadFit*[bottom, #1]{#2}{#3}}
 
 \ResettableMacro{ImageSpreadFitLCaption}[1]{%
-	\captionblockcell[right]{%
+	\captionblockcell[right, clearance=\captionclearpage]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImageSpreadFitL}{%
 	\ImageSpreadFit*[left, #1]{#2}{#3}}
 
 \ResettableMacro{ImageSpreadFitRCaption}[1]{%
-	\captionblockcell[left]{%
+	\captionblockcell[left, clearance=\captionclearpage]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImageSpreadFitR}{%
 	\ImageSpreadFit*[right, #1]{#2}{#3}}
@@ -3758,7 +3882,6 @@
 \ResettableMacro{ImageSpreadFillCaption}[1]{%
 	\captioncell[bottom, align=flushright]{%
 		\captionformat{#1}}}
-
 \ImagePageTemplate{ImageSpreadFill}{%
 	\cleartoleftpage%
 	\begin{spreadtopages}[2]%
@@ -3768,6 +3891,7 @@
 			scale=\imagescale,
 			offsettop=\imageoffsettop,
 			offsetleft=\imageoffsetleft,
+			captionclearparent=\captionclearpage,
 			#1]{#2}{#3}%
 	\end{spreadtopages}}
 
@@ -3858,7 +3982,8 @@
 % XXX place marks in bleed area...
 % XXX do this for all pages... (???)
 \newcommand\ShowMarks[1][1pt]{%
-	% XXX corners...
+	% general...
+	% XXX corners / cut marks...
 	\ifendpaperlayout%
 		% XXX fold...
 	\fi%
