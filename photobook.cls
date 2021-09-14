@@ -646,6 +646,7 @@
 %%
 %% Used as default by |\captionblockcell{..}|
 %%
+% XXX do we need this???
 \newlength\clearcaption
 \setlength\clearcaption{0pt}
 
