@@ -33,19 +33,20 @@
 
 \begin{document}
 
-\ImagePageFill{Caption text}{\TestImage}
+\ImagePageFill{\PageInfo}{\TestImage}
 
-\resizedpage{2\blockwidth}{\blockheight}{
-	% XXX for some reason this doesn't fill the page...
+% XXX these are still a bit off...
+%		...the problem is due to the code that accounts for binding offset when image fit...
+\resizedpage{2\blockwidth}{\blockheight}{%
+	\ImagePageFill{\PageInfo}{\TestImageV}%
 	\ImagePageFill{\PageInfo}{\TestImage}}
 
-\pdfboxesset{1.5\bleedblockwidth}{\bleedblockheight}
-% XXX for some reason this doesn't fill the page...
 \ImagePage{Caption text}{\TestImage}
 
-\pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}
-\ImagePage{Caption text}{\TestImage}
+\resizedpage{3\blockwidth}{\blockheight}{
+	\ImagePage{Caption text}{\TestImage}}
 
+\ImagePage{Caption text}{\TestImage}
 
 \end{document}
 

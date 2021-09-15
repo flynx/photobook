@@ -1009,7 +1009,9 @@
 
 %% \DescribeMacro{\cleartoleftpage}
 %
-%%	Forces content to left page
+%% Forces content to left page.
+%%
+%% This is a companion to |\cleardoublepage|.
 %%
 \newcommand*{\cleartoleftpage}{%
 	\clearpage
@@ -1073,21 +1075,17 @@
 \newcommand\resizedpage[4][\bleed]{
 	\begingroup%
 		% setup page...
-		\setlength\paperwidth{#2}
-		\setlength\paperheight{#3}
-		% XXX this does not work correctly yet...
 		\setlength\bleed{#1}%
 		\setlength\blockwidth{#2}%
 		\setlength\blockheight{#3}%
+		\setlength\pageblockwidth{\blockwidth}%
+		\setlength\pageblockheight{\blockheight}%
 		\edef\pdfpagelayout{}%
+		%
 		\InitPages%
 		%
-		\setlength\cellparentwidth{\bleedblockwidth}%
-		\setlength\cellparentheight{\bleedblockheight}%
-		\setlength\cellwidth{\cellparentwidth}%
-		\setlength\cellheight{\cellparentheight}%
-		%\setlength\celloffsetleft{0pt}%
-		%\setlength\celloffsettop{0pt}%
+		\setlength\paperwidth{\bleedblockwidth}%
+		\setlength\paperheight{\bleedblockheight}%
 		%
 		\pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}%
 		%
@@ -3372,6 +3370,8 @@
 		\ignoreemptyitems%
 		\readlist*\photobook@ImagePageFit@args{moo, #1}%
 		\foreachitem\photobook@ImagePageFit@opt\in\photobook@ImagePageFit@args{%
+			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{fill}}{%
+				\photobook@ImagePageFit@centeredtrue}{}%
 			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{inner}}{%
 				\photobook@ImagePageFit@centeredtrue}{}%
 			\ifthenelse{\equal{\photobook@ImagePageFit@opt}{outer}}{%
@@ -3392,8 +3392,8 @@
 			% NOTE: subtracting \bindingoffset from \cellwidth here makes sure that
 			%		we avoid offsetting images close enough in ratio to the page and
 			%		messing up bleeds...
-			\setlength\photobook@ImagePageFit@cellratio{1pt
-				* \ratio{\cellwidth - \bindingoffset}{\cellheight}}%
+			\setlength\photobook@ImagePageFit@cellratio{%
+				1pt * \ratio{\cellwidth - \bindingoffset}{\cellheight}}%
 			\ifdim \photobook@ImagePageFit@imgratio > \photobook@ImagePageFit@cellratio%
 				\photobook@ImagePageFit@centeredtrue\fi\fi%
 		%
@@ -3640,6 +3640,43 @@
 	\clearpage%
 	\usespreadpage[2]{photobook@ImageHalfPageR@cell}}
 
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Foldout
+
+% XXX move to globals...
+\newlength\clearfoldoutblock
+\setlength\clearfoldoutblock{0.5mm}
+
+% XXX make this an option...
+\newlength\foldoutpanelwidth
+\setlength\foldoutpanelwidth{\blockwidth}
+
+\newlength\clearfoldoutfold
+\setlength\clearfoldoutfold{5mm}
+
+% XXX account for paper thickness and number of panels..
+\newcommand\foldoutcontentwidth[1][1]{\dimexpr 
+	\foldoutpanelwidth 
+	- (#1 - 1)\clearfoldoutfold 
+	- \clearfoldoutblock \relax}
+
+\newcommand\foldouttotalwidth[1]{\dimexpr 
+	\foldoutpanelwidth 
+	% XXX
+	\relax}
+
+% XXX EXPERIMENTAL
+% XXX need to:
+%		- create two pages
+%		- first odd, second even
+%		- fold marks
+%		- cells for panels...
+%		- outer panel must be smaller than the inner panel by \clearfoldout
+\newcommand\Foldout[2][2]{%
+	\cleardoublepage%
+	% XXX
+}
 
 
 %----------------------------------------------------------------------
@@ -3961,13 +3998,16 @@
 %%%% Miscellaneous
 
 %% \DescribeMacro{\PageInfo}
-\newcommand\PageInfo{%
+%
+%% Display basic paper / page / cell geometry.
+%%
+\newcommand\PageInfo[1][mm]{%
 	Layout: \layoutmode
 	\par
-	paper: \lenprint[mm]{\paperwidth} x \lenprint[mm]{\paperheight} (w. bleeds) \\
-	block: \lenprint[mm]{\blockwidth} x \lenprint[mm]{\blockheight} \\
-	cell: \lenprint[mm]{\cellparentwidth} x \lenprint[mm]{\cellparentheight} \\
-	bleed: \lenprint[mm]{\bleed}}
+	paper: \lenprint[#1]{\paperwidth} x \lenprint[#1]{\paperheight} (w. bleeds) \\
+	block: \lenprint[#1]{\blockwidth} x \lenprint[#1]{\blockheight} \\
+	cell: \lenprint[#1]{\cellparentwidth} x \lenprint[#1]{\cellparentheight} \\
+	bleed: \lenprint[#1]{\bleed}}
 
 
 %% \DescribeMacro{\GenerateTemplate\{..\}}
