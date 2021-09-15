@@ -101,7 +101,7 @@ clean-dist:
 
 .PHONY: clean
 clean: sweep
-	-rm -rf *.pdf PRINT ; true
+	-rm -rf *.pdf PRINT *.image-list ; true
 
 
 

@@ -31,19 +31,17 @@
 
 \begin{document}
 
-\ImagePageClearR{ImagePageClearR}{\TestImageV}
-%\ImagePageClearL[captionclearparent=2cm]{ImagePageClearL}{\TestImage}
-\ImagePageClearL[center, captionclearparent=15mm]{ImagePageClearL}{\TestImageV}
-\ImagePageClearL[captionclearparent=15mm]{ImagePageClearL}{\TestImageV}
+\ImagePageFill{Caption text}{\TestImage}
 
-\ImagePageFitL[captionclearparent=15mm]{ImagePageFitL}{\TestImageV}
-\ImagePageFitR[captionclearparent=15mm]{ImagePageFitR}{\TestImageV}
+\resizedpage{3\bleedblockwidth}{\bleedblockheight}{
+	\ImagePageFill{Caption text}{\TestImage}}
 
-\ImagePageFitT[captionclearparent=15mm]{ImagePageFitT}{\TestImage}
-\ImagePageFitB[captionclearparent=15mm]{ImagePageFitB}{\TestImage}
+\pdfboxesset{2\bleedblockwidth}{\bleedblockheight}
+\ImagePage{Caption text}{\TestImage}
 
-\ImagePageFill{ImagePageFill}{\TestImageV}
-\ImagePageFill[captionclearparent=15mm]{ImagePageFill}{\TestImageV}
+\pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}
+\ImagePage{Caption text}{\TestImage}
+
 
 \end{document}
 

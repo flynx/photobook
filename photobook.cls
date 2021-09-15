@@ -38,6 +38,15 @@
 %		- templates --  \ImagePage{..}
 % XXX see where we need to \ignorespaces...
 % XXX might be a good idea to add a spine calculator...
+% XXX add list of dependencies to docs...
+%
+% XXX manual:
+%		- basic usage
+%			- setup
+%			- using templates
+%			- pre-print
+%		- customizing
+%		- extending
 %
 %
 %----------------------------------------------------------------------
@@ -135,6 +144,8 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%% Options
 %%
+
+\edef\photobook@options{\@classoptionslist}
 
 \RequirePackage{kvoptions}
 
@@ -483,12 +494,14 @@
 \RequirePackage{graphicx}
 \RequirePackage{adjustbox}
 \RequirePackage[absolute]{textpos}
-\RequirePackage[linewidth=1pt]{mdframed}
-\RequirePackage{rotating}
+\RequirePackage{fancyvrb}
+%\RequirePackage[linewidth=1pt]{mdframed}
 % XXX flow text frames...
 % XXX this messes with geometry....
 %\RequirePackage{flowfram}
+\RequirePackage{rotating}
 \RequirePackage{fancyhdr}
+\RequirePackage{pdfpages}
 
 
 
@@ -742,11 +755,9 @@
 			\ifx\photobook@blockwidth\empty
 				\dimexpr 
 					\paperwidth 
-					- 2\bleed 
-				\relax
+					- 2\bleed \relax
 			\else
-				\photobook@blockwidth
-			\fi} 
+				\photobook@blockwidth \fi} 
 		\setlength\pageblockwidth{\blockwidth}
 		% layout: cover...
 		\ifcoverlayout
@@ -756,8 +767,7 @@
 					+ \spinewidth 
 					+ 2\spinefold
 					+ 2\coverboardgrow
-					+ 2\coverflap
-				\relax } \fi
+					+ 2\coverflap \relax}\fi
 		% layout: jacket...
 		% XXX this seems to be about 6mm off -- what are we missing here???
 		\ifjacketlayout
@@ -768,20 +778,17 @@
 					+ 2\spinefold
 					+ 2\jacketwrap
 					+ \jacketflapfront
-					+ \jacketflapback
-				\relax } \fi
+					+ \jacketflapback \relax}\fi
 		% layout: endpaper...
 		\ifendpaperlayout
-			\setlength\blockwidth{ 2\blockwidth } \fi
-	\fi
+			\setlength\blockwidth{ 2\blockwidth }\fi\fi
 	\ifdim\blockheight=0pt
 		% layout: block / endpaper...
 		\setlength\blockheight{
 			\ifx\photobook@blockheight\empty
 				\dimexpr \paperheight - 2\bleed \relax
 			\else
-				\photobook@blockheight
-			\fi} 
+				\photobook@blockheight \fi} 
 		\setlength\pageblockheight{\blockheight}
 		% layout: cover...
 		\ifcoverlayout
@@ -790,36 +797,33 @@
 					\blockheight
 					+ 2\coverboardgrow
 					+ 2\coverflap
-				\relax } \fi
+				\relax }\fi
 		% layout: jacket...
 		\ifjacketlayout
 			\setlength\blockheight{
 				\dimexpr 
 					\blockheight
 					+ 2\coverboardgrow
-				\relax } \fi
-	\fi
+				\relax }\fi\fi
 	% default image clearance...
 	\ifdim\clearimage=\maxdimen
 		\ifx\photobook@clearimage\empty
 			%\setlength\clearimage{-\bleed}
 			\setlength\clearimage{10mm}
 		\else
-			\setlength\clearimage{\photobook@clearimage}
-		\fi
-	\fi
+			\setlength\clearimage{\photobook@clearimage}\fi\fi
 	% page with bleeds...
 	% NOTE: this is essentially \paperwidth and \paperheight but we do 
 	%		not rely on them being defined -- photobook settings take 
 	%		priority over \paperwidth and \paperwidth...
 	\setlength\bleedblockwidth{\dimexpr 
-			2\bleed + \blockwidth 
-		\relax}
+			2\bleed 
+			+ \blockwidth \relax}
 	\setlength\bleedblockheight{\dimexpr 
-			2\bleed + \blockheight 
-		\relax} 
+			2\bleed 
+			+ \blockheight \relax} 
 	% misc...
-	\nprounddigits{\photobook@roundprintedlengthsto} }
+	\nprounddigits{\photobook@roundprintedlengthsto}}
 
 
 %% \DescribeMacro{\ReInitPages}
@@ -901,42 +905,7 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 % pdf boxes...
 
-	% calculate pdf box dimensions in pt...
-	\edef\@pdfWidthPt{\strip@pt\dimexpr 
-		0.996264009963\bleedblockwidth \relax}
-	\edef\@pdfHeightPt{\strip@pt\dimexpr 
-		0.996264009963\bleedblockheight \relax}
-	\edef\@pdfBleedPt{\strip@pt\dimexpr 
-		0.996264009963\bleed \relax}
-	\edef\@pdfTopPt{\strip@pt\dimexpr 
-		0.996264009963\dimexpr 
-			\bleedblockheight - \bleed \relax \relax}
-	\edef\@pdfRightPt{\strip@pt\dimexpr 
-		0.996264009963\dimexpr 
-			\bleedblockwidth - \bleed \relax \relax}
-
-	% set the boxes...
-	\ifxetex
-		% XXX not tested...
-		\AtBeginShipout{\AtBeginShipoutAddToBox{
-			\special{pdf:put @thispage <<
-				/MediaBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
-				/BleedBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
-				/ArtBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-				/TrimBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-				/CropBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-			>>} }} 
-
-	\else
-		\edef\pdfboxes{
-			/MediaBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
-			/BleedBox [0 0 \@pdfWidthPt\space \@pdfHeightPt]
-			/ArtBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-			/TrimBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-			/CropBox [\@pdfBleedPt\space \@pdfBleedPt\space \@pdfRightPt\space \@pdfTopPt]
-		}
-		\expandafter\pdfpageattr\expandafter{\pdfboxes}
-	\fi
+	\pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}
 
 } % \AtEndPreamble{..}
 
@@ -1072,6 +1041,25 @@
 		\expandafter\let\csname #1\expandafter\endcsname\csname photobook@ResettableMacro@#1\endcsname}
 	% initialize...
 	\csname reset#1\endcsname}
+
+
+% XXX EXPERIMENTAL
+%	>> \resizedpage[<bleed>]{<width>}{<height>}{<code>}
+\newcommand\resizedpage[4][\bleed]{
+	\begingroup%
+		% setup page...
+		% XXX this does not work correctly yet...
+		\setlength\bleed{#1}%
+		\setlength\blockwidth{#2}%
+		\setlength\blockheight{#3}%
+		\edef\pdfpagelayout{}%
+		\InitPages%
+		\pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}%
+		%
+		#4
+	\endgroup%
+	% reset...
+	\pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}}
 
 
 
@@ -1740,6 +1728,11 @@
 %% intersection between the image area and the parent cell padded by 
 %% |captionclearparent|.
 %%
+%% This will write image path, page and size to |\jobname|.image-list, 
+%% this is useful for final image pre-press. To disable this use:
+%
+%%	>> \writeimagelistfalse
+%%
 % XXX do we need captionclearparent to be directional (a-la margin in adjustbox)???
 % XXX might be a good idea to split this into two parts:
 %		- \aligncell{..}
@@ -1749,6 +1742,31 @@
 %					image
 %					caption}
 % XXX document scale/offsettop/offsetleft...
+
+% helpers...
+
+% image size logging...
+\newif\ifwriteimagelist
+\writeimagelisttrue
+
+\newwrite\photobook@imagelist
+\def\photobook@logimagesize@setup{%
+	\immediate\openout\photobook@imagelist=\jobname.image-list%
+	\AfterEndDocument{%
+		\immediate\closeout\photobook@imagelist}%
+	% setup only once per job...
+	\global\def\photobook@logimagesize@setup{}}
+
+%	>> \photobook@logimagesize{<path>}{<page>}{<imagebox>}
+% XXX for some reason can't use \lenprint[mm]{..} in \write{..}...
+\newcommand\photobook@logimagesize[3]{%
+	\ifwriteimagelist%
+		% first setup...
+		\photobook@logimagesize@setup%
+		% write...
+		\immediate\write\photobook@imagelist{%
+			#1: p#2: \the\wd#3\space x \the\ht#3}\fi}%
+
 
 % NOTE: these are macros and not lengths as we need to "resolve" these 
 %		as late as possible, i.e. after all the arguments have been 
@@ -1933,6 +1951,7 @@
 			\adjustbox{%
 					margin={\celloffsetleft} 0pt 0pt {\celloffsettop},
 					valign=T}{%
+				\photobook@logimagesize{#3}{\thepage}{\photobook@imagebox}%
 				\usebox\photobook@imagebox}}}%
 		% 
 		%
@@ -3995,6 +4014,71 @@
 		% XXX spine...
 		% XXX folds...
 	\fi}
+
+
+% XXX EXPERIMENTAL...
+\def\photobook@pdfboxstore@stored{}
+
+% XXX should these be stacked???
+% XXX handle slot name...
+\newcommand\storepdfboxes[1][stored]{%
+	\edef\photobook@pdfboxstore@stored{%
+		\photobook@pdfboxes}}
+
+% XXX handle slot name...
+\newcommand\restorepdfboxes[1][stored]{%
+	\expandafter\pdfpageattr\expandafter{\photobook@pdfboxstore@stored}}
+
+
+%% \DescribeMacro{\pdfboxesset\{..}\}
+%
+%%	>> \SetPDFBoxes[<bleed>]{<bleedblockwidth>}{<bleedblockheight>}
+%%
+\newcommand\pdfboxesset[3][\bleed]{%
+	% calculate pdf box dimensions in pt...
+	\edef\photobook@pdfboxesset@w{\strip@pt\dimexpr 
+		0.996264009963\dimexpr #2 \relax\relax}%
+	\edef\photobook@pdfboxesset@h{\strip@pt\dimexpr 
+		0.996264009963\dimexpr #3 \relax\relax}%
+	\edef\photobook@pdfboxesset@bleed{\strip@pt\dimexpr 
+		0.996264009963\dimexpr #1 \relax\relax}%
+	\edef\photobook@pdfboxesset@t{\strip@pt\dimexpr 
+		0.996264009963\dimexpr #3 - #1 \relax\relax}%
+	\edef\photobook@pdfboxesset@r{\strip@pt\dimexpr 
+		0.996264009963\dimexpr #2 - #1 \relax\relax}%
+	%
+	% set the boxes...
+	\ifxetex%
+		% XXX not tested...
+		% XXX this is mostly the same as for the other branch -- reuse...
+		\AtBeginShipout{\AtBeginShipoutAddToBox{
+			\special{pdf:put @thispage <<
+				/MediaBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
+				/BleedBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
+				/ArtBox [
+					\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
+					\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]
+				/TrimBox [
+					\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
+					\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]
+				/CropBox [
+					\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
+					\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t] >>}}}%
+	\else%
+		\edef\photobook@pdfboxes{
+			/MediaBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
+			/BleedBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
+			/ArtBox [
+				\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
+				\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]
+			/TrimBox [
+				\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
+				\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]
+			/CropBox [
+				\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
+				\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]}%
+		%
+		\expandafter\pdfpageattr\expandafter{\photobook@pdfboxes}\fi}
 
 
 %% \DescribeMacro{\pdfcommentcell\{..\}}
