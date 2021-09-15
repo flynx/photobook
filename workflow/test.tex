@@ -22,6 +22,8 @@
 \edef\TestImage{DSC00403-2}
 \edef\TestImageV{DSC00403-2vert}
 
+\writeimagelistfalse
+
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -33,10 +35,12 @@
 
 \ImagePageFill{Caption text}{\TestImage}
 
-\resizedpage{3\bleedblockwidth}{\bleedblockheight}{
-	\ImagePageFill{Caption text}{\TestImage}}
+\resizedpage{2\blockwidth}{\blockheight}{
+	% XXX for some reason this doesn't fill the page...
+	\ImagePageFill{\PageInfo}{\TestImage}}
 
-\pdfboxesset{2\bleedblockwidth}{\bleedblockheight}
+\pdfboxesset{1.5\bleedblockwidth}{\bleedblockheight}
+% XXX for some reason this doesn't fill the page...
 \ImagePage{Caption text}{\TestImage}
 
 \pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}

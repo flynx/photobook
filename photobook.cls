@@ -111,10 +111,6 @@
 %%
 %% \maketitle
 %%
-%% \begin{center}
-%% 	\fbox{This class is still unstable}
-%% \end{center}
-%%
 %% \begin{abstract}
 %%	The |photobook| \LaTeX\space document class extends the |book| class 
 %%	defining a set of parameters, meta-macros, macros and environments 
@@ -676,8 +672,44 @@
 
 %% \DescribeMacro{\captionclearpage=<len>}
 %
+%% The distance between a caption block on a template page and page 
+%% borders (defaults to: |\clearimage|).
+%%
+%% This is relevant only in page/spread templates.
 %%
 \def\captionclearpage{\clearimage}
+
+
+%% \DescribeMacro{\cellparentwidth=<len>}
+%% \DescribeMacro{\cellparentheight=<len>}
+%% \DescribeMacro{\cellwidth=<len>}
+%% \DescribeMacro{\cellheight=<len>}
+%% \DescribeMacro{\celloffsetleft=<len>}
+%% \DescribeMacro{\celloffsettop=<len>}
+%% \DescribeMacro{\clearance=<len>}
+%
+%% Cell geometry. 
+%% For more details see the \nameref{subsec:Cells} section.
+%%
+%% These are set automatically by cells, thus it is not recommended to 
+%% edit them manually.
+%%
+%% For more details see the \nameref{subsec:Cells} section.
+%%
+\newlength\cellparentwidth
+\setlength\cellparentwidth{\paperwidth}
+\newlength\cellparentheight
+\setlength\cellparentheight{\paperheight}
+\newlength\cellwidth
+\setlength\cellwidth{\cellparentwidth}
+\newlength\cellheight
+\setlength\cellheight{\cellparentheight}
+\newlength\celloffsetleft
+\setlength\celloffsetleft{0pt}
+\newlength\celloffsettop
+\setlength\celloffsettop{0pt}
+\newlength\clearance
+\setlength\clearance{0pt}
 
 
 
@@ -822,6 +854,11 @@
 	\setlength\bleedblockheight{\dimexpr 
 			2\bleed 
 			+ \blockheight \relax} 
+	% cells...
+	\global\setlength\cellparentwidth{\blockwidth}
+	\global\setlength\cellparentheight{\blockheight}
+	\global\setlength\cellwidth{\cellparentwidth}
+	\global\setlength\cellheight{\cellparentheight}
 	% misc...
 	\nprounddigits{\photobook@roundprintedlengthsto}}
 
@@ -860,9 +897,7 @@
 
 \AtEndPreamble{
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% Metadata...
-
+	% Metadata...
 	\hypersetup{
 		pdfinfo={
 			Title={\@title},
@@ -873,12 +908,8 @@
 		pdfpagelayout=\pdfpagelayout,
 	}
 
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% Geometry...
-
+	% Geometry...
 	\InitPages
-
 	% no-defaults -- the user is expected to set things up...
 	\ifphotobook@geometrynodefaults
 		\geometry{
@@ -895,19 +926,13 @@
 			twoside, includeall, nomarginpar,
 			ignorehead=false, ignorefoot=false, ignoremp=false,
 			% center printed area on page
-			vcentering, hcentering}
-	\fi
+			vcentering, hcentering}\fi
 
 	\setlength\pagetextwidth{\textwidth}
 	\setlength\pagetextheight{\textheight}
 
-
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-% pdf boxes...
-
-	\pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}
-
-} % \AtEndPreamble{..}
+	% PDF boxes...
+	\pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}}
 
 
 
@@ -1048,12 +1073,22 @@
 \newcommand\resizedpage[4][\bleed]{
 	\begingroup%
 		% setup page...
+		\setlength\paperwidth{#2}
+		\setlength\paperheight{#3}
 		% XXX this does not work correctly yet...
 		\setlength\bleed{#1}%
 		\setlength\blockwidth{#2}%
 		\setlength\blockheight{#3}%
 		\edef\pdfpagelayout{}%
 		\InitPages%
+		%
+		\setlength\cellparentwidth{\bleedblockwidth}%
+		\setlength\cellparentheight{\bleedblockheight}%
+		\setlength\cellwidth{\cellparentwidth}%
+		\setlength\cellheight{\cellparentheight}%
+		%\setlength\celloffsetleft{0pt}%
+		%\setlength\celloffsettop{0pt}%
+		%
 		\pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}%
 		%
 		#4
@@ -1238,28 +1273,6 @@
 %% Changing these is not recommended, it likely will not affect the 
 %% current cell but can mess up nested cells.
 %%
-\newlength\cellparentwidth
-\setlength\cellparentwidth{\paperwidth}
-
-\newlength\cellparentheight
-\setlength\cellparentheight{\paperheight}
-
-\newlength\cellwidth
-\setlength\cellwidth{\cellparentwidth}
-
-\newlength\cellheight
-\setlength\cellheight{\cellparentheight}
-
-\newlength\celloffsetleft
-\setlength\celloffsetleft{0pt}
-
-\newlength\celloffsettop
-\setlength\celloffsettop{0pt}
-
-\newlength\clearance
-\setlength\clearance{0pt}
-
-
 %% \DescribeEnv{inlinecell}
 %% \DescribeEnv{inlinecell*}
 %
@@ -1729,7 +1742,9 @@
 %% |captionclearparent|.
 %%
 %% This will write image path, page and size to |\jobname|.image-list, 
-%% this is useful for final image pre-press. To disable this use:
+%% this is useful for final image pre-press. 
+%%
+%% To disable image list set:
 %
 %%	>> \writeimagelistfalse
 %%
@@ -2939,7 +2954,9 @@
 
 %% \DescribeMacro{\captionsize\{..\}}
 %
-%% Defines the caption font setup macro
+%% Defines the caption font.
+%%
+%% Can be redefined to control caption font/style.
 %%
 \ResettableMacro{captionsize}{%
 	\fontsize{6.5pt}{8pt}\selectfont}
@@ -2947,11 +2964,16 @@
 
 %% \DescribeMacro{\captionformat\{..\}}
 %
+%% General caption format.
+%
+%%	>> \captionformat{<code>}
+%
+%% This can be redefined to control the image caption.
 %%
-%%
-% XXX move to a better location... (???)
 \ResettableMacro{captionformat}[1]{%
-	\adjustbox{margin=0.1em 0.2em}{%
+	\adjustbox{
+			margin=0.1em 0.2em, 
+			varwidth=\cellwidth}{%
 		\captionsize #1}}
 
 
@@ -3938,16 +3960,14 @@
 %----------------------------------------------------------------------
 %%%% Miscellaneous
 
-% XXX should digits/rounding be configurable???
-\newcommand\photobook@TemplateCell[2][mm]{
-	\begin{center}
-		\vfill%
-		#2 \\
-		(\lenprint[#1]{\cellwidth} \space x \lenprint[#1]{\cellheight})
-		\vfill%
-		\vspace{0pt}%
-	\end{center}%
-	\ignorespaces}
+%% \DescribeMacro{\PageInfo}
+\newcommand\PageInfo{%
+	Layout: \layoutmode
+	\par
+	paper: \lenprint[mm]{\paperwidth} x \lenprint[mm]{\paperheight} (w. bleeds) \\
+	block: \lenprint[mm]{\blockwidth} x \lenprint[mm]{\blockheight} \\
+	cell: \lenprint[mm]{\cellparentwidth} x \lenprint[mm]{\cellparentheight} \\
+	bleed: \lenprint[mm]{\bleed}}
 
 
 %% \DescribeMacro{\GenerateTemplate\{..\}}
@@ -3966,6 +3986,17 @@
 %%
 %% This is a no-op for |layoutmode=block|.
 %%
+% XXX should digits/rounding be configurable???
+\newcommand\photobook@TemplateCell[2][mm]{
+	\begin{center}
+		\vfill%
+		#2 \\
+		(\lenprint[#1]{\cellwidth} \space x \lenprint[#1]{\cellheight})
+		\vfill%
+		\vspace{0pt}%
+	\end{center}%
+	\ignorespaces}
+
 \newcommand\GenerateTemplate[1][mm]{
 	\TPoptions{showboxes=true}%
 	\begin{page}
@@ -4030,9 +4061,9 @@
 	\expandafter\pdfpageattr\expandafter{\photobook@pdfboxstore@stored}}
 
 
-%% \DescribeMacro{\pdfboxesset\{..}\}
+%% \DescribeMacro{\pdfboxesset\{..\}}
 %
-%%	>> \SetPDFBoxes[<bleed>]{<bleedblockwidth>}{<bleedblockheight>}
+%%	>> \pdfboxesset[<bleed>]{<bleedblockwidth>}{<bleedblockheight>}
 %%
 \newcommand\pdfboxesset[3][\bleed]{%
 	% calculate pdf box dimensions in pt...
