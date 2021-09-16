@@ -3667,13 +3667,41 @@
 	\relax}
 
 % XXX EXPERIMENTAL
+%
+% \begin{minipage}{\textwidth}
+% \begin{verbatim}
+%
+%                     \clearfoldoutfold
+%                     v                v
+%
+%   +----------------++---------------++--------------+
+%   =                ..               ..              |
+%   =                ..               ..              |
+%   =                ..               ..              |
+%   =                ..               ..              |
+%   =                ..               ..              |
+%   =                ..               ..              |
+%   =                ..               ..              |
+%   =                ..               ..              |
+%   =                ..               ..              |
+%   =            (1) ..           (2) ..          (3) |
+%   +----------------++---------------++--------------+
+%
+%
+%    +---------------+
+%    +-------------- | 
+%   -----------------+
+%
+% \end{verbatim}
+% \end{minipage}
+%
 % XXX need to:
 %		- create two pages
 %		- first odd, second even
 %		- fold marks
 %		- cells for panels...
 %		- outer panel must be smaller than the inner panel by \clearfoldout
-\newcommand\Foldout[2][2]{%
+\newcommand\FoldoutPage[3][2]{%
 	\cleardoublepage%
 	% XXX
 }
