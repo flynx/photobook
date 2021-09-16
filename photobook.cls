@@ -84,8 +84,8 @@
 %%% \newcommand\DescribeGlobal[1]{%
 %%%	\DescribeMacro{#1}}
 %%
-%% \newcommand\LEGACY{\fbox{LEGACY}}
-%% \newcommand\EXPERIMENTAL{\fbox{EXPERIMENTAL}}
+%% \newcommand\LEGACY[1][]{\fbox{LEGACY #1}}
+%% \newcommand\EXPERIMENTAL[1][]{\fbox{EXPERIMENTAL #1}}
 %%
 %%% sections to new pages...
 %% \newcommand\sectionbreak{\Needspace{5\baselineskip}}
@@ -473,6 +473,7 @@
 \RequirePackage{ifthen}
 \RequirePackage{iftex}
 \RequirePackage{pgffor}
+\RequirePackage{xinttools}
 \RequirePackage{listofitems}
 \RequirePackage{xkeyval} 
 \RequirePackage{etoolbox}
@@ -2667,6 +2668,152 @@
 	\end{inlinecell*}}
 
 
+% XXX EXPERIMENTAL
+%% \DescribeMacro{\foldoutpage\{..\}}
+%% \DescribeMacro{\foldoutpagecell\{..\}}
+%
+%% \EXPERIMENTAL[(in progress)]
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%                            clearfoldoutfold
+%%                           v                v
+%%        
+%%     - --+----------------++---------------++--------------+
+%%         =                ..               ..              |
+%%         =                ..               ..              |
+%%         =                ..               ..              |
+%%         =                ..               ..              |
+%%         =                ..               ..              |
+%%         =                ..               ..              |
+%%         =                ..               ..              |
+%%         =                ..               ..              |
+%%         =                ..               ..              |
+%%         =            (1) ..           (2) ..          (3) |
+%%     - --+----------------++---------------++--------------+
+%%        
+%%  +--------------++---------------++----------------+-- -
+%%  |              ..               ..                =
+%%  |              ..               ..                =
+%%  |              ..               ..                =
+%%  |              ..               ..                =
+%%  |              ..               ..                =
+%%  |              ..               ..                =
+%%  |              ..               ..                =
+%%  |              ..               ..                =
+%%  |              ..               ..                =
+%%  |          (4) ..           (5) ..            (6) =
+%%  +--------------++---------------++----------------+-- -
+%%
+%%                 ^                ^
+%%                  clearfoldoutfold
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%%
+%% Fold mode |in-in| (default):
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%                       clearfoldoutblock <->
+%%   <--> clearfoldoutfold  . . . . . . <->  
+%%                                                    (3)  /\  (2)  
+%%      +---------------------------------+               /  \     
+%%      +-------------------------------  |                  /     
+%%   -------------------------------------+                 /  (1) 
+%%   ========================================         =====+=====  
+%%   ========================================        
+%%                                                 
+%% \end{verbatim}                                  
+%% \end{minipage}                                  
+%%
+%%
+%% Fold mode |in-out|:
+%%
+%% \begin{minipage}{\textwidth}                    
+%% \begin{verbatim}                                
+%%                                                 
+%%                      clearfoldoutblock <->                /      
+%%   <--> clearfoldoutfold                             (3)  /       
+%%                                                          \       
+%%      +----------------------------------                  \  (2) 
+%%      +---------------------------------+                  /      
+%%   -------------------------------------+                 /  (1)  
+%%   ========================================         =====+=====   
+%%   ========================================
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+% XXX need to:
+%		- create two pages
+%		- first odd, second even
+%		- fold marks
+%		- cells for panels...
+%		- outer panel must be smaller than the inner panel by \clearfoldout
+% XXX move to globals...
+\newlength\foldoutwidth
+\setlength\foldoutwidth{\blockwidth}
+
+\newlength\foldoutcellwidth
+\setlength\foldoutcellwidth{\blockwidth}
+
+\newlength\clearfoldoutblock
+\setlength\clearfoldoutblock{0.5mm}
+
+\newlength\clearfoldoutfold
+\setlength\clearfoldoutfold{5mm}
+
+\newcommand\foldoutpagecell[2][1]{%
+	% XXX
+}
+
+\def\foldoutcellwidths{}
+
+
+% XXX revise starting dimensions...
+% XXX add fold type support -- in-in / in-out...
+% XXX add manual mode -- list of lengths...
+% XXX add fold marks in bleeds...
+\newcommand\foldoutpage[2][2]{%
+	\begingroup%
+		% calculate fold geometry...
+		\setlength\foldoutwidth{0pt}%
+		\edef\foldoutcellwidths{}
+		\xintFor* ##1 in {\xintSeq{1}{#1}} \do {%
+			% foldout cell...
+			\setlength\foldoutcellwidth{
+				\dimexpr
+					\blockwidth 
+					+ \clearfoldoutblock 
+					% NOTE: this is an expanded (i - 1) because magic of LaTeX math =)
+					- ##1\clearfoldoutfold 
+					+ \clearfoldoutfold \relax}%
+			% add cell to cell lengths....
+			\edef\foldoutcellwidths{%
+				\foldoutcellwidths, \the\foldoutcellwidth}%
+			% accumulate total width...
+			\setlength\foldoutwidth{
+				\dimexpr
+					\foldoutwidth
+					+ \foldoutcellwidth \relax}}%
+		% format the panel width list...
+		\setsepchar{,}%
+		\ignoreemptyitems%
+		\readlist\foldoutcellwidths{\foldoutcellwidths}%
+		%
+		% show the pages...
+		\cleardoublepage%
+		\resizedpage{\foldoutwidth}{\blockheight}{%
+			\ignorespaces%
+			#2%
+			\cleardoublepage}%
+	\endgroup}
+
+
 %% \DescribeEnv{spreadtopages}
 %% \DescribeEnv{spreadtopages*}
 %% \DescribeMacro{\usespreadpage\{..\}}
@@ -3641,71 +3788,6 @@
 	\usespreadpage[2]{photobook@ImageHalfPageR@cell}}
 
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-%%%%% Foldout
-
-% XXX move to globals...
-\newlength\clearfoldoutblock
-\setlength\clearfoldoutblock{0.5mm}
-
-% XXX make this an option...
-\newlength\foldoutpanelwidth
-\setlength\foldoutpanelwidth{\blockwidth}
-
-\newlength\clearfoldoutfold
-\setlength\clearfoldoutfold{5mm}
-
-% XXX account for paper thickness and number of panels..
-\newcommand\foldoutcontentwidth[1][1]{\dimexpr 
-	\foldoutpanelwidth 
-	- (#1 - 1)\clearfoldoutfold 
-	- \clearfoldoutblock \relax}
-
-\newcommand\foldouttotalwidth[1]{\dimexpr 
-	\foldoutpanelwidth 
-	% XXX
-	\relax}
-
-% XXX EXPERIMENTAL
-%
-% \begin{minipage}{\textwidth}
-% \begin{verbatim}
-%
-%                     \clearfoldoutfold
-%                     v                v
-%
-%   +----------------++---------------++--------------+
-%   =                ..               ..              |
-%   =                ..               ..              |
-%   =                ..               ..              |
-%   =                ..               ..              |
-%   =                ..               ..              |
-%   =                ..               ..              |
-%   =                ..               ..              |
-%   =                ..               ..              |
-%   =                ..               ..              |
-%   =            (1) ..           (2) ..          (3) |
-%   +----------------++---------------++--------------+
-%
-%
-%    +---------------+
-%    +-------------- | 
-%   -----------------+
-%
-% \end{verbatim}
-% \end{minipage}
-%
-% XXX need to:
-%		- create two pages
-%		- first odd, second even
-%		- fold marks
-%		- cells for panels...
-%		- outer panel must be smaller than the inner panel by \clearfoldout
-\newcommand\FoldoutPage[3][2]{%
-	\cleardoublepage%
-	% XXX
-}
-
 
 %----------------------------------------------------------------------
 %%%% Spread Templates
@@ -4146,37 +4228,26 @@
 	\edef\photobook@pdfboxesset@r{\strip@pt\dimexpr 
 		0.996264009963\dimexpr #2 - #1 \relax\relax}%
 	%
+	\edef\photobook@pdfboxes{
+		/MediaBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
+		/BleedBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
+		/ArtBox [
+			\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
+			\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]
+		/TrimBox [
+			\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
+			\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]
+		/CropBox [
+			\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
+			\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]}%
+	%
 	% set the boxes...
 	\ifxetex%
-		% XXX not tested...
-		% XXX this is mostly the same as for the other branch -- reuse...
-		\AtBeginShipout{\AtBeginShipoutAddToBox{
-			\special{pdf:put @thispage <<
-				/MediaBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
-				/BleedBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
-				/ArtBox [
-					\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
-					\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]
-				/TrimBox [
-					\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
-					\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]
-				/CropBox [
-					\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
-					\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t] >>}}}%
+		% XXX make this reusable -- currently this will add new boxes per 
+		%		call, need to cleanup...
+		\AtBeginShipout{\AtBeginShipoutAddToBox{%
+			\special{pdf:put @thispage << \photobook@pdfboxes >>}}}%
 	\else%
-		\edef\photobook@pdfboxes{
-			/MediaBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
-			/BleedBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
-			/ArtBox [
-				\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
-				\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]
-			/TrimBox [
-				\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
-				\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]
-			/CropBox [
-				\photobook@pdfboxesset@bleed\space \photobook@pdfboxesset@bleed\space 
-				\photobook@pdfboxesset@r\space \photobook@pdfboxesset@t]}%
-		%
 		\expandafter\pdfpageattr\expandafter{\photobook@pdfboxes}\fi}
 
 

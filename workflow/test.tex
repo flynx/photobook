@@ -35,18 +35,26 @@
 
 \ImagePageFill{\PageInfo}{\TestImage}
 
-% XXX these are still a bit off...
-%		...the problem is due to the code that accounts for binding offset when image fit...
-\resizedpage{2\blockwidth}{\blockheight}{%
+%\resizedpage{2\blockwidth}{\blockheight}{%
+%	\ImagePageFill{\PageInfo}{\TestImageV}%
+%	\ImagePageFill{\PageInfo}{\TestImage}}
+%
+%\ImagePage{Caption text}{\TestImage}
+%
+%\resizedpage{3\blockwidth}{\blockheight}{
+%	\ImagePage{Caption text}{\TestImage}}
+%
+%\ImagePage{Caption text}{\TestImage}
+
+\foldoutpage[3]{
 	\ImagePageFill{\PageInfo}{\TestImageV}%
 	\ImagePageFill{\PageInfo}{\TestImage}}
 
 \ImagePage{Caption text}{\TestImage}
 
-\resizedpage{3\blockwidth}{\blockheight}{
-	\ImagePage{Caption text}{\TestImage}}
-
-\ImagePage{Caption text}{\TestImage}
+\foldoutpage[3]{
+	%\ImagePageFill{\PageInfo}{\TestImageV}%
+	\ImagePageFill{\PageInfo}{\TestImage}}
 
 \end{document}
 
