@@ -1073,7 +1073,7 @@
 
 % XXX EXPERIMENTAL
 %	>> \resizedpage[<bleed>]{<width>}{<height>}{<code>}
-\newcommand\resizedpage[4][\bleed]{
+\newenvironment{resizedpages}[3][\bleed]{
 	\begingroup%
 		% setup page...
 		\setlength\bleed{#1}%
@@ -1090,10 +1090,11 @@
 		%
 		\pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}%
 		%
-		#4
+}{%
 	\endgroup%
 	% reset...
 	\pdfboxesset[\bleed]{\bleedblockwidth}{\bleedblockheight}}
+
 
 
 
@@ -2669,14 +2670,14 @@
 
 
 % XXX EXPERIMENTAL
-%% \DescribeMacro{\foldoutpages\{..\}}
+%% \DescribeEnv{foldout}
 %%% \DescribeMacro{\foldoutpagecell\{..\}}
 %
-%% \EXPERIMENTAL[(in progress)]
+%% \EXPERIMENTAL
 %%
 %% Create 2 or more pages in foldout mode.
 %
-%%	>> \foldoutpages[<foldout-width>]{<code>}
+%%	>> \begin{foldout}[<count>] ... \end{foldout}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -2798,7 +2799,7 @@
 % XXX add fold type support -- in-in / in-out...
 % XXX add manual mode -- list of lengths...
 % XXX add fold marks in bleeds...
-\newcommand\foldoutpages[2][2]{%
+\newenvironment{foldout}[1][2]{%
 	\begingroup%
 		% calculate fold geometry...
 		\setlength\foldoutwidth{0pt}%
@@ -2825,12 +2826,15 @@
 		\ignoreemptyitems%
 		\readlist\foldoutcellwidths{\foldoutcellwidths}%
 		%
-		% show the pages...
+		% pages...
+		% NOTE: we'll keep the start of the foldout set at the right page
+		%		and end it on the left page.
 		\cleardoublepage%
-		\resizedpage{\foldoutwidth}{\blockheight}{%
+		\begin{resizedpages}{\foldoutwidth}{\blockheight}%
 			\ignorespaces%
-			#2%
-			\cleardoublepage}%
+}{%
+			\cleardoublepage%
+		\end{resizedpages}%
 	\endgroup}
 
 
