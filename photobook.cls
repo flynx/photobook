@@ -2669,30 +2669,34 @@
 
 
 % XXX EXPERIMENTAL
-%% \DescribeMacro{\foldoutpage\{..\}}
-%% \DescribeMacro{\foldoutpagecell\{..\}}
+%% \DescribeMacro{\foldoutpages\{..\}}
+%%% \DescribeMacro{\foldoutpagecell\{..\}}
 %
 %% \EXPERIMENTAL[(in progress)]
 %%
+%% Create 2 or more pages in foldout mode.
+%
+%%	>> \foldoutpages[<foldout-width>]{<code>}
+%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%                            clearfoldoutfold
-%%                           v                v
-%%        
-%%     - --+----------------++---------------++--------------+
-%%         =                ..               ..              |
-%%         =                ..               ..              |
-%%         =                ..               ..              |
-%%         =                ..               ..              |
-%%         =                ..               ..              |
-%%         =                ..               ..              |
-%%         =                ..               ..              |
-%%         =                ..               ..              |
-%%         =                ..               ..              |
-%%         =            (1) ..           (2) ..          (3) |
-%%     - --+----------------++---------------++--------------+
-%%        
+%%                              clearfoldoutfold
+%%                             v                v
+%%          
+%%       - --+----------------++---------------++--------------+
+%%           =                ..               ..              |
+%%           =                ..               ..              |
+%%           =                ..               ..              |
+%%           =                ..               ..              |
+%%           =                ..               ..              |
+%%           =                ..               ..              |
+%%           =                ..               ..              |
+%%           =                ..               ..              |
+%%           =                ..               ..              |
+%%           =            (1) ..           (2) ..          (3) |
+%%       - --+----------------++---------------++--------------+
+%%          
 %%  +--------------++---------------++----------------+-- -
 %%  |              ..               ..                =
 %%  |              ..               ..                =
@@ -2712,6 +2716,16 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+%% A foldout always starts on the right/odd page and will always end on 
+%% the left/even page. 
+%%
+%% If |\foldoutpages{..}| is called on and even page, an empty normal 
+%% page will be created pushing the foldout to the right page of the 
+%% spread. If an odd number of pages is created the set will be padded 
+% with an empty page before |\foldoutpages{..}| exits.
+%%
+% XXX new cell parameters...
+% XXX modes... 
 %%
 %% Fold mode |in-in| (default):
 %%
@@ -2749,11 +2763,11 @@
 %% \end{minipage}
 %%
 % XXX need to:
-%		- create two pages
-%		- first odd, second even
+%		- create two pages -- DONE
+%		- first odd, second even -- DONE
 %		- fold marks
 %		- cells for panels...
-%		- outer panel must be smaller than the inner panel by \clearfoldout
+%		- outer panel must be smaller than the inner panel by \clearfoldout -- DONE
 % XXX move to globals...
 \newlength\foldoutwidth
 \setlength\foldoutwidth{\blockwidth}
@@ -2767,18 +2781,18 @@
 \newlength\clearfoldoutfold
 \setlength\clearfoldoutfold{5mm}
 
+\def\foldoutcellwidths{}
+
+
 \newcommand\foldoutpagecell[2][1]{%
 	% XXX
 }
-
-\def\foldoutcellwidths{}
-
 
 % XXX revise starting dimensions...
 % XXX add fold type support -- in-in / in-out...
 % XXX add manual mode -- list of lengths...
 % XXX add fold marks in bleeds...
-\newcommand\foldoutpage[2][2]{%
+\newcommand\foldoutpages[2][2]{%
 	\begingroup%
 		% calculate fold geometry...
 		\setlength\foldoutwidth{0pt}%
