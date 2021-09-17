@@ -35,27 +35,30 @@
 
 \ImagePageFill{\PageInfo}{\TestImage}
 
-%\resizedpage{2\blockwidth}{\blockheight}{%
-%	\ImagePageFill{\PageInfo}{\TestImageV}%
-%	\ImagePageFill{\PageInfo}{\TestImage}}
+%\begin{resizedpages}{2\blockwidth}{\blockheight}
+%	\ImagePageFill{\PageInfo}{\TestImageV}
+%	\ImagePageFill{\PageInfo}{\TestImage}
+%\end{resizedpages}
 %
 %\ImagePage{Caption text}{\TestImage}
 %
-%\resizedpage{3\blockwidth}{\blockheight}{
-%	\ImagePage{Caption text}{\TestImage}}
+%\begin{resizedpages}{3\blockwidth}{\blockheight}
+%	\ImagePage{Caption text}{\TestImage}
+%\end{resizedpages}
 %
 %\ImagePage{Caption text}{\TestImage}
 
-\foldoutpages[3]{
+\begin{foldout}[3]
 	\ImagePageFill{\PageInfo}{\TestImageV}%
-	\ImagePageFill{\PageInfo}{\TestImage}}
+	\ImagePageFill{\PageInfo}{\TestImage}
+\end{foldout}
 
 \ImagePage{Caption text}{\TestImage}
 \ImagePage{Caption text}{\TestImageV}
 
-\foldoutpages[3]{
-	%\ImagePageFill{\PageInfo}{\TestImageV}%
-	\ImagePageFill{\PageInfo}{\TestImage}}
+\begin{foldout}[3]
+	\ImagePageFill{\PageInfo}{\TestImage}
+\end{foldout}
 
 \end{document}
 
