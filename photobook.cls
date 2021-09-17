@@ -2762,6 +2762,12 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+% XXX foldout modes:
+%			fold=in in,
+%			fold=in out,
+%			fold=in in out in,
+%		...a mode is repeated if more panels than items are present, e.g.
+%		for fold=in out, and 6 panels the folds will be {in out in out in}
 % XXX need to:
 %		- create two pages -- DONE
 %		- first odd, second even -- DONE
