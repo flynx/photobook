@@ -2717,6 +2717,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+%%
 %% A foldout always starts on the right/odd page and will always end on 
 %% the left/even page. 
 %%
@@ -2725,6 +2726,28 @@
 %% spread. If an odd number of pages is created the set will be padded 
 % with an empty page before |\foldoutpages{..}| exits.
 %%
+%%
+%% Foldout panel numbering
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%           - --+-------+-------+-    --+-------+-------+
+%%               =       |       |       |       |       |
+%%               =  (1)  |  (2)  |  ...  | (n-1) |  (n)  |
+%%               =       |       |       |       |       |
+%%           - --+-------+-------+--    -+-------+-------+
+%%
+%%  +-------+--    -+--------+--------+-- -
+%%  |       |       |        |        =
+%%  | (n+1) |  ...  | (2n-1) |  (2n)  =
+%%  |       |       |        |        =
+%%  +-------+-    --+--------+--------+-- -
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+% XXX note that panel width includes right \clearfoldoutblock (???)
 % XXX new cell parameters...
 % XXX modes... 
 %%
@@ -2763,6 +2786,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+% XXX order doc secions correctly...
 % XXX foldout modes:
 %			fold=in in,
 %			fold=in out,
