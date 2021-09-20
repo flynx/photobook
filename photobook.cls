@@ -2815,6 +2815,7 @@
 \def\foldoutcellwidths{}
 
 
+% XXX might be a good idea to add panel spanning...
 \newcommand\foldoutpagecell[2][1]{%
 	% XXX
 }
