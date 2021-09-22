@@ -2818,9 +2818,18 @@
 
 
 % XXX might be a good idea to add panel spanning...
-\newcommand\foldoutpagecell[2][1]{%
-	% XXX
-}
+% XXX need to clip left/right of all but first/last panels...
+\newenvironment{foldoutcell}[1][1]{%
+	\begin{cell*}{
+				% XXX + sum of panels upto start
+				\bleed,
+				\bleed}% 
+			% XXX cur sum of cur panel + next n...
+			{ \pageblockwidth }%
+			{\pageblockheight}%
+}{%
+	\end{cell*}}
+
 
 % XXX revise starting dimensions...
 % XXX add fold marks in bleeds...
