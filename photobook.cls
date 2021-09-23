@@ -2820,6 +2820,10 @@
 % XXX might be a good idea to add panel spanning...
 % XXX need to clip left/right of all but first/last panels...
 \newenvironment{foldoutcell}[1][1]{%
+	\setsepchar{-}%
+	\readlist*\photobook@foldoutcell@panels{#1}%
+	% XXX
+	%
 	\begin{cell*}{
 				% XXX + sum of panels upto start
 				\bleed,
