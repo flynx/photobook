@@ -59,6 +59,16 @@
 
 %% \documentclass{ltxdoc}
 %%
+%%% XXX Q: do we add the pdf to the repo and if so, should it be 
+%%%	compressed (diff-able) or uncompressed (blob)??
+%%% \usepackage{iftex}
+%%% \ifluatex
+%%% 	\edef\pdfcompresslevel{\pdfvariable compresslevel} 
+%%% 	\edef\pdfobjcompresslevel{\pdfvariable objcompresslevel}
+%%% \fi
+%%% \pdfcompresslevel 0
+%%% \pdfobjcompresslevel 0
+%% 
 %% \usepackage[a4paper,margin=25mm,left=55mm,nohead]{geometry}
 %%
 %% % NOTE: this needs to load before hyperref or bookmarks will break...
