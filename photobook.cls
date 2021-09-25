@@ -1438,6 +1438,13 @@
 	\setsepchar{,}%
 	\readlist*\photobook@cell@offset{#1}%
 	%
+	% NOTE: if there is no \null before textblock then it can reset the 
+	%		non-standard page boxes... 
+	%		...not sure yet if this is an issue with how/when foldout env
+	%		updates the boxes or with textblock internals, needs 
+	%		investigating...
+	%		XXX report this as a bug if issue is in textblock...
+	\null%
 	\begin{textblock*}{#2}(#1)%
 	\begin{inlinecell*}{#2}{#3}%
 		\setlength\celloffsettop{\photobook@cell@offset[1]}%
@@ -2745,17 +2752,19 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
+%%                 right page
 %%           - --+-------+-------+-    --+-------+-------+
 %%               =       |       |       |       |       |
 %%               =  (1)  |  (2)  |  ...  | (n-1) |  (n)  |
 %%               =       |       |       |       |       |
 %%           - --+-------+-------+--    -+-------+-------+
 %%
-%%  +-------+--    -+--------+--------+-- -
-%%  |       |       |        |        =
-%%  | (n+1) |  ...  | (2n-1) |  (2n)  =
-%%  |       |       |        |        =
-%%  +-------+-    --+--------+--------+-- -
+%%                                 left page
+%%   +-------+-------+-    --+-------+-------+-- -
+%%   |       |       |       |       |       =
+%%   |  (1)  |  (2)  |  ...  | (n-1) |  (n)  =
+%%   |       |       |       |       |       =
+%%   +-------+-------+--    -+-------+-------+-- -
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -2837,9 +2846,12 @@
 \newcommand\photobook@setfoldoutoffset[3]{%
 	\expandafter\setlength\csname #1\endcsname{0pt}%
 	\ifnum \numexpr #2 \relax < \numexpr #3 \relax%
-		% XXX account for even/odd pages...
 		\xintFor* ##1 in {%
-				\xintSeq{#2}{\xintiiMin{#3}{\foldoutcellwidthslen + 1} - 1}} \do {%
+				\ifnumodd{\thepage}{%
+					\xintSeq{#2}{\xintiiMin{#3}{\foldoutcellwidthslen + 1} - 1}
+				}{%
+					\xintSeq{\xintiiMin{#3}{\foldoutcellwidthslen + 1} - 1}{#2}
+				}} \do {%
 			\expandafter\setlength\csname #1\endcsname{%
 				\csname #1\endcsname%
 				+ \foldoutcellwidths[##1]}}\fi}
@@ -2873,8 +2885,7 @@
 			\setlength\photobook@foldoutcell@width{%
 				\foldoutcellwidths[{\photobook@foldoutcell@panels[1]}]}\fi%
 		%
-		% XXX need to trim bleeds on left (except panel 1) and right (except panel -1)...
-		% XXX this (textpos) breaks page size...
+		% XXX need to clip bleeds on left (except panel 1) and right (except panel -1)...
 		\begin{cell*}{%
 					\photobook@foldoutcell@left,%
 					\bleed}%
