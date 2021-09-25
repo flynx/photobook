@@ -483,6 +483,7 @@
 \RequirePackage{ifthen}
 \RequirePackage{iftex}
 \RequirePackage{pgffor}
+\RequirePackage{xint}
 \RequirePackage{xinttools}
 \RequirePackage{listofitems}
 \RequirePackage{xkeyval} 
@@ -1434,6 +1435,7 @@
 % XXX SYNTAX: place the second arg in braces...
 %		\begin{cell*}(<left>, <top>){<width>}{<height>}
 \newenvironment{cell*}[3]{%
+	\setsepchar{,}%
 	\readlist*\photobook@cell@offset{#1}%
 	%
 	\begin{textblock*}{#2}(#1)%
@@ -1545,6 +1547,7 @@
 % cell content...
 % NOTE: this is not intended for direct use -- depends closure/context...
 \def\photobook@usecell@placecell#1(#2){%
+	\setsepchar{,}%
 	\readlist*\photobook@usecell@offset{#2}%
 	% XXX how we align things feels a bit odd...
 	\vspace{-\dimexpr \photobook@usecell@offset[1] \relax}%
@@ -2538,7 +2541,7 @@
 %% Like |papercell| but includes bleeds.
 %%
 \newenvironment{paperbleedcell}{%
-	\begin{cell*}{0, 0}{\bleedblockwidth}{\bleedblockheight}%
+	\begin{cell*}{0pt, 0pt}{\bleedblockwidth}{\bleedblockheight}%
 }{%
 	\end{cell*}}
 
@@ -2590,8 +2593,8 @@
 
 \newenvironment{pagecell*}{%
 	\begin{cell*}{%
-			\bleed + \ifnumodd{\thepage}{\bindingoffset}{0pt}%
-			,\bleed}%
+			\bleed + \ifnumodd{\thepage}{\bindingoffset}{0pt},%
+			\bleed}%
 		{\pageblockwidth - \bindingoffset}%
 		{\pageblockheight}%
 }{%
@@ -2623,7 +2626,7 @@
 %% Note that as with |pagecell| this is not affected by |layoutmode|.
 %%
 \newenvironment{pagebleedcell}{%
-	\begin{cell*}{0mm, 0mm}{\bleedblockwidth}{\bleedblockheight}%
+	\begin{cell*}{0pt, 0pt}{\bleedblockwidth}{\bleedblockheight}%
 }{%
 	\end{cell*}}
 
@@ -2827,25 +2830,19 @@
 \def\foldoutcellwidths{}
 
 
-\newlength\photobook@foldoutoffset@sum
-\setlength\photobook@foldoutoffset@sum{0pt}
-
-%	>> \photobook@foldoutoffset{<from>}{<to>}
+%	>> \photobook@setfoldoutoffset{<name>}{<from>}{<to>}
 %
 % XXX doc [from, to[
 % XXX this can't be used outside of a foldout...
-\newcommand\photobook@foldoutoffset[2]{%
-	\begingroup%
-		\ifnum #1 < #2%
-			% XXX account for even/odd pages...
-			\xintFor* ##1 in {%
-					\xintSeq{ #1 }{ \xintiiMin{#2}{\foldoutcellwidthslen} - 1 }} \do {%
-				\setlength\photobook@foldoutoffset@sum{%
-					\photobook@foldoutoffset@sum%
-					+ \foldoutcellwidths[##1]}}\fi%
-		%
-		\the\photobook@foldoutoffset@sum%
-	\endgroup}
+\newcommand\photobook@setfoldoutoffset[3]{%
+	\expandafter\setlength\csname #1\endcsname{0pt}%
+	\ifnum \numexpr #2 \relax < \numexpr #3 \relax%
+		% XXX account for even/odd pages...
+		\xintFor* ##1 in {%
+				\xintSeq{#2}{\xintiiMin{#3}{\foldoutcellwidthslen + 1} - 1}} \do {%
+			\expandafter\setlength\csname #1\endcsname{%
+				\csname #1\endcsname%
+				+ \foldoutcellwidths[##1]}}\fi}
 
 
 \newlength\photobook@foldoutcell@left
@@ -2853,6 +2850,8 @@
 \newlength\photobook@foldoutcell@width
 \setlength\photobook@foldoutcell@width{0pt}
 
+% XXX doc [from, to]
+% XXX if no args are given, should this auto-advance???
 % XXX need to clip left/right of all but first/last panels...
 % XXX this can't be used outside of a foldout...
 \newenvironment{foldoutcell}[1][1]{%
@@ -2860,25 +2859,27 @@
 		\setsepchar{-}%
 		\readlist*\photobook@foldoutcell@panels{#1}%
 		% left offset...
-		\setlength\photobook@foldoutcell@left{%
-			\photobook@foldoutoffset{1}{\photobook@foldoutcell@panels[1]}}%
+		\photobook@setfoldoutoffset{photobook@foldoutcell@left}{%
+				1
+			}{%
+				\photobook@foldoutcell@panels[1]}%
 		% panel width...
 		\ifnum \photobook@foldoutcell@panelslen > 1%
-			\setlength\photobook@foldoutcell@width{%
-				\photobook@foldoutoffset{
-						\photobook@foldoutcell@panels[1]%
-					}{%
-						% XXX do we add 1 here???
-						\photobook@foldoutcell@panels[2] + 1}}%
+			\photobook@setfoldoutoffset{photobook@foldoutcell@width}{%
+					\photobook@foldoutcell@panels[1]%
+				}{%
+					\photobook@foldoutcell@panels[2] + 1}%
 		\else%
 			\setlength\photobook@foldoutcell@width{%
-				\foldoutcellwidths[
-					\photobook@foldoutcell@panels[1]]}\fi%
+				\foldoutcellwidths[{\photobook@foldoutcell@panels[1]}]}\fi%
 		%
 		% XXX need to trim bleeds on left (except panel 1) and right (except panel -1)...
-		\begin{cell*}%
-				{\photobook@foldoutcell@left, \bleed}% 
-				{\photobook@foldoutcell@width}{\pageblockheight}%
+		% XXX this (textpos) breaks page size...
+		\begin{cell*}{%
+					\photobook@foldoutcell@left,%
+					\bleed}%
+				{\photobook@foldoutcell@width}%
+				{\pageblockheight}%
 }{%
 		\end{cell*}%
 	\endgroup}
@@ -3625,6 +3626,7 @@
 \ImagePageTemplate{ImagePageFit}{%
 	\begingroup%
 		% see if default alignment is overridden...
+		\setsepchar{,}%
 		\ignoreemptyitems%
 		\readlist*\photobook@ImagePageFit@args{moo, #1}%
 		\foreachitem\photobook@ImagePageFit@opt\in\photobook@ImagePageFit@args{%

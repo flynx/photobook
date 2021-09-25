@@ -34,35 +34,25 @@
 \begin{document}
 
 
-\setsepchar{-}
-\readlist*\lst{1-2}
+\ImagePageFill{\PageInfo}{\TestImage}
 
-item @1: \lst[1]
-\par
-len: \lstlen
+\begin{foldout}[3]
+	\ImagePageFill{\PageInfo}{\TestImageV}%
+	\ImagePageFill{\PageInfo}{\TestImage}
+\end{foldout}
 
-\par
+\ImagePage{Caption text}{\TestImage}
+\ImagePage{Caption text}{\TestImageV}
 
-\ifnum\lstlen<2
-	one item
-\else
-	two or more items
-\fi
+\begin{foldout}[3]
+	\ImagePageFill{\PageInfo}{\TestImage}
+\end{foldout}
 
-
-%\ImagePageFill{\PageInfo}{\TestImage}
-%
-%\begin{foldout}[3]
-%	\ImagePageFill{\PageInfo}{\TestImageV}%
-%	\ImagePageFill{\PageInfo}{\TestImage}
-%\end{foldout}
-%
-%\ImagePage{Caption text}{\TestImage}
-%\ImagePage{Caption text}{\TestImageV}
-%
-%\begin{foldout}[3]
-%	\ImagePageFill{\PageInfo}{\TestImage}
-%\end{foldout}
+\begin{foldout}[3]
+	\begin{foldoutcell}[2]
+		moo
+	\end{foldoutcell}
+\end{foldout}
 
 \end{document}
 
