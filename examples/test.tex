@@ -33,32 +33,36 @@
 
 \begin{document}
 
-\ImagePageFill{\PageInfo}{\TestImage}
 
-%\begin{resizedpages}{2\blockwidth}{\blockheight}
-%	\ImagePageFill{\PageInfo}{\TestImageV}
+\setsepchar{-}
+\readlist*\lst{1-2}
+
+item @1: \lst[1]
+\par
+len: \lstlen
+
+\par
+
+\ifnum\lstlen<2
+	one item
+\else
+	two or more items
+\fi
+
+
+%\ImagePageFill{\PageInfo}{\TestImage}
+%
+%\begin{foldout}[3]
+%	\ImagePageFill{\PageInfo}{\TestImageV}%
 %	\ImagePageFill{\PageInfo}{\TestImage}
-%\end{resizedpages}
+%\end{foldout}
 %
 %\ImagePage{Caption text}{\TestImage}
+%\ImagePage{Caption text}{\TestImageV}
 %
-%\begin{resizedpages}{3\blockwidth}{\blockheight}
-%	\ImagePage{Caption text}{\TestImage}
-%\end{resizedpages}
-%
-%\ImagePage{Caption text}{\TestImage}
-
-\begin{foldout}[3]
-	\ImagePageFill{\PageInfo}{\TestImageV}%
-	\ImagePageFill{\PageInfo}{\TestImage}
-\end{foldout}
-
-\ImagePage{Caption text}{\TestImage}
-\ImagePage{Caption text}{\TestImageV}
-
-\begin{foldout}[3]
-	\ImagePageFill{\PageInfo}{\TestImage}
-\end{foldout}
+%\begin{foldout}[3]
+%	\ImagePageFill{\PageInfo}{\TestImage}
+%\end{foldout}
 
 \end{document}
 

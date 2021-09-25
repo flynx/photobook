@@ -2827,22 +2827,61 @@
 \def\foldoutcellwidths{}
 
 
-% XXX might be a good idea to add panel spanning...
+\newlength\photobook@foldoutoffset@sum
+\setlength\photobook@foldoutoffset@sum{0pt}
+
+%	>> \photobook@foldoutoffset{<from>}{<to>}
+%
+% XXX doc [from, to[
+% XXX this can't be used outside of a foldout...
+\newcommand\photobook@foldoutoffset[2]{%
+	\begingroup%
+		\ifnum #1 < #2%
+			% XXX account for even/odd pages...
+			\xintFor* ##1 in {%
+					\xintSeq{ #1 }{ \xintiiMin{#2}{\foldoutcellwidthslen} - 1 }} \do {%
+				\setlength\photobook@foldoutoffset@sum{%
+					\photobook@foldoutoffset@sum%
+					+ \foldoutcellwidths[##1]}}\fi%
+		%
+		\the\photobook@foldoutoffset@sum%
+	\endgroup}
+
+
+\newlength\photobook@foldoutcell@left
+\setlength\photobook@foldoutcell@left{0pt}
+\newlength\photobook@foldoutcell@width
+\setlength\photobook@foldoutcell@width{0pt}
+
 % XXX need to clip left/right of all but first/last panels...
+% XXX this can't be used outside of a foldout...
 \newenvironment{foldoutcell}[1][1]{%
-	\setsepchar{-}%
-	\readlist*\photobook@foldoutcell@panels{#1}%
-	% XXX
-	%
-	\begin{cell*}{
-				% XXX + sum of panels upto start
-				\bleed,
-				\bleed}% 
-			% XXX cur sum of cur panel + next n...
-			{ \pageblockwidth }%
-			{\pageblockheight}%
+	\begingroup%
+		\setsepchar{-}%
+		\readlist*\photobook@foldoutcell@panels{#1}%
+		% left offset...
+		\setlength\photobook@foldoutcell@left{%
+			\photobook@foldoutoffset{1}{\photobook@foldoutcell@panels[1]}}%
+		% panel width...
+		\ifnum \photobook@foldoutcell@panelslen > 1%
+			\setlength\photobook@foldoutcell@width{%
+				\photobook@foldoutoffset{
+						\photobook@foldoutcell@panels[1]%
+					}{%
+						% XXX do we add 1 here???
+						\photobook@foldoutcell@panels[2] + 1}}%
+		\else%
+			\setlength\photobook@foldoutcell@width{%
+				\foldoutcellwidths[
+					\photobook@foldoutcell@panels[1]]}\fi%
+		%
+		% XXX need to trim bleeds on left (except panel 1) and right (except panel -1)...
+		\begin{cell*}%
+				{\photobook@foldoutcell@left, \bleed}% 
+				{\photobook@foldoutcell@width}{\pageblockheight}%
 }{%
-	\end{cell*}}
+		\end{cell*}%
+	\endgroup}
 
 
 % XXX revise starting dimensions...
