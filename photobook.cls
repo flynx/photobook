@@ -2691,7 +2691,6 @@
 
 % XXX EXPERIMENTAL
 %% \DescribeEnv{foldout}
-%%% \DescribeMacro{\foldoutpagecell\{..\}}
 %
 %% \EXPERIMENTAL
 %%
@@ -2728,7 +2727,7 @@
 %%  |              ..               ..                =
 %%  |              ..               ..                =
 %%  |              ..               ..                =
-%%  |          (4) ..           (5) ..            (6) =
+%%  |          (1) ..           (2) ..            (3) =
 %%  +--------------++---------------++----------------+-- -
 %%
 %%                 ^                ^
@@ -2838,9 +2837,7 @@
 
 \def\foldoutcellwidths{}
 
-
 %	>> \photobook@setfoldoutoffset{<name>}{<from>}{<to>}
-%
 % XXX doc [from, to[
 % XXX this can't be used outside of a foldout...
 \newcommand\photobook@setfoldoutoffset[3]{%
@@ -2855,46 +2852,6 @@
 			\expandafter\setlength\csname #1\endcsname{%
 				\csname #1\endcsname%
 				+ \foldoutcellwidths[##1]}}\fi}
-
-
-\newlength\photobook@foldoutcell@left
-\setlength\photobook@foldoutcell@left{0pt}
-\newlength\photobook@foldoutcell@width
-\setlength\photobook@foldoutcell@width{0pt}
-
-% XXX doc [from, to]
-% XXX if no args are given, should this auto-advance???
-% XXX need to clip left/right of all but first/last panels...
-% XXX this can't be used outside of a foldout...
-\newenvironment{foldoutcell}[1][1]{%
-	\begingroup%
-		\setsepchar{-}%
-		\readlist*\photobook@foldoutcell@panels{#1}%
-		% left offset...
-		\photobook@setfoldoutoffset{photobook@foldoutcell@left}{%
-				1
-			}{%
-				\photobook@foldoutcell@panels[1]}%
-		% panel width...
-		\ifnum \photobook@foldoutcell@panelslen > 1%
-			\photobook@setfoldoutoffset{photobook@foldoutcell@width}{%
-					\photobook@foldoutcell@panels[1]%
-				}{%
-					\photobook@foldoutcell@panels[2] + 1}%
-		\else%
-			\setlength\photobook@foldoutcell@width{%
-				\foldoutcellwidths[{\photobook@foldoutcell@panels[1]}]}\fi%
-		%
-		% XXX need to clip bleeds on left (except panel 1) and right (except panel -1)...
-		\begin{cell*}{%
-					\photobook@foldoutcell@left,%
-					\bleed}%
-				{\photobook@foldoutcell@width}%
-				{\pageblockheight}%
-}{%
-		\end{cell*}%
-	\endgroup}
-
 
 % XXX revise starting dimensions...
 % XXX add fold marks in bleeds...
@@ -2935,6 +2892,56 @@
 			\cleardoublepage%
 		\end{resizedpages}%
 	\endgroup}
+
+
+%% \DescribeEnv{foldoutcell}
+%
+%% \EXPERIMENTAL
+%%
+%% Create a cell spanning one or more foldout panels.
+%
+%%	>> \begin{foldoutcell} ... \end{foldoutcell}
+%%	>> \begin{foldoutcell}[<num>] ... \end{foldoutcell}
+%%	>> \begin{foldoutcell}[<from>-<to>] ... \end{foldoutcell}
+%%
+\newlength\photobook@foldoutcell@left
+\setlength\photobook@foldoutcell@left{0pt}
+\newlength\photobook@foldoutcell@width
+\setlength\photobook@foldoutcell@width{0pt}
+
+% XXX doc [from, to]
+% XXX if no args are given, should this auto-advance???
+% XXX need to clip left/right of all but first/last panels...
+% XXX this can't be used outside of a foldout...
+\newenvironment{foldoutcell}[1][1]{%
+	\begingroup%
+		\setsepchar{-}%
+		\readlist*\photobook@foldoutcell@panels{#1}%
+		% left offset...
+		\photobook@setfoldoutoffset{photobook@foldoutcell@left}{%
+				1
+			}{%
+				\photobook@foldoutcell@panels[1]}%
+		% panel width...
+		\ifnum \photobook@foldoutcell@panelslen > 1%
+			\photobook@setfoldoutoffset{photobook@foldoutcell@width}{%
+					\photobook@foldoutcell@panels[1]%
+				}{%
+					\photobook@foldoutcell@panels[2] + 1}%
+		\else%
+			\setlength\photobook@foldoutcell@width{%
+				\foldoutcellwidths[{\photobook@foldoutcell@panels[1]}]}\fi%
+		%
+		% XXX need to clip bleeds on left (except panel 1) and right (except panel -1)...
+		\begin{cell*}{%
+					\photobook@foldoutcell@left,%
+					\bleed}%
+				{\photobook@foldoutcell@width}%
+				{\pageblockheight}%
+}{%
+		\end{cell*}%
+	\endgroup}
+
 
 
 %% \DescribeEnv{spreadtopages}
