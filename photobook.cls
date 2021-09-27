@@ -2861,6 +2861,80 @@
 				\csname #1\endcsname%
 				+ \foldoutcellwidths[##1]}}\fi}
 
+% XXX new arg syntax:
+%		<num>			-- number of panels
+%		in|out ...		-- fold direction
+%		<dim> in|out <dim> ...		
+%						-- fold direction with panel widths
+\edef\photobook@foldout@prevfold{}%
+\edef\foldoutspec{2}
+\newenvironment{foldoutA}[1][\foldoutspec]{%
+	\begingroup%
+		\setsepchar{ }%
+		\readlist*\photobook@foldout@args{#1}%
+		% panel count...
+		% XXX also check that the arg is not in|out...
+		\ifnum \photobook@foldout@argslen = 1%
+			% XXX
+		% fold spec...
+		\else%
+			% XXX need to maintain a max panel width and use it as default...
+			% XXX
+			\edef\photobook@foldout@prevfold{}%
+			\foreachitem \photobook@foldout@opt \in \photobook@foldout@args{%
+				% in fold...
+				\ifthenelse{\equal{\photobook@foldout@opt}{in}}{%
+					% XXX revise numbers...
+					\setlength\foldoutcellwidth{%
+						\foldoutcellwidth
+						+ \getFoldCompensation{%
+							\photobook@foldout@opt}}%
+					\setlength\foldoutwidth{
+						\foldoutwidth
+						+ \foldoutcellwidthx}%
+					\edef\foldoutcellwidths{%
+						\foldoutcellwidths, \the\foldoutcellwidth}%
+					%
+					\edef\photobook@foldout@prevfold{\photobook@foldout@opt}%
+					\setlength\foldoutcellwidth{0pt}%
+				% out fold...
+				}{\ifthenelse{\equal{\photobook@foldout@opt}{out}}{%
+					% XXX this is the same as for in...
+					% XXX
+				% explicit size...
+				}{%
+					% finalize prev panel...
+					\ifdim \foldoutcellwidth = 0pt%
+						% XXX revise numbers...
+						\setlength\foldoutcellwidth{%
+							\blockwidth 
+							+ \getFoldCompensation{
+								\photobook@foldout@prevfold}}%
+						\setlength\foldoutwidth{
+							\foldoutwidth
+							+ \foldoutcellwidthx}%
+						\edef\foldoutcellwidths{%
+							\foldoutcellwidths, \the\foldoutcellwidth}\fi
+					%
+					\setlength\foldoutcellwidth{\photobook@foldout@opt}%
+				}}%
+			}%
+			% we ended by a fold -> add trailing panel... 
+			\ifdim \foldoutcellwidth = 0pt%
+				% XXX revise numbers...
+				\setlength\foldoutcellwidth{%
+					\blockwidth 
+					+ \getFoldCompensation{
+						\photobook@foldout@prevfold}}\fi%
+			% push last panel...
+			\setlength\foldoutwidth{
+				\foldoutwidth
+				+ \foldoutcellwidthx}%
+			\edef\foldoutcellwidths{%
+				\foldoutcellwidths, \the\foldoutcellwidth}\fi%
+		\fi%
+}{%
+	\endgroup}
 % XXX revise starting dimensions...
 % XXX add fold marks in bleeds...
 \newenvironment{foldout}[1][2]{%
