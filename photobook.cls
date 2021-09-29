@@ -2831,6 +2831,7 @@
 %		- cells for panels...
 %		- outer panel must be smaller than the inner panel by \clearfoldout -- DONE
 % XXX move to globals...
+% XXX revise defaults...
 \newlength\foldoutwidth
 \setlength\foldoutwidth{\blockwidth}
 
@@ -2866,34 +2867,39 @@
 %		in|out ...		-- fold direction
 %		<dim> in|out <dim> ...		
 %						-- fold direction with panel widths
-\edef\photobook@foldout@prevfold{}%
+\newlength\foldoutpanelwidth
+\setlength\foldoutpanelwidth{0pt}
+\edef\photobook@foldout@prevfold{in}%
 \edef\foldoutspec{2}
-\newcommand\photobook@foldout@foldcompensation[1]{
-	% XXX of cur and last fold are the same add \clearfoldoutblock
-	\ifthenelse{\equal{#1}{\photobook@foldout@prevfold}}{%
-		% XXX
-	}{%
-		% XXX
-	}
-}
 % XXX revise numbers...
 \newlength\foldoutmaxpanelwidth
 \newcommand\photobook@foldout@pushpanel[2]{%
+	% use default width....
+	% XXX might need to make this a bit more elaborate...
 	\ifdim #1 = 0pt%
-		\setlength\foldoutcellwidth{%
-			\foldoutmaxpanelwidth 
-			+ \photobook@foldout@foldcompensation{#2}}\fi%
+		% double fold twice in same direction...
+		\ifthenelse{\equal{#2}{\photobook@foldout@prevfold}}{%
+			\setlength\foldoutpanelwidth{%
+				\foldoutmaxpanelwidth 
+				% XXX
+				+ 0pt}%
+		% different fold directions...
+		}{%
+			\setlength\foldoutpanelwidth{%
+				\foldoutmaxpanelwidth 
+				% XXX
+				+ 0pt}}%
+		\setlength\foldoutmaxpanelwidth{\foldoutpanelwidth}%
+	% explicit width...
 	\else%
-		\setlength\foldoutcellwidth{%
-			#1 + \photobook@foldout@foldcompensation{#2}}\fi%
-	% XXX if cur and last folds are the same set max panel length to \foldoutcellwidth...
-	\ifthenelse{\equal{#2}{\photobook@foldout@prevfold}}{%
-		\setlength\foldoutmaxpanelwidth{\foldoutcellwidth}}{}
+		\setlength\foldoutpanelwidth{#1}\fi%
+	% accumulate width...
 	\setlength\foldoutwidth{
 		\foldoutwidth
-		+ \foldoutcellwidth}%
+		+ \foldoutpanelwidth}%
+	% panel widths list...
 	\edef\foldoutcellwidths{%
-		\foldoutcellwidths, \the\foldoutcellwidth}}
+		\foldoutcellwidths, \the\foldoutpanelwidth}}
 	
 \newenvironment{foldoutA}[1][\foldoutspec]{%
 	\begingroup%
@@ -2901,47 +2907,51 @@
 		\readlist*\photobook@foldout@args{#1}%
 		% panel count...
 		% XXX also check that the arg is not in|out...
+		\setlength\foldoutwidth{0pt}%
 		\ifnum \photobook@foldout@argslen = 1%
 			% XXX
 		% fold spec...
 		\else%
 			\setlength\foldoutmaxpanelwidth{%
 				\blockwidth}
-			\edef\photobook@foldout@prevfold{}%
+			% XXX make the default a global...
+			\edef\photobook@foldout@prevfold{in}%
+			%\xintFor* ##1 in {\xintSeq{1}{\photobook@foldout@argslen}} \do {%
 			\foreachitem \photobook@foldout@opt \in \photobook@foldout@args{%
 				% in fold...
 				\ifthenelse{\equal{\photobook@foldout@opt}{in}}{%
 					\photobook@foldout@pushpanel{%
-						\foldoutcellwidth}{\photobook@foldout@opt}
+						\foldoutpanelwidth}{\photobook@foldout@opt}
 					% prep for next panel...
 					\edef\photobook@foldout@prevfold{%
 						\photobook@foldout@opt}%
-					\setlength\foldoutcellwidth{0pt}%
+					\setlength\foldoutpanelwidth{0pt}%
 				% out fold...
 				}{\ifthenelse{\equal{\photobook@foldout@opt}{out}}{%
 					\photobook@foldout@pushpanel{%
-						\foldoutcellwidth}{\photobook@foldout@opt}
+						\foldoutpanelwidth}{\photobook@foldout@opt}
 					% prep for next panel...
 					\edef\photobook@foldout@prevfold{%
 						\photobook@foldout@opt}%
-					\setlength\foldoutcellwidth{0pt}%
+					\setlength\foldoutpanelwidth{0pt}%
 				% explicit size...
 				}{%
 					% finalize prev panel...
-					\ifdim \foldoutcellwidth > 0pt%
+					\ifdim \foldoutpanelwidth > 0pt%
 						\photobook@foldout@pushpanel{%
-							\foldoutcellwidth}{\photobook@foldout@prevfold}\fi
+							\foldoutpanelwidth}{\photobook@foldout@prevfold}\fi
 					%
-					\setlength\foldoutcellwidth{\photobook@foldout@opt}}}}%
+					% XXX need to disable clearences here...
+					\setlength\foldoutpanelwidth{\photobook@foldout@opt}}}}%
 			% we ended by a fold -> add trailing panel... 
-			\ifdim \foldoutcellwidth = 0pt%
-				\photobook@foldout@pushpanel{%
-					0pt}{\photobook@foldout@prevfold}
-			\else%
-				\photobook@foldout@pushpanel{%
-					\foldoutcellwidth}{\photobook@foldout@prevfold}\fi%
+			\photobook@foldout@pushpanel{%
+				\foldoutpanelwidth}{\photobook@foldout@prevfold}%
 		\fi%
+		%
 }{%
+		args: \showitems\photobook@foldout@args\\
+		%w: \lenprint[mm]\foldoutpanelwidth\\
+		W: \lenprint[mm]\foldoutwidth\\
 	\endgroup}
 % XXX revise starting dimensions...
 % XXX add fold marks in bleeds...

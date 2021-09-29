@@ -33,45 +33,54 @@
 
 \begin{document}
 
+\begin{foldoutA}[10cm 10cm]
+	explicit widths\\
+\end{foldoutA}
 
-\ImagePageFill{\PageInfo}{\TestImage}
+---
 
-\begin{foldout}[3]
-	\ImagePageFill{\PageInfo}{\TestImageV}%
-	\ImagePageFill{\PageInfo}{\TestImage}
-\end{foldout}
+\begin{foldoutA}[in in]
+	auto-calculate\\
+\end{foldoutA}
 
-\ImagePage{Caption text}{\TestImage}
-\ImagePage{Caption text}{\TestImageV}
-
-\begin{foldout}[3]
-	\ImagePageFill{\PageInfo}{\TestImage}
-\end{foldout}
-
-\begin{foldout}[3]
-	\begin{foldoutcell}[2]
-		\lipsum
-		\lipsum
-		\lipsum
-	\end{foldoutcell}
-	\begin{foldoutcell}[3]
-		\lipsum
-		\lipsum
-		\lipsum
-	\end{foldoutcell}
-	\newpage
-	\begin{foldoutcell}[2-3]
-	\begin{bottomup}
-	\begin{cliptocell}
-		\lipsum
-		\lipsum
-		\lipsum
-		\lipsum
-		\lipsum
-	\end{cliptocell}
-	\end{bottomup}
-	\end{foldoutcell}
-\end{foldout}
+%\ImagePageFill{\PageInfo}{\TestImage}
+%
+%\begin{foldout}[3]
+%	\ImagePageFill{\PageInfo}{\TestImageV}%
+%	\ImagePageFill{\PageInfo}{\TestImage}
+%\end{foldout}
+%
+%\ImagePage{Caption text}{\TestImage}
+%\ImagePage{Caption text}{\TestImageV}
+%
+%\begin{foldout}[3]
+%	\ImagePageFill{\PageInfo}{\TestImage}
+%\end{foldout}
+%
+%\begin{foldout}[3]
+%	\begin{foldoutcell}[2]
+%		\lipsum
+%		\lipsum
+%		\lipsum
+%	\end{foldoutcell}
+%	\begin{foldoutcell}[3]
+%		\lipsum
+%		\lipsum
+%		\lipsum
+%	\end{foldoutcell}
+%	\newpage
+%	\begin{foldoutcell}[2-3]
+%	\begin{bottomup}
+%	\begin{cliptocell}
+%		\lipsum
+%		\lipsum
+%		\lipsum
+%		\lipsum
+%		\lipsum
+%	\end{cliptocell}
+%	\end{bottomup}
+%	\end{foldoutcell}
+%\end{foldout}
 
 \end{document}
 
