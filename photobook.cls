@@ -2869,7 +2869,8 @@
 %						-- fold direction with panel widths
 \newlength\foldoutpanelwidth
 \setlength\foldoutpanelwidth{0pt}
-\edef\photobook@foldout@prevfold{in}%
+\edef\photobook@foldout@count{}
+\edef\photobook@foldout@prevfold{in}
 \edef\foldoutspec{2}
 % XXX revise numbers...
 \newlength\foldoutmaxpanelwidth
@@ -2901,32 +2902,49 @@
 	\edef\foldoutcellwidths{%
 		\foldoutcellwidths, \the\foldoutpanelwidth}}
 	
+\edef\foldoutfold{in}
+
+% XXX in/out branches are identical -- unify...
 \newenvironment{foldoutA}[1][\foldoutspec]{%
 	\begingroup%
 		\setsepchar{ }%
 		\readlist*\photobook@foldout@args{#1}%
-		% panel count...
-		% XXX also check that the arg is not in|out...
+		%
+		% defaults...
 		\setlength\foldoutwidth{0pt}%
+		\setlength\foldoutmaxpanelwidth{\blockwidth}%
+		\edef\photobook@foldout@prevfold{\foldoutfold}%
+		%
+		% panel count...
 		\ifnum \photobook@foldout@argslen = 1%
-			% XXX
+			% in...
+			\ifthenelse{\equal{#1}{in}}{%
+				\edef\photobook@foldout@count{2}%
+				\edef\photobook@foldout@prevfold{#1}%
+			% out...
+			}{\ifthenelse{\equal{#1}{out}}{%
+				\edef\photobook@foldout@count{2}%
+				\edef\photobook@foldout@prevfold{#1}%
+			% count...
+			}{%
+				\edef\photobook@foldout@count{#1}}}%
+			%
+			% build the panels...
+			\xintFor* ##1 in {\xintSeq{1}{\photobook@foldout@count}} \do {%
+				\photobook@foldout@pushpanel{%
+					0pt}{\photobook@foldout@prevfold}}%
 		% fold spec...
 		\else%
-			\setlength\foldoutmaxpanelwidth{%
-				\blockwidth}
-			% XXX make the default a global...
-			\edef\photobook@foldout@prevfold{in}%
-			%\xintFor* ##1 in {\xintSeq{1}{\photobook@foldout@argslen}} \do {%
 			\foreachitem \photobook@foldout@opt \in \photobook@foldout@args{%
-				% in fold...
+				% in...
 				\ifthenelse{\equal{\photobook@foldout@opt}{in}}{%
 					\photobook@foldout@pushpanel{%
-						\foldoutpanelwidth}{\photobook@foldout@opt}
+						\foldoutpanelwidth}{\photobook@foldout@opt}%
 					% prep for next panel...
 					\edef\photobook@foldout@prevfold{%
 						\photobook@foldout@opt}%
 					\setlength\foldoutpanelwidth{0pt}%
-				% out fold...
+				% out...
 				}{\ifthenelse{\equal{\photobook@foldout@opt}{out}}{%
 					\photobook@foldout@pushpanel{%
 						\foldoutpanelwidth}{\photobook@foldout@opt}
@@ -2948,6 +2966,7 @@
 				\foldoutpanelwidth}{\photobook@foldout@prevfold}%
 		\fi%
 		%
+		% XXX place fold markers...
 }{%
 		args: \showitems\photobook@foldout@args\\
 		%w: \lenprint[mm]\foldoutpanelwidth\\
