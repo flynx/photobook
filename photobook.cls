@@ -1106,7 +1106,8 @@
 		%		...also see cell env...
 		%		XXX needs more digging...
 		%		XXX do this at beginshipout/beginpage... (???)
-		\null%
+		%\null%
+		\hbox{}%
 }{%
 	\endgroup%
 	% reset...
@@ -1441,26 +1442,28 @@
 % XXX SYNTAX: place the second arg in braces...
 %		\begin{cell*}(<left>, <top>){<width>}{<height>}
 \newenvironment{cell*}[3]{%
-	\setsepchar{,}%
-	\readlist*\photobook@cell@offset{#1}%
-	%
-	% NOTE: if there is no \null before textblock then it can reset the 
-	%		non-standard page boxes... 
-	%		...not sure yet if this is an issue with how/when foldout env
-	%		updates the boxes or with textblock internals, needs 
-	%		investigating...
-	%		XXX report this as a bug if issue is in textblock...
-	%		XXX another place where this is relevant is in the resizedpages
-	%			env...
-	\null%
-	\begin{textblock*}{#2}(#1)%
-	\begin{inlinecell*}{#2}{#3}%
-		\setlength\celloffsettop{\photobook@cell@offset[1]}%
-		\setlength\celloffsetleft{\photobook@cell@offset[2]}%
-		\ignorespaces%
+	\begingroup%
+		\setsepchar{,}%
+		\readlist*\photobook@cell@offset{#1}%
+		%
+		% NOTE: if there is no \null before textblock then it can reset the 
+		%		non-standard page boxes... 
+		%		...not sure yet if this is an issue with how/when foldout env
+		%		updates the boxes or with textblock internals, needs 
+		%		investigating...
+		%		XXX report this as a bug if issue is in textblock...
+		%		XXX another place where this is relevant is in the resizedpages
+		%			env...
+		\null%
+		\begin{textblock*}{#2}(#1)%
+		\begin{inlinecell*}{#2}{#3}%
+			\setlength\celloffsettop{\photobook@cell@offset[1]}%
+			\setlength\celloffsetleft{\photobook@cell@offset[2]}%
+			\ignorespaces%
 }{%
-	\end{inlinecell*}%
-	\end{textblock*}%
+		\end{inlinecell*}%
+		\end{textblock*}%
+	\endgroup%
 	\ignorespaces}
 
 \newenvironment{cell}[3]{%
@@ -2704,8 +2707,28 @@
 %%
 %% Create 2 or more pages in foldout mode.
 %
-%%	>> \begin{foldout}[<count>] ... \end{foldout}
+%%	>> \begin{foldout}[<fold-spec>] ... \end{foldout}
 %
+%% |<fold-spec>| grammar:
+%%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%   <fold-spec> ::=
+%%       <count>
+%%       | <fold>
+%%       | <panels>
+%%   <panels> ::=
+%%       <panel>
+%%       | <panel> <panels>
+%%   <panel> ::=
+%%       <width> <fold>
+%%       | <width>
+%%       | <fold>
+%%   <fold> ::= 
+%%      in | out
+%% \end{verbatim}
+%% \end{minipage}
+%%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
@@ -2835,16 +2858,59 @@
 \newlength\foldoutwidth
 \setlength\foldoutwidth{\blockwidth}
 
-\newlength\foldoutcellwidth
-\setlength\foldoutcellwidth{\blockwidth}
+\edef\foldoutspec{2}
 
-\newlength\clearfoldoutblock
-\setlength\clearfoldoutblock{0.5mm}
+\newlength\clearfoldoutclearblock
+\setlength\clearfoldoutclearblock{0.5mm}
 
 \newlength\clearfoldoutfold
 \setlength\clearfoldoutfold{5mm}
 
+\newlength\clearfoldoutedge
+\setlength\clearfoldoutedge{1mm}
+
 \def\foldoutcellwidths{}
+
+% XXX length or command???
+\def\foldmarkoffset{0.5\bleed}
+
+\newif\iffoldmarks
+\foldmarkstrue
+
+
+% XXX make this a box... (???)
+\newcommand\photobook@foldmark[2]{%
+	\begin{textblock*}{0pt}(#2)%
+		\setlength{\unitlength}{1mm}%
+		\begin{picture}(0, 0)(0,0)%
+			\thicklines
+			\color{white}
+			\put(0,0){\line(1,#1){1}}
+			\put(0,0){\line(-1,#1){1}}
+			\thinlines
+			\color{black}
+			\put(0,0){\line(1,#1){1}}
+			\put(0,0){\line(-1,#1){1}}
+		\end{picture}
+	\end{textblock*}}
+\newcommand\photobook@topfoldmark[1]{%
+	\photobook@foldmark{4}{#1}}
+\newcommand\photobook@bottomfoldmark[1]{%
+	\photobook@foldmark{-4}{#1}}
+% XXX also add this to jacket/cover...
+% XXX test position correctness...
+%	>> \photobook@markfold[<fold>]{<offset>}
+\newcommand\photobook@markfold[2][in]{%
+	\iffoldmarks%
+		\photobook@topfoldmark{
+			#2,
+			\bleed 
+				- \foldmarkoffset}%
+		\photobook@bottomfoldmark{
+			#2,
+			\blockheight 
+				+ \bleed 
+				+ \foldmarkoffset}\fi}
 
 %	>> \photobook@setfoldoutoffset{<name>}{<from>}{<to>}
 % XXX doc [from, to[
@@ -2867,52 +2933,54 @@
 %		in|out ...		-- fold direction
 %		<dim> in|out <dim> ...		
 %						-- fold direction with panel widths
-\newlength\foldoutpanelwidth
-\setlength\foldoutpanelwidth{0pt}
+\newlength\photobook@foldout@panelwidth
+\setlength\photobook@foldout@panelwidth{0pt}
+\newlength\photobook@foldout@maxpanelwidth
+\setlength\photobook@foldout@maxpanelwidth{0pt}
 \edef\photobook@foldout@count{}
 \edef\photobook@foldout@prevfold{in}
-\edef\foldoutspec{2}
-% XXX revise numbers...
-\newlength\foldoutmaxpanelwidth
+
+% XXX setup numbers...
 \newcommand\photobook@foldout@pushpanel[2]{%
 	% use default width....
 	% XXX might need to make this a bit more elaborate...
 	\ifdim #1 = 0pt%
 		% double fold twice in same direction...
 		\ifthenelse{\equal{#2}{\photobook@foldout@prevfold}}{%
-			\setlength\foldoutpanelwidth{%
-				\foldoutmaxpanelwidth 
+			\setlength\photobook@foldout@panelwidth{%
+				\photobook@foldout@maxpanelwidth 
 				% XXX
 				+ 0pt}%
 		% different fold directions...
 		}{%
-			\setlength\foldoutpanelwidth{%
-				\foldoutmaxpanelwidth 
+			\setlength\photobook@foldout@panelwidth{%
+				\photobook@foldout@maxpanelwidth 
 				% XXX
 				+ 0pt}}%
-		\setlength\foldoutmaxpanelwidth{\foldoutpanelwidth}%
+		\setlength\photobook@foldout@maxpanelwidth{\photobook@foldout@panelwidth}%
 	% explicit width...
 	\else%
-		\setlength\foldoutpanelwidth{#1}\fi%
+		\setlength\photobook@foldout@panelwidth{#1}\fi%
 	% accumulate width...
 	\setlength\foldoutwidth{
 		\foldoutwidth
-		+ \foldoutpanelwidth}%
+		+ \photobook@foldout@panelwidth}%
 	% panel widths list...
 	\edef\foldoutcellwidths{%
-		\foldoutcellwidths, \the\foldoutpanelwidth}}
-	
+		\foldoutcellwidths, \the\photobook@foldout@panelwidth}}
+
 \edef\foldoutfold{in}
 
+% XXX mark folds on every page...
 % XXX in/out branches are identical -- unify...
-\newenvironment{foldoutA}[1][\foldoutspec]{%
+\newenvironment{foldout}[1][\foldoutspec]{%
 	\begingroup%
 		\setsepchar{ }%
 		\readlist*\photobook@foldout@args{#1}%
 		%
 		% defaults...
 		\setlength\foldoutwidth{0pt}%
-		\setlength\foldoutmaxpanelwidth{\blockwidth}%
+		\setlength\photobook@foldout@maxpanelwidth{\blockwidth}%
 		\edef\photobook@foldout@prevfold{\foldoutfold}%
 		%
 		% panel count...
@@ -2932,74 +3000,45 @@
 			% build the panels...
 			\xintFor* ##1 in {\xintSeq{1}{\photobook@foldout@count}} \do {%
 				\photobook@foldout@pushpanel{%
-					0pt}{\photobook@foldout@prevfold}}%
+					0pt}{\photobook@foldout@prevfold}%
+				% skip for last panel...
+				\ifnum \photobook@foldout@count = ##1 \else%
+					\photobook@markfold{\foldoutwidth}\fi}%
 		% fold spec...
 		\else%
 			\foreachitem \photobook@foldout@opt \in \photobook@foldout@args{%
 				% in...
 				\ifthenelse{\equal{\photobook@foldout@opt}{in}}{%
 					\photobook@foldout@pushpanel{%
-						\foldoutpanelwidth}{\photobook@foldout@opt}%
+						\photobook@foldout@panelwidth}{\photobook@foldout@opt}%
+					\photobook@markfold{\foldoutwidth}%
 					% prep for next panel...
 					\edef\photobook@foldout@prevfold{%
 						\photobook@foldout@opt}%
-					\setlength\foldoutpanelwidth{0pt}%
+					\setlength\photobook@foldout@panelwidth{0pt}%
 				% out...
 				}{\ifthenelse{\equal{\photobook@foldout@opt}{out}}{%
 					\photobook@foldout@pushpanel{%
-						\foldoutpanelwidth}{\photobook@foldout@opt}
+						\photobook@foldout@panelwidth}{\photobook@foldout@opt}
+					\photobook@markfold{\foldoutwidth}%
 					% prep for next panel...
 					\edef\photobook@foldout@prevfold{%
 						\photobook@foldout@opt}%
-					\setlength\foldoutpanelwidth{0pt}%
+					\setlength\photobook@foldout@panelwidth{0pt}%
 				% explicit size...
 				}{%
 					% finalize prev panel...
-					\ifdim \foldoutpanelwidth > 0pt%
+					\ifdim \photobook@foldout@panelwidth > 0pt%
 						\photobook@foldout@pushpanel{%
-							\foldoutpanelwidth}{\photobook@foldout@prevfold}\fi
+							\photobook@foldout@panelwidth}{\photobook@foldout@prevfold}%
+						\photobook@markfold{\foldoutwidth}\fi
 					%
 					% XXX need to disable clearences here...
-					\setlength\foldoutpanelwidth{\photobook@foldout@opt}}}}%
+					\setlength\photobook@foldout@panelwidth{\photobook@foldout@opt}}}}%
 			% we ended by a fold -> add trailing panel... 
 			\photobook@foldout@pushpanel{%
-				\foldoutpanelwidth}{\photobook@foldout@prevfold}%
+				\photobook@foldout@panelwidth}{\photobook@foldout@prevfold}%
 		\fi%
-		%
-		% XXX place fold markers...
-}{%
-		args: \showitems\photobook@foldout@args\\
-		%w: \lenprint[mm]\foldoutpanelwidth\\
-		W: \lenprint[mm]\foldoutwidth\\
-	\endgroup}
-% XXX revise starting dimensions...
-% XXX add fold marks in bleeds...
-\newenvironment{foldout}[1][2]{%
-	\begingroup%
-		% calculate fold geometry...
-		\setlength\foldoutwidth{0pt}%
-		\edef\foldoutcellwidths{}
-		\xintFor* ##1 in {\xintSeq{1}{#1}} \do {%
-			% foldout cell...
-			\setlength\foldoutcellwidth{
-				\dimexpr
-					\blockwidth 
-					+ \clearfoldoutblock 
-					% NOTE: this is an expanded (i - 1) because magic of LaTeX math =)
-					- ##1\clearfoldoutfold 
-					+ \clearfoldoutfold \relax}%
-			% add cell to cell lengths....
-			\edef\foldoutcellwidths{%
-				\foldoutcellwidths, \the\foldoutcellwidth}%
-			% accumulate total width...
-			\setlength\foldoutwidth{
-				\dimexpr
-					\foldoutwidth
-					+ \foldoutcellwidth \relax}}%
-		% format the panel width list...
-		\setsepchar{,}%
-		\ignoreemptyitems%
-		\readlist\foldoutcellwidths{\foldoutcellwidths}%
 		%
 		% pages...
 		% NOTE: we'll keep the start of the foldout set at the right page
@@ -4478,7 +4517,7 @@
 	\edef\photobook@pdfboxesset@r{\strip@pt\dimexpr 
 		0.996264009963\dimexpr #2 - #1 \relax\relax}%
 	%
-	\edef\photobook@pdfboxes{
+	\edef\photobook@pdfboxes{%
 		/MediaBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
 		/BleedBox [0 0 \photobook@pdfboxesset@w\space \photobook@pdfboxesset@h]
 		/ArtBox [

@@ -33,28 +33,25 @@
 
 \begin{document}
 
-\begin{foldoutA}[10cm 10cm]
+\edef\foldmarkoffset{-2mm}
+%\foldmarksfalse
+
+\begin{foldout}[10cm 10cm 10cm]
 	explicit widths\\
-\end{foldoutA}
+\end{foldout}
 
----
-
-\begin{foldoutA}[in in]
+\begin{foldout}[in in]
 	auto-calculate\\
-\end{foldoutA}
+\end{foldout}
 
----
-
-\begin{foldoutA}[3]
+\begin{foldout}[3]
 	count\\
-\end{foldoutA}
+\end{foldout}
 
----
-
-\begin{foldoutA}[in]
+\begin{foldout}[in]
 	in\\
-\end{foldoutA}
-
+\end{foldout}
+%
 %\ImagePageFill{\PageInfo}{\TestImage}
 %
 %\begin{foldout}[3]
