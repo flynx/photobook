@@ -1107,7 +1107,7 @@
 		%		XXX needs more digging...
 		%		XXX do this at beginshipout/beginpage... (???)
 		%\null%
-		\hbox{}%
+		%\hbox{}%
 }{%
 	\endgroup%
 	% reset...
@@ -2858,7 +2858,11 @@
 \newlength\foldoutwidth
 \setlength\foldoutwidth{\blockwidth}
 
+% default fold setup...
 \edef\foldoutspec{2}
+
+% default fold...
+\edef\foldoutfold{in}
 
 \newlength\clearfoldoutclearblock
 \setlength\clearfoldoutclearblock{0.5mm}
@@ -2879,34 +2883,46 @@
 
 
 % XXX make this a box... (???)
-\newcommand\photobook@foldmark[2]{%
-	\begin{textblock*}{0pt}(#2)%
+\newcommand\photobook@foldmark[3][\foldoutfold]{%
+	\begin{textblock*}{0pt}(#3)%
 		\setlength{\unitlength}{1mm}%
 		\begin{picture}(0, 0)(0,0)%
 			\thicklines
 			\color{white}
-			\put(0,0){\line(1,#1){1}}
-			\put(0,0){\line(-1,#1){1}}
+			\put(0,0){\line(0,#2){4}}
+			\ifnumodd{\thepage}{%
+				\put(0, \numexpr #2 / 2 \relax){%
+					\ifthenelse{\equal{#1}{in}}{%
+						\circle{1.5}
+					}{%
+						\circle*{1.5}}}
+				\put(1.5, \numexpr #2 / 2 - 1 \relax){#1}}{}
 			\thinlines
 			\color{black}
-			\put(0,0){\line(1,#1){1}}
-			\put(0,0){\line(-1,#1){1}}
+			\put(0,0){\line(0,#2){4}}
+			\ifnumodd{\thepage}{%
+				\put(0, \numexpr #2 / 2 \relax){%
+					\ifthenelse{\equal{#1}{in}}{%
+						\circle{1.5}
+					}{%
+						\circle*{1.5}}}
+				\put(1.5,\numexpr #2 / 2 - 1 \relax){#1}}{}
 		\end{picture}
 	\end{textblock*}}
-\newcommand\photobook@topfoldmark[1]{%
-	\photobook@foldmark{4}{#1}}
-\newcommand\photobook@bottomfoldmark[1]{%
-	\photobook@foldmark{-4}{#1}}
+\newcommand\photobook@topfoldmark[2][in]{%
+	\photobook@foldmark[#1]{3}{#2}}
+\newcommand\photobook@bottomfoldmark[2][in]{%
+	\photobook@foldmark[#1]{-3}{#2}}
 % XXX also add this to jacket/cover...
 % XXX test position correctness...
 %	>> \photobook@markfold[<fold>]{<offset>}
 \newcommand\photobook@markfold[2][in]{%
 	\iffoldmarks%
-		\photobook@topfoldmark{
+		\photobook@topfoldmark[#1]{
 			#2,
 			\bleed 
 				- \foldmarkoffset}%
-		\photobook@bottomfoldmark{
+		\photobook@bottomfoldmark[#1]{
 			#2,
 			\blockheight 
 				+ \bleed 
@@ -2969,9 +2985,14 @@
 	\edef\foldoutcellwidths{%
 		\foldoutcellwidths, \the\photobook@foldout@panelwidth}}
 
-\edef\foldoutfold{in}
+%\edef\photobook@foldout@showmarks{}
+%\newcommand\photobook@foldout@mark[1]{
+%	\edef\photobook@foldout@showmarks{%
+%		\photobook@foldout@showmarks%
+%		\photobook@markfold[\photobook@foldout@prevfold]{#1}}}
 
 % XXX mark folds on every page...
+% XXX need to set marks at end of page...
 % XXX in/out branches are identical -- unify...
 \newenvironment{foldout}[1][\foldoutspec]{%
 	\begingroup%
@@ -3003,7 +3024,8 @@
 					0pt}{\photobook@foldout@prevfold}%
 				% skip for last panel...
 				\ifnum \photobook@foldout@count = ##1 \else%
-					\photobook@markfold{\foldoutwidth}\fi}%
+					%\photobook@foldout@mark{\foldoutwidth}\fi}%
+					\photobook@markfold[\photobook@foldout@prevfold]{\foldoutwidth}\fi}%
 		% fold spec...
 		\else%
 			\foreachitem \photobook@foldout@opt \in \photobook@foldout@args{%
@@ -3011,27 +3033,30 @@
 				\ifthenelse{\equal{\photobook@foldout@opt}{in}}{%
 					\photobook@foldout@pushpanel{%
 						\photobook@foldout@panelwidth}{\photobook@foldout@opt}%
-					\photobook@markfold{\foldoutwidth}%
 					% prep for next panel...
 					\edef\photobook@foldout@prevfold{%
 						\photobook@foldout@opt}%
 					\setlength\photobook@foldout@panelwidth{0pt}%
+					%\photobook@foldout@mark{\foldoutwidth}%
+					\photobook@markfold[\photobook@foldout@prevfold]{\foldoutwidth}%
 				% out...
 				}{\ifthenelse{\equal{\photobook@foldout@opt}{out}}{%
 					\photobook@foldout@pushpanel{%
 						\photobook@foldout@panelwidth}{\photobook@foldout@opt}
-					\photobook@markfold{\foldoutwidth}%
 					% prep for next panel...
 					\edef\photobook@foldout@prevfold{%
 						\photobook@foldout@opt}%
 					\setlength\photobook@foldout@panelwidth{0pt}%
+					%\photobook@foldout@mark{\foldoutwidth}%
+					\photobook@markfold[\photobook@foldout@prevfold]{\foldoutwidth}%
 				% explicit size...
 				}{%
 					% finalize prev panel...
 					\ifdim \photobook@foldout@panelwidth > 0pt%
 						\photobook@foldout@pushpanel{%
 							\photobook@foldout@panelwidth}{\photobook@foldout@prevfold}%
-						\photobook@markfold{\foldoutwidth}\fi
+						%\photobook@foldout@mark{\foldoutwidth}\fi%
+						\photobook@markfold[\photobook@foldout@prevfold]{\foldoutwidth}\fi%
 					%
 					% XXX need to disable clearences here...
 					\setlength\photobook@foldout@panelwidth{\photobook@foldout@opt}}}}%
