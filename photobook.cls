@@ -2808,8 +2808,9 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
+%%   <--> clearfoldoutfold 
+%%                                 ???  <->  
 %%                       clearfoldoutblock <->
-%%   <--> clearfoldoutfold  . . . . . . <->  
 %%                                                    (3)  /\  (2)  
 %%      +---------------------------------+               /  \     
 %%      +-------------------------------  |                  /     
