@@ -2985,6 +2985,7 @@
 	\edef\foldoutcellwidths{%
 		\foldoutcellwidths, \the\photobook@foldout@panelwidth}}
 
+% XXX need to iterate through \foldoutcellwidths...
 %\edef\photobook@foldout@showmarks{}
 %\newcommand\photobook@foldout@mark[1]{
 %	\edef\photobook@foldout@showmarks{%
