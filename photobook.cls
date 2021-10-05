@@ -2992,6 +2992,13 @@
 %		\photobook@foldout@showmarks%
 %		\photobook@markfold[\photobook@foldout@prevfold]{#1}}}
 
+% XXX this should be run after each page...
+\newcommand\photobook@showmarks{%
+	\ifx\foldoutcellwidths\empty\else%
+		\foreachitem \photobook@showmarks@width \in \foldoutcellwidths{%
+			% XXX
+		}\fi}
+
 % XXX mark folds on every page...
 % XXX need to set marks on top of all other content -- create them last/at shipout?
 % XXX in/out branches are identical -- unify...
