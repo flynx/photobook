@@ -46,11 +46,38 @@
 
 \begin{foldout}[3]
 	count
+	\begin{foldoutcell}[2]
+		\lipsum
+		\lipsum
+		\lipsum
+	\end{foldoutcell}
+	\newpage
+	\begin{foldoutcell*}[1]
+		\lipsum
+		\lipsum
+		\lipsum
+	\end{foldoutcell*}
+	\begin{foldoutcell*}[2]
+	\begin{cliptocell}
+	\begin{bottomup}
+		\lipsum
+		\lipsum
+		\lipsum
+	\end{bottomup}
+	\end{cliptocell}
+	\end{foldoutcell*}
+	% XXX too much goes into right bleed...
+	\begin{foldoutcell*}[3]
+		\lipsum
+		\lipsum
+		\lipsum
+	\end{foldoutcell*}
 \end{foldout}
 
 \begin{foldout}[in]
 	in
 \end{foldout}
+
 %
 %\ImagePageFill{\PageInfo}{\TestImage}
 %
