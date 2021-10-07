@@ -2803,7 +2803,7 @@
 % XXX new cell parameters...
 % XXX modes... 
 %%
-%% Fold mode |in-in| (default):
+%% Fold panel sizing for |in in| folds:
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -2821,7 +2821,7 @@
 %% \end{minipage}                                  
 %%
 %%
-%% Fold mode |in-out|:
+%% Fold panel sizing for |in out| folds:
 %%
 %% \begin{minipage}{\textwidth}                    
 %% \begin{verbatim}                                
@@ -3114,11 +3114,13 @@
 %%	>> \begin{foldoutcell}[<num>] ... \end{foldoutcell}
 %%	>> \begin{foldoutcell}[<from>-<to>] ... \end{foldoutcell}
 %
-%% If no arguments are given this will create a panel at |foldoutpanel| counter 
-%% and increment it by one.
+%% If no arguments are given this will create a panel at |foldoutpanel| 
+%% counter and increment it by one. 
 %
 %%	>> \begin{foldoutcell} ... \end{foldoutcell}
 %
+%% This will also auto-advance the page when all panels are created.
+%%
 %% |foldoutcell*| is the same as the non-star version but creates cells
 %% including bleeds.
 %%
@@ -3149,15 +3151,15 @@
 % XXX doc [from, to]
 % XXX this can't be used outside of a foldout...
 % XXX should these clip???
+% XXX the following two envs are almost identical...
 \newenvironment{foldoutcell}[1][0]{%
 	\begingroup%
 		\setsepchar{-}%
 		\readlist*\photobook@foldoutcell@panels{#1}%
-		% auto advance...
+		% auto advance panel...
 		\ifnum \photobook@foldoutcell@panels[1] = 0%
-			% XXX this does not work for some reason...
-			%		...breaks something later...
-			\ifnum \value{foldoutpanel} > \foldoutcellwidthslen%
+			% auto advance page...
+			\ifnum \value{foldoutpanel} = \foldoutcellwidthslen%
 				% NOTE: this will reset the counter...
 				\newpage\fi%
 			\stepcounter{foldoutpanel}%
@@ -3198,9 +3200,8 @@
 		\readlist*\photobook@foldoutcell@panels{#1}%
 		% auto advance...
 		\ifnum \photobook@foldoutcell@panels[1] = 0%
-			% XXX this does not work for some reason...
-			%		...breaks something later...
-			\ifnum \value{foldoutpanel} > \foldoutcellwidthslen%
+			% auto advance page...
+			\ifnum \value{foldoutpanel} = \foldoutcellwidthslen%
 				% NOTE: this will reset the counter...
 				\newpage\fi%
 			\stepcounter{foldoutpanel}%
