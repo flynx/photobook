@@ -2803,7 +2803,7 @@
 % XXX new cell parameters...
 % XXX modes... 
 %%
-%% Fold panel sizing for |in in| folds:
+%% Fold panel sizing for similar fold sequence:
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -2820,8 +2820,11 @@
 %% \end{verbatim}                                  
 %% \end{minipage}                                  
 %%
+%% Note that |in in| fold sequence is drawn, |out out| is identical in 
+%% sizing but reflectd.
 %%
-%% Fold panel sizing for |in out| folds:
+%%
+%% Fold panel sizing for dissimilar fold sequence:
 %%
 %% \begin{minipage}{\textwidth}                    
 %% \begin{verbatim}                                
@@ -2837,6 +2840,8 @@
 %%
 %% \end{verbatim}
 %% \end{minipage}
+%%
+%% |in out| is drawn, |out it| is the same but reflected.
 %%
 % XXX order doc secions correctly...
 % XXX foldout modes:
