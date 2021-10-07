@@ -46,11 +46,48 @@
 
 \begin{foldout}[3]
 	count
+	\begin{foldoutcell}[2]
+		\lipsum
+		\lipsum
+		\lipsum
+	\end{foldoutcell}
+	%
+	\newpage
+	%
+	\begin{foldoutcell*}
+		\lipsum
+		\lipsum
+		\lipsum
+	\end{foldoutcell*}
+	%
+	\begin{foldoutcell*}
+	\begin{cliptocell}
+	\begin{bottomup}
+		\lipsum
+		\lipsum
+		\lipsum
+	\end{bottomup}
+	\end{cliptocell}
+	\end{foldoutcell*}
+	%
+	\begin{foldoutcell*}
+		\lipsum
+		\lipsum
+		\lipsum
+	\end{foldoutcell*}
+	%
+	% auto-advance page...
+	\begin{foldoutcell}
+		\lipsum
+		\lipsum
+		\lipsum
+	\end{foldoutcell}
 \end{foldout}
 
 \begin{foldout}[in]
 	in
 \end{foldout}
+
 %
 %\ImagePageFill{\PageInfo}{\TestImage}
 %
