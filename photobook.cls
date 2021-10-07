@@ -3111,40 +3111,76 @@
 %%
 %% Create a cell spanning one or more foldout panels.
 %
-%%	>> \begin{foldoutcell} ... \end{foldoutcell}
 %%	>> \begin{foldoutcell}[<num>] ... \end{foldoutcell}
 %%	>> \begin{foldoutcell}[<from>-<to>] ... \end{foldoutcell}
 %
+%% If no arguments are given this will create a panel at |foldoutpanel| counter 
+%% and increment it by one.
+%
+%%	>> \begin{foldoutcell} ... \end{foldoutcell}
+%
 %% |foldoutcell*| is the same as the non-star version but creates cells
 %% including bleeds.
+%%
+%% Neither version clips its content, to explicitly clip use the |cliptocell| 
+%% environment.
 %%
 \newlength\photobook@foldoutcell@left
 \setlength\photobook@foldoutcell@left{0pt}
 \newlength\photobook@foldoutcell@width
 \setlength\photobook@foldoutcell@width{0pt}
 
+% XXX
+\newcounter{foldoutpanel}
+\setcounter{foldoutpanel}{0}
+\edef\photobook@foldoutcell@from{0}
+% reset panel count on each page...
+\AtBeginShipout{%
+	\setcounter{foldoutpanel}{0}
+	\edef\photobook@foldoutcell@from{%
+		\thefoldoutpanel}}
+
+% XXX revise naming....
+%			foldoutcell	- 1:1 (unclipped)
+%							should be clipped to bleeds, i.e. should use 
+%							foldoutcell* and create a new offset cell inside...
+%			foldoutcell* - with bleeds like cell* (unclipped)...
+% XXX need to be able to turn clipping on/off (???)
 % XXX doc [from, to]
-% XXX if no args are given, should this auto-advance???
 % XXX this can't be used outside of a foldout...
 % XXX should these clip???
-\newenvironment{foldoutcell}[1][1]{%
+\newenvironment{foldoutcell}[1][0]{%
 	\begingroup%
 		\setsepchar{-}%
 		\readlist*\photobook@foldoutcell@panels{#1}%
+		% auto advance...
+		\ifnum \photobook@foldoutcell@panels[1] = 0%
+			% XXX this does not work for some reason...
+			%		...breaks something later...
+			\ifnum \value{foldoutpanel} > \foldoutcellwidthslen%
+				% NOTE: this will reset the counter...
+				\newpage\fi%
+			\stepcounter{foldoutpanel}%
+			\global\edef\photobook@foldoutcell@from{%
+				\thefoldoutpanel}%
+		% explicit panels...
+		\else%
+			\global\edef\photobook@foldoutcell@from{
+				\photobook@foldoutcell@panels[1]}\fi%
 		% left offset...
 		\photobook@setfoldoutoffset{photobook@foldoutcell@left}{%
 				1
 			}{%
-				\photobook@foldoutcell@panels[1]}%
+				\photobook@foldoutcell@from}%
 		% panel width...
 		\ifnum \photobook@foldoutcell@panelslen > 1%
 			\photobook@setfoldoutoffset{photobook@foldoutcell@width}{%
-					\photobook@foldoutcell@panels[1]%
+					\photobook@foldoutcell@from%
 				}{%
 					\photobook@foldoutcell@panels[2] + 1}%
 		\else%
 			\setlength\photobook@foldoutcell@width{%
-				\foldoutcellwidths[{\photobook@foldoutcell@panels[1]}]}\fi%
+				\foldoutcellwidths[{\photobook@foldoutcell@from}]}\fi%
 		%
 		\begin{cell*}{%
 					\bleed 
@@ -3156,19 +3192,33 @@
 		\end{cell*}%
 	\endgroup}
 % bleed version...
-\newenvironment{foldoutcell*}[1][1]{%
+\newenvironment{foldoutcell*}[1][0]{%
 	\begingroup%
 		\setsepchar{-}%
 		\readlist*\photobook@foldoutcell@panels{#1}%
+		% auto advance...
+		\ifnum \photobook@foldoutcell@panels[1] = 0%
+			% XXX this does not work for some reason...
+			%		...breaks something later...
+			\ifnum \value{foldoutpanel} > \foldoutcellwidthslen%
+				% NOTE: this will reset the counter...
+				\newpage\fi%
+			\stepcounter{foldoutpanel}%
+			\global\edef\photobook@foldoutcell@from{%
+				\thefoldoutpanel}%
+		% explicit panels...
+		\else%
+			\global\edef\photobook@foldoutcell@from{
+				\photobook@foldoutcell@panels[1]}\fi%
 		% left offset...
 		\photobook@setfoldoutoffset{photobook@foldoutcell@left}{%
 				1
 			}{%
-				\photobook@foldoutcell@panels[1]}%
+				\photobook@foldoutcell@from}%
 		% panel width...
 		\ifnum \photobook@foldoutcell@panelslen > 1%
 			\photobook@setfoldoutoffset{photobook@foldoutcell@width}{%
-					\photobook@foldoutcell@panels[1]%
+					\photobook@foldoutcell@from%
 				}{%
 					\photobook@foldoutcell@panels[2] + 1}%
 			% add bleed to last panel...
@@ -3178,10 +3228,10 @@
 					+ \photobook@foldoutcell@width}\fi%
 		\else%
 			\setlength\photobook@foldoutcell@width{%
-				\foldoutcellwidths[{\photobook@foldoutcell@panels[1]}]}
+				\foldoutcellwidths[{\photobook@foldoutcell@from}]}
 		\fi%
 		% add bleed to first/last panel...
-		\ifnum \photobook@foldoutcell@panels[1] = 1%
+		\ifnum \photobook@foldoutcell@from = 1%
 			\setlength\photobook@foldoutcell@width{%
 				\bleed
 				+ \photobook@foldoutcell@width}
@@ -3189,7 +3239,7 @@
 			\setlength\photobook@foldoutcell@left{%
 				\bleed
 				+ \photobook@foldoutcell@left}\fi%
-		\ifnum \photobook@foldoutcell@panels[1] = \foldoutcellwidthslen%
+		\ifnum \photobook@foldoutcell@from = \foldoutcellwidthslen%
 			\setlength\photobook@foldoutcell@width{%
 				\bleed
 				+ \photobook@foldoutcell@width}\fi%
