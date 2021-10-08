@@ -2808,8 +2808,9 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%                       clearfoldoutblock <->
-%%   <--> clearfoldoutfold  . . . . . . <->  
+%%                       \clearfoldoutedge <->
+%%                    \clearfoldoutfold <->  
+%%   <--> \clearfoldoutblock
 %%                                                    (3)  /\  (2)  
 %%      +---------------------------------+               /  \     
 %%      +-------------------------------  |                  /     
@@ -2829,8 +2830,8 @@
 %% \begin{minipage}{\textwidth}                    
 %% \begin{verbatim}                                
 %%                                                 
-%%                      clearfoldoutblock <->                /      
-%%   <--> clearfoldoutfold                             (3)  /       
+%%                      \clearfoldoutedge <->                /      
+%%   <--> \clearfoldoutblock                           (3)  /       
 %%                                                          \       
 %%      +----------------------------------                  \  (2) 
 %%      +---------------------------------+                  /      
@@ -2842,6 +2843,8 @@
 %% \end{minipage}
 %%
 %% |in out| is drawn, |out it| is the same but reflected.
+%%
+%% The size of the paper fold is set by |\paperfoldwidth|.
 %%
 % XXX order doc secions correctly...
 % XXX foldout modes:
@@ -2866,15 +2869,20 @@
 % default fold setup...
 \edef\foldoutspec{2}
 
-% default fold...
+% default fold type...
 \edef\foldoutfold{in}
 
-\newlength\clearfoldoutclearblock
-\setlength\clearfoldoutclearblock{0.5mm}
+% width of paper consumed by a fold...
+\newlength\paperfoldwidth
+\setlength\paperfoldwidth{0.5mm}
+
+\newlength\clearfoldoutblock
+\setlength\clearfoldoutblock{0.5mm}
 
 \newlength\clearfoldoutfold
 \setlength\clearfoldoutfold{5mm}
 
+% clear the foldout's first fold from block cut...
 \newlength\clearfoldoutedge
 \setlength\clearfoldoutedge{1mm}
 
@@ -2968,23 +2976,23 @@
 
 %	>> \photobook@foldout@pushpanel{<width>}{<fold>}
 % XXX setup numbers...
+% XXX need to subract \clearfoldoutblock from the second maxpanelwidth...
 \newcommand\photobook@foldout@pushpanel[2]{%
-	% use default width....
-	% XXX might need to make this a bit more elaborate...
+	% calculate widths...
 	\ifdim #1 = 0pt%
 		% double fold twice in same direction...
 		\ifthenelse{\equal{#2}{\photobook@foldout@prevfold}}{%
 			\setlength\photobook@foldout@panelwidth{%
 				\photobook@foldout@maxpanelwidth 
-				% XXX
-				+ 0pt}%
-		% different fold directions...
+				+ \paperfoldwidth
+				- \clearfoldoutfold}%
+		% different fold directions -- no resizing needed here...
 		}{%
 			\setlength\photobook@foldout@panelwidth{%
-				\photobook@foldout@maxpanelwidth 
-				% XXX
-				+ 0pt}}%
-		\setlength\photobook@foldout@maxpanelwidth{\photobook@foldout@panelwidth}%
+				\photobook@foldout@maxpanelwidth
+				+ \paperfoldwidth}}%
+		\setlength\photobook@foldout@maxpanelwidth{%
+			\photobook@foldout@panelwidth}%
 	% explicit width...
 	\else%
 		\setlength\photobook@foldout@panelwidth{#1}\fi%
@@ -3037,8 +3045,11 @@
 		%
 		% defaults...
 		\setlength\foldoutwidth{0pt}%
-		\setlength\photobook@foldout@maxpanelwidth{\blockwidth}%
 		\edef\photobook@foldout@prevfold{\foldoutfold}%
+		% initial panel size...
+		\setlength\photobook@foldout@maxpanelwidth{%
+			\blockwidth
+			- \clearfoldoutedge}%
 		%
 		% panel count...
 		\ifnum \photobook@foldout@argslen = 1%
@@ -3084,12 +3095,12 @@
 						\photobook@foldout@pushpanel{%
 							\photobook@foldout@panelwidth}{\photobook@foldout@prevfold}\fi%
 					%
-					% XXX need to disable clearences here...
 					\setlength\photobook@foldout@panelwidth{\photobook@foldout@opt}}}}%
-			% we ended by a fold -> add trailing panel... 
+			% add trailing panel... 
 			\photobook@foldout@pushpanel{%
 				\photobook@foldout@panelwidth}{\photobook@foldout@prevfold}%
 		\fi%
+		% prepare data for cells...
 		\setsepchar{,}%
 		% NOTE: the first element is empty due to how we create these 
 		%		i.e. ('' + ',<value>')...
