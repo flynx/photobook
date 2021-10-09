@@ -2978,38 +2978,40 @@
 \edef\photobook@foldout@prevfold{in}
 
 %	>> \photobook@foldout@pushpanel{<width>}{<fold>}
-% XXX setup numbers in auto-width mode...
-%		panel 1		-> maxpanelwidth
-%		panel 2		-> maxpanelwidth - clearfoldoutbinding
-%	...use \foldoutcellwidthslen to 
+% XXX might be good to warn the user if the manual fold will not work...
+%		after two folds in same direction panels must be strictly smaller...
+%		...would be nice to maintain maxpanelwidth and warn if explicit 
+%		width is larger...
 \newcommand\photobook@foldout@pushpanel[2]{%
 	% initial max panel size...
 	\ifnum \thephotobook@foldoutpanel = 1%
 		\setlength\photobook@foldout@maxpanelwidth{%
 			\blockwidth
 			- \clearfoldoutedge}\fi%
+	% panel #2 -- clear binding...
 	\ifnum \thephotobook@foldoutpanel = 2%
-		% XXX
-	\fi%
+		\setlength\photobook@foldout@maxpanelwidth{%
+			\photobook@foldout@maxpanelwidth
+			- \clearfoldoutbinding}\fi%
 	% calculate widths...
 	\ifdim #1 = 0pt%
+		% first two panels do not need fold compensation...
 		\ifnum \thephotobook@foldoutpanel < 3%
-			% XXX
-		\else%
-			% XXX
-		\fi%
-		% double fold twice in same direction...
-		% XXX this should not be done for panel 1 and 2...
-		\ifthenelse{\equal{#2}{\photobook@foldout@prevfold}}{%
-			\setlength\photobook@foldout@panelwidth{%
-				\photobook@foldout@maxpanelwidth 
-				+ \paperfoldwidth
-				- \clearfoldoutfold}%
-		% different fold directions -- no resizing needed here...
-		}{%
 			\setlength\photobook@foldout@panelwidth{%
 				\photobook@foldout@maxpanelwidth
-				+ \paperfoldwidth}}%
+				+ \paperfoldwidth}%
+		\else%
+			% double fold twice in same direction...
+			\ifthenelse{\equal{#2}{\photobook@foldout@prevfold}}{%
+				\setlength\photobook@foldout@panelwidth{%
+					\photobook@foldout@maxpanelwidth 
+					+ \paperfoldwidth
+					- \clearfoldoutfold}%
+			% different fold directions -- no resizing needed here...
+			}{%
+				\setlength\photobook@foldout@panelwidth{%
+					\photobook@foldout@maxpanelwidth
+					+ \paperfoldwidth}}\fi%
 		\setlength\photobook@foldout@maxpanelwidth{%
 			\photobook@foldout@panelwidth}%
 	% explicit width...
@@ -3026,7 +3028,6 @@
 		\foldoutcellwidths,\the\photobook@foldout@panelwidth}%
 	\stepcounter{photobook@foldoutpanel}}
 
-% XXX FOLDMARK...
 % XXX also add this to jacket/cover...
 \newlength\photobook@showmarks@offset
 \setlength\photobook@showmarks@offset{0pt}
@@ -3180,15 +3181,16 @@
 
 % XXX BUG: even (left) page panel sizes are in the same order as odd 
 %		page -- should be reversed... 
+%		...use same strategy as for foldmarks...
 % XXX revise naming....
 %			foldoutcell	- 1:1 (unclipped)
 %							should be clipped to bleeds, i.e. should use 
 %							foldoutcell* and create a new offset cell inside...
 %			foldoutcell* - with bleeds like cell* (unclipped)...
 % XXX need to be able to turn clipping on/off (???)
+% XXX should these clip by default???
 % XXX doc [from, to]
 % XXX this can't be used outside of a foldout...
-% XXX should these clip???
 % XXX the following two envs are almost identical...
 \newenvironment{foldoutcell}[1][0]{%
 	\begingroup%
