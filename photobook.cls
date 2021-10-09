@@ -181,7 +181,7 @@
 %%
 %%   + - - - - - - - - - - - - - - - - - - - - - + - +   ^
 %%   .                                           .   .   | bleed
-%%   .   +--------------------------------------+-----  v   .   .  ---
+%%   .   +---------------------------------------+-----  v   .   .  ---
 %%   .   |                           ^       .   =   .
 %%   .   |   .   .   .   .   .   .   |   .   .   =   .               ^
 %%   .   |<-- blockwidth ----------------------->=   .               |
@@ -2712,11 +2712,13 @@
 	\end{inlinecell*}}
 
 
-% XXX EXPERIMENTAL
-%% \DescribeEnv{foldout}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Foldout page cells
 %
 %% \EXPERIMENTAL
 %%
+%% \DescribeEnv{foldout}
+%
 %% Create 2 or more pages in foldout mode.
 %
 %%	>> \begin{foldout}[<fold-spec>] ... \end{foldout}
@@ -3302,6 +3304,9 @@
 
 
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Multi-page cells
+%
 %% \DescribeEnv{spreadtopages}
 %% \DescribeEnv{spreadtopages*}
 %% \DescribeMacro{\usespreadpage\{..\}}
