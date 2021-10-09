@@ -2978,6 +2978,8 @@
 \edef\photobook@foldout@prevfold{in}
 
 %	>> \photobook@foldout@pushpanel{<width>}{<fold>}
+%
+% XXX should we set maxpanelwidth when manually setting panel widths???
 % XXX might be good to warn the user if the manual fold will not work...
 %		after two folds in same direction panels must be strictly smaller...
 %		...would be nice to maintain maxpanelwidth and warn if explicit 
@@ -3016,6 +3018,10 @@
 			\photobook@foldout@panelwidth}%
 	% explicit width...
 	\else%
+		% XXX should we set the maxpanelwidth here too???
+		%		...if yes, should we be more thorough and size it to the 
+		%		available space (accounting for last two folds)??
+		%\setlength\photobook@foldout@maxpanelwidth{#1}%
 		\setlength\photobook@foldout@panelwidth{#1}\fi%
 	% accumulate width...
 	\setlength\foldoutwidth{
