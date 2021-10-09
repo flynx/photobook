@@ -2744,7 +2744,7 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%                              clearfoldoutfold
+%%                               paperfoldwidth
 %%                             v                v
 %%          
 %%       - --+----------------++---------------++--------------+
@@ -2774,7 +2774,7 @@
 %%  +--------------++---------------++----------------+-- -
 %%
 %%                 ^                ^
-%%                  clearfoldoutfold
+%%                   paperfoldwidth
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -3185,6 +3185,7 @@
 	\edef\photobook@foldoutcell@from{%
 		\thefoldoutpanel}}
 
+% XXX the following two envs are almost identical...
 % XXX BUG: even (left) page panel sizes are in the same order as odd 
 %		page -- should be reversed... 
 %		...use same strategy as for foldmarks...
@@ -3197,7 +3198,6 @@
 % XXX should these clip by default???
 % XXX doc [from, to]
 % XXX this can't be used outside of a foldout...
-% XXX the following two envs are almost identical...
 \newenvironment{foldoutcell}[1][0]{%
 	\begingroup%
 		\setsepchar{-}%
