@@ -701,6 +701,7 @@
 %% \DescribeMacro{\clearance=<len>}
 %
 %% Cell geometry. 
+%%
 %% For more details see the \nameref{subsec:Cells} section.
 %%
 %% These are set automatically by cells, thus it is not recommended to 
@@ -722,6 +723,17 @@
 \setlength\celloffsettop{0pt}
 \newlength\clearance
 \setlength\clearance{0pt}
+
+%% \DescribeMacro{\paperfoldwidth}
+%% \DescribeMacro{\clearfoldoutbinding}
+%% \DescribeMacro{\clearfoldoutedge}
+%% \DescribeMacro{\clearfoldoutfold}
+%
+%% Foldout geometry.
+%%
+% XXX add a proper link...
+%% For more info see |foldout| env and friends.
+%%
 
 
 
@@ -2799,10 +2811,12 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-% XXX note that panel width includes right \clearfoldoutblock (???)
-% XXX new cell parameters...
-% XXX modes... 
 %%
+%% \DescribeMacro{\paperfoldwidth}
+%% \DescribeMacro{\clearfoldoutbinding}
+%% \DescribeMacro{\clearfoldoutedge}
+%% \DescribeMacro{\clearfoldoutfold}
+%
 %% Fold panel sizing for similar fold sequence:
 %%
 %% \begin{minipage}{\textwidth}
@@ -2810,7 +2824,7 @@
 %%
 %%                       \clearfoldoutedge <->
 %%                    \clearfoldoutfold <->  
-%%   <--> \clearfoldoutblock
+%%   <--> \clearfoldoutbinding
 %%                                                    (3)  /\  (2)  
 %%      +---------------------------------+               /  \     
 %%      +-------------------------------  |                  /     
@@ -2831,7 +2845,7 @@
 %% \begin{verbatim}                                
 %%                                                 
 %%                      \clearfoldoutedge <->                /      
-%%   <--> \clearfoldoutblock                           (3)  /       
+%%   <--> \clearfoldoutbinding                         (3)  /       
 %%                                                          \       
 %%      +----------------------------------                  \  (2) 
 %%      +---------------------------------+                  /      
@@ -2847,22 +2861,25 @@
 %% The size of the paper fold is set by |\paperfoldwidth|.
 %%
 % XXX order doc secions correctly...
-% XXX foldout modes:
-%			fold=in in,
-%			fold=in out,
-%			fold=in in out in,
-%		...a mode is repeated if more panels than items are present, e.g.
-%		for fold=in out, and 6 panels the folds will be {in out in out in}
-%		...calculate clearances according to fold direction...
 % XXX add manual size mode -- list of lengths...
 % XXX need to:
 %		- create two pages -- DONE
 %		- first odd, second even -- DONE
-%		- fold marks
-%		- cells for panels...
+%		- fold marks -- DONE
+%		- cells for panels -- DONE
 %		- outer panel must be smaller than the inner panel by \clearfoldout -- DONE
 % XXX move to globals...
 % XXX revise defaults...
+\newlength\paperfoldwidth
+\setlength\paperfoldwidth{0.5mm}
+
+\newlength\clearfoldoutbinding
+\setlength\clearfoldoutbinding{8mm}
+\newlength\clearfoldoutfold
+\setlength\clearfoldoutfold{5mm}
+\newlength\clearfoldoutedge
+\setlength\clearfoldoutedge{1mm}
+
 \newlength\foldoutwidth
 \setlength\foldoutwidth{\blockwidth}
 
@@ -2871,20 +2888,6 @@
 
 % default fold type...
 \edef\foldoutfold{in}
-
-% width of paper consumed by a fold...
-\newlength\paperfoldwidth
-\setlength\paperfoldwidth{0.5mm}
-
-\newlength\clearfoldoutblock
-\setlength\clearfoldoutblock{0.5mm}
-
-\newlength\clearfoldoutfold
-\setlength\clearfoldoutfold{5mm}
-
-% clear the foldout's first fold from block cut...
-\newlength\clearfoldoutedge
-\setlength\clearfoldoutedge{1mm}
 
 \def\foldoutcellfolds{}
 \def\foldoutcellwidths{}
@@ -2975,12 +2978,28 @@
 \edef\photobook@foldout@prevfold{in}
 
 %	>> \photobook@foldout@pushpanel{<width>}{<fold>}
-% XXX setup numbers...
-% XXX need to subract \clearfoldoutblock from the second maxpanelwidth...
+% XXX setup numbers in auto-width mode...
+%		panel 1		-> maxpanelwidth
+%		panel 2		-> maxpanelwidth - clearfoldoutbinding
+%	...use \foldoutcellwidthslen to 
 \newcommand\photobook@foldout@pushpanel[2]{%
+	% initial max panel size...
+	\ifnum \thephotobook@foldoutpanel = 1%
+		\setlength\photobook@foldout@maxpanelwidth{%
+			\blockwidth
+			- \clearfoldoutedge}\fi%
+	\ifnum \thephotobook@foldoutpanel = 2%
+		% XXX
+	\fi%
 	% calculate widths...
 	\ifdim #1 = 0pt%
+		\ifnum \thephotobook@foldoutpanel < 3%
+			% XXX
+		\else%
+			% XXX
+		\fi%
 		% double fold twice in same direction...
+		% XXX this should not be done for panel 1 and 2...
 		\ifthenelse{\equal{#2}{\photobook@foldout@prevfold}}{%
 			\setlength\photobook@foldout@panelwidth{%
 				\photobook@foldout@maxpanelwidth 
@@ -3004,7 +3023,8 @@
 	\edef\foldoutcellfolds{%
 		\foldoutcellfolds,#2}%
 	\edef\foldoutcellwidths{%
-		\foldoutcellwidths,\the\photobook@foldout@panelwidth}}
+		\foldoutcellwidths,\the\photobook@foldout@panelwidth}%
+	\stepcounter{photobook@foldoutpanel}}
 
 % XXX FOLDMARK...
 % XXX also add this to jacket/cover...
@@ -3037,6 +3057,9 @@
 	\iffoldmarks%
 		\photobook@showmarks\fi}
 
+\newcounter{photobook@foldoutpanel}
+\setcounter{photobook@foldoutpanel}{1}
+
 % XXX in/out branches are identical -- unify...
 \newenvironment{foldout}[1][\foldoutspec]{%
 	\begingroup%
@@ -3044,12 +3067,9 @@
 		\readlist*\photobook@foldout@args{#1}%
 		%
 		% defaults...
+		\setcounter{photobook@foldoutpanel}{1}
 		\setlength\foldoutwidth{0pt}%
 		\edef\photobook@foldout@prevfold{\foldoutfold}%
-		% initial panel size...
-		\setlength\photobook@foldout@maxpanelwidth{%
-			\blockwidth
-			- \clearfoldoutedge}%
 		%
 		% panel count...
 		\ifnum \photobook@foldout@argslen = 1%
@@ -3158,6 +3178,8 @@
 	\edef\photobook@foldoutcell@from{%
 		\thefoldoutpanel}}
 
+% XXX BUG: even (left) page panel sizes are in the same order as odd 
+%		page -- should be reversed... 
 % XXX revise naming....
 %			foldoutcell	- 1:1 (unclipped)
 %							should be clipped to bleeds, i.e. should use 
