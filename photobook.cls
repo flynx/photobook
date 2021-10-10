@@ -1292,7 +1292,7 @@
 %% For absolutely positioned cells these define the cell offset from 
 %% parent.
 %%
-%% The bare page can be reasonably be treated as a cell.
+%% The bare page can be reasonably treated as a cell.
 %%
 %% Initally, outside of any cells |\cellwidth|, |\cellparentwidth| and 
 %% |\cellheight|, |\cellparentheight| are equal to |\paperwidth| and 
