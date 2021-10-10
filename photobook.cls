@@ -2745,7 +2745,7 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%                             v paperfoldwidth v
+%%                            v \paperfoldwidth v
 %%          
 %%       - --=----------------++---------------++--------------+
 %%           =                ..               ..              |
@@ -2773,7 +2773,7 @@
 %%  |          (1) ..           (2) ..            (3) =
 %%  +--------------++---------------++----------------=-- -
 %%
-%%                 ^ paperfoldwidth ^
+%%                 ^ \paperfoldwidth ^
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -2811,10 +2811,10 @@
 %% \end{minipage}
 %%
 %%
-%% \DescribeMacro{\paperfoldwidth}
-%% \DescribeMacro{\clearfoldoutbinding}
-%% \DescribeMacro{\clearfoldoutedge}
-%% \DescribeMacro{\clearfoldoutfold}
+%% \DescribeMacro{\paperfoldwidth=<len>}
+%% \DescribeMacro{\clearfoldoutbinding=<len>}
+%% \DescribeMacro{\clearfoldoutedge=<len>}
+%% \DescribeMacro{\clearfoldoutfold=<len>}
 %
 %% Fold panel sizing for similar fold sequence:
 %%
@@ -3033,7 +3033,7 @@
 		\foldoutcellwidths,\the\photobook@foldout@panelwidth}%
 	\stepcounter{photobook@foldoutpanel}}
 
-% XXX also add this to jacket/cover...
+% XXX also add this to jacket/cover/endpaper...
 \newlength\photobook@showmarks@offset
 \setlength\photobook@showmarks@offset{0pt}
 \newcommand\photobook@showmarks{%
@@ -3149,8 +3149,6 @@
 %% \DescribeEnv{foldoutcell}
 %% \DescribeEnv{foldoutcell*}
 %
-%% \EXPERIMENTAL
-%%
 %% Create a cell spanning one or more foldout panels.
 %
 %%	>> \begin{foldoutcell}[<num>] ... \end{foldoutcell}
@@ -3168,6 +3166,8 @@
 %%
 %% Neither version clips its content, to explicitly clip use the |cliptocell| 
 %% environment.
+%%
+%% These can only be used from within a |foldout| cell.
 %%
 \newlength\photobook@foldoutcell@left
 \setlength\photobook@foldoutcell@left{0pt}
