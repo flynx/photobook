@@ -724,15 +724,14 @@
 \newlength\clearance
 \setlength\clearance{0pt}
 
-%% \DescribeMacro{\paperfoldwidth}
-%% \DescribeMacro{\clearfoldoutbinding}
-%% \DescribeMacro{\clearfoldoutedge}
-%% \DescribeMacro{\clearfoldoutfold}
+%% \DescribeMacro{\paperfoldwidth=<len>}
+%% \DescribeMacro{\clearfoldoutbinding=<len>}
+%% \DescribeMacro{\clearfoldoutedge=<len>}
+%% \DescribeMacro{\clearfoldoutfold=<len>}
 %
 %% Foldout geometry.
 %%
-% XXX add a proper link...
-%% For more info see |foldout| env and friends.
+%% For more info see \nameref{subsec:Foldout page cells} section.
 %%
 
 
@@ -2746,8 +2745,7 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%                               paperfoldwidth
-%%                             v                v
+%%                             v paperfoldwidth v
 %%          
 %%       - --=----------------++---------------++--------------+
 %%           =                ..               ..              |
@@ -2775,8 +2773,7 @@
 %%  |          (1) ..           (2) ..            (3) =
 %%  +--------------++---------------++----------------=-- -
 %%
-%%                 ^                ^
-%%                   paperfoldwidth
+%%                 ^ paperfoldwidth ^
 %%
 %% \end{verbatim}
 %% \end{minipage}
