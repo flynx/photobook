@@ -2859,14 +2859,6 @@
 %%
 %% The size of the paper fold is set by |\paperfoldwidth|.
 %%
-% XXX order doc secions correctly...
-% XXX add manual size mode -- list of lengths...
-% XXX need to:
-%		- create two pages -- DONE
-%		- first odd, second even -- DONE
-%		- fold marks -- DONE
-%		- cells for panels -- DONE
-%		- outer panel must be smaller than the inner panel by \clearfoldout -- DONE
 % XXX move to globals...
 % XXX revise defaults...
 \newlength\paperfoldwidth
