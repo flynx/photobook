@@ -2782,10 +2782,10 @@
 %% A foldout always starts on the right/odd page and will always end on 
 %% the left/even page. 
 %%
-%% If |\foldoutpages{..}| is called on and even page, an empty normal 
+%% If |\foldoutpages{..}| is called on an even page, an empty normal 
 %% page will be created pushing the foldout to the right page of the 
 %% spread. If an odd number of pages is created the set will be padded 
-% with an empty page before |\foldoutpages{..}| exits.
+%% with an empty page before |\foldoutpages{..}| exits.
 %%
 %%
 %% Foldout panel numbering
