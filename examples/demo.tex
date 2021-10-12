@@ -98,13 +98,51 @@ Special case: image that fits vertically will be offset by \verb+\bindingoffset+
 
 
 %----------------------------------------------------------------------
-\Chapter{Foldout pages}
+\Chapter{Foldouts}
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-\Section{foldoutpages}
-%\foldoutpages[2]{
-\begin{foldout}[2]
-	\ImagePageFill{\PageInfo}{\TestImageV}%
+\Section{foldout}
+
+\begin{foldout}
+	\ImagePageFill{\PageInfo}{\TestImage}%}
+	%
+	\begin{foldoutcell}
+	\begin{cliptocell}
+	\begin{bottomup}
+		\lipsum
+		\lipsum
+		\lipsum
+	\end{bottomup}
+	\end{cliptocell}
+	\end{foldoutcell}
+	%
+	\begin{foldoutcell}
+	\begin{cliptocell}
+		\lipsum
+		\lipsum
+		\lipsum
+	\end{cliptocell}
+	\end{foldoutcell}
+\end{foldout}
+
+\begin{foldout}[in 10cm out 10cm]
+	\begin{foldoutcell*}
+	\begin{cliptocell}
+		\imagecell[fill, right, offsetleft=\bleed]{}{\TestImage}
+	\end{cliptocell}
+	\end{foldoutcell*}
+	%
+	\begin{foldoutcell}
+		\lipsum
+		\lipsum
+	\end{foldoutcell}
+	%
+	\begin{foldoutcell*}[3]
+	\begin{cliptocell}
+		\imagecell[fill, right]{}{\TestImage}
+	\end{cliptocell}
+	\end{foldoutcell*}
+	%
 	\ImagePageFill{\PageInfo}{\TestImage}%}
 \end{foldout}
 
