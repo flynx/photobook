@@ -3196,7 +3196,7 @@
 % XXX need to be able to turn clipping on/off (???)
 % XXX should these clip by default???
 % XXX doc [from, to]
-% XXX this can't be used outside of a foldout...
+% XXX this can't be used outside of a foldout -- warn...
 \newenvironment{foldoutcell}[1][0]{%
 	\begingroup%
 		\setsepchar{-}%
