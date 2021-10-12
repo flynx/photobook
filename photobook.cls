@@ -2951,22 +2951,6 @@
 			+ \bleed 
 			+ \foldmarkoffset}}
 
-%	>> \photobook@setfoldoutoffset{<name>}{<from>}{<to>}
-% XXX doc [from, to[
-% XXX this can't be used outside of a foldout...
-\newcommand\photobook@setfoldoutoffset[3]{%
-	\expandafter\setlength\csname #1\endcsname{0pt}%
-	\ifnum \numexpr #2 \relax < \numexpr #3 \relax%
-		\xintFor* ##1 in {%
-				\ifnumodd{\thepage}{%
-					\xintSeq{#2}{\xintiiMin{#3}{\foldoutcellwidthslen + 1} - 1}
-				}{%
-					\xintSeq{\xintiiMin{#3}{\foldoutcellwidthslen + 1} - 1}{#2}
-				}} \do {%
-			\expandafter\setlength\csname #1\endcsname{%
-				\csname #1\endcsname%
-				+ \foldoutcellwidths[##1]}}\fi}
-
 \newlength\photobook@foldout@panelwidth
 \setlength\photobook@foldout@panelwidth{0pt}
 \newlength\photobook@foldout@maxpanelwidth
@@ -3064,7 +3048,6 @@
 \newcounter{photobook@foldoutpanel}
 \setcounter{photobook@foldoutpanel}{1}
 
-% XXX in/out branches are identical -- unify...
 \newenvironment{foldout}[1][\foldoutspec]{%
 	\begingroup%
 		\setsepchar{ }%
@@ -3077,17 +3060,15 @@
 		%
 		% panel count...
 		\ifnum \photobook@foldout@argslen = 1%
-			% in...
-			\ifthenelse{\equal{#1}{in}}{%
-				\edef\photobook@foldout@count{2}%
-				\edef\photobook@foldout@prevfold{#1}%
-			% out...
-			}{\ifthenelse{\equal{#1}{out}}{%
+			% in/out...
+			\ifthenelse{
+					\equal{#1}{in} 
+						\OR \equal{#1}{out}}{%
 				\edef\photobook@foldout@count{2}%
 				\edef\photobook@foldout@prevfold{#1}%
 			% count...
 			}{%
-				\edef\photobook@foldout@count{#1}}}%
+				\edef\photobook@foldout@count{#1}}%
 			%
 			% build the panels...
 			\xintFor* ##1 in {\xintSeq{1}{\photobook@foldout@count}} \do {%
@@ -3096,18 +3077,12 @@
 		% fold spec...
 		\else%
 			\foreachitem \photobook@foldout@opt \in \photobook@foldout@args{%
-				% in...
-				\ifthenelse{\equal{\photobook@foldout@opt}{in}}{%
+				% in/out...
+				\ifthenelse{
+						\equal{\photobook@foldout@opt}{in} 
+							\OR \equal{\photobook@foldout@opt}{out}}{%
 					\photobook@foldout@pushpanel{%
 						\photobook@foldout@panelwidth}{\photobook@foldout@opt}%
-					% prep for next panel...
-					\edef\photobook@foldout@prevfold{%
-						\photobook@foldout@opt}%
-					\setlength\photobook@foldout@panelwidth{0pt}%
-				% out...
-				}{\ifthenelse{\equal{\photobook@foldout@opt}{out}}{%
-					\photobook@foldout@pushpanel{%
-						\photobook@foldout@panelwidth}{\photobook@foldout@opt}
 					% prep for next panel...
 					\edef\photobook@foldout@prevfold{%
 						\photobook@foldout@opt}%
@@ -3119,7 +3094,7 @@
 						\photobook@foldout@pushpanel{%
 							\photobook@foldout@panelwidth}{\photobook@foldout@prevfold}\fi%
 					%
-					\setlength\photobook@foldout@panelwidth{\photobook@foldout@opt}}}}%
+					\setlength\photobook@foldout@panelwidth{\photobook@foldout@opt}}}%
 			% add trailing panel... 
 			\photobook@foldout@pushpanel{%
 				\photobook@foldout@panelwidth}{\photobook@foldout@prevfold}%
@@ -3157,7 +3132,12 @@
 %
 %%	>> \begin{foldoutcell} ... \end{foldoutcell}
 %
-%% This will also auto-advance the page when all panels are created.
+%% This will also auto-advance the page when all panels are filled.
+%% 
+%% Note that manual panel placement has no effect on the panel counter 
+%% thus care must be taken when mixing manual and auto-advanced panels.
+%% Also note that |foldoutpanel|'s value is not maintained within manually 
+%% placed panels and should be treated as undefined.
 %%
 %% |foldoutcell*| is the same as the non-star version but creates cells
 %% including bleeds.
@@ -3167,12 +3147,32 @@
 %%
 %% These can only be used from within a |foldout| cell.
 %%
+% XXX should we be able to turn clipping on/off???
+
 \newlength\photobook@foldoutcell@left
 \setlength\photobook@foldoutcell@left{0pt}
 \newlength\photobook@foldoutcell@width
 \setlength\photobook@foldoutcell@width{0pt}
 
-% XXX
+% calculate offset via \foldoutcellwidths and write to dimension <name>...
+%	>> \photobook@foldoutcell@setfoldoutoffset{<name>}{<from>}{<to>}
+%
+% NOTE: [<from>, <to>[ -- i.e. <to> is not included...
+\newcommand\photobook@foldoutcell@setfoldoutoffset[3]{%
+	\expandafter\setlength\csname #1\endcsname{0pt}%
+	\ifnum \numexpr #2 \relax < \numexpr #3 \relax%
+		\xintFor* ##1 in {%
+				\xintSeq{#2}{\xintiiMin{#3}{\foldoutcellwidthslen + 1} - 1}} \do {%
+			\ifnumodd{\thepage}{%
+				\expandafter\setlength\csname #1\endcsname{%
+					\csname #1\endcsname%
+					+ \foldoutcellwidths[##1]}
+			}{%
+				\expandafter\setlength\csname #1\endcsname{%
+					\csname #1\endcsname%
+					+ \foldoutcellwidths[-\numexpr ##1 \relax]}}}\fi}
+
+% foldout panel auto-advance counter...
 \newcounter{foldoutpanel}
 \setcounter{foldoutpanel}{0}
 \edef\photobook@foldoutcell@from{0}
@@ -3182,51 +3182,52 @@
 	\edef\photobook@foldoutcell@from{%
 		\thefoldoutpanel}}
 
-% XXX the following two envs are almost identical...
-% XXX BUG: even (left) page panel sizes are in the same order as odd 
-%		page -- should be reversed... 
-%		...use same strategy as for foldmarks...
-% XXX revise naming....
-%			foldoutcell	- 1:1 (unclipped)
-%							should be clipped to bleeds, i.e. should use 
-%							foldoutcell* and create a new offset cell inside...
-%			foldoutcell* - with bleeds like cell* (unclipped)...
-% XXX need to be able to turn clipping on/off (???)
-% XXX should these clip by default???
-% XXX doc [from, to]
-% XXX this can't be used outside of a foldout -- warn...
-\newenvironment{foldoutcell}[1][0]{%
-	\begingroup%
-		\setsepchar{-}%
-		\readlist*\photobook@foldoutcell@panels{#1}%
-		% auto advance panel...
-		\ifnum \photobook@foldoutcell@panels[1] = 0%
-			% auto advance page...
-			\ifnum \value{foldoutpanel} = \foldoutcellwidthslen%
-				% NOTE: this will reset the counter...
-				\newpage\fi%
-			\stepcounter{foldoutpanel}%
-			\global\edef\photobook@foldoutcell@from{%
-				\thefoldoutpanel}%
-		% explicit panels...
-		\else%
-			\global\edef\photobook@foldoutcell@from{
-				\photobook@foldoutcell@panels[1]}\fi%
-		% left offset...
-		\photobook@setfoldoutoffset{photobook@foldoutcell@left}{%
-				1
+% set panel left/width dimensions (helper)...
+%	>> \photobook@foldoutcell@setdimensions[<panel-spec>]
+%
+% NOTE: for <panel-spec> see docs for foldoutcell/foldoutcell*...
+\newcommand\photobook@foldoutcell@setdimensions[1][0]{
+	% parse args...
+	\setsepchar{-}%
+	\readlist*\photobook@foldoutcell@panels{#1}%
+	%
+	% auto advance panel...
+	\ifnum \photobook@foldoutcell@panels[1] = 0%
+		% auto advance page...
+		\ifnum \value{foldoutpanel} = \foldoutcellwidthslen%
+			% NOTE: this will reset the counter...
+			\newpage\fi%
+		\stepcounter{foldoutpanel}%
+		\global\edef\photobook@foldoutcell@from{%
+			\thefoldoutpanel}%
+	% explicit panels...
+	\else%
+		\global\edef\photobook@foldoutcell@from{
+			\photobook@foldoutcell@panels[1]}\fi%
+	% left offset...
+	\photobook@foldoutcell@setfoldoutoffset{photobook@foldoutcell@left}{%
+			1
+		}{%
+			\photobook@foldoutcell@from}%
+	% panel from-to width...
+	\ifnum \photobook@foldoutcell@panelslen > 1%
+		\photobook@foldoutcell@setfoldoutoffset{photobook@foldoutcell@width}{%
+				\photobook@foldoutcell@from%
 			}{%
-				\photobook@foldoutcell@from}%
-		% panel width...
-		\ifnum \photobook@foldoutcell@panelslen > 1%
-			\photobook@setfoldoutoffset{photobook@foldoutcell@width}{%
-					\photobook@foldoutcell@from%
-				}{%
-					\photobook@foldoutcell@panels[2] + 1}%
-		\else%
+				\photobook@foldoutcell@panels[2] + 1}%
+	% panel N width...
+	\else%
+		\ifnumodd{\thepage}{%
 			\setlength\photobook@foldoutcell@width{%
-				\foldoutcellwidths[{\photobook@foldoutcell@from}]}\fi%
-		%
+				\foldoutcellwidths[{\photobook@foldoutcell@from}]}
+		}{%
+			\setlength\photobook@foldoutcell@width{%
+				\foldoutcellwidths[-\numexpr \photobook@foldoutcell@from \relax]}}\fi}
+
+\newenvironment{foldoutcell}[1][0]{%
+	% XXX check if outside of foldout -> warn...
+	\begingroup%
+		\photobook@foldoutcell@setdimensions[#1]%
 		\begin{cell*}{%
 					\bleed 
 						+ \photobook@foldoutcell@left,%
@@ -3236,44 +3237,11 @@
 }{%
 		\end{cell*}%
 	\endgroup}
-% bleed version...
+
 \newenvironment{foldoutcell*}[1][0]{%
+	% XXX check if outside of foldout -> warn...
 	\begingroup%
-		\setsepchar{-}%
-		\readlist*\photobook@foldoutcell@panels{#1}%
-		% auto advance...
-		\ifnum \photobook@foldoutcell@panels[1] = 0%
-			% auto advance page...
-			\ifnum \value{foldoutpanel} = \foldoutcellwidthslen%
-				% NOTE: this will reset the counter...
-				\newpage\fi%
-			\stepcounter{foldoutpanel}%
-			\global\edef\photobook@foldoutcell@from{%
-				\thefoldoutpanel}%
-		% explicit panels...
-		\else%
-			\global\edef\photobook@foldoutcell@from{
-				\photobook@foldoutcell@panels[1]}\fi%
-		% left offset...
-		\photobook@setfoldoutoffset{photobook@foldoutcell@left}{%
-				1
-			}{%
-				\photobook@foldoutcell@from}%
-		% panel width...
-		\ifnum \photobook@foldoutcell@panelslen > 1%
-			\photobook@setfoldoutoffset{photobook@foldoutcell@width}{%
-					\photobook@foldoutcell@from%
-				}{%
-					\photobook@foldoutcell@panels[2] + 1}%
-			% add bleed to last panel...
-			\ifnum \photobook@foldoutcell@panels[2] = \foldoutcellwidthslen%
-				\setlength\photobook@foldoutcell@width{%
-					\bleed
-					+ \photobook@foldoutcell@width}\fi%
-		\else%
-			\setlength\photobook@foldoutcell@width{%
-				\foldoutcellwidths[{\photobook@foldoutcell@from}]}
-		\fi%
+		\photobook@foldoutcell@setdimensions[#1]%
 		% add bleed to first/last panel...
 		\ifnum \photobook@foldoutcell@from = 1%
 			\setlength\photobook@foldoutcell@width{%
@@ -3287,7 +3255,6 @@
 			\setlength\photobook@foldoutcell@width{%
 				\bleed
 				+ \photobook@foldoutcell@width}\fi%
-		%
 		\begin{cell*}{%
 					\photobook@foldoutcell@left,%
 					0pt}%
