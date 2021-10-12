@@ -2722,7 +2722,13 @@
 %
 %%	>> \begin{foldout}[<fold-spec>] ... \end{foldout}
 %
-%% |<fold-spec>| grammar:
+%% |<fold-spec>| can be a number of folds, or contain one or more fold 
+%% types (|in| or |out|), two or more panel widths (dimensions) or a
+%% sequence of both (i.e. dim fold dim ...) where missing widths are 
+%% automatically calculated and missing folds are the same as the previous
+%% fold or the default if no folds are specified.
+%%
+%% Formal |<fold-spec>| grammar:
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
