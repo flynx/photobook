@@ -171,6 +171,7 @@
 %% \DescribeMacro{blockheight=<len>}
 %% \DescribeMacro{bindingoffset=<len>}
 %% \DescribeMacro{bleed=<len>}
+%% \DescribeMacro{flatfold=<len>}
 %
 %% This is similar to what |geometry| does, but adds bleed support.
 %%
@@ -203,7 +204,9 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%
+%% |flatfold| sets the clearance set aside for a flat fold, used for 
+%% foldouts (see: \nameref{subsec:Foldout page cells} section).
+%%
 % NOTE: if blockwidth/blockheight are set they will force recalculations 
 %		and overriding of the paperwidth/paperheight if they were changed
 %		by the user code anywhere between \documentclass[..]{photobook}
@@ -212,6 +215,7 @@
 \DeclareStringOption{blockheight}
 \DeclareStringOption[0pt]{bindingoffset}[10mm]
 \DeclareStringOption[5mm]{bleed}[5mm]
+\DeclareStringOption[0pt]{flatfold}[0.5mm]
 
 
 %%%%% layout
@@ -221,7 +225,9 @@
 %% \DescribeMacro{endpaper}
 %% \DescribeMacro{cover}
 %% \DescribeMacro{jacket}
-%%
+%
+%% Sat page layout mode.
+%
 %%	>> layoutmode=<option>
 %%
 %% |block| (default)
@@ -250,6 +256,7 @@
 %%
 %%	Endpaper layout.
 %%
+% XXX should this use \flatfold
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
@@ -370,7 +377,6 @@
 \DeclareStringOption[0pt]{spinewidth}[0pt]
 \DeclareStringOption[0pt]{spinefold}[7mm]
 \DeclareStringOption[0pt]{coverboardgrow}[3mm]
-% XXX defaults should depend on cover type...
 \DeclareStringOption[0pt]{coverflap}[17mm]
 \DeclareStringOption[0pt]{jacketwrap}[2mm]
 \DeclareStringOption[0pt]{jacketflap}[50mm]
@@ -414,12 +420,15 @@
 %% \DescribeMacro{TwoPageLeft}
 %% \DescribeMacro{TwoPageRight}
 %
-% defaults:
-%	- TwoColumnLeft (for layoutmode=block)
-%	- SinglePage
-%
+%% Sets PDF page display mode.
+%%
+%% Defaults to |TwoColumnLeft| for |layoutmode=block| and |SinglePage| for
+%% other modes.
+%%
 % XXX make this a proper link...
-%% See: hyperref's pdfpagelayout for more options.
+%% See: 
+%% \href{https://ctan.altspu.ru/macros/latex/contrib/hyperref/doc/hyperref-doc.pdf}{hyperref}'s 
+%% |pdfpagelayout| for more options.
 %%
 \DeclareStringOption{pdfpagelayout}
 \@DeclareLiteralOptionTo{pdfpagelayout}{SinglePage}
@@ -615,17 +624,24 @@
 
 %% \DescribeMacro{\bleed=<len>}
 %
-%%	Page bleed size
+%% Page bleed size
 %%
 \newlength\bleed
 \setlength\bleed{\photobook@bleed}
 
 %% \DescribeMacro{\bindingoffset=<len>}
 %
-%%	Binding offset
+%% Binding offset
 %%
 \newlength\bindingoffset
 \setlength\bindingoffset{\photobook@bindingoffset}
+
+%% \DescribeMacro{\flatfold=<len>}
+%
+%% Sets the amount of paper to account for a flat fold.
+%%
+\newlength\flatfold
+\setlength\flatfold{\photobook@flatfold}
 
 %% \DescribeMacro{\clearimage=<len>}
 %
@@ -657,7 +673,8 @@
 
 %% \DescribeMacro{\imageblockoffsettop=<ratio>}
 %
-%%
+%% The ration by which the image is raised in |\ImagePage{..}| and 
+%% derived templates.
 %%
 \edef\imageblockoffsettop{\photobook@imageblockoffsettop}
 
@@ -702,8 +719,6 @@
 %
 %% Cell geometry. 
 %%
-%% For more details see the \nameref{subsec:Cells} section.
-%%
 %% These are set automatically by cells, thus it is not recommended to 
 %% edit them manually.
 %%
@@ -724,7 +739,7 @@
 \newlength\clearance
 \setlength\clearance{0pt}
 
-%% \DescribeMacro{\paperfoldwidth=<len>}
+
 %% \DescribeMacro{\clearfoldoutbinding=<len>}
 %% \DescribeMacro{\clearfoldoutedge=<len>}
 %% \DescribeMacro{\clearfoldoutfold=<len>}
@@ -2751,7 +2766,7 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%                            v \paperfoldwidth v
+%%                            v    \flatfold    v
 %%          
 %%       - --=----------------++---------------++--------------+
 %%           =                ..               ..              |
@@ -2779,7 +2794,7 @@
 %%  |          (1) ..           (2) ..            (3) =
 %%  +--------------++---------------++----------------=-- -
 %%
-%%                 ^ \paperfoldwidth ^
+%%                 ^    \flatfold    ^
 %%
 %% \end{verbatim}
 %% \end{minipage}
@@ -2817,7 +2832,6 @@
 %% \end{minipage}
 %%
 %%
-%% \DescribeMacro{\paperfoldwidth=<len>}
 %% \DescribeMacro{\clearfoldoutbinding=<len>}
 %% \DescribeMacro{\clearfoldoutedge=<len>}
 %% \DescribeMacro{\clearfoldoutfold=<len>}
@@ -2863,13 +2877,10 @@
 %%
 %% |in out| is drawn, |out it| is the same but reflected.
 %%
-%% The size of the paper fold is set by |\paperfoldwidth|.
+%% The size of the paper fold is set by |\flatfold|.
 %%
 % XXX move to globals...
 % XXX revise defaults...
-\newlength\paperfoldwidth
-\setlength\paperfoldwidth{0.5mm}
-
 \newlength\clearfoldoutbinding
 \setlength\clearfoldoutbinding{8mm}
 \newlength\clearfoldoutfold
@@ -2982,19 +2993,19 @@
 		\ifnum \thephotobook@foldoutpanel < 3%
 			\setlength\photobook@foldout@panelwidth{%
 				\photobook@foldout@maxpanelwidth
-				+ \paperfoldwidth}%
+				+ \flatfold}%
 		\else%
 			% double fold twice in same direction...
 			\ifthenelse{\equal{#2}{\photobook@foldout@prevfold}}{%
 				\setlength\photobook@foldout@panelwidth{%
 					\photobook@foldout@maxpanelwidth 
-					+ \paperfoldwidth
+					+ \flatfold
 					- \clearfoldoutfold}%
 			% different fold directions -- no resizing needed here...
 			}{%
 				\setlength\photobook@foldout@panelwidth{%
 					\photobook@foldout@maxpanelwidth
-					+ \paperfoldwidth}}\fi%
+					+ \flatfold}}\fi%
 		\setlength\photobook@foldout@maxpanelwidth{%
 			\photobook@foldout@panelwidth}%
 	% explicit width...
@@ -3550,7 +3561,6 @@
 % XXX need to be able to configure/pass/override:
 %		- size / \captionsize...
 %		- color...
-% XXX captions seem not to account for \imageblockoffsettop...
 
 %% \DescribeMacro{\captionsize\{..\}}
 %
