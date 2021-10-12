@@ -2722,7 +2722,13 @@
 %
 %%	>> \begin{foldout}[<fold-spec>] ... \end{foldout}
 %
-%% |<fold-spec>| grammar:
+%% |<fold-spec>| can be a number of folds, or contain one or more fold 
+%% types (|in| or |out|), two or more panel widths (dimensions) or a
+%% sequence of both (i.e. dim fold dim ...) where missing widths are 
+%% automatically calculated and missing folds are the same as the previous
+%% fold or the default if no folds are specified.
+%%
+%% Formal |<fold-spec>| grammar:
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -2782,10 +2788,10 @@
 %% A foldout always starts on the right/odd page and will always end on 
 %% the left/even page. 
 %%
-%% If |\foldoutpages{..}| is called on and even page, an empty normal 
+%% If |\foldoutpages{..}| is called on an even page, an empty normal 
 %% page will be created pushing the foldout to the right page of the 
 %% spread. If an odd number of pages is created the set will be padded 
-% with an empty page before |\foldoutpages{..}| exits.
+%% with an empty page before |\foldoutpages{..}| exits.
 %%
 %%
 %% Foldout panel numbering
@@ -2859,14 +2865,6 @@
 %%
 %% The size of the paper fold is set by |\paperfoldwidth|.
 %%
-% XXX order doc secions correctly...
-% XXX add manual size mode -- list of lengths...
-% XXX need to:
-%		- create two pages -- DONE
-%		- first odd, second even -- DONE
-%		- fold marks -- DONE
-%		- cells for panels -- DONE
-%		- outer panel must be smaller than the inner panel by \clearfoldout -- DONE
 % XXX move to globals...
 % XXX revise defaults...
 \newlength\paperfoldwidth
