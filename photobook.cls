@@ -215,7 +215,7 @@
 \DeclareStringOption{blockheight}
 \DeclareStringOption[0pt]{bindingoffset}[10mm]
 \DeclareStringOption[5mm]{bleed}[5mm]
-\DeclareStringOption[0pt]{flatfold}[0.5mm]
+\DeclareStringOption[0pt]{flatfold}[0.2mm]
 
 
 %%%%% layout
@@ -425,7 +425,6 @@
 %% Defaults to |TwoColumnLeft| for |layoutmode=block| and |SinglePage| for
 %% other modes.
 %%
-% XXX make this a proper link...
 %% See: 
 %% \href{https://ctan.altspu.ru/macros/latex/contrib/hyperref/doc/hyperref-doc.pdf}{hyperref}'s 
 %% |pdfpagelayout| for more options.
