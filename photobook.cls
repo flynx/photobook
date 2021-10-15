@@ -642,6 +642,20 @@
 \newlength\flatfold
 \setlength\flatfold{\photobook@flatfold}
 
+%% \DescribeMacro{\pagefoldpanels=<list>}
+%
+%% \EXPERIMENTAL
+%%
+%% lists page fold offsets.
+%%
+%% This is set automatically for layouts other than |block| and for 
+%% foldout pages, changing this can mess up fold markers and page cell 
+%% placement.
+%%
+% XXX use this instead of foldoutcellwidths...
+\setsepchar{,}
+\readlist*\pagefoldpanels{}
+
 %% \DescribeMacro{\clearimage=<len>}
 %
 %%	Image clearance
@@ -830,6 +844,19 @@
 		\setlength\pageblockwidth{\blockwidth}
 		% layout: cover...
 		\ifcoverlayout
+			% XXX use this instead of foldoutcellwidths...
+			% XXX use this for the general cell placement...
+			\setsepchar{,}%
+			\readlist*\pagefoldpanels{%
+				\the\coverflap,
+				\the\coverboardgrow,
+				\the\blockwidth,
+				\the\spinefold,
+				\the\spinewidth,
+				\the\spinefold,
+				\the\blockwidth,
+				\the\coverboardgrow,
+				\the\coverflap}%
 			\setlength\blockwidth{
 				\dimexpr 
 					2\blockwidth 
@@ -840,6 +867,21 @@
 		% layout: jacket...
 		% XXX this seems to be about 6mm off -- what are we missing here???
 		\ifjacketlayout
+			% XXX use this instead of foldoutcellwidths...
+			% XXX use this for the general cell placement...
+			\setsepchar{,}%
+			\readlist*\pagefoldpanels{%
+				\the\jacketflapback,
+				\the\jacketwrap,
+				% XXX does this account for \coverboardgrow???
+				\the\blockwidth,
+				\the\spinefold,
+				\the\spinewidth,
+				\the\spinefold,
+				% XXX does this account for \coverboardgrow???
+				\the\blockwidth,
+				\the\jacketwrap,
+				\the\jacketflapfront}%
 			\setlength\blockwidth{
 				\dimexpr 
 					2\blockwidth 
@@ -850,6 +892,11 @@
 					+ \jacketflapback \relax}\fi
 		% layout: endpaper...
 		\ifendpaperlayout
+			% XXX use this instead of foldoutcellwidths...
+			% XXX use this for the general cell placement...
+			\readlist*\pagefoldpanels{%
+				\the\blockwidth,
+				\the\blockwidth}%
 			\setlength\blockwidth{ 2\blockwidth }\fi\fi
 	\ifdim\blockheight=0pt
 		% layout: block / endpaper...
