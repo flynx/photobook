@@ -652,9 +652,18 @@
 %% foldout pages, changing this can mess up fold markers and page cell 
 %% placement.
 %%
-% XXX use this instead of foldoutcellwidths...
-\setsepchar{,}
-\readlist*\pagefoldpanels{}
+% XXX use this instead of \foldoutcellwidths...
+%\setsepchar{,}
+%\readlist*\pagefoldpanels{}
+\def\pagefoldpanels{}
+
+%% \DescribeMacro{\pagefoldpanelfolds=<list>}
+%
+%% \EXPERIMENTAL
+%%
+%% lists sequence of page fold types (|in|/|out|).
+%%
+\def\pagefoldpanelfolds{}
 
 %% \DescribeMacro{\clearimage=<len>}
 %
@@ -844,7 +853,7 @@
 		\setlength\pageblockwidth{\blockwidth}
 		% layout: cover...
 		\ifcoverlayout
-			% XXX use this instead of foldoutcellwidths...
+			% XXX use this instead of \foldoutcellwidths...
 			% XXX use this for the general cell placement...
 			\setsepchar{,}%
 			\readlist*\pagefoldpanels{%
@@ -857,6 +866,7 @@
 				\the\blockwidth,
 				\the\coverboardgrow,
 				\the\coverflap}%
+			\edef\foldoutfold{out}
 			\setlength\blockwidth{
 				\dimexpr 
 					2\blockwidth 
@@ -867,7 +877,7 @@
 		% layout: jacket...
 		% XXX this seems to be about 6mm off -- what are we missing here???
 		\ifjacketlayout
-			% XXX use this instead of foldoutcellwidths...
+			% XXX use this instead of \foldoutcellwidths...
 			% XXX use this for the general cell placement...
 			\setsepchar{,}%
 			\readlist*\pagefoldpanels{%
@@ -882,6 +892,7 @@
 				\the\blockwidth,
 				\the\jacketwrap,
 				\the\jacketflapfront}%
+			\edef\foldoutfold{out}
 			\setlength\blockwidth{
 				\dimexpr 
 					2\blockwidth 
@@ -892,11 +903,12 @@
 					+ \jacketflapback \relax}\fi
 		% layout: endpaper...
 		\ifendpaperlayout
-			% XXX use this instead of foldoutcellwidths...
+			% XXX use this instead of \foldoutcellwidths...
 			% XXX use this for the general cell placement...
 			\readlist*\pagefoldpanels{%
 				\the\blockwidth,
 				\the\blockwidth}%
+			\edef\foldoutfold{in}
 			\setlength\blockwidth{ 2\blockwidth }\fi\fi
 	\ifdim\blockheight=0pt
 		% layout: block / endpaper...
@@ -2943,9 +2955,6 @@
 % default fold type...
 \edef\foldoutfold{in}
 
-\def\foldoutcellfolds{}
-\def\foldoutcellwidths{}
-
 % XXX length or command???
 \def\foldmarkoffset{0.5\bleed}
 
@@ -3066,36 +3075,37 @@
 		\foldoutwidth
 		+ \photobook@foldout@panelwidth}%
 	% panel spec lists...
-	\edef\foldoutcellfolds{%
-		\foldoutcellfolds,#2}%
-	\edef\foldoutcellwidths{%
-		\foldoutcellwidths,\the\photobook@foldout@panelwidth}%
+	\edef\pagefoldpanelfolds{%
+		\pagefoldpanelfolds,#2}%
+	\edef\pagefoldpanels{%
+		\pagefoldpanels,\the\photobook@foldout@panelwidth}%
 	\stepcounter{photobook@foldoutpanel}}
 
 % XXX also add this to jacket/cover/endpaper...
 \newlength\photobook@showmarks@offset
 \setlength\photobook@showmarks@offset{0pt}
 \newcommand\photobook@showmarks{%
-	\ifx \foldoutcellwidths \empty \else%
+	% XXX make this a list-length check...
+	\ifx \pagefoldpanels \empty \else%
 		\begingroup%
 			\setlength\photobook@showmarks@offset{\bleed}%
 			% NOTE: we need to iterate left/right pages in reverse order...
 			% NOTE: the below branches are similar but not identical...
 			\ifnumodd{\thepage}{%
-				\xintFor* ##1 in {\xintSeq{1}{\foldoutcellwidthslen - 1}} \do {%
+				\xintFor* ##1 in {\xintSeq{1}{\pagefoldpanelslen - 1}} \do {%
 					\setlength\photobook@showmarks@offset{
 						\photobook@showmarks@offset
-						+ \foldoutcellwidths[##1]}%
-					% XXX HACK: it appears that we can't expand \foldoutcellfolds[##1] in [..]...
-					\edef\photobook@showmarks@tmp{\foldoutcellfolds[##1]}%
+						+ \pagefoldpanels[##1]}%
+					% XXX HACK: it appears that we can't expand \pagefoldpanelfolds[##1] in [..]...
+					\edef\photobook@showmarks@tmp{\pagefoldpanelfolds[##1]}%
 					\photobook@markfold[\photobook@showmarks@tmp]{\photobook@showmarks@offset}}%
 			}{
-				\xintFor* ##1 in {\xintSeq{\foldoutcellwidthslen}{2}} \do {%
+				\xintFor* ##1 in {\xintSeq{\pagefoldpanelslen}{2}} \do {%
 					\setlength\photobook@showmarks@offset{
 						\photobook@showmarks@offset
-						+ \foldoutcellwidths[##1]}%
-					% XXX HACK: it appears that we can't expand \foldoutcellfolds[##1] in [..]...
-					\edef\photobook@showmarks@tmp{\foldoutcellfolds[##1 - 1]}%
+						+ \pagefoldpanels[##1]}%
+					% XXX HACK: it appears that we can't expand \pagefoldpanelfolds[##1] in [..]...
+					\edef\photobook@showmarks@tmp{\pagefoldpanelfolds[##1 - 1]}%
 					\photobook@markfold[\photobook@showmarks@tmp]{\photobook@showmarks@offset}}}%
 		\endgroup\fi}
 \AtBeginShipout{%
@@ -3161,8 +3171,8 @@
 		% NOTE: the first element is empty due to how we create these 
 		%		i.e. ('' + ',<value>')...
 		\ignoreemptyitems%
-		\readlist*\foldoutcellfolds{\foldoutcellfolds}%
-		\readlist*\foldoutcellwidths{\foldoutcellwidths}%
+		\readlist*\pagefoldpanelfolds{\pagefoldpanelfolds}%
+		\readlist*\pagefoldpanels{\pagefoldpanels}%
 		%
 		% pages...
 		% NOTE: we'll keep the start of the foldout set at the right page
@@ -3211,7 +3221,7 @@
 \newlength\photobook@foldoutcell@width
 \setlength\photobook@foldoutcell@width{0pt}
 
-% calculate offset via \foldoutcellwidths and write to dimension <name>...
+% calculate offset via \pagefoldpanels and write to dimension <name>...
 %	>> \photobook@foldoutcell@setfoldoutoffset{<name>}{<from>}{<to>}
 %
 % NOTE: [<from>, <to>[ -- i.e. <to> is not included...
@@ -3219,15 +3229,15 @@
 	\expandafter\setlength\csname #1\endcsname{0pt}%
 	\ifnum \numexpr #2 \relax < \numexpr #3 \relax%
 		\xintFor* ##1 in {%
-				\xintSeq{#2}{\xintiiMin{#3}{\foldoutcellwidthslen + 1} - 1}} \do {%
+				\xintSeq{#2}{\xintiiMin{#3}{\pagefoldpanelslen + 1} - 1}} \do {%
 			\ifnumodd{\thepage}{%
 				\expandafter\setlength\csname #1\endcsname{%
 					\csname #1\endcsname%
-					+ \foldoutcellwidths[##1]}
+					+ \pagefoldpanels[##1]}
 			}{%
 				\expandafter\setlength\csname #1\endcsname{%
 					\csname #1\endcsname%
-					+ \foldoutcellwidths[-\numexpr ##1 \relax]}}}\fi}
+					+ \pagefoldpanels[-\numexpr ##1 \relax]}}}\fi}
 
 % foldout panel auto-advance counter...
 \newcounter{foldoutpanel}
@@ -3251,7 +3261,7 @@
 	% auto advance panel...
 	\ifnum \photobook@foldoutcell@panels[1] = 0%
 		% auto advance page...
-		\ifnum \value{foldoutpanel} = \foldoutcellwidthslen%
+		\ifnum \value{foldoutpanel} = \pagefoldpanelslen%
 			% NOTE: this will reset the counter...
 			\newpage\fi%
 		\stepcounter{foldoutpanel}%
@@ -3276,10 +3286,10 @@
 	\else%
 		\ifnumodd{\thepage}{%
 			\setlength\photobook@foldoutcell@width{%
-				\foldoutcellwidths[{\photobook@foldoutcell@from}]}
+				\pagefoldpanels[{\photobook@foldoutcell@from}]}
 		}{%
 			\setlength\photobook@foldoutcell@width{%
-				\foldoutcellwidths[-\numexpr \photobook@foldoutcell@from \relax]}}\fi}
+				\pagefoldpanels[-\numexpr \photobook@foldoutcell@from \relax]}}\fi}
 
 \newenvironment{foldoutcell}[1][0]{%
 	% XXX check if outside of foldout -> warn...
@@ -3308,7 +3318,7 @@
 			\setlength\photobook@foldoutcell@left{%
 				\bleed
 				+ \photobook@foldoutcell@left}\fi%
-		\ifnum \photobook@foldoutcell@from = \foldoutcellwidthslen%
+		\ifnum \photobook@foldoutcell@from = \pagefoldpanelslen%
 			\setlength\photobook@foldoutcell@width{%
 				\bleed
 				+ \photobook@foldoutcell@width}\fi%
