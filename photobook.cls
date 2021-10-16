@@ -226,6 +226,15 @@
 % XXX check values...
 \DeclareStringOption{pagefold}
 
+%% \DescribeMacro{foldout=<fold-spec>}
+%
+%% Sets the default fold specification (i.e. sets |\defaultfoldout|).
+%%
+%% For more information see: \nameref{subsec:Foldout page cells} section.
+%%
+\DeclareStringOption[2]{foldout}[2]
+
+
 
 %%%%% layout
 %
@@ -652,6 +661,16 @@
 \newlength\bindingoffset
 \setlength\bindingoffset{\photobook@bindingoffset}
 
+%% \DescribeMacro{\defaultfoldout=<fold-spce>}
+%
+%% Set the default fold specification.
+%%
+%% This can be set via the |foldout| class option.
+%%
+%% For more information see: \nameref{subsec:Foldout page cells} section.
+%%
+\edef\defaultfoldout{\photobook@foldout}
+
 %% \DescribeMacro{\flatfold=<len>}
 %
 %% Sets the amount of paper to account for a flat fold.
@@ -674,6 +693,34 @@
 			\photobook@pagefold\fi}}
 \photobook@setpagefold{in}
 
+%% \DescribeMacro{\pagefoldpanels=<list>}
+%% \DescribeMacro{\pagefoldpanelfolds=<list>}
+%
+%% \EXPERIMENTAL
+%%
+%% Lists page folded panel widths and fold types respectively.
+%%
+%% |pagefoldpanels| is set automatically for layouts other than |block| 
+%% and for foldout pages, changing this can mess up fold markers and 
+%% page cell placement.
+%%
+%% |pagefoldpanelfolds| is generated when creating a foldout.
+%%
+% XXX might be a good idea to treat fold-specific vars in the same way 
+%		as cell vars...
+% XXX add a generic panel constructor..
+%		\foldedcell[<height>]{<index>}
+\def\pagefoldpanels{}
+\def\pagefoldpanelfolds{}
+
+%% \DescribeMacro{\foldmarkoffset=<len>}
+%
+%% Sets the offset of fold marks from outside of page edge (default: |0.5\bleed|).
+%%
+%% Note that this can either be a command or a dimension.
+%%
+\def\foldmarkoffset{0.5\bleed}
+
 %% \DescribeMacro{\iffoldmarks}
 %
 %% Disable/enable fold marks.
@@ -687,24 +734,6 @@
 	\foldmarksfalse%
 \else%
 	\foldmarkstrue\fi%
-
-%% \DescribeMacro{\pagefoldpanels=<list>}
-%% \DescribeMacro{\pagefoldpanelfolds=<list>}
-%
-%% \EXPERIMENTAL
-%%
-%% lists page folded panel widths and fold types respectively.
-%%
-%% |pagefoldpanels| is set automatically for layouts other than |block| 
-%% and for foldout pages, changing this can mess up fold markers and 
-%% page cell placement.
-%%
-%% |pagefoldpanelfolds| is generated when creating a foldout.
-%%
-% XXX add a generic panel constructor..
-%		\foldedcell[<height>]{<index>}
-\def\pagefoldpanels{}
-\def\pagefoldpanelfolds{}
 
 %% \DescribeMacro{\clearimage=<len>}
 %
@@ -2849,6 +2878,9 @@
 %% automatically calculated and missing folds are the same as the previous
 %% fold or the default if no folds are specified.
 %%
+%% If not |<fold-spec>| is given, then the value of |\defaultfoldout| is
+%% used (default: |2|).
+%%
 %% Formal |<fold-spec>| grammar:
 %%
 %% \begin{minipage}{\textwidth}
@@ -2988,12 +3020,6 @@
 % XXX move these to globals...
 \newlength\foldoutwidth
 \setlength\foldoutwidth{\blockwidth}
-
-% default fold setup...
-\edef\foldoutspec{2}
-
-% XXX length or command???
-\def\foldmarkoffset{0.5\bleed}
 
 % draw in/out fold mark...
 %
@@ -3159,7 +3185,7 @@
 \newcounter{photobook@foldoutpanel}
 \setcounter{photobook@foldoutpanel}{1}
 
-\newenvironment{foldout}[1][\foldoutspec]{%
+\newenvironment{foldout}[1][\defaultfoldout]{%
 	\begingroup%
 		\setsepchar{ }%
 		\readlist*\photobook@foldout@args{#1}%
