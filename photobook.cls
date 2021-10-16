@@ -27,8 +27,6 @@
 %
 %
 % XXX revise \clearcaption / \captionclearpage...
-% XXX add marks -- \ShowMarks{..}
-% XXX add fold support...
 % XXX unify API -- see CellContent env...
 % XXX make this loadable both as a class and as a package...
 %		\@ifclassloaded{photobook}{<true>}{<false>}
@@ -171,7 +169,6 @@
 %% \DescribeMacro{blockheight=<len>}
 %% \DescribeMacro{bindingoffset=<len>}
 %% \DescribeMacro{bleed=<len>}
-%% \DescribeMacro{flatfold=<len>}
 %
 %% This is similar to what |geometry| does, but adds bleed support.
 %%
@@ -204,9 +201,6 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%% |flatfold| sets the clearance set aside for a flat fold, used for 
-%% foldouts (see: \nameref{subsec:Foldout page cells} section).
-%%
 % NOTE: if blockwidth/blockheight are set they will force recalculations 
 %		and overriding of the paperwidth/paperheight if they were changed
 %		by the user code anywhere between \documentclass[..]{photobook}
@@ -215,7 +209,22 @@
 \DeclareStringOption{blockheight}
 \DeclareStringOption[0pt]{bindingoffset}[10mm]
 \DeclareStringOption[5mm]{bleed}[5mm]
+
+%% \DescribeMacro{flatfold=<len>}
+%
+%% Sets the clearance set aside for a flat fold, used for foldouts 
+%% (see: \nameref{subsec:Foldout page cells} section).
+%%
 \DeclareStringOption[0pt]{flatfold}[0.2mm]
+
+%% \DescribeMacro{pagefold=<fold>}
+%
+%% Sets the default fold type.
+%%
+%% Can be |in| or |out|.
+%%
+% XXX check values...
+\DeclareStringOption{pagefold}
 
 
 %%%%% layout
@@ -440,6 +449,14 @@
 
 %%%%% Other options
 %
+%% \DescribeMacro{nofoldmarks}
+%
+%% If given disable fold marks.
+%%
+%% This sets |\iffoldmarks| to false, otherwise it is set to true.
+%%
+\DeclareBoolOption{nofoldmarks}
+
 %% \DescribeMacro{geometrynodefaults}
 %
 %% let the user set geometry defaults.
@@ -455,7 +472,6 @@
 %%	\end{verbatim}
 %%
 \DeclareBoolOption{geometrynodefaults}
-
 
 %% \DescribeMacro{roundprintedlengthsto=<num>}
 %
@@ -511,6 +527,7 @@
 \RequirePackage{adjustbox}
 \RequirePackage[absolute]{textpos}
 \RequirePackage{fancyvrb}
+\RequirePackage{tikz}
 %\RequirePackage[linewidth=1pt]{mdframed}
 % XXX flow text frames...
 % XXX this messes with geometry....
@@ -642,27 +659,51 @@
 \newlength\flatfold
 \setlength\flatfold{\photobook@flatfold}
 
-%% \DescribeMacro{\pagefoldpanels=<list>}
+%% \DescribeMacro{\pagefold=<fold>}
 %
-%% \EXPERIMENTAL
+%% Default fold type.
 %%
-%% lists page fold offsets.
+%% This defaults to |out| for |jacket| and |cover| and to |in| for other
+%% layouts.
 %%
-%% This is set automatically for layouts other than |block| and for 
-%% foldout pages, changing this can mess up fold markers and page cell 
-%% placement.
-%%
-% XXX use this instead of \foldoutcellwidths...
-%\setsepchar{,}
-%\readlist*\pagefoldpanels{}
-\def\pagefoldpanels{}
+\newcommand\photobook@setpagefold[1]{%
+	\edef\pagefold{
+		\ifx \photobook@pagefold \empty%
+			#1%
+		\else%
+			\photobook@pagefold\fi}}
+\photobook@setpagefold{in}
 
+%% \DescribeMacro{\iffoldmarks}
+%
+%% Disable/enable fold marks.
+%%
+%% The default is true, to toggle on/off use |\foldmarkstrue| / |\foldmarksfalse|.
+%%
+%% This can be set globally via the |nofoldmarks| class option.
+%%
+\newif\iffoldmarks
+\ifphotobook@nofoldmarks%
+	\foldmarksfalse%
+\else%
+	\foldmarkstrue\fi%
+
+%% \DescribeMacro{\pagefoldpanels=<list>}
 %% \DescribeMacro{\pagefoldpanelfolds=<list>}
 %
 %% \EXPERIMENTAL
 %%
-%% lists sequence of page fold types (|in|/|out|).
+%% lists page folded panel widths and fold types respectively.
 %%
+%% |pagefoldpanels| is set automatically for layouts other than |block| 
+%% and for foldout pages, changing this can mess up fold markers and 
+%% page cell placement.
+%%
+%% |pagefoldpanelfolds| is generated when creating a foldout.
+%%
+% XXX add a generic panel constructor..
+%		\foldedcell[<height>]{<index>}
+\def\pagefoldpanels{}
 \def\pagefoldpanelfolds{}
 
 %% \DescribeMacro{\clearimage=<len>}
@@ -763,13 +804,19 @@
 
 
 %% \DescribeMacro{\clearfoldoutbinding=<len>}
-%% \DescribeMacro{\clearfoldoutedge=<len>}
 %% \DescribeMacro{\clearfoldoutfold=<len>}
+%% \DescribeMacro{\clearfoldoutedge=<len>}
 %
 %% Foldout geometry.
 %%
 %% For more info see \nameref{subsec:Foldout page cells} section.
 %%
+\newlength\clearfoldoutbinding
+\setlength\clearfoldoutbinding{8mm}
+\newlength\clearfoldoutfold
+\setlength\clearfoldoutfold{5mm}
+\newlength\clearfoldoutedge
+\setlength\clearfoldoutedge{1mm}
 
 
 
@@ -853,20 +900,22 @@
 		\setlength\pageblockwidth{\blockwidth}
 		% layout: cover...
 		\ifcoverlayout
-			% XXX use this instead of \foldoutcellwidths...
-			% XXX use this for the general cell placement...
 			\setsepchar{,}%
 			\readlist*\pagefoldpanels{%
 				\the\coverflap,
-				\the\coverboardgrow,
-				\the\blockwidth,
+				% board thickness is ignored...
+				\the\dimexpr
+					\coverboardgrow
+					+ \pageblockwidth \relax,
 				\the\spinefold,
 				\the\spinewidth,
 				\the\spinefold,
-				\the\blockwidth,
-				\the\coverboardgrow,
+				\the\dimexpr
+					\coverboardgrow
+					+ \pageblockwidth \relax,
+				% board thickness is ignored...
 				\the\coverflap}%
-			\edef\foldoutfold{out}
+			\photobook@setpagefold{out}
 			\setlength\blockwidth{
 				\dimexpr 
 					2\blockwidth 
@@ -877,25 +926,26 @@
 		% layout: jacket...
 		% XXX this seems to be about 6mm off -- what are we missing here???
 		\ifjacketlayout
-			% XXX use this instead of \foldoutcellwidths...
-			% XXX use this for the general cell placement...
 			\setsepchar{,}%
 			\readlist*\pagefoldpanels{%
 				\the\jacketflapback,
 				\the\jacketwrap,
-				% XXX does this account for \coverboardgrow???
-				\the\blockwidth,
+				\the\dimexpr
+					\coverboardgrow
+					+ \pageblockwidth \relax,
 				\the\spinefold,
 				\the\spinewidth,
 				\the\spinefold,
-				% XXX does this account for \coverboardgrow???
-				\the\blockwidth,
+				\the\dimexpr
+					\coverboardgrow
+					+ \pageblockwidth \relax,
 				\the\jacketwrap,
 				\the\jacketflapfront}%
-			\edef\foldoutfold{out}
+			\photobook@setpagefold{out}
 			\setlength\blockwidth{
 				\dimexpr 
 					2\blockwidth 
+					+ 2\coverboardgrow
 					+ \spinewidth
 					+ 2\spinefold
 					+ 2\jacketwrap
@@ -903,12 +953,10 @@
 					+ \jacketflapback \relax}\fi
 		% layout: endpaper...
 		\ifendpaperlayout
-			% XXX use this instead of \foldoutcellwidths...
-			% XXX use this for the general cell placement...
 			\readlist*\pagefoldpanels{%
-				\the\blockwidth,
-				\the\blockwidth}%
-			\edef\foldoutfold{in}
+				\the\pageblockwidth,
+				\the\pageblockwidth}%
+			\photobook@setpagefold{in}
 			\setlength\blockwidth{ 2\blockwidth }\fi\fi
 	\ifdim\blockheight=0pt
 		% layout: block / endpaper...
@@ -2937,74 +2985,70 @@
 %%
 %% The size of the paper fold is set by |\flatfold|.
 %%
-% XXX move to globals...
-% XXX revise defaults...
-\newlength\clearfoldoutbinding
-\setlength\clearfoldoutbinding{8mm}
-\newlength\clearfoldoutfold
-\setlength\clearfoldoutfold{5mm}
-\newlength\clearfoldoutedge
-\setlength\clearfoldoutedge{1mm}
-
+% XXX move these to globals...
 \newlength\foldoutwidth
 \setlength\foldoutwidth{\blockwidth}
 
 % default fold setup...
 \edef\foldoutspec{2}
 
-% default fold type...
-\edef\foldoutfold{in}
-
 % XXX length or command???
 \def\foldmarkoffset{0.5\bleed}
 
-\newif\iffoldmarks
-\foldmarkstrue
+% draw in/out fold mark...
+%
+%	>> \foldinmark[<baseline>]
+%	>> \foldoutmark[<baseline>]
+%
+% NOTE: these should be used in a box.
+% NOTE: these are centered in origin.
+% XXX these can affect the items after -- need to encapsulate...
+% XXX doc...
+\newcommand\foldinmark[1][0pt]{
+	\vspace{\dimexpr 3mm + #1 \relax}%
+	\smash{\makebox[0pt][l]{%
+		% a size-agnostic centering...
+		\hspace{-5mm}{\makebox[1cm][c]{%
+				\begin{tikzpicture}%
+					\draw[white, ultra thick] (-2mm,2mm) -- (0,0) -- (2mm,2mm);
+					\draw[white, ultra thick] (0,4mm) -- (0,-2mm);
+					\draw[black, thin] (-2mm,2mm) -- (0,0) -- (2mm,2mm);
+					\draw[black, thin] (0,4mm) -- (0,-2mm);
+				\end{tikzpicture}}}}}}
+\newcommand\foldoutmark[1][0pt]{
+	\vspace{\dimexpr 3mm + #1 \relax}%
+	\smash{\makebox[0pt][l]{%
+		% a size-agnostic centering...
+		\hspace{-5mm}{\makebox[1cm][c]{%
+				\begin{tikzpicture}%
+					\draw[white, ultra thick] (-2mm,0) -- (0,2mm) -- (2mm,0);
+					\draw[white, ultra thick] (0,4mm) -- (0,-2mm);
+					\draw[black, thin] (-2mm,0) -- (0,2mm) -- (2mm,0);
+					\draw[black, thin] (0,4mm) -- (0,-2mm);
+				\end{tikzpicture}}}}}}
 
-
-% XXX make this a tikz... (???)
-% XXX should we replace in/out text with something like v and ^ ???
+%	>> \photobook@foldmark[<baseline>]{<type>}{<left>, <top>}
 \newif\ifphotobook@foldmark@in
-\newcommand\photobook@foldmark[3][\foldoutfold]{%
+\newcommand\photobook@foldmark[3][0pt]{%
 	\begingroup%
 		\ifnumodd{\thepage}{%
-			\ifthenelse{\equal{#1}{in}}{%
+			\ifthenelse{\equal{#2}{in}}{%
 				\photobook@foldmark@intrue}{%
 				\photobook@foldmark@infalse}}{%
-			\ifthenelse{\equal{#1}{in}}{%
+			\ifthenelse{\equal{#2}{in}}{%
 				\photobook@foldmark@infalse}{%
 				\photobook@foldmark@intrue}}%
 		\begin{textblock*}{0pt}(#3)%
-			\setlength{\unitlength}{1mm}%
-			\begin{picture}(0, 0)(0,0)%
-				\color{white}
-				\thicklines
-				\put(0,0){\line(0,#2){4}}
-				\put(0, \numexpr #2 / 2 \relax){%
-					\circle*{1.5}}
-				\ifphotobook@foldmark@in
-					\put(1.5, \numexpr #2 / 2 - 1 \relax){\vee}
-				\else
-					\put(1.5, \numexpr #2 / 2 - 1 \relax){\wedge}\fi
-				\color{black}
-				\thinlines
-				\put(0,0){\line(0,#2){4}}
-				\put(0, \numexpr #2 / 2 \relax){%
-					\ifphotobook@foldmark@in
-						\circle{1.5}
-					\else
-						\circle*{1.5}\fi}
-				\ifphotobook@foldmark@in
-					\put(1.5, \numexpr #2 / 2 - 1 \relax){\vee}
-				\else
-					\put(1.5, \numexpr #2 / 2 - 1 \relax){\wedge}\fi
-			\end{picture}
+			\ifphotobook@foldmark@in%
+				\foldinmark[#1]%
+			\else%
+				\foldoutmark[#1]\fi%
 		\end{textblock*}%
 	\endgroup}
 \newcommand\photobook@topfoldmark[2][in]{%
-	\photobook@foldmark[#1]{3}{#2}}
+	\photobook@foldmark[-3mm]{#1}{#2}}
 \newcommand\photobook@bottomfoldmark[2][in]{%
-	\photobook@foldmark[#1]{-3}{#2}}
+	\photobook@foldmark[3mm]{#1}{#2}}
 %	>> \photobook@markfold[<fold>]{<offset>}
 \newcommand\photobook@markfold[2][in]{%
 	\photobook@topfoldmark[#1]{
@@ -3123,7 +3167,7 @@
 		% defaults...
 		\setcounter{photobook@foldoutpanel}{1}
 		\setlength\foldoutwidth{0pt}%
-		\edef\photobook@foldout@prevfold{\foldoutfold}%
+		\edef\photobook@foldout@prevfold{\pagefold}%
 		%
 		% panel count...
 		\ifnum \photobook@foldout@argslen = 1%
