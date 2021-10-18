@@ -274,7 +274,7 @@
 %%
 %%	Endpaper layout.
 %%
-% XXX should this use \flatfold
+% XXX should this use \flatfold???
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
@@ -693,33 +693,22 @@
 			\photobook@pagefold\fi}}
 \photobook@setpagefold{in}
 
-%% \DescribeMacro{\pagefoldpanels=<list>}
-%% \DescribeMacro{\pagefoldpanelfolds=<list>}
-%
-%% \EXPERIMENTAL
-%%
-%% Lists page folded panel widths and fold types respectively.
-%%
-%% |pagefoldpanels| is set automatically for layouts other than |block| 
-%% and for foldout pages, changing this can mess up fold markers and 
-%% page cell placement.
-%%
-%% |pagefoldpanelfolds| is generated when creating a foldout.
-%%
-% XXX might be a good idea to treat fold-specific vars in the same way 
-%		as cell vars...
-% XXX add a generic panel constructor..
-%		\foldedcell[<height>]{<index>}
-\def\pagefoldpanels{}
-\def\pagefoldpanelfolds{}
-
 %% \DescribeMacro{\foldmarkoffset=<len>}
 %
 %% Sets the offset of fold marks from outside of page edge (default: |0.5\bleed|).
 %%
 %% Note that this can either be a command or a dimension.
 %%
-\def\foldmarkoffset{0.5\bleed}
+%\def\foldmarkoffset{0.5\bleed}
+\def\foldmarkoffset{2mm}
+
+%%% \DescribeMacro{\foldmarkscale=<scale>}
+%
+%%% Sets fold marker scale/size.
+%%%
+% XXX this behaves in an odd way on bottom markers...
+%\def\foldmarkscale{0.5}
+\def\foldmarkscale{1}
 
 %% \DescribeMacro{\iffoldmarks}
 %
@@ -2866,6 +2855,35 @@
 %
 %% \EXPERIMENTAL
 %%
+%% A foldout is a special case cell that changes the page format. 
+%%
+%% In addition to cell lengths a foldout defines a set of additional 
+%% lengths and lists within its context.
+%%
+%% \DescribeMacro{\pagefoldpanels=<list>}
+%% \DescribeMacro{\pagefoldpanelfolds=<list>}
+%
+%% Lists page folded panel widths and fold types respectively.
+%%
+%% |pagefoldpanels| is set automatically for layouts other than |block| 
+%% and for foldout pages, changing this can mess up fold markers and 
+%% page cell placement.
+%%
+%% |pagefoldpanelfolds| is generated when creating a foldout.
+%%
+%% See:
+%% \href{https://ctan.altspu.ru/macros/generic/listofitems/listofitems-en.pdf}{listofitems}
+%% for list API.
+%%
+% XXX add a generic panel constructor..
+%		\foldedcell[<height>]{<index>}
+% NOTE: these are wrapped in \@ifundefined{..} to prevent overwriting when
+%		values are defined in \InitPages...
+\@ifundefined{pagefoldpanels}{%
+	\def\pagefoldpanels{}}
+\@ifundefined{pagefoldpanelfolds}{%
+	\def\pagefoldpanelfolds{}}
+
 %% \DescribeEnv{foldout}
 %
 %% Create 2 or more pages in foldout mode.
@@ -2880,26 +2898,6 @@
 %%
 %% If not |<fold-spec>| is given, then the value of |\defaultfoldout| is
 %% used (default: |2|).
-%%
-%% Formal |<fold-spec>| grammar:
-%%
-%% \begin{minipage}{\textwidth}
-%% \begin{verbatim}
-%%   <fold-spec> ::=
-%%       <count>
-%%       | <fold>
-%%       | <panels>
-%%   <panels> ::=
-%%       <panel>
-%%       | <panel> <panels>
-%%   <panel> ::=
-%%       <width> <fold>
-%%       | <width>
-%%       | <fold>
-%%   <fold> ::= 
-%%      in | out
-%% \end{verbatim}
-%% \end{minipage}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -2969,7 +2967,27 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+%% Formal |<fold-spec>| grammar:
 %%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%   <fold-spec> ::
+%%       <count>
+%%       | <fold>
+%%       | <panels>
+%%   <panels> ::=
+%%       <panel>
+%%       | <panel> <panels>
+%%   <panel> ::=
+%%       <width> <fold>
+%%       | <width>
+%%       | <fold>
+%%   <fold> ::= 
+%%      in | out
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%
 %% \DescribeMacro{\clearfoldoutbinding=<len>}
 %% \DescribeMacro{\clearfoldoutedge=<len>}
 %% \DescribeMacro{\clearfoldoutfold=<len>}
@@ -3029,29 +3047,30 @@
 % NOTE: these should be used in a box.
 % NOTE: these are centered in origin.
 % XXX these can affect the items after -- need to encapsulate...
+% XXX something's odd with these -- when \foldmarkscale is <1 the bottom falls apart...
 % XXX doc...
 \newcommand\foldinmark[1][0pt]{
 	\vspace{\dimexpr 3mm + #1 \relax}%
 	\smash{\makebox[0pt][l]{%
 		% a size-agnostic centering...
 		\hspace{-5mm}{\makebox[1cm][c]{%
-				\begin{tikzpicture}%
-					\draw[white, ultra thick] (-2mm,2mm) -- (0,0) -- (2mm,2mm);
-					\draw[white, ultra thick] (0,4mm) -- (0,-2mm);
-					\draw[black, thin] (-2mm,2mm) -- (0,0) -- (2mm,2mm);
-					\draw[black, thin] (0,4mm) -- (0,-2mm);
-				\end{tikzpicture}}}}}}
+			\begin{tikzpicture}[scale=\foldmarkscale]%
+				\draw[white, ultra thick] (-2mm,2mm) -- (0,0) -- (2mm,2mm);
+				\draw[white, ultra thick] (0,4mm) -- (0,-2mm);
+				\draw[black, thin] (-2mm,2mm) -- (0,0) -- (2mm,2mm);
+				\draw[black, thin] (0,4mm) -- (0,-2mm);
+			\end{tikzpicture}}}}}}
 \newcommand\foldoutmark[1][0pt]{
 	\vspace{\dimexpr 3mm + #1 \relax}%
 	\smash{\makebox[0pt][l]{%
 		% a size-agnostic centering...
 		\hspace{-5mm}{\makebox[1cm][c]{%
-				\begin{tikzpicture}%
-					\draw[white, ultra thick] (-2mm,0) -- (0,2mm) -- (2mm,0);
-					\draw[white, ultra thick] (0,4mm) -- (0,-2mm);
-					\draw[black, thin] (-2mm,0) -- (0,2mm) -- (2mm,0);
-					\draw[black, thin] (0,4mm) -- (0,-2mm);
-				\end{tikzpicture}}}}}}
+			\begin{tikzpicture}[scale=\foldmarkscale]%
+				\draw[white, ultra thick] (-2mm,0) -- (0,2mm) -- (2mm,0);
+				\draw[white, ultra thick] (0,4mm) -- (0,-2mm);
+				\draw[black, thin] (-2mm,0) -- (0,2mm) -- (2mm,0);
+				\draw[black, thin] (0,4mm) -- (0,-2mm);
+			\end{tikzpicture}}}}}}
 
 %	>> \photobook@foldmark[<baseline>]{<type>}{<left>, <top>}
 \newif\ifphotobook@foldmark@in
