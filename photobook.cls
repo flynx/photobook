@@ -702,13 +702,13 @@
 %\def\foldmarkoffset{0.5\bleed}
 \def\foldmarkoffset{2mm}
 
-%%% \DescribeMacro{\foldmarkscale=<scale>}
+%% \DescribeMacro{\foldmarksize=<scale>}
 %
-%%% Sets fold marker scale/size.
-%%%
-% XXX this behaves in an odd way on bottom markers...
-%\def\foldmarkscale{0.5}
-\def\foldmarkscale{1}
+%% Sets fold marker size (vertical).
+%%
+% XXX this behaves in an odd way on bottom markers if size is smaller than 6mm...
+\newlength\foldmarksize
+\setlength\foldmarksize{6mm}
 
 %% \DescribeMacro{\iffoldmarks}
 %
@@ -3047,29 +3047,49 @@
 % NOTE: these should be used in a box.
 % NOTE: these are centered in origin.
 % XXX these can affect the items after -- need to encapsulate...
-% XXX something's odd with these -- when \foldmarkscale is <1 the bottom falls apart...
+% XXX something's odd with these -- when \foldmarksize is <6mm the bottom falls apart...
 % XXX doc...
 \newcommand\foldinmark[1][0pt]{
-	\vspace{\dimexpr 3mm + #1 \relax}%
+	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
 	\smash{\makebox[0pt][l]{%
 		% a size-agnostic centering...
 		\hspace{-5mm}{\makebox[1cm][c]{%
-			\begin{tikzpicture}[scale=\foldmarkscale]%
-				\draw[white, ultra thick] (-2mm,2mm) -- (0,0) -- (2mm,2mm);
-				\draw[white, ultra thick] (0,4mm) -- (0,-2mm);
-				\draw[black, thin] (-2mm,2mm) -- (0,0) -- (2mm,2mm);
-				\draw[black, thin] (0,4mm) -- (0,-2mm);
+			\begin{tikzpicture}%
+				\draw[white, ultra thick] 
+					(-0.3333\foldmarksize,03333\foldmarksize) 
+					-- (0,0) 
+					-- (0.3333\foldmarksize,0.3333\foldmarksize);
+				\draw[white, ultra thick] 
+					(0,0.6666\foldmarksize) 
+					-- (0,-0.3333\foldmarksize);
+				\draw[black, thin] 
+					(-0.3333\foldmarksize,03333\foldmarksize) 
+					-- (0,0) 
+					-- (0.3333\foldmarksize,0.3333\foldmarksize);
+				\draw[black, thin] 
+					(0,0.6666\foldmarksize) 
+					-- (0,-0.3333\foldmarksize);
 			\end{tikzpicture}}}}}}
 \newcommand\foldoutmark[1][0pt]{
-	\vspace{\dimexpr 3mm + #1 \relax}%
+	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
 	\smash{\makebox[0pt][l]{%
 		% a size-agnostic centering...
 		\hspace{-5mm}{\makebox[1cm][c]{%
-			\begin{tikzpicture}[scale=\foldmarkscale]%
-				\draw[white, ultra thick] (-2mm,0) -- (0,2mm) -- (2mm,0);
-				\draw[white, ultra thick] (0,4mm) -- (0,-2mm);
-				\draw[black, thin] (-2mm,0) -- (0,2mm) -- (2mm,0);
-				\draw[black, thin] (0,4mm) -- (0,-2mm);
+			\begin{tikzpicture}%
+				\draw[white, ultra thick] 
+					(-0.3333\foldmarksize,0) 
+					-- (0,0.3333\foldmarksize) 
+					-- (0.3333\foldmarksize,0);
+				\draw[white, ultra thick] 
+					(0,0.6666\foldmarksize) 
+					-- (0,-0.3333\foldmarksize);
+				\draw[black, thin] 
+					(-0.3333\foldmarksize,0) 
+					-- (0,0.3333\foldmarksize) 
+					-- (0.3333\foldmarksize,0);
+				\draw[black, thin] 
+					(0,0.6666\foldmarksize) 
+					-- (0,-0.3333\foldmarksize);
 			\end{tikzpicture}}}}}}
 
 %	>> \photobook@foldmark[<baseline>]{<type>}{<left>, <top>}
