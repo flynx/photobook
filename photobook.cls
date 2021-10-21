@@ -879,32 +879,26 @@
 		\ifblocklayout
 			\def\pdfpagelayout{TwoPageRight}
 		\else
-			\def\pdfpagelayout{SinglePage}
-		\fi
+			\def\pdfpagelayout{SinglePage}\fi
 	\else
-		\def\pdfpagelayout{\photobook@pdfpagelayout}
-	\fi
+		\def\pdfpagelayout{\photobook@pdfpagelayout}\fi
 	% items to ignore in different layouts...
 	% XXX is this the correct way to go???
 	\ifcoverlayout
 		\setlength\coverflap{\photobook@coverflap}
 	\else
-		\setlength\coverflap{0pt}
-	\fi
+		\setlength\coverflap{0pt}\fi
 	\ifjacketlayout
 		\setlength\jacketwrap{\photobook@jacketwrap}
 		\setlength\jacketflap{\photobook@jacketflap}
 	\else
 		\setlength\jacketwrap{0pt}
-		\setlength\jacketflap{0pt}
-	\fi
+		\setlength\jacketflap{0pt}\fi
 	% flaps...
 	\ifdim\jacketflapfront=0pt
-		\setlength\jacketflapfront{\jacketflap}
-	\fi
+		\setlength\jacketflapfront{\jacketflap}\fi
 	\ifdim\jacketflapback=0pt
-		\setlength\jacketflapback{\jacketflap}
-	\fi
+		\setlength\jacketflapback{\jacketflap}\fi
 	% block size...
 	\ifdim\blockwidth=0pt
 		% layout: block...
@@ -975,14 +969,14 @@
 				\the\pageblockwidth,
 				\the\pageblockwidth}%
 			\photobook@setpagefold{in}
-			\setlength\blockwidth{ 2\blockwidth }\fi\fi
+			\setlength\blockwidth{2\blockwidth}\fi\fi
 	\ifdim\blockheight=0pt
 		% layout: block / endpaper...
 		\setlength\blockheight{
 			\ifx\photobook@blockheight\empty
 				\dimexpr \paperheight - 2\bleed \relax
 			\else
-				\photobook@blockheight \fi} 
+				\photobook@blockheight\fi} 
 		\setlength\pageblockheight{\blockheight}
 		% layout: cover...
 		\ifcoverlayout
@@ -991,16 +985,16 @@
 					\blockheight
 					+ 2\coverboardgrow
 					+ 2\coverflap
-				\relax }\fi
+				\relax}\fi
 		% layout: jacket...
 		\ifjacketlayout
 			\setlength\blockheight{
 				\dimexpr 
 					\blockheight
 					+ 2\coverboardgrow
-				\relax }\fi\fi
+				\relax}\fi\fi
 	% default image clearance...
-	\ifdim\clearimage=\maxdimen
+	\ifdim \clearimage = \maxdimen
 		\ifx\photobook@clearimage\empty
 			%\setlength\clearimage{-\bleed}
 			\setlength\clearimage{10mm}
@@ -2880,9 +2874,9 @@
 % NOTE: these are wrapped in \@ifundefined{..} to prevent overwriting when
 %		values are defined in \InitPages...
 \@ifundefined{pagefoldpanels}{%
-	\def\pagefoldpanels{}}
+	\def\pagefoldpanels{}}{}
 \@ifundefined{pagefoldpanelfolds}{%
-	\def\pagefoldpanelfolds{}}
+	\def\pagefoldpanelfolds{}}{}
 
 %% \DescribeEnv{foldout}
 %
@@ -3054,50 +3048,48 @@
 %		or are the two independent??? (test)
 % XXX doc...
 
-% XXX need to handle baseline arg...
-\newlength\raisefoldmark
-\setlength\raisefoldmark{0pt}
+% XXX this is only affected by the initial \foldmarksize...
+%		...should this be live or should we simply make this a class option???
+%\setlength\foldmarksize{3mm}
 \newsavebox\photobook@foldinmark
 \sbox{\photobook@foldinmark}{%
-	\vspace{\dimexpr 0.5\foldmarksize + \raisefoldmark \relax}%
 	\smash{\makebox[0pt][l]{%
 		% size-agnostic centering...
 		\hspace{-5mm}{\makebox[1cm][c]{%
 			\begin{tikzpicture}%
 				\draw[white, ultra thick] 
-					(-0.3333\foldmarksize,03333\foldmarksize) 
+					(-0.3333\foldmarksize,0.3333\foldmarksize) 
 					-- (0,0) 
 					-- (0.3333\foldmarksize,0.3333\foldmarksize);
 				\draw[white, ultra thick] 
 					(0,0.6666\foldmarksize) 
 					-- (0,-0.3333\foldmarksize);
 				\draw[black, thin] 
-					(-0.3333\foldmarksize,03333\foldmarksize) 
+					(-0.3333\foldmarksize,0.3333\foldmarksize) 
 					-- (0,0) 
 					-- (0.3333\foldmarksize,0.3333\foldmarksize);
 				\draw[black, thin] 
 					(0,0.6666\foldmarksize) 
 					-- (0,-0.3333\foldmarksize);
 			\end{tikzpicture}}}}}}
-\newcommand\foldinmark[1][0pt]{
-	\begingroup%
-		\setlength\raisefoldmark{#1}%
-		\usebox\photobook@foldinmark%
-	\endgroup}
+\newcommand\foldinmark[1][0pt]{%
+	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
+	\usebox\photobook@foldinmark}
+%\newcommand\foldinmark[1][0pt]{
 %	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
 %	\smash{\makebox[0pt][l]{%
 %		% size-agnostic centering...
 %		\hspace{-5mm}{\makebox[1cm][c]{%
 %			\begin{tikzpicture}%
 %				\draw[white, ultra thick] 
-%					(-0.3333\foldmarksize,03333\foldmarksize) 
+%					(-0.3333\foldmarksize,0.3333\foldmarksize) 
 %					-- (0,0) 
 %					-- (0.3333\foldmarksize,0.3333\foldmarksize);
 %				\draw[white, ultra thick] 
 %					(0,0.6666\foldmarksize) 
 %					-- (0,-0.3333\foldmarksize);
 %				\draw[black, thin] 
-%					(-0.3333\foldmarksize,03333\foldmarksize) 
+%					(-0.3333\foldmarksize,0.3333\foldmarksize) 
 %					-- (0,0) 
 %					-- (0.3333\foldmarksize,0.3333\foldmarksize);
 %				\draw[black, thin] 
@@ -3145,9 +3137,9 @@
 		\end{textblock*}%
 	\endgroup}
 \newcommand\photobook@topfoldmark[2][in]{%
-	\photobook@foldmark[-3mm]{#1}{#2}}
+	\photobook@foldmark[-0.5\foldmarksize]{#1}{#2}}
 \newcommand\photobook@bottomfoldmark[2][in]{%
-	\photobook@foldmark[3mm]{#1}{#2}}
+	\photobook@foldmark[0.5\foldmarksize]{#1}{#2}}
 %	>> \photobook@markfold[<fold>]{<offset>}
 \newcommand\photobook@markfold[2][in]{%
 	\photobook@topfoldmark[#1]{

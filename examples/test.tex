@@ -1,6 +1,7 @@
 %----------------------------------------------------------------------
 
 \documentclass[
+	% XXX seems to be broken...
 	layoutmode=block,
 	% page size...
 	blockwidth=240mm, blockheight=220mm,
@@ -29,9 +30,8 @@
 
 
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\begin{document} % - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-\begin{document}
 
 \edef\foldmarkoffset{-10mm}
 %\foldmarksfalse
@@ -98,48 +98,7 @@
 	in
 \end{foldout}
 
-%
-%\ImagePageFill{\PageInfo}{\TestImage}
-%
-%\begin{foldout}[3]
-%	\ImagePageFill{\PageInfo}{\TestImageV}%
-%	\ImagePageFill{\PageInfo}{\TestImage}
-%\end{foldout}
-%
-%\ImagePage{Caption text}{\TestImage}
-%\ImagePage{Caption text}{\TestImageV}
-%
-%\begin{foldout}[3]
-%	\ImagePageFill{\PageInfo}{\TestImage}
-%\end{foldout}
-%
-%\begin{foldout}[3]
-%	\begin{foldoutcell}[2]
-%		\lipsum
-%		\lipsum
-%		\lipsum
-%	\end{foldoutcell}
-%	\begin{foldoutcell}[3]
-%		\lipsum
-%		\lipsum
-%		\lipsum
-%	\end{foldoutcell}
-%	\newpage
-%	\begin{foldoutcell}[2-3]
-%	\begin{bottomup}
-%	\begin{cliptocell}
-%		\lipsum
-%		\lipsum
-%		\lipsum
-%		\lipsum
-%		\lipsum
-%	\end{cliptocell}
-%	\end{bottomup}
-%	\end{foldoutcell}
-%\end{foldout}
-
-\end{document}
 
 
 %----------------------------------------------------------------------
-%                                                  vim:set ts=4 sw=4 :
+\end{document} %                                    vim:set ts=4 sw=4 :
