@@ -3055,8 +3055,35 @@
 % XXX doc...
 
 % XXX need to handle baseline arg...
-%\newsavebox\photobook@foldinmark
-%\sbox{\photobook@foldinmark}{%
+\newlength\raisefoldmark
+\setlength\raisefoldmark{0pt}
+\newsavebox\photobook@foldinmark
+\sbox{\photobook@foldinmark}{%
+	\vspace{\dimexpr 0.5\foldmarksize + \raisefoldmark \relax}%
+	\smash{\makebox[0pt][l]{%
+		% size-agnostic centering...
+		\hspace{-5mm}{\makebox[1cm][c]{%
+			\begin{tikzpicture}%
+				\draw[white, ultra thick] 
+					(-0.3333\foldmarksize,03333\foldmarksize) 
+					-- (0,0) 
+					-- (0.3333\foldmarksize,0.3333\foldmarksize);
+				\draw[white, ultra thick] 
+					(0,0.6666\foldmarksize) 
+					-- (0,-0.3333\foldmarksize);
+				\draw[black, thin] 
+					(-0.3333\foldmarksize,03333\foldmarksize) 
+					-- (0,0) 
+					-- (0.3333\foldmarksize,0.3333\foldmarksize);
+				\draw[black, thin] 
+					(0,0.6666\foldmarksize) 
+					-- (0,-0.3333\foldmarksize);
+			\end{tikzpicture}}}}}}
+\newcommand\foldinmark[1][0pt]{
+	\begingroup%
+		\setlength\raisefoldmark{#1}%
+		\usebox\photobook@foldinmark%
+	\endgroup}
 %	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
 %	\smash{\makebox[0pt][l]{%
 %		% size-agnostic centering...
@@ -3077,28 +3104,6 @@
 %					(0,0.6666\foldmarksize) 
 %					-- (0,-0.3333\foldmarksize);
 %			\end{tikzpicture}}}}}}
-
-\newcommand\foldinmark[1][0pt]{
-	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
-	\smash{\makebox[0pt][l]{%
-		% size-agnostic centering...
-		\hspace{-5mm}{\makebox[1cm][c]{%
-			\begin{tikzpicture}%
-				\draw[white, ultra thick] 
-					(-0.3333\foldmarksize,03333\foldmarksize) 
-					-- (0,0) 
-					-- (0.3333\foldmarksize,0.3333\foldmarksize);
-				\draw[white, ultra thick] 
-					(0,0.6666\foldmarksize) 
-					-- (0,-0.3333\foldmarksize);
-				\draw[black, thin] 
-					(-0.3333\foldmarksize,03333\foldmarksize) 
-					-- (0,0) 
-					-- (0.3333\foldmarksize,0.3333\foldmarksize);
-				\draw[black, thin] 
-					(0,0.6666\foldmarksize) 
-					-- (0,-0.3333\foldmarksize);
-			\end{tikzpicture}}}}}}
 \newcommand\foldoutmark[1][0pt]{
 	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
 	\smash{\makebox[0pt][l]{%
