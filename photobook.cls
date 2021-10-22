@@ -708,7 +708,7 @@
 %\def\foldmarkoffset{0.5\bleed}
 \def\foldmarkoffset{2mm}
 
-%% \DescribeMacro{\foldmarksize=<scale>}
+%% \DescribeMacro{\foldmarksize=<len>}
 %
 %% Sets fold marker size (vertical).
 %%
