@@ -466,7 +466,7 @@
 %%
 \DeclareBoolOption{nofoldmarks}
 
-%% \DescribeMacro{nofoldmarks}
+%% \DescribeMacro{foldmarksize=<len>}
 %
 %% Sets the fold mark size (default: 6mm).
 %%
