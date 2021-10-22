@@ -466,6 +466,12 @@
 %%
 \DeclareBoolOption{nofoldmarks}
 
+%% \DescribeMacro{nofoldmarks}
+%
+%% Sets the fold mark size (default: 6mm).
+%%
+\DeclareBoolOption{foldmarksize}[6mm]
+
 %% \DescribeMacro{geometrynodefaults}
 %
 %% let the user set geometry defaults.
@@ -707,8 +713,10 @@
 %% Sets fold marker size (vertical).
 %%
 % XXX this behaves in an odd way on bottom markers if size is smaller than 6mm...
+% XXX rename if we are using sboxes for marks...
 \newlength\foldmarksize
-\setlength\foldmarksize{6mm}
+\setlength\foldmarksize{\photobook@foldmarksize}
+%\setlength\foldmarksize{6mm}
 
 %% \DescribeMacro{\iffoldmarks}
 %
@@ -3050,7 +3058,7 @@
 
 % XXX this is only affected by the initial \foldmarksize...
 %		...should this be live or should we simply make this a class option???
-%\setlength\foldmarksize{3mm}
+% XXX rename \foldmarksize if we stick with boxes...
 \newsavebox\photobook@foldinmark
 \sbox{\photobook@foldinmark}{%
 	\smash{\makebox[0pt][l]{%
