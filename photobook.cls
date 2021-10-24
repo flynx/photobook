@@ -470,7 +470,7 @@
 %
 %% Sets the fold mark size (default: 6mm).
 %%
-\DeclareBoolOption{foldmarksize}[6mm]
+\DeclareStringOption[6mm]{foldmarksize}
 
 %% \DescribeMacro{geometrynodefaults}
 %
@@ -1031,12 +1031,13 @@
 %
 %%	Reset and re-initialize page dimentions.
 %%
-\newcommand\ReInitPages{
-	\setlength\blockwidth{0mm}
-	\setlength\blockheight{0mm}
-	\edef\pdfpagelayout{}
+\newcommand\ReInitPages{%
+	\setlength\blockwidth{0mm}%
+	\setlength\blockheight{0mm}%
+	\edef\pdfpagelayout{}%
 	%
-	\InitPages}
+	\InitPages%
+	\ResetFoldMarks}
 
 
 
@@ -3054,77 +3055,74 @@
 %		fold mark gets messed up...
 % XXX do we need to make centering block size dependant on \foldmarksize 
 %		or are the two independent??? (test)
+% XXX doc: \ResetFoldMarks...
 % XXX doc...
 
-% XXX this is only affected by the initial \foldmarksize...
-%		...should this be live or should we simply make this a class option???
 % XXX rename \foldmarksize if we stick with boxes...
 \newsavebox\photobook@foldinmark
-\sbox{\photobook@foldinmark}{%
-	\smash{\makebox[0pt][l]{%
-		% size-agnostic centering...
-		\hspace{-5mm}{\makebox[1cm][c]{%
-			\begin{tikzpicture}%
-				\draw[white, ultra thick] 
-					(-0.3333\foldmarksize,0.3333\foldmarksize) 
-					-- (0,0) 
-					-- (0.3333\foldmarksize,0.3333\foldmarksize);
-				\draw[white, ultra thick] 
-					(0,0.6666\foldmarksize) 
-					-- (0,-0.3333\foldmarksize);
-				\draw[black, thin] 
-					(-0.3333\foldmarksize,0.3333\foldmarksize) 
-					-- (0,0) 
-					-- (0.3333\foldmarksize,0.3333\foldmarksize);
-				\draw[black, thin] 
-					(0,0.6666\foldmarksize) 
-					-- (0,-0.3333\foldmarksize);
-			\end{tikzpicture}}}}}}
+\newsavebox\photobook@foldoutmark
+
+\newcommand\ResetFoldMarks{%
+	\sbox{\photobook@foldinmark}{%
+		% XXX MARKOFFSET
+		%\vspace{0.5\foldmarksize}%
+		\smash{\makebox[0pt][l]{%
+			% size-agnostic centering...
+			\hspace{-5mm}{\makebox[1cm][c]{%
+				\begin{tikzpicture}%
+					\draw[white, ultra thick] 
+						(-0.3333\foldmarksize,0.3333\foldmarksize) 
+						-- (0,0) 
+						-- (0.3333\foldmarksize,0.3333\foldmarksize);
+					\draw[white, ultra thick] 
+						(0,0.6666\foldmarksize) 
+						-- (0,-0.3333\foldmarksize);
+					\draw[black, thin] 
+						(-0.3333\foldmarksize,0.3333\foldmarksize) 
+						-- (0,0) 
+						-- (0.3333\foldmarksize,0.3333\foldmarksize);
+					\draw[black, thin] 
+						(0,0.6666\foldmarksize) 
+						-- (0,-0.3333\foldmarksize);
+				\end{tikzpicture}}}}}}
+	\sbox{\photobook@foldoutmark}{%
+		% XXX MARKOFFSET
+		%\vspace{0.5\foldmarksize}%
+		\smash{\makebox[0pt][l]{%
+			% size-agnostic centering...
+			\hspace{-5mm}{\makebox[1cm][c]{%
+				\begin{tikzpicture}%
+					\draw[white, ultra thick] 
+						(-0.3333\foldmarksize,0) 
+						-- (0,0.3333\foldmarksize) 
+						-- (0.3333\foldmarksize,0);
+					\draw[white, ultra thick] 
+						(0,0.6666\foldmarksize) 
+						-- (0,-0.3333\foldmarksize);
+					\draw[black, thin] 
+						(-0.3333\foldmarksize,0) 
+						-- (0,0.3333\foldmarksize) 
+						-- (0.3333\foldmarksize,0);
+					\draw[black, thin] 
+						(0,0.6666\foldmarksize) 
+						-- (0,-0.3333\foldmarksize);
+				\end{tikzpicture}}}}}}}
+\ResetFoldMarks
+
+%	>> \foldinmark[<baseline>]
 \newcommand\foldinmark[1][0pt]{%
+	%\vspace{#1}%
+	% XXX MARKOFFSET for some reason splitting this (# kept here while \foldmarksize 
+	%		is in foldinmark) breaks alignment...
 	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
 	\usebox\photobook@foldinmark}
-%\newcommand\foldinmark[1][0pt]{
-%	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
-%	\smash{\makebox[0pt][l]{%
-%		% size-agnostic centering...
-%		\hspace{-5mm}{\makebox[1cm][c]{%
-%			\begin{tikzpicture}%
-%				\draw[white, ultra thick] 
-%					(-0.3333\foldmarksize,0.3333\foldmarksize) 
-%					-- (0,0) 
-%					-- (0.3333\foldmarksize,0.3333\foldmarksize);
-%				\draw[white, ultra thick] 
-%					(0,0.6666\foldmarksize) 
-%					-- (0,-0.3333\foldmarksize);
-%				\draw[black, thin] 
-%					(-0.3333\foldmarksize,0.3333\foldmarksize) 
-%					-- (0,0) 
-%					-- (0.3333\foldmarksize,0.3333\foldmarksize);
-%				\draw[black, thin] 
-%					(0,0.6666\foldmarksize) 
-%					-- (0,-0.3333\foldmarksize);
-%			\end{tikzpicture}}}}}}
+%	>> \foldoutmark[<baseline>]
 \newcommand\foldoutmark[1][0pt]{
+	%\vspace{#1}%
+	% XXX MARKOFFSET for some reason splitting this (# kept here while \foldmarksize 
+	%		is in foldinmark) breaks alignment...
 	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
-	\smash{\makebox[0pt][l]{%
-		% size-agnostic centering...
-		\hspace{-5mm}{\makebox[1cm][c]{%
-			\begin{tikzpicture}%
-				\draw[white, ultra thick] 
-					(-0.3333\foldmarksize,0) 
-					-- (0,0.3333\foldmarksize) 
-					-- (0.3333\foldmarksize,0);
-				\draw[white, ultra thick] 
-					(0,0.6666\foldmarksize) 
-					-- (0,-0.3333\foldmarksize);
-				\draw[black, thin] 
-					(-0.3333\foldmarksize,0) 
-					-- (0,0.3333\foldmarksize) 
-					-- (0.3333\foldmarksize,0);
-				\draw[black, thin] 
-					(0,0.6666\foldmarksize) 
-					-- (0,-0.3333\foldmarksize);
-			\end{tikzpicture}}}}}}
+	\usebox\photobook@foldoutmark}
 
 %	>> \photobook@foldmark[<baseline>]{<type>}{<left>, <top>}
 \newif\ifphotobook@foldmark@in
