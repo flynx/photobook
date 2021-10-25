@@ -3109,18 +3109,25 @@
 				\end{tikzpicture}}}}}}}
 \ResetFoldMarks
 
+% XXX EXPERIMENTAL...
+%		...if used, replace \foldmarksize with \photobook@foldmarksize...
+\newcommand\setfoldmarksize[1]{%
+	\setlength\foldmarksize{#1}%
+	%\edef\photobook@foldmarksize{#1}%
+	\ResetFoldMarks}
+
 %	>> \foldinmark[<baseline>]
 \newcommand\foldinmark[1][0pt]{%
-	%\vspace{#1}%
 	% XXX MARKOFFSET for some reason splitting this (# kept here while \foldmarksize 
 	%		is in foldinmark) breaks alignment...
+	%\vspace{#1}%
 	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
 	\usebox\photobook@foldinmark}
 %	>> \foldoutmark[<baseline>]
 \newcommand\foldoutmark[1][0pt]{
-	%\vspace{#1}%
 	% XXX MARKOFFSET for some reason splitting this (# kept here while \foldmarksize 
 	%		is in foldinmark) breaks alignment...
+	%\vspace{#1}%
 	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
 	\usebox\photobook@foldoutmark}
 
