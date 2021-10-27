@@ -3111,7 +3111,7 @@
 
 % XXX EXPERIMENTAL...
 %		...if used, replace \foldmarksize with \photobook@foldmarksize...
-\newcommand\setfoldmarksize[1]{%
+\newcommand\setfoldmarksize[1][6mm]{%
 	\setlength\foldmarksize{#1}%
 	%\edef\photobook@foldmarksize{#1}%
 	\ResetFoldMarks}
