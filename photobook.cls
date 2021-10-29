@@ -714,8 +714,8 @@
 %%
 % XXX this behaves in an odd way on bottom markers if size is smaller than 6mm...
 % XXX rename if we are using sboxes for marks...
-\newlength\foldmarksize
-\setlength\foldmarksize{\photobook@foldmarksize}
+\newlength\photobook@foldmarklen
+\setlength\photobook@foldmarklen{\photobook@foldmarksize}
 %\setlength\foldmarksize{6mm}
 
 %% \DescribeMacro{\iffoldmarks}
@@ -3065,55 +3065,55 @@
 \newcommand\ResetFoldMarks{%
 	\sbox{\photobook@foldinmark}{%
 		% XXX MARKOFFSET
-		%\vspace{0.5\foldmarksize}%
+		%\vspace{0.5\photobook@foldmarklen}%
 		\smash{\makebox[0pt][l]{%
 			% size-agnostic centering...
 			\hspace{-5mm}{\makebox[1cm][c]{%
 				\begin{tikzpicture}%
 					\draw[white, ultra thick] 
-						(-0.3333\foldmarksize,0.3333\foldmarksize) 
+						(-0.3333\photobook@foldmarklen,0.3333\photobook@foldmarklen) 
 						-- (0,0) 
-						-- (0.3333\foldmarksize,0.3333\foldmarksize);
+						-- (0.3333\photobook@foldmarklen,0.3333\photobook@foldmarklen);
 					\draw[white, ultra thick] 
-						(0,0.6666\foldmarksize) 
-						-- (0,-0.3333\foldmarksize);
+						(0,0.6666\photobook@foldmarklen) 
+						-- (0,-0.3333\photobook@foldmarklen);
 					\draw[black, thin] 
-						(-0.3333\foldmarksize,0.3333\foldmarksize) 
+						(-0.3333\photobook@foldmarklen,0.3333\photobook@foldmarklen) 
 						-- (0,0) 
-						-- (0.3333\foldmarksize,0.3333\foldmarksize);
+						-- (0.3333\photobook@foldmarklen,0.3333\photobook@foldmarklen);
 					\draw[black, thin] 
-						(0,0.6666\foldmarksize) 
-						-- (0,-0.3333\foldmarksize);
+						(0,0.6666\photobook@foldmarklen) 
+						-- (0,-0.3333\photobook@foldmarklen);
 				\end{tikzpicture}}}}}}
 	\sbox{\photobook@foldoutmark}{%
 		% XXX MARKOFFSET
-		%\vspace{0.5\foldmarksize}%
+		%\vspace{0.5\photobook@foldmarklen}%
 		\smash{\makebox[0pt][l]{%
 			% size-agnostic centering...
 			\hspace{-5mm}{\makebox[1cm][c]{%
 				\begin{tikzpicture}%
 					\draw[white, ultra thick] 
-						(-0.3333\foldmarksize,0) 
-						-- (0,0.3333\foldmarksize) 
-						-- (0.3333\foldmarksize,0);
+						(-0.3333\photobook@foldmarklen,0) 
+						-- (0,0.3333\photobook@foldmarklen) 
+						-- (0.3333\photobook@foldmarklen,0);
 					\draw[white, ultra thick] 
-						(0,0.6666\foldmarksize) 
-						-- (0,-0.3333\foldmarksize);
+						(0,0.6666\photobook@foldmarklen) 
+						-- (0,-0.3333\photobook@foldmarklen);
 					\draw[black, thin] 
-						(-0.3333\foldmarksize,0) 
-						-- (0,0.3333\foldmarksize) 
-						-- (0.3333\foldmarksize,0);
+						(-0.3333\photobook@foldmarklen,0) 
+						-- (0,0.3333\photobook@foldmarklen) 
+						-- (0.3333\photobook@foldmarklen,0);
 					\draw[black, thin] 
-						(0,0.6666\foldmarksize) 
-						-- (0,-0.3333\foldmarksize);
+						(0,0.6666\photobook@foldmarklen) 
+						-- (0,-0.3333\photobook@foldmarklen);
 				\end{tikzpicture}}}}}}}
 \ResetFoldMarks
 
 % XXX EXPERIMENTAL...
 %		...if used, make \foldmarksize private... 
 \newcommand\setfoldmarksize[1][6mm]{%
-	\setlength\foldmarksize{#1}%
-	%\edef\photobook@foldmarksize{#1}%
+	\setlength\photobook@foldmarklen{#1}%
+	%\edef\photobook@foldmarklen{#1}%
 	\ResetFoldMarks}
 
 %	>> \foldinmark[<baseline>]
@@ -3121,14 +3121,14 @@
 	% XXX MARKOFFSET for some reason splitting this (#1 kept here while \foldmarksize 
 	%		is in fold*mark) breaks alignment...
 	%\vspace{#1}%
-	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
+	\vspace{\dimexpr 0.5\photobook@foldmarklen + #1 \relax}%
 	\usebox\photobook@foldinmark}
 %	>> \foldoutmark[<baseline>]
 \newcommand\foldoutmark[1][0pt]{
 	% XXX MARKOFFSET for some reason splitting this (#1 kept here while \foldmarksize 
 	%		is in fold*mark) breaks alignment...
 	%\vspace{#1}%
-	\vspace{\dimexpr 0.5\foldmarksize + #1 \relax}%
+	\vspace{\dimexpr 0.5\photobook@foldmarklen + #1 \relax}%
 	\usebox\photobook@foldoutmark}
 
 %	>> \photobook@foldmark[<baseline>]{<type>}{<left>, <top>}
@@ -3150,9 +3150,9 @@
 		\end{textblock*}%
 	\endgroup}
 \newcommand\photobook@topfoldmark[2][in]{%
-	\photobook@foldmark[-0.5\foldmarksize]{#1}{#2}}
+	\photobook@foldmark[-0.5\photobook@foldmarklen]{#1}{#2}}
 \newcommand\photobook@bottomfoldmark[2][in]{%
-	\photobook@foldmark[0.5\foldmarksize]{#1}{#2}}
+	\photobook@foldmark[0.5\photobook@foldmarklen]{#1}{#2}}
 %	>> \photobook@markfold[<fold>]{<offset>}
 \newcommand\photobook@markfold[2][in]{%
 	\photobook@topfoldmark[#1]{
