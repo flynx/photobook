@@ -712,11 +712,8 @@
 %
 %% Sets fold marker size (vertical).
 %%
-% XXX this behaves in an odd way on bottom markers if size is smaller than 6mm...
-% XXX rename if we are using sboxes for marks...
 \newlength\photobook@foldmarklen
 \setlength\photobook@foldmarklen{\photobook@foldmarksize}
-%\setlength\foldmarksize{6mm}
 
 %% \DescribeMacro{\iffoldmarks}
 %
@@ -2887,6 +2884,14 @@
 \@ifundefined{pagefoldpanelfolds}{%
 	\def\pagefoldpanelfolds{}}{}
 
+%% \DescribeMacro{\foldoutwidth=<len>}
+%
+%% Total foldout page width, calculated when a foldout page is created.
+%%
+\newlength\foldoutwidth
+\setlength\foldoutwidth{\blockwidth}
+
+
 %% \DescribeEnv{foldout}
 %
 %% Create 2 or more pages in foldout mode.
@@ -3038,9 +3043,9 @@
 %%
 %% The size of the paper fold is set by |\flatfold|.
 %%
-% XXX move these to globals...
-\newlength\foldoutwidth
-\setlength\foldoutwidth{\blockwidth}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% Fold marks...
 
 % draw in/out fold mark...
 %
@@ -3051,17 +3056,15 @@
 % NOTE: these are centered in origin.
 %
 % XXX these can affect the items after -- need to encapsulate better + test...
-% XXX something's odd with these -- when \foldmarksize is <6mm the bottom 
-%		fold mark gets messed up...
 % XXX do we need to make centering block size dependant on \foldmarksize 
 %		or are the two independent??? (test)
-% XXX doc: \ResetFoldMarks...
-% XXX doc...
-
-% XXX rename \foldmarksize if we stick with boxes...
+% XXX MARKOFFSET for some reason splitting the \vspace{..} into a 
+%		arg-dependant and a foldmarklen-dependant parts below yields 
+%		wrong results...
+%		...not that simply splitting the original into two \vspace{..} 
+%		calls works fine...
 \newsavebox\photobook@foldinmark
 \newsavebox\photobook@foldoutmark
-
 \newcommand\ResetFoldMarks{%
 	\sbox{\photobook@foldinmark}{%
 		% XXX MARKOFFSET
@@ -3110,23 +3113,21 @@
 \ResetFoldMarks
 
 % XXX EXPERIMENTAL...
-%		...if used, make \foldmarksize private... 
-\newcommand\setfoldmarksize[1][6mm]{%
-	\setlength\photobook@foldmarklen{#1}%
-	%\edef\photobook@foldmarklen{#1}%
-	\ResetFoldMarks}
+% XXX not sure if this should ever be needed...
+%\newcommand\setfoldmarksize[1][6mm]{%
+%	\setlength\photobook@foldmarklen{#1}%
+%	%\edef\photobook@foldmarklen{#1}%
+%	\ResetFoldMarks}
 
 %	>> \foldinmark[<baseline>]
 \newcommand\foldinmark[1][0pt]{%
-	% XXX MARKOFFSET for some reason splitting this (#1 kept here while \foldmarksize 
-	%		is in fold*mark) breaks alignment...
+	% XXX MARKOFFSET
 	%\vspace{#1}%
 	\vspace{\dimexpr 0.5\photobook@foldmarklen + #1 \relax}%
 	\usebox\photobook@foldinmark}
 %	>> \foldoutmark[<baseline>]
 \newcommand\foldoutmark[1][0pt]{
-	% XXX MARKOFFSET for some reason splitting this (#1 kept here while \foldmarksize 
-	%		is in fold*mark) breaks alignment...
+	% XXX MARKOFFSET 
 	%\vspace{#1}%
 	\vspace{\dimexpr 0.5\photobook@foldmarklen + #1 \relax}%
 	\usebox\photobook@foldoutmark}
@@ -3164,6 +3165,8 @@
 		\blockheight 
 			+ \bleed 
 			+ \foldmarkoffset}}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \newlength\photobook@foldout@panelwidth
 \setlength\photobook@foldout@panelwidth{0pt}
