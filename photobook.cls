@@ -4,8 +4,7 @@
 % This does the following:
 %	- sets up the document/pdf for viewing as a book
 %	- adds support for page bleeds
-%	- adds basic templates for image pages (XXX)
-%
+%	- adds basic templates for image pages
 %
 %
 % This file contains both the code and the reference, but in a slightly 
@@ -37,8 +36,7 @@
 % XXX see where we need to \ignorespaces...
 % XXX might be a good idea to add a spine calculator...
 % XXX add list of dependencies to docs...
-%
-% XXX manual:
+% XXX manual / book:
 %		- basic usage
 %			- setup
 %			- using templates
