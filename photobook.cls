@@ -39,6 +39,7 @@
 % XXX manual / book:
 %		- basic usage
 %			- setup
+%			- templates (copyright, front matter, rear matter, acknowledgements, ...)
 %			- using templates
 %			- pre-print
 %		- customizing
