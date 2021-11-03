@@ -25,6 +25,8 @@
 %
 %
 %
+% XXX Q: do we add the pdf to the repo and if so, should it be 
+%		compressed (diff-able) or uncompressed (blob)??
 % XXX revise \clearcaption / \captionclearpage...
 % XXX unify API -- see CellContent env...
 % XXX make this loadable both as a class and as a package...
@@ -56,8 +58,6 @@
 
 %% \documentclass{ltxdoc}
 %%
-%%% XXX Q: do we add the pdf to the repo and if so, should it be 
-%%%	compressed (diff-able) or uncompressed (blob)??
 %%% \usepackage{iftex}
 %%% \ifluatex
 %%% 	\edef\pdfcompresslevel{\pdfvariable compresslevel} 
