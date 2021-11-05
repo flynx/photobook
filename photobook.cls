@@ -2752,7 +2752,6 @@
 %% but will not affect this either in size (block size) or in position 
 %% (top-left).
 %%
-% XXX should there be a way to position this is layout modes other than block???
 \newenvironment{pagecell}{%
 	\begin{cell*}{\bleed,\bleed}{\pageblockwidth}{\pageblockheight}%
 }{%
