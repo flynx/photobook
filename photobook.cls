@@ -129,7 +129,31 @@
 %%
 %%%% Introduction
 %
-%% XXX parameters, page spreads, templates, cell concept, ...
+%% \LaTeX is great with textual and text-primary content with figures
+%% peppered in, as long as pictures/figures flow within, with or as part
+%% of text, vanilla \LaTeX is fantastic.
+%% 
+%% One can relatively easily streatch the flow concept to more complex
+%% layouts introducing even and odd pages (|book| class as one example)
+%% and flow rules based on them, but the next step, bleeds, combining page
+%% pairs into spreads as is often needed when designing image-oriented
+%% books is lacking. Full-bleed images/pages can be implemented manually,
+%% some more effort is needed to split something horizontally into a page
+%% spread, but doing so for whole book's worth of content is not practical --
+%% automating and experimenting with this process is how |photobook| began.
+%% 
+%% |photobook| extends the |book| class adding page layout types, bleeds
+%% and other global geopetry configuration, introduces the page and
+%% spread as first-class elements into the document flow. These concepts
+%% are generalized as |cell|s. A |cell| is similar to a figure, it can
+%% be placed within the document flow, but unlike a figure a |cell| can
+%% be aligned relative to a page, it can fill a page, a cell can even be
+%% horizontally split to fill several pages (how spreads are implemented).
+%% 
+%% On top of the |cell|, page and spread concepts |photobook| also builds
+%% a set of configurable high level macros/templates for common use cases
+%% like full bleed image spreads, etc.
+%% 
 %
 %%%% Usage
 %
