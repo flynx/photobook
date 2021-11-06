@@ -153,7 +153,7 @@
 %% On top of the |cell|, page and spread concepts |photobook| also builds
 %% a set of configurable high level macros/templates for common use cases
 %% like full bleed image spreads, etc.
-%% 
+%
 %
 %%%% Usage
 %
