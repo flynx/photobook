@@ -127,6 +127,7 @@
 %%
 %% \tableofcontents
 %%
+%
 %%%% Introduction
 %
 %% \LaTeX is great with textual and text-primary content with figures
