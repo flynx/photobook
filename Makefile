@@ -28,9 +28,13 @@ TEX := latexmk -lualatex $(ARGS)
 # 		in both the repo and in installed form.
 # NOTE: this is evolving as need arises, when this gets too complicated 
 # 		we'll split it out into it's own script.
+# 		
 # XXX BUG: for some odd reason this produces different results when called 
 # 		from 'bash' and 'bash --login -i', mainly the egrep rule seems 
 # 		to be broken...
+# 		...also appears to be broken under termux...
+# 		.....seems that moving this out to a script would be the simplest way
+# 		to solve this odd instability...
 texToDoc = \
 	@echo "texToDoc: $1 -> $2"; \
 	cat $1 \
