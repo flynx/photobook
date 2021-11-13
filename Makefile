@@ -37,7 +37,7 @@ TEX := latexmk -lualatex $(ARGS)
 # 		to solve this odd instability...
 texToDoc = \
 	@echo "texToDoc: $1 -> $2"; \
-	./cls2tex.sh $1 $2 $3
+	./scripts/cls2tex.sh $1 $2 $3
 
 
 
