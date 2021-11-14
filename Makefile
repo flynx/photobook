@@ -1,6 +1,11 @@
 #----------------------------------------------------------------------
 
+# NOTE: this makes things run consistently on different systems including 
+# 		things like Android...
+SHELL := bash
 
+
+# LaTeX...
 ARGS :=
 
 # NOTE: need to run latex two times to build index, the simpler way to 
@@ -10,34 +15,8 @@ ARGS :=
 TEX := latexmk -lualatex $(ARGS)
 
 
-
-#----------------------------------------------------------------------
-
-# Generate docs from latex package/class...
-#
-# 	- keep lines starting with \def\<module-name>@[A-Z]\+
-# 	- keep lines starting with '%%'
-# 	- %%%%% Text -> \subsection(Text)
-# 	- %%%% Text -> \section(Text)
-# 	- %% >> code -> \begin{verbatim}code\end{verbatim}
-#
-# NOTE: the idea of keeping latex docs in a latex file is far similar 
-# 		than all the stuff crammed into .dtx, at least for my needs:
-# 			- keep the code readable
-# 			- keep the docs readable
-# 		in both the repo and in installed form.
-# NOTE: this is evolving as need arises, when this gets too complicated 
-# 		we'll split it out into it's own script.
-# 		
-# XXX BUG: for some odd reason this produces different results when called 
-# 		from 'bash' and 'bash --login -i', mainly the egrep rule seems 
-# 		to be broken...
-# 		...also appears to be broken under termux...
-# 		.....seems that moving this out to a script would be the simplest way
-# 		to solve this odd instability...
-texToDoc = \
-	@echo "texToDoc: $1 -> $2"; \
-	./scripts/cls2tex.sh $1 $2 $3
+# Doc generator...
+DOC := ./scripts/cls2tex.sh
 
 
 
@@ -50,19 +29,19 @@ texToDoc = \
 # NOTE: .sty and .cls are essentially the same in terms of documentation 
 # 		generation...
 %.tex: %.sty %-meta.tex
-	$(call texToDoc,$<,$@,%)
+	$(DOC) $< $@
 
 %.tex: %.cls %-meta.tex
-	$(call texToDoc,$<,$@,%)
+	$(DOC) $< $@
 
 
 # NOTE: this is a bit ugly, but allot less so than trying to push \verb
 # 		into a LaTeX macro/env and then getting it out again in one pice...
 %-meta.tex: %.sty
-	$(call texToDoc,$<,$@,M)
+	$(DOC) $< $@ M
 
 %-meta.tex: %.cls
-	$(call texToDoc,$<,$@,M)
+	$(DOC) $< $@ M
 
 
 
