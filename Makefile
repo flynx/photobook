@@ -22,7 +22,7 @@ SHELL := bash
 # LaTeX...
 ARGS :=
 
-# NOTE: need to run latex two times to build index, the simpler way to 
+# NOTE: need to run latex two+ times to build index, the simpler way to 
 # 		go is to use latexmk...
 #TEX := lualatex $(ARGS)
 TEX := latexmk -lualatex $(ARGS)

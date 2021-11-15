@@ -691,7 +691,7 @@
 \newlength\bindingoffset
 \setlength\bindingoffset{\photobook@bindingoffset}
 
-%% \DescribeMacro{\defaultfoldout=<fold-spce>}
+%% \DescribeMacro{\defaultfoldout=<fold-spec>}
 %
 %% Set the default fold specification.
 %%
