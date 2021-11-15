@@ -1,4 +1,18 @@
 #----------------------------------------------------------------------
+#
+#
+#
+# Main targets:
+# 	doc		- build class documentation.
+# 	dist	- XXX
+# 	install	- XXX
+#
+# Other targets:
+# 	sweep	- cleanup auxiliary generated files.
+# 	clean	- cleanup repo
+#
+#
+#----------------------------------------------------------------------
 
 # NOTE: this makes things run consistently on different systems including 
 # 		things like Android...
@@ -11,9 +25,7 @@ ARGS :=
 # NOTE: need to run latex two times to build index, the simpler way to 
 # 		go is to use latexmk...
 #TEX := lualatex $(ARGS)
-
 TEX := latexmk -lualatex $(ARGS)
-
 
 # Doc generator...
 DOC := ./scripts/cls2tex.sh
@@ -51,10 +63,6 @@ DOC := ./scripts/cls2tex.sh
 doc: photobook.pdf
 
 
-.PHONY: all
-all: doc sweep
-
-
 # XXX
 .PHONY: dist
 dist: all
@@ -64,6 +72,10 @@ dist: all
 # 		- root
 .PHONY: install
 install: dist
+
+
+.PHONY: all
+all: doc sweep
 
 
 
