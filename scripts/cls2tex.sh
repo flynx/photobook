@@ -3,7 +3,7 @@
 printhelp(){
 	echo "Generate docs from latex package/class"
 	echo
-	echo "Usage: $(basename $0) [-h] INPUT OUTPUT [PREFIX]"
+	echo "Usage: $(basename $0) [-h|--help] INPUT OUTPUT [PREFIX]"
 	echo
 	echo "This will:"
 	echo "  - keep lines starting with \\def\\<module-name>@[A-Z]\\+"
