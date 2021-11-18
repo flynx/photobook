@@ -1,16 +1,36 @@
 #!/usr/bin/env bash
 
+SCRIPT_NAME=$(basename $0)
+
+printusage(){
+	echo "Usage:"
+	echo "  $SCRIPT_NAME [OPTIONS] INPUT OUTPUT"
+}
+
+printerror(){
+	echo Error: $@
+	echo
+	printusage
+}
+
 printhelp(){
 	echo "Generate docs from latex package/class"
 	echo
-	echo "Usage: $(basename $0) [-h|--help] INPUT OUTPUT [PREFIX]"
+	printusage
+	echo
+	echo "Options:"
+	echo "  -h | --help         Show this message and exit"
+	echo "  -p | --prefix PREFIX"
+	echo "                      Set the doc comment PREFIX (default: \"%\")"
 	echo
 	echo "This will:"
+	echo "  - read the INPUT"
 	echo "  - keep lines starting with \\def\\<module-name>@[A-Z]\\+"
 	echo "  - keep lines starting with '%%'"
 	echo "  - %%%%% Text -> \\subsection(Text)"
 	echo "  - %%%% Text -> \\section(Text)"
 	echo "  - %% >> code -> \\begin{verbatim}code\\end{verbatim}"
+	echo "  - write the result to OUTPUT"
 	echo
 	echo "PREFIX can replace the second \"%\" in the above patterns to make it"
 	echo "possible to integrate multiple layers of documentation in one file"
@@ -28,11 +48,27 @@ printhelp(){
 	echo "      in both the repo and in installed form, so .dtx is not used."
 }
 
-# args/defaults...
+
+# defaults...
+PREFIX=%
+
+# args...
 while true ; do
 	case $1 in
 		-h|--help)
 			printhelp
+			exit
+			;;
+		-p|--prefix)
+			shift
+			PREFIX=$1
+			shift
+			continue
+			;;
+
+		# handle unknown options...
+		-*|--*)
+			printerror "unknown option \"$1\""
 			exit
 			;;
 
@@ -46,10 +82,11 @@ INPUT=$1
 
 OUTPUT=$2
 
-PREFIX=$3
-if [ -z $PREFIX ] ; then
-	PREFIX=%
+if [ -z $INPUT ] || [ -z $OUTPUT ] ; then
+	printerror "need both INPUT and OUTPUT present."
+	exit
 fi
+
 
 # generate the module name...
 MODULE=$(basename "$INPUT")

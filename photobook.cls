@@ -151,9 +151,9 @@
 %% be aligned relative to a page, it can fill a page, a cell can even be
 %% horizontally split to fill several pages (how spreads are implemented).
 %% 
-%% On top of the |cell|, page and spread concepts |photobook| also builds
-%% a set of configurable high level macros/templates for common use cases
-%% like full bleed image spreads, etc.
+%% On top of the |cell|, page, and spread concepts, |photobook| also builds
+%% a set of configurable high level macros and templates for common use 
+%% cases like full bleed image spreads, etc.
 %
 %
 %%%% Usage

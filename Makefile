@@ -51,10 +51,10 @@ DOC := ./scripts/cls2tex.sh
 # NOTE: this is a bit ugly, but allot less so than trying to push \verb
 # 		into a LaTeX macro/env and then getting it out again in one pice...
 %-meta.tex: %.sty
-	$(DOC) $< $@ M
+	$(DOC) -p M $< $@
 
 %-meta.tex: %.cls
-	$(DOC) $< $@ M
+	$(DOC) -p M $< $@
 
 
 
