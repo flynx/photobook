@@ -12,6 +12,15 @@ printhelp(){
 	echo "  - %%%% Text -> \\section(Text)"
 	echo "  - %% >> code -> \\begin{verbatim}code\\end{verbatim}"
 	echo
+	echo "PREFIX can replace the second \"%\" in the above patterns to make it"
+	echo "possible to integrate multiple layers of documentation in one file"
+	echo "and to integrate them in various ways, for example, in the photobook"
+	echo "document class documentation \"M\" prefix is used to indicate"
+	echo "meta-command docs, this enables us to document them in the relevant"
+	echo "location (i.e. at the implementation) in source but move the docs to"
+	echo "a unified location in docs, effectively decoupling the source and doc"
+	echo "structure when needed."
+	echo
 	echo "NOTE: the idea of keeping latex docs in a latex file is far simpler"
 	echo "      than all the stuff crammed into .dtx, at least for my needs:"
 	echo "          - keep the code readable"
@@ -42,11 +51,14 @@ if [ -z $PREFIX ] ; then
 	PREFIX=%
 fi
 
+# generate the module name...
+MODULE=$(basename "$INPUT")
+MODULE=${MODULE/.*/}
 
 # do the work...
 cat "$INPUT" \
-	| egrep '(^%'$PREFIX'|^\\edef\\.*@[A-Z][A-Z]+)' \
-	| sed 's/^\(\\edef\\\).*@/%'$PREFIX'\1/' \
+	| egrep '(^%'$PREFIX'|^\\edef\\'$MODULE'@[A-Z][A-Z]+)' \
+	| sed 's/^\(\\edef\\\)'$MODULE'@/%'$PREFIX'\1/' \
 	| sed 's/%'$PREFIX'%%%% \(.*\)/%'$PREFIX'\\subsubsection{\1}\\label{subsubsec:\1}/' \
 	| sed 's/%'$PREFIX'%%% \(.*\)/%'$PREFIX'\\subsection{\1}\\label{subsec:\1}/' \
 	| sed 's/%'$PREFIX'%% \(.*\)/%'$PREFIX'\\section{\1}\\label{sec:\1}/' \

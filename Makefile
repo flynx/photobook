@@ -40,6 +40,7 @@ DOC := ./scripts/cls2tex.sh
 
 # NOTE: .sty and .cls are essentially the same in terms of documentation 
 # 		generation...
+# XXX should these depend on $(DOC) ???
 %.tex: %.sty %-meta.tex
 	$(DOC) $< $@
 
