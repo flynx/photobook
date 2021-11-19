@@ -177,6 +177,12 @@ while true ; do
 			shift
 			;;
 
+		# handle unknown options...
+		-*|--*)
+			echo "Error: unknown option \"$1\""
+			exit
+			;;
+
 		*)
 			break
 			;;

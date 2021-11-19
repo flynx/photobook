@@ -60,10 +60,9 @@ while true ; do
 			exit
 			;;
 		-p|--prefix)
+			PREFIX=$2
 			shift
-			PREFIX=$1
 			shift
-			continue
 			;;
 
 		# handle unknown options...
