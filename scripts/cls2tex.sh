@@ -1,17 +1,7 @@
 #!/usr/bin/env bash
+#----------------------------------------------------------------------
 
 SCRIPT_NAME=$(basename $0)
-
-printusage(){
-	echo "Usage:"
-	echo "  $SCRIPT_NAME [OPTIONS] INPUT OUTPUT"
-}
-
-printerror(){
-	echo Error: $@
-	echo
-	printusage
-}
 
 printhelp(){
 	echo "Generate docs from latex package/class"
@@ -48,11 +38,24 @@ printhelp(){
 	echo "      in both the repo and in installed form, so .dtx is not used."
 }
 
+printusage(){
+	echo "Usage:"
+	echo "  $SCRIPT_NAME [OPTIONS] INPUT OUTPUT"
+}
 
-# defaults...
+printerror(){
+	echo Error: $@
+	echo
+	printusage
+}
+
+
+
+#----------------------------------------------------------------------
+# Args and defaults...
+
 PREFIX=%
 
-# args...
 while true ; do
 	case $1 in
 		-h|--help)
@@ -91,7 +94,10 @@ fi
 MODULE=$(basename "$INPUT")
 MODULE=${MODULE/.*/}
 
+
+#----------------------------------------------------------------------
 # do the work...
+
 cat "$INPUT" \
 	| egrep '(^%'$PREFIX'|^\\edef\\'$MODULE'@[A-Z][A-Z]+)' \
 	| sed 's/^\(\\edef\\\)'$MODULE'@/%'$PREFIX'\1/' \
@@ -103,4 +109,5 @@ cat "$INPUT" \
 	> "$OUTPUT"
 
 
-# vim:set ts=4 sw=4 nowrap :
+#----------------------------------------------------------------------
+#                                           vim:set ts=4 sw=4 nowrap :
