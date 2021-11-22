@@ -42,19 +42,19 @@ DOC := ./scripts/cls2tex.sh
 # 		generation...
 # XXX should these depend on the $(DOC) script ???
 %.tex: %.sty %-meta.tex
-	$(DOC) $< $@
+	$(DOC) $< > $@
 
 %.tex: %.cls %-meta.tex
-	$(DOC) $< $@
+	$(DOC) $< > $@
 
 
 # NOTE: this is a bit ugly, but allot less so than trying to push \verb
 # 		into a LaTeX macro/env and then getting it out again in one pice...
 %-meta.tex: %.sty
-	$(DOC) -p M $< $@
+	$(DOC) -p M $< > $@
 
 %-meta.tex: %.cls
-	$(DOC) -p M $< $@
+	$(DOC) -p M $< > $@
 
 
 

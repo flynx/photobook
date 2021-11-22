@@ -22,6 +22,8 @@ printhelp(){
 	echo "  - %% >> code -> \\begin{verbatim}code\\end{verbatim}"
 	echo "  - write the result to OUTPUT"
 	echo
+	echo "If no INPUT is given $SCRIPT_NAME will read stdin."
+	echo
 	echo "PREFIX can replace the second \"%\" in the above patterns to make it"
 	echo "possible to integrate multiple layers of documentation in one file"
 	echo "and to integrate them in various ways, for example, in the photobook"
@@ -40,7 +42,7 @@ printhelp(){
 
 printusage(){
 	echo "Usage:"
-	echo "  $SCRIPT_NAME [OPTIONS] INPUT OUTPUT"
+	echo "  $SCRIPT_NAME [OPTIONS] [INPUT]"
 }
 
 printerror(){
@@ -80,14 +82,13 @@ while true ; do
 	esac
 done
 
-INPUT=$1
+#INPUT=$1
+INPUT=${1:-/dev/stdin}
 
-OUTPUT=$2
-
-if [ -z $INPUT ] || [ -z $OUTPUT ] ; then
-	printerror "need both INPUT and OUTPUT present."
-	exit
-fi
+#if [ -z $INPUT ] ; then
+#	printerror "need INPUT path."
+#	exit
+#fi
 
 
 # generate the module name...
@@ -105,8 +106,7 @@ cat "$INPUT" \
 	| sed 's/%'$PREFIX'%%% \(.*\)/%'$PREFIX'\\subsection{\1}\\label{subsec:\1}/' \
 	| sed 's/%'$PREFIX'%% \(.*\)/%'$PREFIX'\\section{\1}\\label{sec:\1}/' \
 	| sed 's/%'$PREFIX'\s\+>>\s\+\(.*\)/%'$PREFIX'\\begin{verbatim} \1 \\end{verbatim}/' \
-	| cut -c 3- - \
-	> "$OUTPUT"
+	| cut -c 3- -
 
 
 #----------------------------------------------------------------------
