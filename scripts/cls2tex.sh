@@ -3,6 +3,11 @@
 
 SCRIPT_NAME=$(basename $0)
 
+printusage(){
+	echo "Usage:"
+	echo "  $SCRIPT_NAME [OPTIONS] [[INPUT] OUTPUT]"
+}
+
 printhelp(){
 	echo "Generate docs from latex package/class"
 	echo
@@ -39,11 +44,6 @@ printhelp(){
 	echo "          - keep the code readable"
 	echo "          - keep the docs readable"
 	echo "      in both the repo and in installed form, so .dtx is not used."
-}
-
-printusage(){
-	echo "Usage:"
-	echo "  $SCRIPT_NAME [OPTIONS] [[INPUT] OUTPUT]"
 }
 
 printerror(){
