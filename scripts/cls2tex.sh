@@ -77,6 +77,7 @@ while true ; do
 			exit
 			;;
 
+		# non-flag, option parsing done...
 		*)
 			break
 			;;
@@ -105,6 +106,7 @@ cat "$INPUT" \
 	| sed 's/%'$PREFIX'\s\+>>\s\+\(.*\)/%'$PREFIX'\\begin{verbatim} \1 \\end{verbatim}/' \
 	| cut -c 3- - \
 	> "$OUTPUT"
+
 
 
 #----------------------------------------------------------------------
