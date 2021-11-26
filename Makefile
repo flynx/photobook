@@ -18,8 +18,12 @@
 # 		things like Android...
 SHELL := bash
 
+MODULE = photobook
 
 # LaTeX...
+TEX_LOCAL = $(shell kpsewhich --var-value TEXMFLOCAL)
+TEX_HOME = $(shell kpsewhich --var-value TEXMFHOME)
+
 ARGS :=
 
 # NOTE: need to run latex two+ times to build index, the simpler way to 
@@ -29,6 +33,24 @@ TEX := latexmk -lualatex $(ARGS)
 
 # Doc generator...
 DOC := ./scripts/cls2tex.sh
+
+CP := cp
+MD := mkdir -p
+
+# XXX revise...
+ifeq ($(OS),Windows_NT)
+	SYS_CP := ${CP} 
+	SYS_MD := ${CP} 
+else
+	SYS_CP := sudo cp
+	SYS_MD := sudo mkdir -p
+endif
+
+
+DIST_FILES := \
+	${MODULE}.cls \
+	${MODULE}.pdf
+
 
 
 
@@ -60,18 +82,27 @@ DOC := ./scripts/cls2tex.sh
 #----------------------------------------------------------------------
 
 .PHONY: doc
-doc: photobook.pdf
+doc: ${MODULE}.pdf
 
 
-# XXX
+# XXX zip stuff...
 .PHONY: dist
-dist: all
+dist: ${DIST_FILES}
 
-# XXX install... (see: ./tmp/Makefile)
-# 		- local
-# 		- root
+
 .PHONY: install
-install: dist
+install: all
+	${SYS_MD} $(TEX_LOCAL)/{tex,source,doc}/latex/$(MODULE)
+	${SYS_CP} $(MODULE).cls $(TEX_LOCAL)/source/latex/$(MODULE)
+	${SYS_CP} $(MODULE).cls $(TEX_LOCAL)/tex/latex/$(MODULE)
+	${SYS_CP} $(MODULE).pdf $(TEX_LOCAL)/doc/latex/$(MODULE)
+
+.PHONY: install-user
+install-user: all
+	${MD} $(TEX_HOME)/{tex,source,doc}/latex/$(MODULE)
+	${CP} $(MODULE).cls $(TEX_HOME)/source/latex/$(MODULE)
+	${CP} $(MODULE).cls $(TEX_HOME)/tex/latex/$(MODULE)
+	${CP} $(MODULE).pdf $(TEX_HOME)/doc/latex/$(MODULE)
 
 
 .PHONY: all
