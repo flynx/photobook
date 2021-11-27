@@ -17,6 +17,7 @@ printhelp(){
 	echo "  -h | --help         Show this message and exit"
 	echo "  -p | --prefix PREFIX"
 	echo "                      Set the doc comment PREFIX (default: \"%\")"
+	echo "  -s | --strip        Strip docs out"
 	echo
 	echo "This will:"
 	echo "  - read the INPUT"
@@ -39,6 +40,10 @@ printhelp(){
 	echo "a unified location in docs, effectively decoupling the source and doc"
 	echo "structure when needed."
 	echo
+	echo "Strip mode is the reverse of of the default, it will strip out docs"
+	echo "and empty lines."
+	echo
+	echo "NOTE: stripping will not remove non-doc comments."
 	echo "NOTE: the idea of keeping latex docs in a latex file is far simpler"
 	echo "      than all the stuff crammed into .dtx, at least for my needs:"
 	echo "          - keep the code readable"
@@ -70,6 +75,10 @@ while true ; do
 			shift
 			shift
 			;;
+		-s|--strip)
+			STRIP_DOC=1
+			shift
+			;;
 
 		# handle unknown options...
 		-*|--*)
@@ -97,15 +106,25 @@ MODULE=${MODULE/.*/}
 #----------------------------------------------------------------------
 # do the work...
 
-cat "$INPUT" \
-	| egrep '(^%'$PREFIX'|^\\edef\\'$MODULE'@[A-Z][A-Z]+)' \
-	| sed 's/^\(\\edef\\\)'$MODULE'@/%'$PREFIX'\1/' \
-	| sed 's/%'$PREFIX'%%%% \(.*\)/%'$PREFIX'\\subsubsection{\1}\\label{subsubsec:\1}/' \
-	| sed 's/%'$PREFIX'%%% \(.*\)/%'$PREFIX'\\subsection{\1}\\label{subsec:\1}/' \
-	| sed 's/%'$PREFIX'%% \(.*\)/%'$PREFIX'\\section{\1}\\label{sec:\1}/' \
-	| sed 's/%'$PREFIX'\s\+>>\s\+\(.*\)/%'$PREFIX'\\begin{verbatim} \1 \\end{verbatim}/' \
-	| cut -c 3- - \
-	> "$OUTPUT"
+# make docs...
+if [ -z $STRIP_DOC ] ; then
+	cat "$INPUT" \
+		| egrep '(^%'$PREFIX'|^\\edef\\'$MODULE'@[A-Z][A-Z]+)' \
+		| sed 's/^\(\\edef\\\)'$MODULE'@/%'$PREFIX'\1/' \
+		| sed 's/%'$PREFIX'%%%% \(.*\)/%'$PREFIX'\\subsubsection{\1}\\label{subsubsec:\1}/' \
+		| sed 's/%'$PREFIX'%%% \(.*\)/%'$PREFIX'\\subsection{\1}\\label{subsec:\1}/' \
+		| sed 's/%'$PREFIX'%% \(.*\)/%'$PREFIX'\\section{\1}\\label{sec:\1}/' \
+		| sed 's/%'$PREFIX'\s\+>>\s\+\(.*\)/%'$PREFIX'\\begin{verbatim} \1 \\end{verbatim}/' \
+		| cut -c 3- - \
+		> "$OUTPUT"
+
+# make stripped code...
+else
+	cat "$INPUT" \
+		| egrep -v '%'$PREFIX'' \
+		| egrep -v '^(\s*%)?\s*$' \
+		> "$OUTPUT"
+fi
 
 
 
