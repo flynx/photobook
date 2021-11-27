@@ -13,23 +13,43 @@
 #
 #
 #----------------------------------------------------------------------
+# Config...
 
 # NOTE: this makes things run consistently on different systems including 
 # 		things like Android...
 SHELL := bash
 
-MODULE = photobook
+MODULE := photobook
 
-# LaTeX...
+# get version...
+# NOTE: the code version is in the code...
+VERSION := $(shell \
+	cat $(MODULE).cls \
+		| grep 'VERSION{' \
+		| sed 's/.*{\(.*\)}.*/\1/')
+
+# LaTeX paths...
 TEX_LOCAL = $(shell kpsewhich --var-value TEXMFLOCAL)
 TEX_HOME = $(shell kpsewhich --var-value TEXMFHOME)
 
-ARGS :=
+# distribution...
+DIST_DIR := dist
+DIST_FILES := \
+	$(wildcard scripts/*) \
+	$(wildcard examples/*) \
+	$(wildcard workflow/*) \
+	$(wildcard manual/*) \
+	$(MODULE).cls \
+	$(MODULE).pdf
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Software...
 
 # NOTE: need to run latex two+ times to build index, the simpler way to 
 # 		go is to use latexmk...
-#TEX := lualatex $(ARGS)
-TEX := latexmk -lualatex $(ARGS)
+#TEX := lualatex
+TEX := latexmk -lualatex
 
 # Doc generator...
 DOC := ./scripts/cls2tex.sh
@@ -39,24 +59,17 @@ MD := mkdir -p
 
 # XXX revise...
 ifeq ($(OS),Windows_NT)
-	SYS_CP := ${CP} 
-	SYS_MD := ${CP} 
+	SYS_CP := $(CP)
+	SYS_MD := $(CP) 
 else
 	SYS_CP := sudo cp
 	SYS_MD := sudo mkdir -p
 endif
 
 
-DIST_DIR := dist
-
-DIST_FILES := \
-	${MODULE}.cls \
-	${MODULE}.pdf
-
-
-
 
 #----------------------------------------------------------------------
+# Rules...
 
 %.pdf: %.tex
 	$(TEX) $< > /dev/null
@@ -82,30 +95,41 @@ DIST_FILES := \
 
 
 #----------------------------------------------------------------------
+# Info targets...
+
+.PHONY: version
+version:
+	@echo $(VERSION)
+
+
+
+#----------------------------------------------------------------------
+# Main targets...
 
 .PHONY: doc
-doc: ${MODULE}.pdf
+doc: $(MODULE).pdf
 
 
-# XXX zip stuff...
 .PHONY: dist
-dist: ${DIST_FILES}
-	${MD} ${DIST_DIR}
+dist: $(DIST_FILES)
+	$(MD) $(DIST_DIR)
+	zip -Drq $(DIST_DIR)/$(MODULE)-$(VERSION).zip $(DIST_FILES)
 
 
+# XXX merge install and install-user...
 .PHONY: install
 install: all
-	${SYS_MD} $(TEX_LOCAL)/{tex,source,doc}/latex/$(MODULE)
-	${SYS_CP} $(MODULE).cls $(TEX_LOCAL)/source/latex/$(MODULE)
-	${SYS_CP} $(MODULE).cls $(TEX_LOCAL)/tex/latex/$(MODULE)
-	${SYS_CP} $(MODULE).pdf $(TEX_LOCAL)/doc/latex/$(MODULE)
+	$(SYS_MD) $(TEX_LOCAL)/{tex,source,doc}/latex/$(MODULE)
+	$(SYS_CP) $(MODULE).cls $(TEX_LOCAL)/source/latex/$(MODULE)
+	$(SYS_CP) $(MODULE).cls $(TEX_LOCAL)/tex/latex/$(MODULE)
+	$(SYS_CP) $(MODULE).pdf $(TEX_LOCAL)/doc/latex/$(MODULE)
 
 .PHONY: install-user
 install-user: all
-	${MD} $(TEX_HOME)/{tex,source,doc}/latex/$(MODULE)
-	${CP} $(MODULE).cls $(TEX_HOME)/source/latex/$(MODULE)
-	${CP} $(MODULE).cls $(TEX_HOME)/tex/latex/$(MODULE)
-	${CP} $(MODULE).pdf $(TEX_HOME)/doc/latex/$(MODULE)
+	$(MD) $(TEX_HOME)/{tex,source,doc}/latex/$(MODULE)
+	$(CP) $(MODULE).cls $(TEX_HOME)/source/latex/$(MODULE)
+	$(CP) $(MODULE).cls $(TEX_HOME)/tex/latex/$(MODULE)
+	$(CP) $(MODULE).pdf $(TEX_HOME)/doc/latex/$(MODULE)
 
 
 .PHONY: all
@@ -114,6 +138,7 @@ all: doc sweep
 
 
 #----------------------------------------------------------------------
+# Cleanup targets...
 
 .PHONY: sweep
 sweep:
@@ -122,7 +147,7 @@ sweep:
 
 .PHONY: clean
 clean: sweep
-	rm -rf ${DIST_DIR} *.pdf
+	rm -rf $(DIST_DIR) *.pdf
 
 
 
