@@ -47,6 +47,8 @@ else
 endif
 
 
+DIST_DIR := dist
+
 DIST_FILES := \
 	${MODULE}.cls \
 	${MODULE}.pdf
@@ -88,6 +90,7 @@ doc: ${MODULE}.pdf
 # XXX zip stuff...
 .PHONY: dist
 dist: ${DIST_FILES}
+	${MD} ${DIST_DIR}
 
 
 .PHONY: install
@@ -119,7 +122,7 @@ sweep:
 
 .PHONY: clean
 clean: sweep
-	rm -f *.pdf
+	rm -rf ${DIST_DIR} *.pdf
 
 
 
