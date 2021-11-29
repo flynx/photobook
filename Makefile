@@ -17,20 +17,25 @@
 # 	clean			- cleanup repo
 #
 # Variables:
-# 	STRIP_CODE		- if "yes" strip docs from installed code
-# 						(only for install and install-local targets)
+# 	CODE_INSTALL	- set how we handle the installing code/source.
+# 						this can be:
+# 							strip		- strip the docs from code
+# 							copy		- copy the code/doc file
+# 							link		- link the code/doc files
 # 	INSTALL_PATH	- install path
 # 						(only for install target)
 #
 #
 # Examples:
 #
-# 	$ INSTALL_PATH=./test STRIP_CODE=no make install
+# 	$ INSTALL_PATH=./test CODE_INSTALL=link make install
 # 		install to "./test" and do not strip docs.
 #
 #
 #----------------------------------------------------------------------
 # Config...
+
+.EXPORT_ALL_VARIABLES:
 
 # NOTE: this makes things run consistently on different systems including 
 # 		things like Android...
@@ -38,10 +43,20 @@ SHELL := bash
 
 MODULE := photobook
 
-#STRIP_CODE ?= no
-STRIP_CODE ?= yes
 
-ifeq ($(STRIP_CODE),yes)
+# this can be:
+# 	- strip
+# 	- copy
+# 	- link
+#
+# NOTE: we are doing things in different ways for different modes:
+# 		copy vs. strip
+# 			- simply change the target name and let make figure it out...
+# 		link vs. copy/strip
+# 			- either do $(LN) or $(CP) in the install target...
+CODE_INSTALL ?= strip
+
+ifeq ($(CODE_INSTALL),strip)
 	MODULE_CODE := $(MODULE)-stripped
 else
 	MODULE_CODE := $(MODULE)
@@ -86,8 +101,9 @@ TEX := latexmk -lualatex
 # Doc generator...
 DOC := ./scripts/cls2tex.sh
 
-CP := cp
 MD := mkdir -p
+CP := cp
+LN := cp -l
 
 
 
@@ -175,13 +191,22 @@ all: doc
 		$(MODULE)-stripped.sty \
 		$(MODULE)-stripped.tex
 
+
 # user install...
 .PHONY: install
 install: doc $(MODULE_CODE).cls
 	$(MD) $(INSTALL_PATH)/{tex,source,doc}/latex/$(MODULE)
-	$(CP) $(MODULE).cls $(INSTALL_PATH)/source/latex/$(MODULE)
 	$(CP) $(MODULE).pdf $(INSTALL_PATH)/doc/latex/$(MODULE)
 	$(CP) $(MODULE_CODE).cls $(INSTALL_PATH)/tex/latex/$(MODULE)/$(MODULE).cls
+#	# NOTE: we are printing only the stuff we are doing...
+	@run(){ echo "$$@" ;  "$$@" ; } ;\
+	if [[ $${CODE_INSTALL} == "link" ]] ; then \
+		run $(LN) \
+			"$(INSTALL_PATH)/tex/latex/$(MODULE)/$(MODULE).cls" \
+			"$(INSTALL_PATH)/source/latex/$(MODULE)/" ;\
+	else \
+		run $(CP) "$(MODULE).cls" "$(INSTALL_PATH)/source/latex/$(MODULE)" ;\
+	fi
 
 .PHONY: uninstall
 uninstall:
