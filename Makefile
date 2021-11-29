@@ -19,11 +19,12 @@
 # Variables:
 # 	CODE_INSTALL	- set how we handle the installing code/source.
 # 						this can be:
-# 							strip		- strip the docs from code
+# 							strip		- strip the docs from code (default)
 # 							copy		- copy the code/doc file
 # 							link		- link the code/doc files
+# 						(affects install and install-local targets)
 # 	INSTALL_PATH	- install path
-# 						(only for install target)
+# 						(only affects install target)
 #
 #
 # Examples:
@@ -63,13 +64,14 @@ else
 endif
 
 
-# get version...
+# metadata...
 # NOTE: the code version is in the code...
-VERSION := $(shell \
+VERSION = $(strip $(shell \
 	cat $(MODULE).cls \
 		| grep 'VERSION{' \
-		| sed 's/.*{\(.*\)}.*/\1/')
-
+	 	| sed 's/.*{\(.*\)}.*/\1/'))
+DATE = $(strip $(shell date "+%Y%m%d%H%M"))
+COMMIT = $(strip $(shell git rev-parse HEAD))
 
 # LaTeX paths...
 TEX_LOCAL = $(shell kpsewhich --var-value TEXMFLOCAL)
@@ -78,10 +80,11 @@ TEX_HOME = $(shell kpsewhich --var-value TEXMFHOME)
 # default install target...
 INSTALL_PATH ?= $(TEX_HOME)
 
-
 # distribution...
+#DIST_NAME := $(MODULE)-$(VERSION)
+DIST_NAME := $(MODULE)-$(VERSION)-$(DATE)
 DIST_DIR := dist
-DIST_FILES := \
+DIST_FILES = \
 	$(wildcard scripts/*) \
 	$(wildcard examples/*) \
 	$(wildcard workflow/*) \
@@ -175,7 +178,7 @@ doc: $(MODULE).pdf
 .PHONY: dist
 dist: $(DIST_FILES) sweep
 	$(MD) $(DIST_DIR)
-	zip -Drq $(DIST_DIR)/$(MODULE)-$(VERSION).zip $(DIST_FILES)
+	zip -Drq $(DIST_DIR)/$(DIST_NAME).zip $(DIST_FILES)
 
 
 .PHONY: all
