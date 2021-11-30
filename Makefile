@@ -4,6 +4,8 @@
 #
 # Main targets:
 # 	doc				- build class documentation
+#
+# Distribution and install:
 # 	dist			- build a distributable zip
 # 	install			- install to user home latex path
 #	uninstall		- uninstall/remove from user home latex path
@@ -15,6 +17,7 @@
 # Other targets:
 # 	sweep			- cleanup auxiliary generated files
 # 	clean			- cleanup repo
+#
 #
 # Variables:
 # 	CODE_INSTALL	- set how we handle the installing code/source.
@@ -33,6 +36,11 @@
 # 		install to "./test" and do not strip docs.
 #
 #
+# XXX Q: shold dist: pack into a dir or into the archive root??
+# 		...have to make a decision here and stop asking the same question
+# 		for every single project...
+#
+#
 #----------------------------------------------------------------------
 # Config...
 
@@ -45,16 +53,29 @@ SHELL := bash
 MODULE := photobook
 
 
+# metadata...
+#
+# NOTE: the code version is in the code...
+VERSION = $(strip $(shell \
+	cat $(MODULE).cls \
+		| grep 'VERSION{' \
+	 	| sed 's/.*{\(.*\)}.*/\1/'))
+DATE = $(strip $(shell date "+%Y%m%d%H%M"))
+COMMIT = $(strip $(shell git rev-parse HEAD))
+
+
+# installing code...
+#
 # this can be:
 # 	- strip
 # 	- copy
 # 	- link
 #
 # NOTE: we are doing things in different ways for different modes:
-# 		copy vs. strip
+# 		- copy vs. strip
 # 			- simply change the target name and let make figure it out...
-# 		link vs. copy/strip
-# 			- either do $(LN) or $(CP) in the install target...
+# 		- link vs. copy/strip
+# 			- $(LN) vs. $(CP) in the install target...
 CODE_INSTALL ?= strip
 
 ifeq ($(CODE_INSTALL),strip)
@@ -64,21 +85,18 @@ else
 endif
 
 
-# metadata...
-# NOTE: the code version is in the code...
-VERSION = $(strip $(shell \
-	cat $(MODULE).cls \
-		| grep 'VERSION{' \
-	 	| sed 's/.*{\(.*\)}.*/\1/'))
-DATE = $(strip $(shell date "+%Y%m%d%H%M"))
-COMMIT = $(strip $(shell git rev-parse HEAD))
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Paths and files...
 
-# LaTeX paths...
+# LaTeX...
 TEX_LOCAL = $(shell kpsewhich --var-value TEXMFLOCAL)
 TEX_HOME = $(shell kpsewhich --var-value TEXMFHOME)
 
 # default install target...
 INSTALL_PATH ?= $(TEX_HOME)
+
+# build...
+BUILD_DIR := build
 
 # distribution...
 #DIST_NAME := $(MODULE)-$(VERSION)
@@ -91,6 +109,7 @@ DIST_FILES = \
 	$(wildcard manual/*) \
 	$(MODULE).cls \
 	$(MODULE).pdf
+
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -106,6 +125,8 @@ DOC := ./scripts/cls2tex.sh
 
 MD := mkdir -p
 CP := cp
+# copy preserving relative paths...
+RCP := cp -r --parents
 LN := cp -l
 
 
@@ -175,10 +196,17 @@ version:
 doc: $(MODULE).pdf
 
 
+#.PHONY: build
+#build: $(DIST_FILES)
+#	$(MD) $(BUILD_DIR)/$(DIST_NAME)
+#	$(RCP) $(DIST_FILES) $(BUILD_DIR)/$(DIST_NAME)
+
+
 .PHONY: dist
-dist: $(DIST_FILES) sweep
+dist: $(DIST_FILES) #build
 	$(MD) $(DIST_DIR)
 	zip -Drq $(DIST_DIR)/$(DIST_NAME).zip $(DIST_FILES)
+#	zip -Drq $(DIST_DIR)/$(DIST_NAME).zip $(BUILD_DIR)/$(DIST_NAME)
 
 
 .PHONY: all
@@ -199,8 +227,8 @@ all: doc
 .PHONY: install
 install: doc $(MODULE_CODE).cls
 	$(MD) $(INSTALL_PATH)/{tex,source,doc}/latex/$(MODULE)
-	$(CP) $(MODULE).pdf $(INSTALL_PATH)/doc/latex/$(MODULE)
-	$(CP) $(MODULE_CODE).cls $(INSTALL_PATH)/tex/latex/$(MODULE)/$(MODULE).cls
+	$(CP) "$(MODULE).pdf" $(INSTALL_PATH)/doc/latex/$(MODULE)
+	$(CP) "$(MODULE_CODE).cls" $(INSTALL_PATH)/tex/latex/$(MODULE)/$(MODULE).cls
 #	# NOTE: we are printing only the stuff we are doing...
 	@run(){ echo "$$@" ;  "$$@" ; } ;\
 	if [[ $${CODE_INSTALL} == "link" ]] ; then \
@@ -246,7 +274,7 @@ sweep:
 
 .PHONY: clean
 clean: sweep
-	rm -rf $(DIST_DIR) *.pdf
+	rm -rf $(DIST_DIR) $(BUILD_DIR) *.pdf
 
 
 
