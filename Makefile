@@ -196,17 +196,10 @@ version:
 doc: $(MODULE).pdf
 
 
-#.PHONY: build
-#build: $(DIST_FILES)
-#	$(MD) $(BUILD_DIR)/$(DIST_NAME)
-#	$(RCP) $(DIST_FILES) $(BUILD_DIR)/$(DIST_NAME)
-
-
 .PHONY: dist
-dist: $(DIST_FILES) #build
+dist: $(DIST_FILES)
 	$(MD) $(DIST_DIR)
 	zip -Drq $(DIST_DIR)/$(DIST_NAME).zip $(DIST_FILES)
-#	zip -Drq $(DIST_DIR)/$(DIST_NAME).zip $(BUILD_DIR)/$(DIST_NAME)
 
 
 .PHONY: all
