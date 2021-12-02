@@ -24,6 +24,12 @@
 %	$ make doc
 %
 %
+% NOTE: in a stripped code install this file may contain only code and 
+%		code comments, in this case, to see the docs refer to either the 
+%		source or the actual documentation/pdf.
+% NOTE: the stripped code file is auto-generated, it is not recommended 
+%		to edit it directly, edit the source instead.
+%
 %
 % XXX Q: do we add the pdf to the repo and if so, should it be 
 %		compressed (diff-able) or uncompressed (blob)??
