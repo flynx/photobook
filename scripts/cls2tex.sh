@@ -44,7 +44,7 @@ printhelp(){
 	echo "structure when needed."
 	echo
 	echo "Strip mode is the reverse of of the default, it will strip out docs"
-	echo "and empty lines."
+	echo "and empty lines, keeping only the actual code and code comments."
 	echo
 	echo "NOTE: stripping will not remove non-doc comments."
 	echo "NOTE: the idea of keeping latex docs in a latex file is far simpler"
@@ -54,12 +54,14 @@ printhelp(){
 	echo "      in both the repo and in installed form, so .dtx is not used."
 }
 
+# Usage: printerror MESSAGE...
 printerror(){
 	echo Error: $@
 	echo
 	printusage
 }
 
+# Usage: printmsg TEXT
 printmsg(){
 	# print message...
 	if [ -z $NO_MSG ] ; then 

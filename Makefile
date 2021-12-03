@@ -253,6 +253,10 @@ uninstall-local: INSTALL_PATH := $(TEX_LOCAL)
 uninstall-local: uninstall
 
 
+# XXX might be a good idea to add install-devel which would simply link
+# 		the install dir and the build (or "installed"?) dir...
+
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Cleanup targets...
 
