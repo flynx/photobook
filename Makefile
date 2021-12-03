@@ -253,8 +253,22 @@ uninstall-local: INSTALL_PATH := $(TEX_LOCAL)
 uninstall-local: uninstall
 
 
-# XXX might be a good idea to add install-devel which would simply link
-# 		the install dir and the build (or "installed"?) dir...
+# XXX need to make this work for windows...
+# 		...this must depend not on the OS but rather on in what context 
+# 		(cygwin/wsl/windows), latex is running...
+# 		...this seems to work:
+# 			> mkling TO FROM
+# 		but like ln, it's args are in the wrong order...
+# 		...cp -s creates links usable from cygwin but not usable from 
+# 		windows...
+.PHONY: install-devel
+install-devel: INSTALL_PATH := $(TEX_LOCAL)
+install-devel: CODE_INSTALL := copy
+install-devel: CP := cp -s
+install-devel: install
+
+.PHONY: uninstall-devel
+uninstall-devel: uninstall
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
