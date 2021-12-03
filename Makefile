@@ -262,7 +262,6 @@ uninstall-local: uninstall
 # 		...cp -s creates links usable from cygwin but not usable from 
 # 		windows...
 .PHONY: install-devel
-install-devel: INSTALL_PATH := $(TEX_LOCAL)
 install-devel: CODE_INSTALL := copy
 install-devel: CP := cp -s
 install-devel: install
