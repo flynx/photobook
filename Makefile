@@ -13,6 +13,8 @@
 # 						(may require elevated privileges)
 # 	uninstall-local	- uninstall/remove from local latex path
 # 						(may require elevated privileges)
+# 	install-devel	- XXX
+# 	uninstall-devel	- XXX
 #
 # Other targets:
 # 	sweep			- cleanup auxiliary generated files
@@ -268,6 +270,7 @@ install-devel: install
 
 .PHONY: uninstall-devel
 uninstall-devel: uninstall
+
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
