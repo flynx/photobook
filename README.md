@@ -2,8 +2,9 @@
 
 LaTeX class for making photo books.
 
+<!-- XXX Requirements... -->
 
-To build the documentation use:
+To build the documentation (`photobook.pdf`) use:
 
 ```shell
 $ make doc 
@@ -16,4 +17,4 @@ $ make install
 ```
 
 
-For more info on `make` targets see the: ./Makefile
+For more info on `make` targets see the: [./Makefile](./Makefile)
