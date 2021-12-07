@@ -198,6 +198,10 @@ version:
 doc: $(MODULE).pdf
 
 
+# XXX
+#manual:
+
+
 .PHONY: dist
 dist: $(DIST_FILES)
 	$(MD) $(DIST_DIR)

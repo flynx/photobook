@@ -10,7 +10,7 @@ LaTeX class for making photo books.
   either a full install or for specific modules see the _Packages_ section 
   in [photobook.cls](./photobook.cls),
 - U\*ix-like environment (`bash`, GNU Make, coreutils, ...),  
-  on Windows systems either [Cygwin](https://www.cygwin.com/) or 
+  on Windows systems, either [Cygwin](https://www.cygwin.com/) or 
   [WSL/WSL2](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux) 
   should work fine.
 
