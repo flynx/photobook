@@ -198,9 +198,11 @@ version:
 doc: $(MODULE).pdf
 
 
-# XXX
-#.PHONY: manual
-#manual:
+# XXX STUB
+.PHONY: manual
+manual:
+	$(MAKE) -C $(MODULE)-manual.pdf
+	mv manual/$(MODULE)-manual.pdf .
 
 
 .PHONY: dist
