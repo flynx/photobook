@@ -199,6 +199,7 @@ doc: $(MODULE).pdf
 
 
 # XXX
+#.PHONY: manual
 #manual:
 
 
