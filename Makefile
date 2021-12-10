@@ -198,10 +198,13 @@ version:
 doc: $(MODULE).pdf
 
 
-# XXX STUB
+# XXX STUB -- not sure how to approach this yet...
+# 		on one hand the manual should be a self-contained example in 
+# 		itself on the other hand we already have a working Makefile 
+# 		building the docs...
 .PHONY: manual
 manual:
-	$(MAKE) -C $(MODULE)-manual.pdf
+	$(MAKE) -C manual all
 	mv manual/$(MODULE)-manual.pdf .
 
 
