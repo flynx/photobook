@@ -126,7 +126,8 @@ TEX := latexmk -lualatex
 DOC := ./scripts/cls2tex.sh
 
 MD := mkdir -p
-CP := cp
+#CP := cp
+CP := install
 # copy preserving relative paths...
 RCP := cp -r --parents
 LN := cp -l
