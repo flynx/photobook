@@ -205,7 +205,7 @@ doc: $(MODULE).pdf
 .PHONY: manual
 manual:
 	$(MAKE) -C manual all
-	mv manual/$(MODULE)-manual.pdf .
+	mv manual/*.pdf .
 
 
 .PHONY: dist
