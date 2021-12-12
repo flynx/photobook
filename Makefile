@@ -77,7 +77,7 @@ COMMIT = $(strip $(shell git rev-parse HEAD))
 # 		- copy vs. strip
 # 			- simply change the target name and let make figure it out...
 # 		- link vs. copy/strip
-# 			- $(LN) vs. $(CP) in the install target...
+# 			- $(LN) vs. $(INSTALL) in the install target...
 CODE_INSTALL ?= strip
 
 ifeq ($(CODE_INSTALL),strip)
@@ -126,8 +126,10 @@ TEX := latexmk -lualatex
 DOC := ./scripts/cls2tex.sh
 
 MD := mkdir -p
-#CP := cp
-CP := install
+# XXX cp/install, technically this is only used in install* targets so 
+# 		renaming CP -> INSTALL would seem logical...
+#INSTALL := cp
+INSTALL := install
 # copy preserving relative paths...
 RCP := cp -r --parents
 LN := cp -l
@@ -233,8 +235,8 @@ all: doc
 .PHONY: install
 install: doc $(MODULE_CODE).cls
 	$(MD) $(INSTALL_PATH)/{tex,source,doc}/latex/$(MODULE)
-	$(CP) "$(MODULE).pdf" $(INSTALL_PATH)/doc/latex/$(MODULE)
-	$(CP) "$(MODULE_CODE).cls" $(INSTALL_PATH)/tex/latex/$(MODULE)/$(MODULE).cls
+	$(INSTALL) "$(MODULE).pdf" $(INSTALL_PATH)/doc/latex/$(MODULE)
+	$(INSTALL) "$(MODULE_CODE).cls" $(INSTALL_PATH)/tex/latex/$(MODULE)/$(MODULE).cls
 #	# NOTE: we are printing only the stuff we are doing...
 	@run(){ echo "$$@" ;  "$$@" ; } ;\
 	if [[ $${CODE_INSTALL} == "link" ]] ; then \
@@ -242,7 +244,7 @@ install: doc $(MODULE_CODE).cls
 			"$(INSTALL_PATH)/tex/latex/$(MODULE)/$(MODULE).cls" \
 			"$(INSTALL_PATH)/source/latex/$(MODULE)/" ;\
 	else \
-		run $(CP) "$(MODULE).cls" "$(INSTALL_PATH)/source/latex/$(MODULE)" ;\
+		run $(INSTALL) "$(MODULE).cls" "$(INSTALL_PATH)/source/latex/$(MODULE)" ;\
 	fi
 
 .PHONY: uninstall
@@ -276,7 +278,7 @@ uninstall-local: uninstall
 # 		windows...
 .PHONY: install-devel
 install-devel: CODE_INSTALL := copy
-install-devel: CP := cp -s
+install-devel: INSTALL := cp -s
 install-devel: install
 
 .PHONY: uninstall-devel
