@@ -28,7 +28,7 @@ $ make install
 
 If only building the docs is required without installing:
 ```shell
-$ make doc 
+$ make pdf 
 ```
 
 For more info on `make` targets see the: [./Makefile](./Makefile)
