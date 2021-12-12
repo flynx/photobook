@@ -3,7 +3,7 @@
 LaTeX class for making photo books.
 
 
-## Build requirements
+## Build requirements for docs
 
 - LaTeX tool chain (including: `lualatex`, `latexmk`, ..)  
   The simplest way to get started is [TeX Live](https://www.tug.org/texlive/), 

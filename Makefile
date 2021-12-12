@@ -3,7 +3,8 @@
 #
 #
 # Main targets:
-# 	doc				- build class documentation
+# 	pdf				- build class pdf documentation...
+# 	md				- build class markdown documentation (XXX EXPERIMENTAL)...
 #
 # Distribution and install:
 # 	dist			- build a distributable zip
@@ -79,12 +80,29 @@ COMMIT = $(strip $(shell git rev-parse HEAD))
 # 		- link vs. copy/strip
 # 			- $(LN) vs. $(INSTALL) in the install target...
 CODE_INSTALL ?= strip
-
 ifeq ($(CODE_INSTALL),strip)
 	MODULE_CODE := $(MODULE)-stripped
 else
 	MODULE_CODE := $(MODULE)
 endif
+
+
+# markdown dialect...
+#
+# XXX still needs some tweaking...
+MD_FORMAT ?= markdown_github
+
+
+# debug output...
+#
+# $DEBUG can either be empty or anything else...
+DEBUG ?=
+ifeq ($(DEBUG),)
+	STDERR := > /dev/null
+else
+	STDERR :=
+endif
+
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -139,11 +157,39 @@ LN := cp -l
 #----------------------------------------------------------------------
 # Rules...
 
+# docs (pdf)...
+#
 %.pdf: %.tex
-	$(TEX) $< > /dev/null
+	$(TEX) $< $(STDERR)
+
+# docs (markdown)...
+#
+# XXX this still needs some tweaking...
+# 		- |..|	- verbatim does not work...
+# 		- ||	- parts of doc omitted...
+#		- verbatim blocks get merged sometimes...
+#		- ...
+#%.md: %.tex
+#	pandoc -t $(MD_FORMAT) -s $< -o $@
+
+# XXX STUB/HACK...
+# 		...need to call $(TEX) on the result...
+# 		...need to install the internet class...
+#			https://github.com/loopspace/latex-to-internet
+# XXX revise:
+#		...for this to work we need to replace:
+#			\documentclass{ltxdoc}
+#		to:
+#			\documentclass[markdownextra]{internet}
+%.md: %.tex
+	cat $< \
+		| sed 's/documentclass{ltxdoc}/documentclass[markdownextra]{internet}/' \
+		> $<.tmp
+	mv $<{.tmp,}
+	$(TEX) $< $(STDERR)
 
 
-# docs...
+# meta-section...
 #
 # NOTE: .sty and .cls are essentially the same in terms of documentation 
 # 		generation...
@@ -197,8 +243,12 @@ version:
 #----------------------------------------------------------------------
 # Main targets...
 
-.PHONY: doc
-doc: $(MODULE).pdf
+.PHONY: pdf
+pdf: $(MODULE).pdf
+
+
+.PHONY: md
+md: $(MODULE).md
 
 
 # XXX STUB -- not sure how to approach this yet...
@@ -218,7 +268,7 @@ dist: $(DIST_FILES)
 
 
 .PHONY: all
-all: doc
+all: pdf
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -233,7 +283,7 @@ all: doc
 
 # user install...
 .PHONY: install
-install: doc $(MODULE_CODE).cls
+install: pdf $(MODULE_CODE).cls
 	$(MD) $(INSTALL_PATH)/{tex,source,doc}/latex/$(MODULE)
 	$(INSTALL) "$(MODULE).pdf" $(INSTALL_PATH)/doc/latex/$(MODULE)
 	$(INSTALL) "$(MODULE_CODE).cls" $(INSTALL_PATH)/tex/latex/$(MODULE)/$(MODULE).cls
@@ -300,7 +350,7 @@ sweep:
 
 .PHONY: clean
 clean: sweep
-	rm -rf $(DIST_DIR) $(BUILD_DIR) *.pdf
+	rm -rf $(DIST_DIR) $(BUILD_DIR) $(MODULE).md *.pdf
 
 
 
