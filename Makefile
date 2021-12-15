@@ -172,15 +172,14 @@ LN := cp -l
 #%.md: %.tex
 #	pandoc -t $(MD_FORMAT) -s $< -o $@
 
-# XXX STUB/HACK...
-# 		...need to call $(TEX) on the result...
-# 		...need to install the internet class...
-#			https://github.com/loopspace/latex-to-internet
+# XXX EXPERIMENTAL...
 # XXX revise:
 #		...for this to work we need to replace:
 #			\documentclass{ltxdoc}
 #		to:
 #			\documentclass[markdownextra]{internet}
+# XXX install the internet class...
+#			https://github.com/loopspace/latex-to-internet
 %.md: %.tex
 	cat $< \
 		| sed 's/documentclass{ltxdoc}/documentclass[markdownextra]{internet}/' \
