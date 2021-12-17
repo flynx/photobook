@@ -180,6 +180,7 @@ LN := cp -l
 #			\documentclass[markdownextra]{internet}
 # XXX install the internet class...
 #			https://github.com/loopspace/latex-to-internet
+#		...needs testing...
 %.md: %.tex
 	cat $< \
 		| sed 's/documentclass{ltxdoc}/documentclass[markdownextra]{internet}/' \
