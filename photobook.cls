@@ -5038,7 +5038,7 @@
 %%		Well, for the same reason as photo-books in \LaTeX\ -- I liked 
 %%		the idea of it, the simplicity, and thought that it would be fun to 
 %%		see how far can I push things before it all	falling apart on me, and... 
-%%		We are here and it all is still here too :)}
+%%		We are here, at the end, and it all is still here too :)}
 
 
 
