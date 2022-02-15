@@ -1,6 +1,6 @@
 # photobook
 
-LaTeX document class for making photo books.
+[LaTeX](https://www.latex-project.org/) document class for making photo books.
 
 
 ## Build requirements for docs
