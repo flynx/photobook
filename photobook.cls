@@ -3838,7 +3838,8 @@
 %% This section contains a set of predefined configurable single-page
 %% templates.
 %%
-% XXX PRECLEAR...
+% XXX PRECLEAR this may lead to pages collapsing on each other, test...
+%
 %% Note that most page templates do not |\clearpage| before expanding, 
 %% this enables one to prepend elements (like pdf comments), if clearing 
 %% a page is required add |\clearpage| manually before the template.
