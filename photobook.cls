@@ -3838,6 +3838,11 @@
 %% This section contains a set of predefined configurable single-page
 %% templates.
 %%
+% XXX PRECLEAR...
+%% Note that most page templates do not |\clearpage| before expanding, 
+%% this enables one to prepend elements (like pdf comments), if clearing 
+%% a page is required add |\clearpage| manually before the template.
+%%
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Tweaking
@@ -4025,7 +4030,8 @@
 	\captioncell[under, align=flushright]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImagePage}{%
-	\clearpage%
+	% XXX PRECLEAR do we need clear page here???
+	%\clearpage%
 	\begin{page}%
 	\begin{pagecell*}%
 	\begin{minipage}[t][\cellheight][c]{\cellwidth}%
@@ -4081,7 +4087,8 @@
 	\captioncell[under, align=flushright]{%
 		\captionformat{#1}}}
 \ImagePageTemplate{ImagePageClear}{%
-	\clearpage%
+	% XXX PRECLEAR do we need clear page here???
+	%\clearpage%
 	\begin{page}%
 	% NOTE: this accounts for \bindingoffset...
 	\begin{pagecell*}%
@@ -4256,7 +4263,8 @@
 		%
 		% ignore \bindingoffset -> center the image...
 		\ifphotobook@ImagePageFit@centered%
-			\clearpage%
+			% XXX PRECLEAR do we need clear page here???
+			%\clearpage%
 			\begin{page}%
 			% NOTE: this does not account for \bindingoffset...
 			\begin{pagecell}%
@@ -4443,7 +4451,8 @@
 			#1]{#2}{#3}%
 	\end{spreadtopages*}%
 	%
-	\clearpage%
+	% XXX PRECLEAR do we need clear page here???
+	%\clearpage%
 	\usespreadpage[1]{photobook@ImageHalfPageL@cell}}
 
 
@@ -4494,7 +4503,8 @@
 			#1]{#2}{#3}%
 	\end{spreadtopages*}%
 	%
-	\clearpage%
+	% XXX PRECLEAR do we need clear page here???
+	%\clearpage%
 	\usespreadpage[2]{photobook@ImageHalfPageR@cell}}
 
 
@@ -4967,6 +4977,7 @@
 %%
 %%	>> \pdfcommentcell[<options>]{<comment>}
 %%
+% XXX BUG: this takes up space...
 \newcommand\pdfcommentcell[2][]{%
 	\begin{cell*}{
 				\ifnumodd{\thepage}{%
