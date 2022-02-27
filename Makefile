@@ -194,6 +194,9 @@ LN := cp -l
 #
 # NOTE: .sty and .cls are essentially the same in terms of documentation 
 # 		generation...
+# XXX might be a good idea to place a link/footnote where metadocs were 
+#		originally located...
+#		...not sure yet manually or automatically...
 %.tex: %.sty %-meta.tex
 	$(DOC) $< > $@
 
