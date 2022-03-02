@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 #----------------------------------------------------------------------
-# XXX might be a good idea to add footnotes with links whare prefized 
+# XXX might be a good idea to add footnotes with links whare prefixed 
 #	sections originally were...
 #	...or as an option, replace sections with footnotes when removing...
+#	not sure if this should be done manually or automatically, though
+#	the less effort needed the better...
 
 CMD="$0 $@"
 
