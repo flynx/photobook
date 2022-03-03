@@ -25,6 +25,9 @@ printhelp(){
 	echo "  -p | --prefix PREFIX"
 	echo "                      Set the doc comment PREFIX (default: \"%\")"
 	echo "  -s | --strip        Strip docs out"
+	# XXX ???
+#	echo "  -r | --replace CODE"
+#	echo "                      Like -s/--strip but replace stripped code with CODE"
 	echo "  -n | --no-msg       Don't add the \"generated with\" message to output"
 	echo
 	echo "This will:"
