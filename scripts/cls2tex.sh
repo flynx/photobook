@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 #----------------------------------------------------------------------
-# XXX might be a good idea to add footnotes with links whare prefized 
-#	sections originally were...
-#	...or as an option, replace sections with footnotes when removing...
 
 CMD="$0 $@"
 
