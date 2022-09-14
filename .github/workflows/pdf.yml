@@ -17,3 +17,10 @@ jobs:
       
     - name: Make manual
       run: make -n pdf
+      
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: photobook.pdf
+        
+        
