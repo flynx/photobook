@@ -16,7 +16,7 @@ jobs:
     - uses: xu-cheng/texlive-action/full@v1
       
     - name: Make manual
-      run: make -n dist
+      run: make dist
       
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -33,7 +33,7 @@ jobs:
     - name: Dist artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: build artifacts
+        name: dist artifacts
         path: dist/photobook*.zip
         
         
