@@ -39,4 +39,18 @@ jobs:
         name: dist artifacts
         path: dist/photobook*.zip
         
+    - name: Upload to CTAN
+      uses: paolobrasolin/ctan-submit-action@v1
+      with: 
+        action: upload
+        file_path: dist/photobook*.zip
+        fields: |
+            pkg: photobook
+            version: 0.0.1
+            author: Alex A. Naanou
+            email: alex.nanou@gmail.com
+            uploader: alex.nanou@gmail.com 
+            license: BSD (3-Clause)
+            summary: This is a CI test
+        
         
