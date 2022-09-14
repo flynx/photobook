@@ -51,6 +51,6 @@ jobs:
             email: alex.nanou@gmail.com
             uploader: alex.nanou@gmail.com 
             license: BSD (3-Clause)
-            summary: This is a CI test
+            summary: Document class for making photo books.
         
         
