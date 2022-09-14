@@ -24,4 +24,16 @@ jobs:
       with:
         files: dist/photobook*.zip
         
+    - name: Build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build artifacts
+        path: photobook.pdf
+
+    - name: Dist artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build artifacts
+        path: dist/photobook*.zip
+        
         
