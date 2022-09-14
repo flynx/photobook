@@ -16,7 +16,7 @@ jobs:
     - uses: xu-cheng/texlive-action/full@v1
       with:
         run: |
-          apk add make
+          apk add make git zip
           make dist
     
     - name: Release
