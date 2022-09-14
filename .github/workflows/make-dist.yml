@@ -50,7 +50,7 @@ jobs:
             author: Alex A. Naanou
             email: alex.nanou@gmail.com
             uploader: alex.nanou@gmail.com 
-            license: 3-clause BSD License
+            license: bsd
             summary: Document class for making photo books.
         
         
