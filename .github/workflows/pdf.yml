@@ -20,8 +20,8 @@ jobs:
       
     - name: Release
       uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
       with:
-        if: startsWith(github.ref, 'refs/tags/')
         files: dist/photobook*.zip
         
         
