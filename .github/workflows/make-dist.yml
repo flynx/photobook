@@ -1,4 +1,4 @@
-name: Makefile CI
+name: make dist
 
 on:
   push:
@@ -7,8 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  make-dist:
     runs-on: ubuntu-latest
 
     steps:
