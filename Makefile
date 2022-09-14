@@ -125,11 +125,13 @@ DIST_DIR := dist
 DIST_FILES = \
 	Makefile \
 	$(wildcard scripts/*) \
-	$(wildcard examples/*) \
-	$(wildcard workflow/*) \
-	$(wildcard manual/*) \
 	$(MODULE).cls \
 	$(MODULE).pdf
+# Add these when ready...
+#	$(wildcard examples/*) \
+#	$(wildcard manual/*) \
+#	$(wildcard workflow/*) \
+#
 
 
 

@@ -18,6 +18,8 @@ MAKESPREADS := ../../scripts/make-images.sh
 spreads.tex: spreads
 	$(MAKESPREADS) $< $(SPREAD) > $@
 
+dist:
+
 clean:
 	rm -f spreads.tex
 
