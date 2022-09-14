@@ -16,11 +16,12 @@ jobs:
     - uses: xu-cheng/texlive-action/full@v1
       
     - name: Make manual
-      run: make -n pdf
+      run: make -n dist
       
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        files: photobook.pdf
+        if: startsWith(github.ref, 'refs/tags/')
+        files: dist/photobook*.zip
         
         
