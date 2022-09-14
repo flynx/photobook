@@ -268,10 +268,22 @@ manual:
 	mv manual/*.pdf .
 
 
+%.zipnote: %.zip
+	zipnote $< > $@
+
+
 .PHONY: dist
 dist: $(DIST_FILES)
 	$(MD) $(DIST_DIR)
 	zip -Drq $(DIST_DIR)/$(DIST_NAME).zip $(DIST_FILES)
+	# Place everything in the module dir as per CTAN spec...
+	zipnote $(DIST_DIR)/$(DIST_NAME).zip \
+		| sed 's/^\@ \([^(].*\)$$/@ \1\n@=$(MODULE)\/\1/' \
+		| zipnote -w $(DIST_DIR)/$(DIST_NAME).zip
+
+CTAN: dist
+	$(MD) $(DIST_DIR)/CTAN
+	cp $(DIST_DIR)/$(DIST_NAME).zip $(DIST_DIR)/CTAN/$(MODULE).zip
 
 
 .PHONY: all

@@ -19,7 +19,7 @@ jobs:
         run: |
           apk add make git zip
           git config --global --add safe.directory '*'
-          make dist
+          make dist CTAN
     
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -43,7 +43,7 @@ jobs:
       uses: paolobrasolin/ctan-submit-action@v1
       with: 
         action: upload
-        file_path: dist/photobook*.zip
+        file_path: dist/CTAN/photobook.zip
         fields: |
             pkg: photobook
             version: 0.0.1
