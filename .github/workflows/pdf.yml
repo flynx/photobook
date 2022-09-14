@@ -18,10 +18,7 @@ jobs:
       uses: xu-cheng/texlive-action/full@v1
       with:
         run: |
-          apk add |
-            make 
-            git 
-            zip
+          apk add make git zip
           git config --global --add safe.directory '*'
           make dist
     
