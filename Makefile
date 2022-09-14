@@ -123,6 +123,7 @@ BUILD_DIR := build
 DIST_NAME := $(MODULE)-$(VERSION)-$(DATE)
 DIST_DIR := dist
 DIST_FILES = \
+	Makefile \
 	$(wildcard scripts/*) \
 	$(wildcard examples/*) \
 	$(wildcard workflow/*) \
