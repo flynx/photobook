@@ -16,4 +16,4 @@ jobs:
     - uses: xu-cheng/texlive-action/full@v1
       
     - name: Make manual
-      run: make pdf
+      run: make -n pdf
