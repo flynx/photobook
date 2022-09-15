@@ -23,10 +23,6 @@ jobs:
           echo "VERSION=$(make version)" >> $GITHUB_ENV
           make dist CTAN
 
-    - name: Version
-      run: |
-        echo "::notice:: VERSION=${{ env.VERSION }}"
-    
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
@@ -67,14 +63,14 @@ jobs:
               defining a set of parameters, meta-macros, macros and
               environments with reasonable defaults to help typeset,
               build and print books mainly based on visual/image content.
-            announcement: >
-              I'm happy to announce the initial release on CTAN of the
-              photobook document class.  
-              
-              The photobook class extends the book class defining a set
-              of parameters, meta-macros, macros and environments with
-              reasonable defaults to help typeset, build and print books
-              mainly based on visual/image content.
+            #announcement: >
+            #  I'm happy to announce the initial release on CTAN of the
+            #  photobook document class.  
+            #  
+            #  The photobook class extends the book class defining a set
+            #  of parameters, meta-macros, macros and environments with
+            #  reasonable defaults to help typeset, build and print books
+            #  mainly based on visual/image content.
                
         
         

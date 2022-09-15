@@ -245,11 +245,6 @@ version:
 	@echo $(VERSION)
 
 
-.PHONY: tag
-tag:
-	git tag "$(VERSION)"
-
-
 
 #----------------------------------------------------------------------
 # Main targets...
@@ -272,10 +267,6 @@ manual:
 	mv manual/*.pdf .
 
 
-%.zipnote: %.zip
-	zipnote $< > $@
-
-
 .PHONY: dist
 dist: $(DIST_FILES)
 	$(MD) $(DIST_DIR)
@@ -285,9 +276,23 @@ dist: $(DIST_FILES)
 		| sed 's/^\@ \([^(].*\)$$/@ \1\n@=$(MODULE)\/\1/' \
 		| zipnote -w $(DIST_DIR)/$(DIST_NAME).zip
 
-CTAN: dist
-	$(MD) $(DIST_DIR)/CTAN
-	cp $(DIST_DIR)/$(DIST_NAME).zip $(DIST_DIR)/CTAN/$(MODULE).zip
+
+.PHONY: tag
+tag:
+	@echo "Will create and publish git tag:"
+	@echo "    $(VERSION)"
+	@echo "Last 5 tags:"
+	@git tag -l '[0-9]*'\
+		| tail -n 5 \
+		| sed 's/^/    /'
+	@echo "Note that this must be done after a commit."
+	@read -p "(press any key to continue or ctrl-c to cancel)"
+	git tag "$(VERSION)"
+	git commit origin "$(VERSION)"
+
+
+#.PHONY: publish
+#publish: dist
 
 
 .PHONY: all
