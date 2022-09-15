@@ -33,13 +33,13 @@ jobs:
       with:
         files: dist/photobook*.zip
         
-    - name: Artifacts (build)
+    - name: Artifacts\: build
       uses: actions/upload-artifact@v3
       with:
         name: build artifacts
         path: photobook.pdf
 
-    - name: Artifacts (dist)
+    - name: Artifacts\: dist
       uses: actions/upload-artifact@v3
       with:
         name: dist artifacts
@@ -47,9 +47,8 @@ jobs:
         
     - name: Upload to CTAN (release)
       uses: paolobrasolin/ctan-submit-action@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with: 
-        action: upload
+        action: validate
         file_path: dist/CTAN/photobook.zip
         fields: |
             pkg: photobook

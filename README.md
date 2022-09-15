@@ -38,7 +38,7 @@ For more info on `make` targets see the: [./Makefile](./Makefile)
 
 ## Authors
 
-(Alex A. Naanou)[https://github.com/flynx]
+[Alex A. Naanou](https://github.com/flynx)
 
 
 
