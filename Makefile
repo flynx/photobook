@@ -39,10 +39,6 @@
 # 		install to "./test" and do not strip docs.
 #
 #
-# XXX Q: shold dist: pack into a dir or into the archive root??
-# 		...have to make a decision here and stop asking the same question
-# 		for every single project...
-#
 #
 #----------------------------------------------------------------------
 # Config...
