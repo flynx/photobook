@@ -47,8 +47,9 @@ jobs:
         
     - name: Upload to CTAN (release)
       uses: paolobrasolin/ctan-submit-action@v1
+      if: startsWith(github.ref, 'refs/tags/')
       with: 
-        action: validate
+        action: upload
         file_path: dist/CTAN/photobook.zip
         fields: |
             pkg: photobook
@@ -62,17 +63,17 @@ jobs:
             summary: >
               Document class for typesetting photo books.
             description: >
-              The photobook LaTeX document class extends the book class 
-              defining a set of parameters, meta-macros, macros and 
-              environments with reasonable defaults to help typeset, 
+              The photobook LaTeX document class extends the book class
+              defining a set of parameters, meta-macros, macros and
+              environments with reasonable defaults to help typeset,
               build and print books mainly based on visual/image content.
             announcement: >
-              I'm happy to announce the initial release on CTAN of the 
-              photobook document class.
+              I'm happy to announce the initial release on CTAN of the
+              photobook document class.  
               
-              The photobook class extends the book class defining a set 
-              of parameters, meta-macros, macros and environments with 
-              reasonable defaults to help typeset, build and print books 
+              The photobook class extends the book class defining a set
+              of parameters, meta-macros, macros and environments with
+              reasonable defaults to help typeset, build and print books
               mainly based on visual/image content.
                
         
