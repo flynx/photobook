@@ -58,7 +58,8 @@ MODULE := photobook
 VERSION = $(strip $(shell \
 	cat $(MODULE).cls \
 		| grep 'VERSION{' \
-	 	| sed 's/.*{\(.*\)}.*/\1/'))
+	 	| sed 's/.*{\(.*\)}.*/\1/' \
+		| sed 's/v//'))
 DATE = $(strip $(shell date "+%Y%m%d%H%M"))
 COMMIT = $(strip $(shell git rev-parse HEAD))
 
@@ -242,6 +243,11 @@ LN := cp -l
 .PHONY: version
 version:
 	@echo $(VERSION)
+
+
+.PHONY: tag
+tag:
+	git tag "$(VERSION)"
 
 
 

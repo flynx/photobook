@@ -14,19 +14,19 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Get version tag
-      id: version
-      uses: WyriHaximus/github-action-get-previous-tag@v1
-      with:
-        fallback: 0.1
-    
     - name: Build dist
       uses: xu-cheng/texlive-action/full@v1
       with:
         run: |
           apk add make git zip
           git config --global --add safe.directory '*'
+          echo "VERSION=$(make version)" >> $GITHUB_ENV
           make dist CTAN
+
+    - name: Version
+      with:
+        run: |
+          echo "::notice:: VERSION=${{ env.VERSION }}"
     
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -54,7 +54,7 @@ jobs:
         file_path: dist/CTAN/photobook.zip
         fields: |
             pkg: photobook
-            version: ${{ steps.version.outputs.tag }}
+            version: ${{ env.VERSION }}
             author: Alex A. Naanou
             email: alex.nanou@gmail.com
             uploader: Alex A. Naanou <alex.nanou@gmail.com>
