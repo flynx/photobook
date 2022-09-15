@@ -24,9 +24,8 @@ jobs:
           make dist CTAN
 
     - name: Version
-      with:
-        run: |
-          echo "::notice:: VERSION=${{ env.VERSION }}"
+      run: |
+        echo "::notice:: VERSION=${{ env.VERSION }}"
     
     - name: Release
       uses: softprops/action-gh-release@v1
