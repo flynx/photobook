@@ -46,7 +46,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with: 
         action: upload
-        file_path: dist/CTAN/photobook.zip
+        file_path: dist/photobook.zip
         fields: |
             pkg: photobook
             version: ${{ env.VERSION }}
