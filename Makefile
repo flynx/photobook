@@ -124,6 +124,7 @@ DIST_NAME := $(MODULE)-$(VERSION)-$(DATE)
 DIST_DIR := dist
 DIST_FILES = \
 	README.md \
+	LICENSE \
 	Makefile \
 	$(wildcard scripts/*) \
 	$(MODULE).cls \

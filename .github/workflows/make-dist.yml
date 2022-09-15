@@ -12,6 +12,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Get version tag
+      id: version
+      uses: WyriHaximus/github-action-get-previous-tag@v1
+      with:
+        fallback: 0.1
     
     - name: Build dist
       uses: xu-cheng/texlive-action/full@v1
@@ -39,18 +45,36 @@ jobs:
         name: dist artifacts
         path: dist/photobook*.zip
         
-    - name: Upload to CTAN
+    - name: Upload to CTAN (release)
       uses: paolobrasolin/ctan-submit-action@v1
+      if: startsWith(github.ref, 'refs/tags/')
       with: 
         action: upload
         file_path: dist/CTAN/photobook.zip
         fields: |
             pkg: photobook
-            version: 0.0.1
+            version: ${{ steps.version.outputs.tag }}
             author: Alex A. Naanou
             email: alex.nanou@gmail.com
-            uploader: alex.nanou@gmail.com 
+            uploader: Alex A. Naanou <alex.nanou@gmail.com>
             license: bsd
-            summary: Document class for making photo books.
+            home: https://github.com/flynx/photobook
+            repository: https://github.com/flynx/photobook
+            summary: >
+              Document class for typesetting photo books.
+            description: >
+              The photobook LaTeX document class extends the book class 
+              defining a set of parameters, meta-macros, macros and 
+              environments with reasonable defaults to help typeset, 
+              build and print books mainly based on visual/image content.
+            announcement: >
+              I'm happy to announce the initial release on CTAN of the 
+              photobook document class.
+              
+              The photobook class extends the book class defining a set 
+              of parameters, meta-macros, macros and environments with 
+              reasonable defaults to help typeset, build and print books 
+              mainly based on visual/image content.
+               
         
         
