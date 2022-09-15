@@ -33,13 +33,13 @@ jobs:
       with:
         files: dist/photobook*.zip
         
-    - name: Artifacts\: build
+    - name: Artifacts - build
       uses: actions/upload-artifact@v3
       with:
         name: build artifacts
         path: photobook.pdf
 
-    - name: Artifacts\: dist
+    - name: Artifacts - dist
       uses: actions/upload-artifact@v3
       with:
         name: dist artifacts
