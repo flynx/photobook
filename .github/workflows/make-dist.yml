@@ -21,7 +21,7 @@ jobs:
           apk add make git zip
           git config --global --add safe.directory '*'
           echo "VERSION=$(make version)" >> $GITHUB_ENV
-          make dist CTAN
+          make dist ctan-dist
 
     - name: Release
       uses: softprops/action-gh-release@v1

@@ -34,6 +34,8 @@ $ make pdf
 
 For more info on `make` targets see the: [./Makefile](./Makefile)
 
+The package is available on CTAN: https://ctan.org/pkg/photobook
+
 
 
 ## Authors

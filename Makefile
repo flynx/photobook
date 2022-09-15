@@ -277,8 +277,9 @@ dist: $(DIST_FILES)
 		| zipnote -w $(DIST_DIR)/$(DIST_NAME).zip
 
 
-.PHONY: CTAN
-CTAN: dist
+# this is used to create a CTAN-compatible dist archive...
+.PHONY: ctan-dist
+ctan-dist: dist
 	cp -f $(DIST_DIR)/$(DIST_NAME).zip $(DIST_DIR)/$(MODULE).zip
 
 
