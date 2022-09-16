@@ -18,6 +18,11 @@
 
 ## Build / Install
 
+The package is available on: 
+- CTAN: https://ctan.org/pkg/photobook
+- GitHub: https://github.com/flynx/photobook
+
+
 ```shell
 # get the source...
 $ git clone https://github.com/flynx/photobook.git
@@ -33,9 +38,6 @@ $ make pdf
 ```
 
 For more info on `make` targets see the: [./Makefile](./Makefile)
-
-The package is available on CTAN: https://ctan.org/pkg/photobook
-
 
 
 ## Authors
