@@ -23,6 +23,7 @@ The package is available on:
 - GitHub: https://github.com/flynx/photobook
 
 
+To install from source:
 ```shell
 # get the source...
 $ git clone https://github.com/flynx/photobook.git
