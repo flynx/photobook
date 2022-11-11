@@ -1803,7 +1803,6 @@
 	\end{inlinecell*}%
 	\end{turn}}
 
-
 %% \DescribeEnv{cliptocell}
 %
 %% Clip content to parent cell.
@@ -3697,7 +3696,7 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   backflap        spline/vspine           frontflap
+%%   backflap         spine/vspine           frontflap
 %%     .    backcover      .   frontcover      .
 %%     v     v             v     v             v
 %%   +---+---------------+---+---------------+---+               
@@ -3710,6 +3709,11 @@
 %%
 %% \end{verbatim}
 %% \end{minipage}
+%%
+%% Note that when typesetting a spine with both top-down and bottom-up 
+%% text it is recommended to use |topdown|/|bottomup| in |zinlinecell|'s 
+%% in a normal |spine| rather than using a |vspine| and trying to rotate 
+%% part of the content.
 %%
 \newenvironment{frontcover}{%
 	\begin{cell*}{
