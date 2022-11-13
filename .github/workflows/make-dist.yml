@@ -30,7 +30,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: dist/photobook*.zip
+        files: dist/photobook-*.zip
         
     - name: Artifacts - build
       uses: actions/upload-artifact@v3
