@@ -21,6 +21,7 @@ jobs:
           apk add make git zip
           git config --global --add safe.directory '*'
           echo "VERSION=$(make version)" >> $GITHUB_ENV
+          echo "COMMENT=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
           make dist ctan-dist
 
     - name: Release
@@ -64,14 +65,8 @@ jobs:
               defining a set of parameters, meta-macros, macros and
               environments with reasonable defaults to help typeset,
               build and print books mainly based on visual/image content.
-            #announcement: >
-            #  I'm happy to announce the initial release on CTAN of the
-            #  photobook document class.  
-            #  
-            #  The photobook class extends the book class defining a set
-            #  of parameters, meta-macros, macros and environments with
-            #  reasonable defaults to help typeset, build and print books
-            #  mainly based on visual/image content.
+            announcement: >
+              ${{ env.COMMENT }}
                
         
         
