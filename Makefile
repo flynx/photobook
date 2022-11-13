@@ -287,15 +287,15 @@ ctan-dist: dist
 .PHONY: tag
 tag:
 	@echo "Will create and publish git tag:"
-	@echo "    $(VERSION)"
+	@echo "    v$(VERSION)"
 	@echo "Last 5 tags:"
-	@git tag -l '[0-9]*'\
+	@git tag -l 'v[0-9]*'\
 		| tail -n 5 \
 		| sed 's/^/    /'
 	@echo "Note that this must be done after a commit."
 	@read -p "(press any key to continue or ctrl-c to cancel)"
-	git tag "$(VERSION)"
-	git commit origin "$(VERSION)"
+	git tag "v$(VERSION)"
+	git push origin "v$(VERSION)"
 
 
 #.PHONY: publish

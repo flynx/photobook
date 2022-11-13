@@ -50,10 +50,11 @@ jobs:
         fields: |
             pkg: photobook
             version: ${{ env.VERSION }}
+            update: true
             author: Alex A. Naanou
             email: alex.nanou@gmail.com
             uploader: Alex A. Naanou <alex.nanou@gmail.com>
-            license: bsd
+            license: bsd3
             home: https://github.com/flynx/photobook
             repository: https://github.com/flynx/photobook
             summary: >
