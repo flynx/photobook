@@ -58,8 +58,8 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.3}
-\edef\photobook@FILEDATE{2021-07-28}
+\edef\photobook@FILEVERSION{v0.1.4}
+\edef\photobook@FILEDATE{2022-11-13}
 
 
 %% \documentclass{ltxdoc}
@@ -646,6 +646,7 @@
 %%	Cover flap
 %%
 \newlength\coverflap
+\setlength\coverflap{\photobook@coverflap}
 
 %% \DescribeMacro{\jacketwrap=<len>}
 %% \DescribeMacro{\jacketflap=<len>}
@@ -655,9 +656,13 @@
 %%	Jacker configuration
 %%
 \newlength\jacketwrap
+\setlength\jacketwrap{\photobook@jacketwrap}
 \newlength\jacketflap
+\setlength\jacketflap{\photobook@jacketflap}
 \newlength\jacketflapfront
+\setlength\jacketflapfront{\photobook@jacketflapfront}
 \newlength\jacketflapback
+\setlength\jacketflapback{\photobook@jacketflapback}
 
 %% \DescribeMacro{\blockwidth=<len>}
 %% \DescribeMacro{\blockheight=<len>}
@@ -926,26 +931,9 @@
 	\else
 		\def\pdfpagelayout{\photobook@pdfpagelayout}\fi
 	% items to ignore in different layouts...
-	\ifcoverlayout
-		\setlength\coverflap{
-			\ifx\coverflap\empty
-				\photobook@coverflap
-			\else
-				\coverflap \fi}
-	\else
+	\ifcoverlayout\else
 		\setlength\coverflap{0pt}\fi
-	\ifjacketlayout
-		\setlength\jacketwrap{
-			\ifx\jacketwrap\empty
-				\photobook@jacketwrap
-			\else
-				\jacketwrap \fi}
-		\setlength\jacketflap{
-			\ifx\jacketflap\empty
-				\photobook@jacketflap
-			\else
-				\jacketflap \fi}
-	\else
+	\ifjacketlayout\else
 		\setlength\jacketwrap{0pt}
 		\setlength\jacketflap{0pt}\fi
 	% flaps...
