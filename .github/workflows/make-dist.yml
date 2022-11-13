@@ -22,7 +22,7 @@ jobs:
           git config --global --add safe.directory '*'
           echo "VERSION=$(make version)" >> $GITHUB_ENV
           echo 'COMMENT<<EOF' >> $GITHUB_ENV
-          git log -1 --pretty=%B >> $GITHUB_ENV
+          git log -1 --pretty=%B | grep -v "Signed-off-by:" >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
           make dist ctan-dist
 
