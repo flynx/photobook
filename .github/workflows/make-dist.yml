@@ -21,7 +21,9 @@ jobs:
           apk add make git zip
           git config --global --add safe.directory '*'
           echo "VERSION=$(make version)" >> $GITHUB_ENV
-          echo "COMMENT=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+          echo 'COMMENT<<EOF' >> $GITHUB_ENV
+          git log -1 --pretty=%B >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
           make dist ctan-dist
 
     - name: Release
