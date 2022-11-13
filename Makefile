@@ -119,11 +119,12 @@ BUILD_DIR := build
 #DIST_NAME := $(MODULE)-$(VERSION)
 DIST_NAME := $(MODULE)-$(VERSION)-$(DATE)
 DIST_DIR := dist
+DIST_SCRIPTS = \
+	$(wildcard scripts/*)
 DIST_FILES = \
 	README.md \
 	LICENSE \
 	Makefile \
-	$(wildcard scripts/*) \
 	$(MODULE).cls \
 	$(MODULE).pdf
 # Add these when ready...
@@ -268,9 +269,10 @@ manual:
 
 
 .PHONY: dist
-dist: $(DIST_FILES)
+dist: $(DIST_FILES) $(DIST_SCRIPTS)
 	$(MD) $(DIST_DIR)
-	zip -Drq $(DIST_DIR)/$(DIST_NAME).zip $(DIST_FILES)
+	chmod 644 $(DIST_FILES)
+	zip -Drq $(DIST_DIR)/$(DIST_NAME).zip $(DIST_FILES) $(DIST_SCRIPTS)
 	# Place everything in the module dir as per CTAN spec...
 	zipnote $(DIST_DIR)/$(DIST_NAME).zip \
 		| sed 's/^\@ \([^(].*\)$$/@ \1\n@=$(MODULE)\/\1/' \

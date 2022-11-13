@@ -42,7 +42,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: dist artifacts
-        path: dist/photobook*.zip
+        path: dist/photobook-*.zip
         
     - name: Upload to CTAN (release)
       uses: paolobrasolin/ctan-submit-action@v1
