@@ -58,7 +58,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.2}
+\edef\photobook@FILEVERSION{v0.1.3}
 \edef\photobook@FILEDATE{2021-07-28}
 
 
@@ -926,14 +926,25 @@
 	\else
 		\def\pdfpagelayout{\photobook@pdfpagelayout}\fi
 	% items to ignore in different layouts...
-	% XXX is this the correct way to go???
 	\ifcoverlayout
-		\setlength\coverflap{\photobook@coverflap}
+		\setlength\coverflap{
+			\ifx\coverflap\empty
+				\photobook@coverflap
+			\else
+				\coverflap \fi}
 	\else
 		\setlength\coverflap{0pt}\fi
 	\ifjacketlayout
-		\setlength\jacketwrap{\photobook@jacketwrap}
-		\setlength\jacketflap{\photobook@jacketflap}
+		\setlength\jacketwrap{
+			\ifx\jacketwrap\empty
+				\photobook@jacketwrap
+			\else
+				\jacketwrap \fi}
+		\setlength\jacketflap{
+			\ifx\jacketflap\empty
+				\photobook@jacketflap
+			\else
+				\jacketflap \fi}
 	\else
 		\setlength\jacketwrap{0pt}
 		\setlength\jacketflap{0pt}\fi
