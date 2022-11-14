@@ -46,14 +46,13 @@ jobs:
         
     - name: Upload to CTAN (release)
       uses: paolobrasolin/ctan-submit-action@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with: 
         action: upload
         file_path: dist/photobook.zip
         fields: |
-            update: true
             pkg: photobook
             version: ${{ env.VERSION }}
+            update: "true"
             author: Alex A. Naanou
             email: alex.nanou@gmail.com
             uploader: Alex A. Naanou <alex.nanou@gmail.com>
