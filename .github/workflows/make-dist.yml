@@ -51,9 +51,9 @@ jobs:
         action: upload
         file_path: dist/photobook.zip
         fields: |
+            update: true
             pkg: photobook
             version: ${{ env.VERSION }}
-            update: true
             author: Alex A. Naanou
             email: alex.nanou@gmail.com
             uploader: Alex A. Naanou <alex.nanou@gmail.com>

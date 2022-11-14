@@ -121,12 +121,17 @@ DIST_NAME := $(MODULE)-$(VERSION)-$(DATE)
 DIST_DIR := dist
 DIST_SCRIPTS = \
 	$(wildcard scripts/*)
-DIST_FILES = \
+# NOTE: these are separate to unset the x bit...
+DIST_NORMAL_FILES = \
 	README.md \
 	LICENSE \
 	Makefile \
 	$(MODULE).cls \
 	$(MODULE).pdf
+DIST_FILES = \
+	$(DIST_SCRIPTS) \
+	$(DIST_NORMAL_FILES) \
+
 # Add these when ready...
 #	$(wildcard examples/*) \
 #	$(wildcard manual/*) \
@@ -269,10 +274,10 @@ manual:
 
 
 .PHONY: dist
-dist: $(DIST_FILES) $(DIST_SCRIPTS)
+dist: $(DIST_FILES)
 	$(MD) $(DIST_DIR)
-	chmod 644 $(DIST_FILES)
-	zip -Drq $(DIST_DIR)/$(DIST_NAME).zip $(DIST_FILES) $(DIST_SCRIPTS)
+	chmod 644 $(DIST_NORMAL_FILES)
+	zip -Drq $(DIST_DIR)/$(DIST_NAME).zip $(DIST_FILES)
 	# Place everything in the module dir as per CTAN spec...
 	zipnote $(DIST_DIR)/$(DIST_NAME).zip \
 		| sed 's/^\@ \([^(].*\)$$/@ \1\n@=$(MODULE)\/\1/' \
