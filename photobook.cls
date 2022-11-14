@@ -58,8 +58,8 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.4}
-\edef\photobook@FILEDATE{2022-11-13}
+\edef\photobook@FILEVERSION{v0.1.5}
+\edef\photobook@FILEDATE{2022-11-14}
 
 
 %% \documentclass{ltxdoc}
@@ -404,6 +404,10 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+%% Note that for |cover|, |endpaper|, and |jacket|, 
+%% \href{https://ctan.org/pkg/fancyhdr}{fancyhdr}'s |\pagestyle{..}| is 
+%% set to |empty| by default.
+%%
 %
 % XXX in cover layout setup pdf boxes in a way to use \bleed as foldover...
 % 		...see hyperref docs to set pdf view/print area (???)
@@ -550,45 +554,81 @@
 
 
 %----------------------------------------------------------------------
-% Packages...
+%%%% Packages
 %
-% NOTE: imports are after \LoadClass{ .. } to avoid figting over macro
+%% |photobook| adds and uses internally the following packages: 
+%
+% NOTE: imports are after \LoadClass{ .. } to avoid fighting over macro
 %		names...
 
+%% \href{https://ctan.org/pkg/geometry}{geometry},
+%% \href{https://ctan.org/pkg/kvoptions}{kvoptions},
+
+%% \href{https://ctan.org/pkg/calc}{calc},
 \RequirePackage{calc}
+%% \href{https://ctan.org/pkg/xargs}{xargs},
 \RequirePackage{xargs}
+%% \href{https://ctan.org/pkg/ifthen}{ifthen},
 \RequirePackage{ifthen}
+%% \href{https://ctan.org/pkg/iftex}{iftex},
 \RequirePackage{iftex}
+%% \href{https://ctan.org/pkg/pgffor}{pgffor},
 \RequirePackage{pgffor}
+%% \href{https://ctan.org/pkg/xint}{xint},
 \RequirePackage{xint}
+%% \href{https://ctan.org/pkg/xinttools}{xinttools},
 \RequirePackage{xinttools}
+%% \href{https://ctan.org/pkg/listofitems}{listofitems},
 \RequirePackage{listofitems}
+%% \href{https://ctan.org/pkg/xkeyval}{xkeyval},
 \RequirePackage{xkeyval} 
+%% \href{https://ctan.org/pkg/etoolbox}{etoolbox},
 \RequirePackage{etoolbox}
+%% \href{https://ctan.org/pkg/atbegshi}{atbegshi},
 \RequirePackage{atbegshi}
 %\RequirePackage{afterpage}
 %\RequirePackage{changepage}
+%% \href{https://ctan.org/pkg/hyperref}{hyperref},
 \RequirePackage[unicode]{hyperref}
 %\RequirePackage{pdfcomment}
+%% \href{https://ctan.org/pkg/eso-pic}{eso-pic},
 \RequirePackage{eso-pic}
+%% \href{https://ctan.org/pkg/environ}{environ},
 \RequirePackage{environ}
+%% \href{https://ctan.org/pkg/numprint}{numprint},
 \RequirePackage{numprint}
+%% \href{https://ctan.org/pkg/trimclip}{trimclip},
 \RequirePackage{trimclip}
+%% \href{https://ctan.org/pkg/xcolor}{xcolor},
 \RequirePackage{xcolor}
+%% \href{https://ctan.org/pkg/colorspace}{colorspace},
 \RequirePackage{colorspace}
+%% \href{https://ctan.org/pkg/graphicx}{graphicx},
 \RequirePackage{graphicx}
+%% \href{https://ctan.org/pkg/adjustbox}{adjustbox},
 \RequirePackage{adjustbox}
+%% \href{https://ctan.org/pkg/adjustbox}{adjustbox},
 \RequirePackage[absolute]{textpos}
+%% \href{https://ctan.org/pkg/fancyvrb}{fancyvrb},
 \RequirePackage{fancyvrb}
+%% \href{https://ctan.org/pkg/tikz}{tikz},
 \RequirePackage{tikz}
 %\RequirePackage[linewidth=1pt]{mdframed}
 % XXX flow text frames...
 % XXX this messes with geometry....
 %\RequirePackage{flowfram}
+%% \href{https://ctan.org/pkg/rotating}{rotating},
 \RequirePackage{rotating}
+%% \href{https://ctan.org/pkg/fancyhdr}{fancyhdr}, and
 \RequirePackage{fancyhdr}
+%% \href{https://ctan.org/pkg/pdfpages}{pdfpages}.
 \RequirePackage{pdfpages}
 
+
+%% \newline
+%% Most of these packages can be used by the book author without explicitly
+%% importing them.
+%%
 
 
 %----------------------------------------------------------------------
@@ -954,6 +994,7 @@
 		\setlength\pageblockwidth{\blockwidth}
 		% layout: cover...
 		\ifcoverlayout
+			\pagestyle{empty}%
 			\setsepchar{,}%
 			\readlist*\pagefoldpanels{%
 				\the\coverflap,
@@ -980,6 +1021,7 @@
 		% layout: jacket...
 		% XXX this seems to be about 6mm off -- what are we missing here???
 		\ifjacketlayout
+			\pagestyle{empty}%
 			\setsepchar{,}%
 			\readlist*\pagefoldpanels{%
 				\the\jacketflapback,
@@ -1007,6 +1049,7 @@
 					+ \jacketflapback \relax}\fi
 		% layout: endpaper...
 		\ifendpaperlayout
+			\pagestyle{empty}%
 			\readlist*\pagefoldpanels{%
 				\the\pageblockwidth,
 				\the\pageblockwidth}%
