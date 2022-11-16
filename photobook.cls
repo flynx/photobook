@@ -19,9 +19,11 @@
 % we strictly need to define macros before they are used thus meta-macros
 % and other building blocks and components come before the user tools.
 %
-% Docs are build by the Makefile, so reference it for more info.
+% Docs are built by the Makefile, so reference it for more info.
 %
-%	$ make doc
+% To make the reference use:
+
+%	$ make pdf
 %
 %
 % NOTE: in a stripped code install this file may contain only code and 
@@ -31,8 +33,6 @@
 %		to edit it directly, edit the source instead.
 %
 %
-% XXX Q: do we add the pdf to the repo and if so, should it be 
-%		compressed (diff-able) or uncompressed (blob)??
 % XXX revise \clearcaption / \captionclearpage...
 % XXX unify API -- see CellContent env...
 % XXX make this loadable both as a class and as a package...
@@ -43,7 +43,7 @@
 %		- templates --  \ImagePage{..}
 % XXX see where we need to \ignorespaces...
 % XXX might be a good idea to add a spine calculator...
-% XXX add list of dependencies to docs...
+% XXX might be fun to add a 'box' layout to build book boxes...
 % XXX manual / book:
 %		- basic usage
 %			- setup
