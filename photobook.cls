@@ -234,7 +234,7 @@
 %%   + - - - - - - - - - - - - - - - - - - - - - + - +   v
 %%       .                                       .
 %%       |   <-- textwidth -------------->   .   |
-%%                                               ^ binding line
+%%                                               ^ gutter
 %%
 %% \end{verbatim}
 %% \end{minipage}
