@@ -1635,8 +1635,8 @@
 %%
 %% Like |inlinecell| / |inlinecell*| but will take up zero space.
 %%
-%%	>> \begin{zinlinecell}{<width>}{<height>} ... \end{zinlinecell}
-%%	>> \begin{zinlinecell}[<valign>]{<width>}{<height>} ... \end{zinlinecell}
+%%	>> \begin{zinlinecell} ... \end{zinlinecell}
+%%	>> \begin{zinlinecell}[<valign>] ... \end{zinlinecell}
 %%
 % XXX need to get rid of the raisebox here...
 \NewEnviron{zinlinecell*}[1][]{%
