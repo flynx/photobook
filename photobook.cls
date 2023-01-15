@@ -1628,12 +1628,14 @@
 
 
 % XXX EXPERIMENTAL
+% XXX revise docs...
 %% \DescribeEnv{zinlinecell}
 %% \DescribeEnv{zinlinecell*}
 %
 %% \EXPERIMENTAL
 %%
-%% Like |inlinecell| / |inlinecell*| but will take up zero space.
+%% Like |inlinecell| / |inlinecell*| but will take up zero space, positiond
+%% at top of containing cell and sized to |\cellwidth| x |\cellheight|.
 %%
 %%	>> \begin{zinlinecell} ... \end{zinlinecell}
 %%	>> \begin{zinlinecell}[<valign>] ... \end{zinlinecell}
