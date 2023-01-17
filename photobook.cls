@@ -58,8 +58,8 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.5}
-\edef\photobook@FILEDATE{2022-11-14}
+\edef\photobook@FILEVERSION{v0.1.6}
+\edef\photobook@FILEDATE{2023-01-17}
 
 
 %% \documentclass{ltxdoc}
@@ -1634,8 +1634,8 @@
 %
 %% \EXPERIMENTAL
 %%
-%% Like |inlinecell| / |inlinecell*| but will take up zero space, positiond
-%% at top of containing cell and sized to |\cellwidth| x |\cellheight|.
+%% Like |inlinecell| / |inlinecell*| but will take up zero space and 
+%% sized to |\cellwidth| x |\cellheight|.
 %%
 %%	>> \begin{zinlinecell} ... \end{zinlinecell}
 %%	>> \begin{zinlinecell}[<valign>] ... \end{zinlinecell}
