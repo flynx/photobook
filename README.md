@@ -51,7 +51,7 @@ For more info on `make` targets see the: [./Makefile](./Makefile)
 
 [BSD 3-Clause License](./LICENSE)
 
-Copyright (c) 2021-2022, Alex A. Naanou,
+Copyright (c) 2021-2023, Alex A. Naanou,
 All rights reserved.
 
 
