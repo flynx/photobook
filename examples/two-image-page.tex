@@ -1,0 +1,46 @@
+%----------------------------------------------------------------------
+
+\documentclass[
+	layoutmode=block,
+	% page size...
+	blockwidth=240mm, blockheight=220mm,
+	bleed=4mm,
+	bindingoffset=5mm,
+	% image block configuration...
+	imageblockwidth=0.98, imageblockheight=0.98,
+	imageblockoffsettop=-0,
+	% misc...
+	9pt,final,openany
+]{photobook}
+
+\usepackage{lipsum}
+\usepackage{ragged2e}
+
+
+\setlength\parindent{0pt}
+
+\edef\TestImage{DSC00403-2}
+\edef\TestImageV{DSC00403-2vert}
+
+\writeimagelistfalse
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+
+\begin{document} % - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+\begin{pagecell}%
+	% XXX not sure why bleed compensation here is needed -- investigate...
+	\begin{cell}{\bleed, 0mm}{0.5\cellwidth}{\cellheight}%
+		\imagecell[fit]{\captioncell[over]{Right caption}}{\TestImage}%
+	\end{cell}
+	\begin{cell}{0.5\cellwidth + \bleed, 0mm}{0.5\cellwidth}{\cellheight}%
+		\imagecell[fit]{\captioncell[under]{Right caption}}{\TestImage}%
+	\end{cell}
+\end{pagecell}
+
+
+%----------------------------------------------------------------------
+\end{document} %                                    vim:set ts=4 sw=4 :
