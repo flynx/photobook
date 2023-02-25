@@ -44,6 +44,8 @@
 % XXX see where we need to \ignorespaces...
 % XXX might be a good idea to add a spine calculator...
 % XXX might be fun to add a 'box' layout to build book boxes...
+% XXX add a grid cell / image cell (???)
+%		make it trivial to define AxB cell layouts and fill them (fully/partially)
 % XXX manual / book:
 %		- basic usage
 %			- setup
@@ -601,6 +603,8 @@
 \RequirePackage{trimclip}
 %% \href{https://ctan.org/pkg/xcolor}{xcolor},
 \RequirePackage{xcolor}
+%% \href{https://ctan.org/pkg/pagecolor}{pagecolor},
+\RequirePackage{pagecolor}
 %% \href{https://ctan.org/pkg/colorspace}{colorspace},
 \RequirePackage{colorspace}
 %% \href{https://ctan.org/pkg/graphicx}{graphicx},
@@ -1132,6 +1136,12 @@
 	% paper size (incl. bleeds)...
 	paperwidth=\bleedblockwidth, paperheight=\bleedblockheight,
 ]{geometry}
+
+% colors...
+% This prevents \pagecolor from getting drawn over other elements...
+\pagecolor{white}
+\pagecolor{none}
+\color{black}
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2435,6 +2445,9 @@
 			\begin{minipage}[t][\cellheight][#2]{\cellwidth}%
 				\begin{\photobook@captioncell@align}%
 					\ignorespaces%
+					% XXX BUG: for some reason the text here will not line-break...
+					%		putting it in a minipage here does nothing while the same
+					%		minipage on the lient size fixes the issue...
 					#3%
 				\end{\photobook@captioncell@align}%
 			\end{minipage}
