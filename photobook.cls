@@ -60,8 +60,8 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.6}
-\edef\photobook@FILEDATE{2023-01-17}
+\edef\photobook@FILEVERSION{v0.1.7}
+\edef\photobook@FILEDATE{2023-02-27}
 
 
 %% \documentclass{ltxdoc}
@@ -1138,6 +1138,7 @@
 ]{geometry}
 
 % colors...
+%
 % This prevents \pagecolor from getting drawn over other elements...
 \pagecolor{white}
 \pagecolor{none}
