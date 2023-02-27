@@ -41,6 +41,12 @@ $ make pdf
 For more info on `make` targets see the: [./Makefile](./Makefile)
 
 
+## Notes
+
+- `photobook` is mostly used with `lualatex`, other engines are mostly 
+  supported but some features may misbehave.
+
+
 ## Authors
 
 [Alex A. Naanou](https://github.com/flynx)
