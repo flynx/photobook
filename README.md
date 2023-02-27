@@ -1,4 +1,5 @@
-# photobook
+photobook
+=========
 
 [LaTeX](https://www.latex-project.org/) document class for making photo books.
 
@@ -43,6 +44,16 @@ For more info on `make` targets see the: [./Makefile](./Makefile)
 
 ## Notes
 
+- There is a bug in default captions not being typeset correctly if too 
+  long, a workaround is to place them in a `minipage` like this:
+  ```latex
+  \imagecell{%
+      \begin{minipage}{\cellwidth}%
+          long caption text...
+      \end{minipage}%
+  }{some-image}
+  ```
+  (still working on a solution for this).
 - `photobook` is mostly used with `lualatex`, other engines are mostly 
   supported but some features may misbehave.
 
