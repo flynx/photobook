@@ -298,7 +298,8 @@ tag:
 	@echo "Last 5 tags:"
 	@git tag -l 'v[0-9]*'\
 		| tail -n 5 \
-		| sed 's/^/    /'
+		| sed 's/^/    /' \
+		| tac
 	@echo "Note that this must be done after a commit."
 	@read -p "(press any key to continue or ctrl-c to cancel)"
 	git tag "v$(VERSION)"
