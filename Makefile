@@ -93,11 +93,8 @@ MD_FORMAT ?= markdown_github
 # debug output...
 #
 # $DEBUG can either be empty or anything else...
-DEBUG ?=
 ifeq ($(DEBUG),)
 	STDERR := > /dev/null
-else
-	STDERR :=
 endif
 
 
