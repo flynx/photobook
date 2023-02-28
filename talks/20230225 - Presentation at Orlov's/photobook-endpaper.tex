@@ -1,0 +1,33 @@
+%----------------------------------------------------------------------
+
+\documentclass[
+	layoutmode=endpaper,
+	% make the spread 16x9...
+	blockwidth=96mm, blockheight=108mm,
+	spinewidth=5mm,
+	spinefold=2mm,
+	coverflap=17mm,
+	coverboardgrow=0.5mm,
+	jacketflap=50mm,
+	jacketwrap=0.5mm,
+	bleed=0mm,
+	bindingoffset=0mm,
+	% image block configuration...
+	imageblockwidth=0.98, imageblockheight=0.98,
+	imageblockoffsettop=0mm,
+	% misc...
+	12pt,final,openany
+]{photobook}
+
+\pagecolor{white}
+%\textblockrulecolour{black}
+
+\begin{document} % - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+\fontsize{6pt}{8pt}\selectfont
+
+\GenerateTemplate
+
+
+%----------------------------------------------------------------------
+\end{document} %                                    vim:set ts=4 sw=4 :
