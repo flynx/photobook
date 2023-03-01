@@ -3931,7 +3931,7 @@
 \def\ByNotice{}
 \def\ThanksTo{}
 \def\ISBN{}
-\def\BookEdition{500}
+\def\BookEdition{}
 \def\License{}
 \def\CopyrightNotice{%
 	Copyright \textcopyright \ \BookYear \ \BookAuthors; All Rights Reserved.
@@ -3961,12 +3961,12 @@
 %
 %% Generate book information page. 
 %%
-
 % XXX add option to combine this with software info...
 \newcommand\BookInfoPage[1][]{%
 	\begin{page}%
 		\vfill
 		\begin{flushleft}%
+			\footnotesize
 			#1
 
 			\ifx \CopyrightNotice \empty\else%
@@ -4004,6 +4004,7 @@
 	\begin{page}%
 		\vfill
 		\begin{flushleft}%
+			\footnotesize
 			#1
 
 			\ifx \SoftwareNotice \empty\else%
