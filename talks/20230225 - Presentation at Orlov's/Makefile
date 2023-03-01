@@ -57,10 +57,14 @@ endif
 %.pdf: %.tex $(SETUP)
 	-$(CMD) $< $(STDERR)
 
+# XXX need to figure this out with patterns...
+photobook-slides-en.pdf: $(COMPONENTS) 
 
-photobook-slides.pdf: $(COMPONENTS) 
+photobook-slides-ru.pdf: $(COMPONENTS) 
 
-photobook-slides-web.pdf: photobook-slides.pdf
+photobook-web-en.pdf: photobook-slides-en.pdf
+
+photobook-web-ru.pdf: photobook-slides-ru.pdf
 
 
 #----------------------------------------------------------------------
@@ -72,10 +76,10 @@ photobook-slides-web.pdf: photobook-slides.pdf
 all: web
 
 .PHONY: slides
-slides: photobook-slides.pdf $(IMAGES)
+slides: photobook-slides-en.pdf photobook-slides-ru.pdf $(IMAGES)
 
 .PHONY: web
-web: photobook-slides-web.pdf slides 
+web: photobook-web-en.pdf photobook-web-ru.pdf slides 
 
 .PHONY: components
 components: $(COMPONENTS)

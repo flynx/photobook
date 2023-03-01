@@ -80,6 +80,7 @@ shopt -s nullglob extglob
 #			...something like:
 #				<template-name>-left.tpl
 #				<template-name>-right.tpl
+#		- add multiple images/captions...
 #
 #
 #
