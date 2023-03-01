@@ -71,8 +71,8 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.7}
-\edef\photobook@FILEDATE{2023-02-27}
+\edef\photobook@FILEVERSION{v0.1.8}
+\edef\photobook@FILEDATE{2023-03-01}
 
 
 %% \documentclass{ltxdoc}
@@ -3919,20 +3919,30 @@
 %%
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-%%%%% Basic information
+%%%%% Basic book information
 
-% XXX Document metadata...
+% XXX Document metadata -- move to globals...
 % XXX Use LaTeX generic metadata...
+%% \DescribeMacro{BookTitle=<text>}
 \def\BookTitle{}
+%% \DescribeMacro{BookVersion=<text>}
 \def\BookVersion{}
+%% \DescribeMacro{BookAuthors=<text>}
 \def\BookAuthors{}
+%% \DescribeMacro{BookYear=<text>}
 \def\BookYear{%
 	\the\year}
+%% \DescribeMacro{ByNotice=<text>}
 \def\ByNotice{}
+%% \DescribeMacro{ThanksTo=<text>}
 \def\ThanksTo{}
+%% \DescribeMacro{ISBN=<text>}
 \def\ISBN{}
+%% \DescribeMacro{BookEdition=<text>}
 \def\BookEdition{}
+%% \DescribeMacro{License=<text>}
 \def\License{}
+%% \DescribeMacro{CopyrightNotice=<text>}
 \def\CopyrightNotice{%
 	Copyright \textcopyright \ \BookYear \ \BookAuthors; All Rights Reserved.
 
@@ -3942,8 +3952,11 @@
 	\else%
 		\License\fi}
 
+%% \DescribeMacro{OtherSoftware=<text>}
 \def\OtherSoftware{}
+%% \DescribeMacro{BookFonts=<text>}
 \def\BookFonts{}
+%% \DescribeMacro{SoftwareNotice=<text>}
 \def\SoftwareNotice{%
 	This book was designed and laid out using open source 
 	\ifx \BookFonts \empty\else
@@ -3956,12 +3969,59 @@
 		\href{https://ctan.org/pkg/photobook}{photobook} and 
 		\href{https://www.latex-project.org/}{\LATEX.}}
 
+%% These provide the default information used by the |\BookInfoPage| and
+%% |\BookSoftwareInfoPage|.
+%%
 
 %% \DescribeMacro{\BookInfoPage}
 %
 %% Generate book information page. 
 %%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   |               |
+%%   |               |
+%%   |               |
+%%   | copyright     |
+%%   | ISBN          |
+%%   | info          |
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% This page is {\it usually} included near the start of the book, before
+%% any of the logical sections of the book start, {\it usually} just after
+%% the title pages but before any of the epigraphs, forewords, TOCs and 
+%% prefaces. This can also in some cases be pushed to the rear of the book.
+%%
 % XXX add option to combine this with software info...
+\def\BookInfo{%
+	\ifx \CopyrightNotice \empty\else%
+		{\setlength{\parskip}{0.5em}%
+			\CopyrightNotice} \\
+		\vspace{1em}
+	\fi
+	\ifx \ByNotice \empty\else%
+		\ByNotice
+	
+	\fi
+	\ifx \ThanksTo \empty\else%
+		Special thanks to: \ThanksTo \\ \fi
+	\vspace{1em}
+	\ifx \ISBN \empty\else%
+		ISBN: \ISBN \\
+		\vspace{1em}\fi
+	\ifx \Edition \empty\else%
+		Edition: \Edition
+
+	\fi
+	\ifx \BookVersion \empty\else%
+		Version: \BookVersion
+
+	\fi}
 \newcommand\BookInfoPage[1][]{%
 	\begin{page}%
 		\vfill
@@ -3969,29 +4029,7 @@
 			\footnotesize
 			#1
 
-			\ifx \CopyrightNotice \empty\else%
-				{\setlength{\parskip}{0.5em}%
-					\CopyrightNotice} \\
-				\vspace{1em}
-			\fi
-			\ifx \ByNotice \empty\else%
-				\ByNotice
-			
-			\fi
-			\ifx \ThanksTo \empty\else%
-				Special thanks to: \ThanksTo \\ \fi
-			\vspace{1em}
-			\ifx \ISBN \empty\else%
-				ISBN: \ISBN \\
-				\vspace{1em}\fi
-			\ifx \Edition \empty\else%
-				Edition: \Edition
-
-			\fi
-			\ifx \BookVersion \empty\else%
-				Version: \BookVersion
-
-			\fi
+			\BookInfo
 		\end{flushleft}%
 	\end{page}}
 
@@ -4000,6 +4038,26 @@
 %
 %% Generate software info page.
 %%
+%% \begin{minipage}{\textwidth}
+%% \begin{verbatim}
+%%
+%%   +---------------+
+%%   |               |
+%%   |               |
+%%   |               |
+%%   |               |
+%%   |               |
+%%   | notice        |
+%%   +---------------+
+%%
+%% \end{verbatim}
+%% \end{minipage}
+%%
+%% This page if present is usually placed at the very rear of the book.
+%%
+\def\SoftwareInfo{%
+	\ifx \SoftwareNotice \empty\else%
+		\SoftwareNotice\fi}
 \newcommand\BookSoftwareInfoPage[1][]{%
 	\begin{page}%
 		\vfill
@@ -4007,8 +4065,26 @@
 			\footnotesize
 			#1
 
-			\ifx \SoftwareNotice \empty\else%
-				\SoftwareNotice\fi
+			\SoftwareInfo
+		\end{flushleft}%
+	\end{page}}
+
+
+%% \DescribeMacro{\BookFullInfoPage}
+%
+%% This page combines the |\BookInfoPage| and |\BookSoftwareInfoPage| 
+%% information into a single page.
+%%
+\newcommand\BookFullInfoPage[1][]{%
+	\begin{page}%
+		\vfill
+		\begin{flushleft}%
+			\footnotesize
+			#1
+
+			\BookInfo
+			\vspace{1em}
+			\SoftwareInfo
 		\end{flushleft}%
 	\end{page}}
 
