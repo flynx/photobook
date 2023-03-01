@@ -3932,13 +3932,15 @@
 \def\ThanksTo{}
 \def\ISBN{}
 \def\BookEdition{500}
-\def\License{%
-	All Rights Reserved}
+\def\License{}
 \def\CopyrightNotice{%
-	Copyright \textcopyright \ \BookYear \ \BookAuthors; \License.
+	Copyright \textcopyright \ \BookYear \ \BookAuthors; All Rights Reserved.
 
-	No part of this book may be reproduced in any form without written permission
-	of the author except for use for brief quotation in a book review.}
+	\ifx \License \empty%
+		No part of this book may be reproduced in any form without written permission
+		of the author except for use for brief quotation in a book review.
+	\else%
+		\License\fi}
 
 \def\OtherSoftware{}
 \def\BookFonts{}
@@ -3961,10 +3963,12 @@
 %%
 
 % XXX add option to combine this with software info...
-\newcommand\BookInfoPage{%
+\newcommand\BookInfoPage[1][]{%
 	\begin{page}%
 		\vfill
 		\begin{flushleft}%
+			#1
+
 			\ifx \CopyrightNotice \empty\else%
 				{\setlength{\parskip}{0.5em}%
 					\CopyrightNotice} \\
@@ -3996,10 +4000,12 @@
 %
 %% Generate software info page.
 %%
-\newcommand\BookSoftwareInfoPage{%
+\newcommand\BookSoftwareInfoPage[1][]{%
 	\begin{page}%
 		\vfill
 		\begin{flushleft}%
+			#1
+
 			\ifx \SoftwareNotice \empty\else%
 				\SoftwareNotice\fi
 		\end{flushleft}%
