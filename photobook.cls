@@ -54,6 +54,17 @@
 %			- pre-print
 %		- customizing
 %		- extending
+% XXX add basic page templates:
+%		- acknowledgements
+%			Fields
+%			- \Title
+%			- \Authors
+%			- \Thanks
+%			- \ISBN
+%			- \Edition / \Issue
+%			- \CopyrightNotice
+%			- ...
+%		- info
 %
 %
 %----------------------------------------------------------------------
@@ -3908,6 +3919,95 @@
 %%
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%%%%% Basic information
+
+% XXX Document metadata...
+% XXX Use LaTeX generic metadata...
+\def\BookTitle{}
+\def\BookVersion{}
+\def\BookAuthors{}
+\def\BookYear{%
+	\the\year}
+\def\ByNotice{}
+\def\ThanksTo{}
+\def\ISBN{}
+\def\BookEdition{500}
+\def\License{%
+	All Rights Reserved}
+\def\CopyrightNotice{%
+	Copyright \textcopyright \ \BookYear \ \BookAuthors; \License.
+
+	No part of this book may be reproduced in any form without written permission
+	of the author except for use for brief quotation in a book review.}
+
+\def\OtherSoftware{}
+\def\BookFonts{}
+\def\SoftwareNotice{%
+	This book was designed and laid out using open source 
+	\ifx \BookFonts \empty\else
+		fonts and\fi 
+	software including: 
+		\ifx \BookFonts \empty\else%
+			\BookFonts, \fi
+		\ifx \OtherSoftware \empty\else%
+			\OtherSoftware, \fi
+		\href{https://ctan.org/pkg/photobook}{photobook} and 
+		\href{https://www.latex-project.org/}{\LATEX.}}
+
+
+%% \DescribeMacro{\BookInfoPage}
+%
+%% Generate book information page. 
+%%
+
+% XXX add option to combine this with software info...
+\newcommand\BookInfoPage{%
+	\begin{page}%
+		\vfill
+		\begin{flushleft}%
+			\ifx \CopyrightNotice \empty\else%
+				{\setlength{\parskip}{0.5em}%
+					\CopyrightNotice} \\
+				\vspace{1em}
+			\fi
+			\ifx \ByNotice \empty\else%
+				\ByNotice
+			
+			\fi
+			\ifx \ThanksTo \empty\else%
+				Special thanks to: \ThanksTo \\ \fi
+			\vspace{1em}
+			\ifx \ISBN \empty\else%
+				ISBN: \ISBN \\
+				\vspace{1em}\fi
+			\ifx \Edition \empty\else%
+				Edition: \Edition
+
+			\fi
+			\ifx \BookVersion \empty\else%
+				Version: \BookVersion
+
+			\fi
+		\end{flushleft}%
+	\end{page}}
+
+
+%% \DescribeMacro{\BookSoftwareInfoPage}
+%
+%% Generate software info page.
+%%
+\newcommand\BookSoftwareInfoPage{%
+	\begin{page}%
+		\vfill
+		\begin{flushleft}%
+			\ifx \SoftwareNotice \empty\else%
+				\SoftwareNotice\fi
+		\end{flushleft}%
+	\end{page}}
+
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Tweaking
 %
 %% Most page/spread templates provide an ability to externally "tweak" 
@@ -4890,6 +4990,7 @@
 %----------------------------------------------------------------------
 %%%% Miscellaneous
 
+
 %% \DescribeMacro{\PageInfo}
 %
 %% Display basic paper / page / cell geometry.
@@ -5088,6 +5189,12 @@
 			(#1 mm) * \numexpr \pdfpagecount{#3} / 2 \relax
 			+ ((#2 mm) * 2)
 		\relax}}
+
+% XXX DOC...
+\def\TEX{%
+	{\fontfamily{lmr}\selectfont \TeX}}
+\def\LATEX{%
+	{\fontfamily{lmr}\selectfont \LaTeX}}
 
 
 
