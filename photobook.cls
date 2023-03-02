@@ -71,7 +71,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.8}
+\edef\photobook@FILEVERSION{v0.1.9}
 \edef\photobook@FILEDATE{2023-03-01}
 
 
@@ -1697,11 +1697,11 @@
 %%
 % XXX SYNTAX: place the second arg in braces...
 %		\begin{cell*}(<left>, <top>){<width>}{<height>}
+%\newenvironment{cell*}[3]{%
 \newenvironment{cell*}[3]{%
 	\begingroup%
 		\setsepchar{,}%
 		\readlist*\photobook@cell@offset{#1}%
-		%
 		% NOTE: if there is no \null before textblock then it can reset the 
 		%		non-standard page boxes... 
 		%		...not sure yet if this is an issue with how/when foldout env
@@ -1710,7 +1710,7 @@
 		%		XXX report this as a bug if issue is in textblock...
 		%		XXX another place where this is relevant is in the resizedpages
 		%			env...
-		\null%
+		%\null%
 		\begin{textblock*}{#2}(#1)%
 		\begin{inlinecell*}{#2}{#3}%
 			\setlength\celloffsettop{\photobook@cell@offset[1]}%
@@ -1779,7 +1779,7 @@
 \newcommand\savecell[5][]{%
 	% only define a savebox once...
 	\@ifundefined{#2}{%
-		\expandafter\newsavebox\csname #2\endcsname}{}
+		\expandafter\newsavebox\csname #2\endcsname}{}%
 	\expandafter\sbox\csname #2\endcsname{%
 		\TPoptions{absolute=false}%
 		\begin{inlinecell*}[#1]{#3}{#4}%
@@ -1791,7 +1791,7 @@
 \newcommand\gsavecell[5][]{%
 	% only define a savebox once...
 	\@ifundefined{#2}{%
-		\expandafter\newsavebox\csname #2\endcsname}{}
+		\expandafter\newsavebox\csname #2\endcsname}{}%
 	\global\expandafter\sbox\csname #2\endcsname{%
 		\TPoptions{absolute=false}%
 		\begin{inlinecell*}[#1]{#3}{#4}%
