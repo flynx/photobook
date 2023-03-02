@@ -1781,9 +1781,11 @@
 	\@ifundefined{#2}{%
 		\expandafter\newsavebox\csname #2\endcsname}{}
 	\expandafter\sbox\csname #2\endcsname{%
+		\TPoptions{absolute=false}%
 		\begin{inlinecell*}[#1]{#3}{#4}%
 			#5%
-		\end{inlinecell*}}%
+		\end{inlinecell*}%
+		\TPoptions{absolute=true}}%
 	\ignorespaces}
 
 \newcommand\gsavecell[5][]{%
@@ -1791,9 +1793,11 @@
 	\@ifundefined{#2}{%
 		\expandafter\newsavebox\csname #2\endcsname}{}
 	\global\expandafter\sbox\csname #2\endcsname{%
+		\TPoptions{absolute=false}%
 		\begin{inlinecell*}[#1]{#3}{#4}%
 			#5%
-		\end{inlinecell*}}%
+		\end{inlinecell*}%
+		\TPoptions{absolute=true}}%
 	\ignorespaces}
 
 
