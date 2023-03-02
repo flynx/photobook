@@ -1,0 +1,58 @@
+
+%----------------------------------------------------------------------
+
+\documentclass[
+	layoutmode=block,
+	spinewidth=20mm,
+	spinefold=7mm,
+	coverboardgrow=3mm,
+	coverflap=17mm,
+	% page size...
+	blockwidth=240mm, blockheight=220mm,
+	bleed=4mm,
+	bindingoffset=5mm,
+	% image block configuration...
+	imageblockwidth=0.98, imageblockheight=0.98,
+	imageblockoffsettop=-0.1,
+	% misc...
+	9pt,final,openany
+]{photobook}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\begin{document}
+
+\cleartoleftpage
+
+\begin{spreadtopages}
+	% text cell
+	\begin{cell}{\bleed, \bleed}{0.25\cellwidth}{\cellheight - 2\bleed}
+		TEXT
+	\end{cell}
+	% image cell
+	\begin{cell}{0.25\cellwidth + \bleed, 0mm}{0.75\cellwidth + \bleed}{\cellheight + 2\bleed}
+		\imagecell[fill]{}{DSC00403-2}
+	\end{cell}
+\end{spreadtopages}
+
+% XXX BUG the cell is not shown on the second page...
+%		...the bare imagecells, inlinecells work fine...
+\begin{spreadtopages}
+	\begin{cell}{0mm, 0mm}{\cellwidth + 2\bleed}{\cellheight + 2\bleed}
+		\imagecell[fill]{}{DSC00403-2}
+	\end{cell}
+\end{spreadtopages}
+\begin{spreadtopages}
+	\begin{inlinecell}{\cellwidth}{\cellheight}
+		\imagecell[fill]{}{DSC00403-2}
+	\end{inlinecell}
+\end{spreadtopages}
+\begin{spreadtopages}
+	\imagecell[fill]{}{DSC00403-2}
+\end{spreadtopages}
+
+\end{document}
+
+%----------------------------------------------------------------------
+%                                                  vim:set ts=4 sw=4 :
