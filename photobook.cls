@@ -623,6 +623,8 @@
 %% \href{https://ctan.org/pkg/adjustbox}{adjustbox},
 \RequirePackage{adjustbox}
 %% \href{https://ctan.org/pkg/adjustbox}{adjustbox},
+% XXX BUG TEXTPOS textblock in absolute mode does not behave well with 
+%		sbox in absolute mode...
 \RequirePackage[absolute]{textpos}
 %% \href{https://ctan.org/pkg/fancyvrb}{fancyvrb},
 \RequirePackage{fancyvrb}
@@ -1767,7 +1769,7 @@
 %% This is similar to |\newsavebox{..}| and |\sbox{..}| but adds 
 %% cell functionality.
 %%
-%% |\gsavecell{..}| is the same as |\savecell{..}| but greates a global 
+%% |\gsavecell{..}| is the same as |\savecell{..}| but creates a global 
 %% cell.
 %%
 % XXX can/should we make this an env???

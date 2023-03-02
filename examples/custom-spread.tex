@@ -18,41 +18,42 @@
 	9pt,final,openany
 ]{photobook}
 
+\usepackage{lipsum}
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\begin{document}
+\begin{document} %-----------------------------------------------------
 
 \cleartoleftpage
 
-\begin{spreadtopages}
-	% text cell
-	\begin{cell}{\bleed, \bleed}{0.25\cellwidth}{\cellheight - 2\bleed}
-		TEXT
-	\end{cell}
-	% image cell
-	\begin{cell}{0.25\cellwidth + \bleed, 0mm}{0.75\cellwidth + \bleed}{\cellheight + 2\bleed}
-		\imagecell[fill]{}{DSC00403-2}
-	\end{cell}
-\end{spreadtopages}
+% NOTE: this is just a trivial example, we are not formatting the text 
+%		block here in any way nor are we pedantic about lengths...
+\newlength\textbockmargin
+\setlength\textbockmargin{2mm}
 
-% XXX BUG the cell is not shown on the second page...
-%		...the bare imagecells, inlinecells work fine...
+% text at left...
 \begin{spreadtopages}
-	\begin{cell}{0mm, 0mm}{\cellwidth + 2\bleed}{\cellheight + 2\bleed}
-		\imagecell[fill]{}{DSC00403-2}
-	\end{cell}
-\end{spreadtopages}
-\begin{spreadtopages}
-	\begin{inlinecell}{\cellwidth}{\cellheight}
+	\begin{inlinecell}{0.25\cellwidth}{\cellheight}
+		\lipsum
+	\end{inlinecell}
+	\hspace{\textbockmargin}
+	\begin{inlinecell}{0.75\cellwidth - \textbockmargin + \bleed}{\cellheight}
 		\imagecell[fill]{}{DSC00403-2}
 	\end{inlinecell}
 \end{spreadtopages}
+
+% text at right...
 \begin{spreadtopages}
-	\imagecell[fill]{}{DSC00403-2}
+	\hspace{-\bleed}
+	\begin{inlinecell}{0.75\cellwidth - \textbockmargin + \bleed}{\cellheight}
+		\imagecell[fill]{}{DSC00403-2}
+	\end{inlinecell}
+	\hspace{\textbockmargin}
+	\begin{inlinecell}{0.25\cellwidth}{\cellheight}
+		\lipsum
+	\end{inlinecell}
 \end{spreadtopages}
 
-\end{document}
 
-%----------------------------------------------------------------------
+
+\end{document} %-------------------------------------------------------
 %                                                  vim:set ts=4 sw=4 :
