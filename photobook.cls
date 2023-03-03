@@ -65,6 +65,9 @@
 %			- \CopyrightNotice
 %			- ...
 %		- info
+% XXX DOC add notes about external libs section:
+%		- textpos
+%			cell/cell* depend on absolute mode being set globally
 %
 %
 %----------------------------------------------------------------------
@@ -1699,6 +1702,10 @@
 %% |cell| and |cell*| are absolutely positioned either relative to 
 %% the current page or to the closest savecell.
 %%
+% XXX handle textpos's absolute option internally (+arg)
+%		- save external state
+%		- set internal state
+%		- reset bac to saved
 % XXX should this have an explicit absolute/relative option???
 % XXX SYNTAX: place the second arg in braces...
 %		\begin{cell*}(<left>, <top>){<width>}{<height>}
