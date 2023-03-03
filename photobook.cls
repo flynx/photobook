@@ -1696,6 +1696,10 @@
 %
 %%	>> \begin{cell*}{<left>, <top>}{<width>}{<height>} ... \end{cell*}
 %%
+%% |cell| and |cell*| are absolutely positioned either relative to 
+%% the current page or to the closest savecell.
+%%
+% XXX should this have an explicit absolute/relative option???
 % XXX SYNTAX: place the second arg in braces...
 %		\begin{cell*}(<left>, <top>){<width>}{<height>}
 %\newenvironment{cell*}[3]{%
@@ -1772,6 +1776,11 @@
 %%
 %% |\gsavecell{..}| is the same as |\savecell{..}| but creates a global 
 %% cell.
+%%
+%% Note that both |\gsavecell{..}| and |\savecell{..}| make the nested
+%% |cell| and |cell*| position relative to the cell and not the page.
+%% This is done by setting |\TPoptions{absolute=false}| for the cell
+%% content which will also affect |textpos|'s macros.
 %%
 % XXX can/should we make this an env???
 % XXX should this be split into \newsavecell{..} and \scell{..} ???
