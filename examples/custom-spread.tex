@@ -27,16 +27,16 @@
 
 % NOTE: this is just a trivial example, we are not formatting the text 
 %		block here in any way nor are we pedantic about lengths...
-\newlength\textbockmargin
-\setlength\textbockmargin{2mm}
+\newlength\textblockmargin
+\setlength\textblockmargin{2mm}
 
 % text at left...
 \begin{spreadtopages}%
 	\begin{inlinecell}{0.25\cellwidth}{\cellheight}%
 		\lipsum
 	\end{inlinecell}%
-	\hspace{\textbockmargin}%
-	\begin{inlinecell}{0.75\cellwidth - \textbockmargin + \bleed}{\cellheight}%
+	\hspace{\textblockmargin}%
+	\begin{inlinecell}{0.75\cellwidth - \textblockmargin + \bleed}{\cellheight}%
 		\imagecell[fill]{}{DSC00403-2}%
 	\end{inlinecell}
 \end{spreadtopages}
@@ -44,10 +44,10 @@
 % text at right...
 \begin{spreadtopages}%
 	\hspace{-\bleed}%
-	\begin{inlinecell}{0.75\cellwidth - \textbockmargin + \bleed}{\cellheight}%
+	\begin{inlinecell}{0.75\cellwidth - \textblockmargin + \bleed}{\cellheight}%
 		\imagecell[fill]{}{DSC00403-2}%
 	\end{inlinecell}%
-	\hspace{\textbockmargin}%
+	\hspace{\textblockmargin}%
 	\begin{inlinecell}{0.25\cellwidth}{\cellheight}%
 		\lipsum
 	\end{inlinecell}

@@ -1386,6 +1386,7 @@
 %% packed in.
 %%
 \newenvironment{page}{%
+	% XXX do we need \null here???
 	\null%
 	\ignorespaces%
 }{%
