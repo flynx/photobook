@@ -223,20 +223,23 @@ getCaption(){
 	echo ${C[*]}
 }
 
-# XXX EXPERIMENTAL...
-# index ${VAR} variables in templates...
+# XXX EXPERIMENTAL index template variables...
 declare -A TEMPLATE_INDEX
+templateVars(){
+	if [ -z ${TEMPLATE_INDEX[$1]} ] ; then
+		TEMPLATE_INDEX[$1]=$(cat "$1" \
+			| grep -o '\${[A-Z0-9]\+}' \
+			| sed 's/\${\(.*\)}/\1/g' \
+			| sort)
+	fi
+	echo ${TEMPLATE_INDEX[$1]}
+}
 indexTemplates(){
 	#echo indexing templates...
-	local lst
 	local tpl
 	for tpl in "${TEMPLATE_PATH}"/* ; do
 		#echo ${tpl}...
-		lst=( $(cat "${tpl}" \
-			| grep -o '\${[A-Z0-9]\+}' \
-			| sed 's/\${\(.*\)}/\1/g' \
-			| sort) )
-		TEMPLATE_INDEX[$(basename "${tpl}")]=${lst[@]}
+		templateVars "${tpl}" > /dev/null
 	done
 }
 
@@ -272,6 +275,8 @@ anotatePath(){
 
 
 #----------------------------------------------------------------------
+
+#indexTemplates
 
 
 echo %----------------------------------------------------------------------
@@ -430,6 +435,10 @@ for spread in "${IMAGE_DIR}"/* ; do
 		fi
 		# formatting done...
 		[ -z $TEMPLATE ] && continue
+
+		# XXX index the manual template...
+		#if [ -z ${TEMPLATE_INDEX[$TEMPLATE]}] ; then
+		#fi
 
 		# format...
 		TEMPLATE=${TEMPLATE/$spread\//}
