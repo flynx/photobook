@@ -223,6 +223,23 @@ getCaption(){
 	echo ${C[*]}
 }
 
+# XXX EXPERIMENTAL...
+# index ${VAR} variables in templates...
+declare -A TEMPLATE_INDEX
+indexTemplates(){
+	#echo indexing templates...
+	local lst
+	local tpl
+	for tpl in "${TEMPLATE_PATH}"/* ; do
+		#echo ${tpl}...
+		lst=( $(cat "${tpl}" \
+			| grep -o '\${[A-Z0-9]\+}' \
+			| sed 's/\${\(.*\)}/\1/g' \
+			| sort) )
+		TEMPLATE_INDEX[$(basename "${tpl}")]=${lst[@]}
+	done
+}
+
 getTemplate(){
 	local SPREAD=$1
 	local TYPE=$2
