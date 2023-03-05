@@ -229,7 +229,7 @@ templateVars(){
 	# cache the vars...
 	if [ ${TEMPLATE_INDEX[$1]+_} ] ; then
 		TEMPLATE_INDEX[$1]=$(cat "$1" \
-			| grep -o '\${[A-Z0-9]\+}' \
+			| grep -o '\${[A-Z0-9_]\+}' \
 			| sed 's/\${\(.*\)}/\1/g' \
 			| sort)
 	fi
@@ -241,6 +241,30 @@ indexTemplates(){
 	for tpl in "${TEMPLATE_PATH}"/* ; do
 		templateVars "${tpl}" > /dev/null
 	done
+}
+# this depends on $img and $txt arrays being defined...
+populateTemplate(){
+	local tpl="$1"
+	local slots=( $(templateSlots "${tpl}") )
+	local text=$(cat "${tpl}")
+
+	local var
+	local i=0
+	local t=0
+	# XXX can we do this in a single pass???
+	for var in ${slots[@]} ; do
+		local name=${var//[0-9]/}
+		if [ ${name} = "IMAGE" ] ; then
+			local val=${img[$i]}
+			i=$(( n + 1 ))
+		else
+			local val=${txt[$t]}
+			t=$(( n + 1 ))
+		fi
+		text=$(echo -e "${text}" | \
+			sed "s/\${${var}}/${val}/g")
+	done
+	echo -e "${text}"
 }
 
 getTemplate(){
