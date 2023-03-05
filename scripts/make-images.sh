@@ -226,7 +226,8 @@ getCaption(){
 # XXX EXPERIMENTAL index template variables...
 declare -A TEMPLATE_INDEX
 templateVars(){
-	if [ -z ${TEMPLATE_INDEX[$1]} ] ; then
+	# cache the vars...
+	if [ ${TEMPLATE_INDEX[$1]+_} ] ; then
 		TEMPLATE_INDEX[$1]=$(cat "$1" \
 			| grep -o '\${[A-Z0-9]\+}' \
 			| sed 's/\${\(.*\)}/\1/g' \
@@ -234,11 +235,10 @@ templateVars(){
 	fi
 	echo ${TEMPLATE_INDEX[$1]}
 }
+# cache all template vars...
 indexTemplates(){
-	#echo indexing templates...
 	local tpl
 	for tpl in "${TEMPLATE_PATH}"/* ; do
-		#echo ${tpl}...
 		templateVars "${tpl}" > /dev/null
 	done
 }
