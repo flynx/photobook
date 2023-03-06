@@ -2,7 +2,16 @@
 shopt -s nullglob extglob
 
 #----------------------------------------------------------------------
-#
+# 
+# TIP: It is better to think of a visual book as a set of spreads 
+#		rather than a set of pages, hence the focus on spreads in the 
+#		code below.
+#		The main unit of a "visual" book is a spread, it's the thing 
+#		you see when you hold the book open, and the main workflow 
+#		when building a book is creating spreads and ordering them so 
+#		a single page is almost never treated as an independent unit.
+# 
+# 
 # Template structure:
 #	templates/
 #		imagepage.tex
