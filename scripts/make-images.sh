@@ -106,10 +106,16 @@ IMAGE_DIR=pages/
 #IMAGE_HIRES_DIR=
 
 
+CAPTIONS=captions/
+
 # Default timplates
-#SINGLE_IMAGE=blank-image
-SINGLE_IMAGE=imagebleedleft
-DOUBLE_IMAGE=image-image
+TEXT_SPREAD=
+#SINGLE_IMAGE_SPREAD=blank-image
+SINGLE_IMAGE_SPREAD=imagebleedleft
+DOUBLE_IMAGE_SPREAD=image-image
+
+TEXT_FORMATS='.*.txt$'
+IMAGE_FORMATS='.*\.(jpeg|jpg|png|pdf|svg|eps)$'
 
 
 # load config...
@@ -130,9 +136,9 @@ printhelp(){
 	echo "  --templates=PATH"
 	echo "              - path to search for templates (default: $TEMPLATE_PATH)."
 	echo "  --single-image-tpl=NAME"
-	echo "              - single image default template (default: $SINGLE_IMAGE)."
+	echo "              - single image default template (default: $SINGLE_IMAGE_SPREAD)."
 	echo "  --double-image-tpl=NAME"
-	echo "              - double image default template (default: $DOUBLE_IMAGE)."
+	echo "              - double image default template (default: $DOUBLE_IMAGE_SPREAD)."
 	echo
 	echo "Parameters:"
 	echo "  PATH        - path to root pages directory (default: $IMAGE_DIR)"
@@ -177,12 +183,12 @@ while true ; do
 			shift
 			;;
 		--single-image-tpl)
-			SINGLE_IMAGE=$2
+			SINGLE_IMAGE_SPREAD=$2
 			shift
 			shift
 			;;
 		--double-image-tpl)
-			DOUBLE_IMAGE=$2
+			DOUBLE_IMAGE_SPREAD=$2
 			shift
 			shift
 			;;
@@ -221,10 +227,11 @@ STOP=$(( FROM + COUNT ))
 getCaption(){
 	local C=`basename "${1%.*}"`
 	#C="${C/[0-9]-}"
-	C="captions/${C}.txt"
+	C="$CAPTIONS/${C}.txt"
 
 	if [ -e "${C}" ] ; then
-		C=`cat "${C}" | sed 's/\\\/\\\\\\\/g'`
+		C=$(cat "${C}" \
+			| sed 's/\\\/\\\\\\\/g')
 	else
 		C=""
 	fi
@@ -251,31 +258,268 @@ indexTemplates(){
 		templateVars "${tpl}" > /dev/null
 	done
 }
-# this depends on $img and $txt arrays being defined...
+# Populate template image/text slots
+# usage:
+#	populateTemplate SPREAD TEMPLATE ITEMS...
+#
 populateTemplate(){
-	local tpl="$1"
+	local spread="$1"
+	local tpl="$2"
 	local slots=( $(templateSlots "${tpl}") )
 	local text=$(cat "${tpl}")
 
-	local var
-	local i=0
-	local t=0
-	# XXX can we do this in a single pass???
-	for var in ${slots[@]} ; do
-		local name=${var//[0-9]/}
-		if [ ${name} = "IMAGE" ] ; then
-			local val=${img[$i]}
-			i=$(( n + 1 ))
-		else
-			local val=${txt[$t]}
-			t=$(( n + 1 ))
+	# items/img/txt...
+	shift 2
+	local items=("$@")
+	if [ ${#items[@]} = 0 ] ; then
+		items=( $spread/* )
+	fi
+	local img=()
+	local txt=()
+	local elem
+	for elem in "${items[@]}" ; do
+		if [[ "$elem" =~ $IMAGE_FORMATS ]] ; then
+			img+=("$elem")
+		elif [[ "$elem" =~ $TEXT_FORMATS ]] ; then
+			txt+=("$elem")
 		fi
+	done
+
+	local var
+	local val
+	local index=()
+	local captions=()
+	local name
+	# pass 1: images...
+	local i=0
+	for var in ${slots[@]} ; do
+		name=${var//[0-9]/}
+		if ! [ ${name} = "IMAGE" ] ; then
+			continue
+		fi
+
+		val=${img[$i]}
+		# index images for caption retrieval...
+		index[${var/$name/}]="$val"
+		# warn if no image found for slot...
+		if [ -z ${val} ] ; then
+			echo %
+			{
+				echo "% WARNING: image #${i} requested but not found"
+				echo "%     in: ${tpl}"
+				echo "%     by: ${spread}"
+			} | tee >(cat >&2)
+			echo %
+		fi
+		i=$(( i + 1 ))
+
 		text=$(echo -e "${text}" | \
 			sed "s/\${${var}}/${val}/g")
 	done
+
+	# pass 2: captions...
+	for var in ${slots[@]} ; do
+		name=${var//[0-9]/}
+		if ! [ ${name} = "CAPTION" ] ; then
+			continue
+		fi
+
+		# get global caption...
+		val=$(getCaption "${index[${var/$name/}]}")
+		# see if we have a local caption if no global is found...
+		if [ -z ${val} ] ; then
+			# get corresponding image name...
+			local image=$(basename "${index[${var/$name/}]%.*}")
+			for i in ${!txt[@]} ; do
+				local e=${txt[$i]}
+				if [ "$(basename ${e%.*})" = "${image}" ] ; then
+					if [ -e "${e}" ] ; then
+						val=$(cat "${e}" \
+							| sed 's/\\\/\\\\\\\/g')
+					fi
+					unset "txt[$i]"
+					break
+				fi
+			done
+		fi
+
+		text=$(echo -e "${text}" | \
+			sed "s/\${${var}}/${val}/g")
+	done
+
+	# pass 3: texts...
+	for var in ${slots[@]} ; do
+		name=${var//[0-9]/}
+		if [ ${name} = "CAPTION" ] || [ ${name} = "IMAGE" ] ; then
+			continue
+		fi
+
+		val=
+		for i in ${!txt[@]} ; do
+			# NOTE: we do not care as much if not text is found...
+			val=${txt[$i]}
+			unset "txt[$i]"
+			# we only need the first text...
+			break
+		done
+
+		text=$(echo -e "${text}" | \
+			sed "s/\${${var}}/${val}/g")
+	done
+
 	echo -e "${text}"
 }
 
+# usage:
+#	handleSpread SPREAD
+#
+# closure: $IMAGE_HIRES_DIR, $SINGLE_IMAGE_SPREAD, $TEXT_SPREAD
+handleSpread(){
+	local spread=$1
+	# skip non-spreads...
+	if ! [ -d "$spread" ] ; then
+		return
+	fi
+	# skip temporarily disabled...
+	if [ -z ${spread/-*/} ] ; then
+		echo "% spread: ${spread/-/}: skipped..." | tee >(cat >&2)
+		echo %
+		return
+	else
+		printf "Spread ($c/$l): ${spread/-/}                         \r" >&2
+		echo "% spread: ${spread/-/}"
+	fi
+
+	# auto layout / templates...
+	# NOTE: to use a specific template just `touch <template-name>.tpl`
+	#	in the spread directory...
+
+	# layout tweaks...
+	local tweaks=($spread/*tweak.tex)
+	if ! [ -z ${tweaks} ] ; then
+		echo "% tweaks: ${tweaks[0]}"
+		cat ${tweaks[0]}
+	fi
+
+	# collect images and text...
+	# NOTE: we are filling these manually to support configurable 
+	#		image/text patterns...
+	local img=()
+	local txt=()
+	local items=()
+	for elem in "$spread"/* ; do
+		if [[ "$elem" =~ $IMAGE_FORMATS ]] ; then
+			img+=("$elem")
+			items+=("$elem")
+		elif [[ "$elem" =~ $TEXT_FORMATS ]] ; then
+			items+=("$elem")
+		fi
+	done
+
+	# get hi-res image paths...
+	if ! [ -z $IMAGE_HIRES_DIR ] ; then
+		local C=0
+		for image in "${img[@]}" ; do
+			# skip non-images...
+			local new="$IMAGE_HIRES_DIR/`basename ${image/[0-9]-/}`"
+			# ignore file ext for availability test...
+			# NOTE: the first match may be an unsupported format...
+			new="${new%.*}"
+			new=($new.*)
+			if [ -e "${new[0]}" ] ; then
+				img[$C]=${new[0]}
+			else
+				echo %
+				echo "% WARNING: hi-res image not found for: \"${image}\" -> \"${new}\"" \
+					| tee >(cat >&2)
+				echo %
+			fi
+			C=$(( C + 1 ))
+		done
+	fi
+
+	# manual layout...
+	local layout=( $spread/*layout.tex )
+	if ! [ -z $layout ] ; then
+		local template=${layout[0]}
+
+	# templates and partial templates...
+	else
+		local template=( $spread/*.tpl )
+		# skip page template refs: *-imagepage.tpl / *-textpage.tpl
+		# XXX this will also eat 0-imagepage.tpl / 20-textpage.tpl -- do a better pattern...
+		if ! [ -z $template ] ; then
+			template=(`ls "$spread/"*.tpl \
+				| egrep -v '.*-(imagepage|textpage)\.tpl'`)
+		fi
+		# no template explicitly defined -> match auto-template...
+		if [ -z $layout ] && [ -z $template ] ; then
+			# no images...
+			if [ ${#img[@]} == 0 ] ; then
+				template=$TEXT_SPREAD
+
+			# single image...
+			elif [ ${#img[@]} == 1 ] ; then
+				template=$SINGLE_IMAGE_SPREAD
+
+			# build spread from pages...
+			else
+				local C=0
+				local P
+				local elem
+				for elem in "${items[@]}" ; do
+					C=$(( C + 1 ))
+					P=$([ $C == 1 ] \
+						&& echo "left" \
+						|| echo "right")
+
+					# image...
+					if [[ "$elem" =~ $IMAGE_FORMATS ]] ; then
+						echo %
+						echo "% $P page (image)..."
+						TEMPLATE=`getTemplate "$spread" "imagepage"`
+						echo % page template: $template
+						anotatePath "${elem}"
+						local caption=`getCaption "${elem}"`
+						cat "${template}" \
+							| sed -e "s%\${IMAGE0\?}%${elem%.*}%" \
+								-e "s%\${CAPTION0\?}%${caption}%"
+					# text...
+					else
+						echo %
+						echo "% $P page (text)..."
+						template=`getTemplate "$spread" "textpage"`
+						echo % page template: $template
+						cat "${template}" \
+							| sed "s%\${TEXT}%${elem}%"
+					fi
+					# reset for next page...
+					TEMPLATE=
+					# ignore the rest of the items when we are done 
+					# creating two pages...
+					[ $C == 2 ] \
+						&& break
+				done
+			fi
+		fi
+		# formatting done...
+		[ -z $TEMPLATE ] \
+			&& return
+
+		# format template path...
+		template=${template/$spread\//}
+		template=${template/[0-9]-/}
+		# get...
+		template="$TEMPLATE_PATH/${template[0]%.*}.tex"
+	fi
+
+	populateTemplate "$spread" "$template" "${img[@]}" "${txt[@]}"
+}
+
+#
+# usage:
+#	getTemplate SPREAD TYPE
+#
 getTemplate(){
 	local SPREAD=$1
 	local TYPE=$2
@@ -294,6 +538,10 @@ getTemplate(){
 	echo $TEMPLATE
 }
 
+# Add pdf notes with image path used in template
+# usage:
+#	anotatePath PATH
+#
 anotatePath(){
 	if [ -z "$1" ] || [ -z "$ANOTATE_IMAGE_PATHS" ] ; then
 		return
@@ -400,7 +648,8 @@ for spread in "${IMAGE_DIR}"/* ; do
 					items[$C]=${new[0]}
 				else
 					echo %
-					echo "% WARNING: hi-res image not found for: \"${img}\" -> \"${new}\"" | tee >(cat >&2)
+					echo "% WARNING: hi-res image not found for: \"${img}\" -> \"${new}\"" \
+						| tee >(cat >&2)
 					echo %
 				fi
 			fi
@@ -421,16 +670,17 @@ for spread in "${IMAGE_DIR}"/* ; do
 		# skip page template refs: *-imagepage.tpl / *-textpage.tpl
 		# XXX this will also eat 0-imagepage.tpl / 20-textpage.tpl -- do a better pattern...
 		if ! [ -z $TEMPLATE ] ; then
-			TEMPLATE=(`ls "$spread/"*.tpl | egrep -v '.*-(imagepage|textpage)\.tpl'`)
+			TEMPLATE=(`ls "$spread/"*.tpl \
+				| egrep -v '.*-(imagepage|textpage)\.tpl'`)
 		fi
 		# no template explicitly defined -> match auto-template...
 		AUTO=
 		if [ -z $layout ] && [ -z $TEMPLATE ] ; then
 			AUTO=" (auto)"
 			if [ ${#items[@]} == 1 ] ; then
-				TEMPLATE=$SINGLE_IMAGE
+				TEMPLATE=$SINGLE_IMAGE_SPREAD
 
-			# multiple items...
+			# multiple images...
 			else 
 				C=0
 				for img in "${items[@]}" ; do
@@ -479,6 +729,8 @@ for spread in "${IMAGE_DIR}"/* ; do
 		# get...
 		TEMPLATE="$TEMPLATE_PATH/${TEMPLATE[0]%.*}.tex"
 	fi
+
+	# spread template...
 
 	# captions...
 	CAPTION0=`getCaption "${items[0]}"`
