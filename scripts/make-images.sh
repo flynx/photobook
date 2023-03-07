@@ -248,6 +248,9 @@ getCaption(){
 		fi
 	done
 }
+
+# usage:
+#	readCaption PATH
 readCaption(){
 	[ -z "$1" ] \
 		&& return 1
@@ -255,11 +258,14 @@ readCaption(){
 		| sed -e 's/\\/\\\\\\/g'
 }
 
-# XXX EXPERIMENTAL index template variables...
+# get template slots (cached)...
+# usage:
+#	templateSlots TEMPLATE
 declare -A TEMPLATE_INDEX
 templateSlots(){
 	# cache the vars...
-	if [ ${TEMPLATE_INDEX[$1]+_} ] ; then
+	#if [ ${TEMPLATE_INDEX[$1]+_} ] ; then
+	if [ -z ${TEMPLATE_INDEX[$1]} ] ; then
 		TEMPLATE_INDEX[$1]=$(cat "$1" \
 			| grep -o '\${[A-Z0-9_]\+}' \
 			| sed 's/\${\(.*\)}/\1/g' \
@@ -277,7 +283,6 @@ populateTemplate(){
 	local tpl="$2"
 	[ -e "$tpl" ] \
 		|| return 1
-	# XXX for some magical reason this returns an empty list...
 	local slots=( $(templateSlots "${tpl}") )
 	local text=$(cat "${tpl}")
 
@@ -297,10 +302,6 @@ populateTemplate(){
 			txt+=("$elem")
 		fi
 	done
-
-	echo >&2
-	echo POPULATETEMPLATE: "$spread" "$tpl" ... =\> $(templateSlots "${tpl}") >&2
-	echo >&2
 
 	local var
 	local val
@@ -335,8 +336,9 @@ populateTemplate(){
 		fi
 		i=$(( i + 1 ))
 
+		val=${val//\//\\/}
 		text=$(echo -e "${text}" | \
-			sed "s/\${${var}}/${val}/g")
+			sed "s/\${${var}}/${val%.*}/g")
 	done
 
 	# pass 2: captions...
@@ -350,8 +352,11 @@ populateTemplate(){
 		val=$(getCaption "$spread" "${index[${var/$name/}]}" "${txt[@]}")
 
 		if [ -n "${val}" ] ; then
-			# XXX need to clear the used texts...
-			# XXX
+			# clear the used texts... (XXX test)
+			for i in "${!txt[@]}" ; do
+				[ "$val" = "${txt[$i]}" ] \
+					&& unset "txt[$i]"
+			done
 			val=$(readCaption "${val}")
 		fi
 
@@ -375,12 +380,13 @@ populateTemplate(){
 			break
 		done
 
+		val=${val//\//\\/}
 		text=$(echo -e "${text}" | \
 			sed "s/\${${var}}/${val}/g")
 	done
 
 	# print out the filled template...
-	echo % page template: $tpl
+	echo % template: $tpl
 	echo -e "${text}"
 	return 0
 }
@@ -491,7 +497,7 @@ handleSpread(){
 						echo %
 						echo "% $P page (image)..."
 						template=`getTemplate "$spread" "imagepage"`
-						echo % page template: $template
+						echo % template: $template
 						anotatePath "${elem}"
 						local caption=$(getCaption "$spread" "${elem}")
 						caption=$(readCaption "$caption")
@@ -503,7 +509,7 @@ handleSpread(){
 						echo %
 						echo "% $P page (text)..."
 						template=$(getTemplate "$spread" "textpage")
-						echo % page template: $template
+						echo % template: $template
 						cat "${template}" \
 							| sed "s%\${TEXT}%${elem}%"
 					fi
@@ -574,10 +580,9 @@ anotatePath(){
 }
 
 
+
 #----------------------------------------------------------------------
-
-#indexTemplates
-
+# generate the template...
 
 echo %----------------------------------------------------------------------
 echo %
@@ -589,17 +594,11 @@ echo "% Image source (hi-res): \"$IMAGE_HIRES_DIR\""
 echo %
 echo %----------------------------------------------------------------------
 echo %
-#echo % set image source directory...
-#echo "\\graphicspath{{${IMAGE_DIR}}}"
-#echo %
-#echo %----------------------------------------------------------------------
-#echo %
-#
-#cd ${IMAGE_DIR}
 
 l=$(ls "$IMAGE_DIR/" | wc -l)
-c=0
 
+c=0
+d=0
 for spread in "${IMAGE_DIR}"/* ; do
 	# skip non-spreads...
 	if ! [ -d "$spread" ] ; then
@@ -636,6 +635,8 @@ for spread in "${IMAGE_DIR}"/* ; do
 	fi
 
 	handleSpread "$spread"
+
+	d=$(( d + 1 ))
 done
 
 echo %
@@ -644,7 +645,7 @@ echo %
 echo %----------------------------------------------------------------------
 echo
 
-echo "Spread created: $c of $l                                         " >&2
+echo "Spread created: $d of $l                                         " >&2
 
 
 
