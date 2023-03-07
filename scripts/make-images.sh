@@ -17,6 +17,13 @@ shopt -s nullglob extglob
 #		imagepage.tex
 #		textpage.tex
 #		...
+#	captions/
+#		<image>.txt
+#			image caption.
+#			this is separated to decouple caption writing from the 
+#			changes to the layout/sequencing and this drastically 
+#			simplify the work with writers.
+#		...
 #	$IMAGE_DIR/
 #		$spread/
 #			tweaks.tex
@@ -68,6 +75,8 @@ shopt -s nullglob extglob
 #				resolve to:
 #					$IMAGE_HIRES_DIR/<image>
 #				XXX hi-res substitution currently disabled.
+#			00-<image>.txt
+#				local image caption text.
 #			01-<text>.txt
 #				text.
 #			...
