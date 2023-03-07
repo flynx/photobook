@@ -14,6 +14,7 @@ shopt -s nullglob extglob
 # 
 # Template structure:
 #	templates/
+#		spread.tex
 #		imagepage.tex
 #		textpage.tex
 #		...
@@ -23,6 +24,7 @@ shopt -s nullglob extglob
 #			this is separated to decouple caption writing from the 
 #			changes to the layout/sequencing and this drastically 
 #			simplify the work with writers.
+#			For this reason this takes priority over local captions (XXX revise).
 #		...
 #	$IMAGE_DIR/
 #		$spread/
@@ -35,11 +37,24 @@ shopt -s nullglob extglob
 #				ignored.
 #				fields:
 #					${IMAGE0}
+#						replaced with image path
 #					${CAPTION0}
-#					${IMAGE1}
-#					${CAPTION1}
+#						replaced with content of caption file if found
+#						and empty otherwise.
+#					${TEXT0}
+#						replaced with the content of a text file if 
+#						found and empty otherwise.
+#					...
 #				NOTE: if images are included, hi-res source
 #					substitution is not done here.
+#				NOTE: fields are ordered and matched according to their
+#					position and not their number, e.g. in the following 
+#					sequence:
+#						IMAGE, IMAGE10, IMAGE20, ..,
+#						CAPTION2, CAPTION7, CAPTION12, ..
+#					IMAGE10 will be filled with the second found image 
+#					and CAPTION7 will be filled with the second found 
+#					caption.
 #			<spread-template-name>.tpl
 #				indicates the spread template to use.
 #				if given the rest of the .tex files in 
@@ -49,34 +64,40 @@ shopt -s nullglob extglob
 #				fields:
 #					${IMAGE0}
 #					${CAPTION0}
-#					${IMAGE1}
-#					${CAPTION1}
+#					${TEXT0}
+#					...
 #			imagepage.tex
 #				image page template.
 #				fields:
 #					${IMAGE}
 #					${CAPTION}
+#					${TEXT0}
+#					...
 #			textpage.tex
 #				text page template.
 #				fields:
 #					${TEXT}
+#					...
 #			<spread-template-name>-imagepage.tpl
 #			<spread-template-name>-textpage.tpl
 #				indicates the image/text page template to use.
 #				ignored if explicit templates are given.
-#				image fields:
+#				fields:
 #					${IMAGE}
 #					${CAPTION}
-#				text fields:
 #					${TEXT}
+#					...
 #			00-<image>.png
 #				image.
 #				if $IMAGE_HIRES_DIR is set then this will 
 #				resolve to:
 #					$IMAGE_HIRES_DIR/<image>
-#				XXX hi-res substitution currently disabled.
+#				supported formats:
+#					.jpeg, .png, .pdf, .svg, .eps 
+#					(see $IMAGE_FORMATS)
 #			00-<image>.txt
 #				local image caption text.
+#				NOTE: this must be named the same as the image.
 #			01-<text>.txt
 #				text.
 #			...
@@ -278,7 +299,7 @@ templateSlots(){
 		TEMPLATE_INDEX[$1]=$(cat "$1" \
 			| grep -o '\${[A-Z0-9_]\+}' \
 			| sed 's/\${\(.*\)}/\1/g' \
-			| sort)
+			| sort -V)
 	fi
 	echo ${TEMPLATE_INDEX[$1]}
 }
