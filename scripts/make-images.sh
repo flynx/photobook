@@ -127,13 +127,10 @@ shopt -s nullglob extglob
 
 # defaults...
 
-TEMPLATE_PATH=templates/
-
-IMAGE_DIR=pages/
-
-CAPTIONS=captions/
-
-#IMAGE_HIRES_DIR=
+IMAGE_DIR=${IMAGE_DIR:=pages/}
+IMAGE_HIRES_DIR=${IMAGE_HIRES_DIR:=}
+CAPTION_DIR=${CAPTION_DIR:=captions/}
+TEMPLATE_DIR=${TEMPLATE_DIR:=templates/}
 
 TEXT_FORMATS='.*\.txt$'
 IMAGE_FORMATS='.*\.(jpeg|jpg|png|pdf|svg|eps)$'
@@ -176,13 +173,15 @@ printhelp(){
 	echo "Arguments:"
 	echo "  -h --help   - print this help and exit."
 	echo "  --templates=PATH"
-	echo "              - path to search for templates (default: $TEMPLATE_PATH)."
+	echo "              - path to search for templates (default: $TEMPLATE_DIR)."
 	echo "  --single-image-tpl=NAME"
 	echo "              - single image default template (default: ${IMAGE_SPREAD[1]})."
 	echo "  --double-image-tpl=NAME"
 	echo "              - double image default template (default: ${IMAGE_SPREAD[2]})."
 	echo "  --text-spread-tpl=NAME"
 	echo "              - text spread default template (default: ${IMAGE_SPREAD[0]})."
+	echo "  --captions=PATH"
+	echo "              - path to search for captions (default: $CAPTION_DIR)."
 	echo
 	echo "Parameters:"
 	echo "  PATH        - path to root pages directory (default: $IMAGE_DIR)"
@@ -222,7 +221,7 @@ while true ; do
 			;;
 
 		--templates)
-			TEMPLATE_PATH=$2
+			TEMPLATE_DIR=$2
 			shift
 			shift
 			;;
@@ -238,6 +237,11 @@ while true ; do
 			;;
 		--text-spread-tpl)
 			IMAGE_SPREAD[0]=$2
+			shift
+			shift
+			;;
+		--captions)
+			CAPTION_DIR=$2
 			shift
 			shift
 			;;
@@ -280,7 +284,7 @@ getCaption(){
 	local name=`basename "${2%.*}"`
 
 	local captions=(
-		"$CAPTIONS/${name}.txt"
+		"$CAPTION_DIR/${name}.txt"
 		"${spread}/${name}.txt"
 	)
 
@@ -571,7 +575,7 @@ handleSpread(){
 		# get...
 		template="${template[0]%.*}.tex"
 		if ! [ -e "$template" ] ; then
-			template="$TEMPLATE_PATH/${template[0]%.*}.tex"
+			template="$TEMPLATE_DIR/${template[0]%.*}.tex"
 		fi
 	fi
 
@@ -593,11 +597,11 @@ getTemplate(){
 		if ! [ -z $TEMPLATE ] ; then
 			TEMPLATE=${TEMPLATE/$SPREAD\//}
 			TEMPLATE=${TEMPLATE/[0-9]-/}
-			TEMPLATE="$TEMPLATE_PATH/${TEMPLATE[0]%-${TYPE}.*}.tex"
+			TEMPLATE="$TEMPLATE_DIR/${TEMPLATE[0]%-${TYPE}.*}.tex"
 		fi
 	fi
 	if [ -z $TEMPLATE ] ; then
-		 TEMPLATE="$TEMPLATE_PATH/${TYPE}.tex"
+		 TEMPLATE="$TEMPLATE_DIR/${TYPE}.tex"
 	fi
 	if ! [ -e $TEMPLATE ] ; then
 		return
@@ -638,10 +642,12 @@ echo %----------------------------------------------------------------------
 echo %
 
 l=$(ls "$IMAGE_DIR/" | wc -l)
-
 c=0
 d=0
-for spread in "${IMAGE_DIR}"/* ; do
+SPREADS=("$(ls "${IMAGE_DIR}" | sort -n)")
+for spread in ${SPREADS[@]} ; do
+	spread="${IMAGE_DIR}/${spread}"
+
 	# skip non-spreads...
 	if ! [ -d "$spread" ] ; then
 		continue
@@ -666,11 +672,13 @@ for spread in "${IMAGE_DIR}"/* ; do
 		echo % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	fi
 	SKIP_FIRST=1
+
 	# skip temporarily disabled...
-	if [ -z ${spread/-*/} ] ; then
+	if [[ "${spread}" =~ -.* ]] ; then
 		echo "% spread: ${spread/-/}: skipped..." | tee >(cat >&2)
 		echo %
 		continue
+	# print helpful info...
 	else
 		printf "Spread ($c/$l): ${spread/-/}                         \r" >&2
 		echo "% spread: ${spread/-/}"
