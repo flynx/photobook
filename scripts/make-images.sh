@@ -708,10 +708,9 @@ for spread in ${SPREADS[@]} ; do
 		l=$(( l - 1 ))
 		continue
 	# skip temporarily disabled...
-	elif [[ "${spread}" =~ -.* ]] ; then
+	elif [[ "${spread}" =~ [\\\/]-.*$ ]] ; then
 		SKIP_FIRST=1
-		echo "% spread: ${spread/-/}: skipped..." | tee >(cat >&2)
-		echo %
+		echo "% spread: ${spread}: skipped..." | tee >(cat >&2)
 		continue
 	fi
 
@@ -735,8 +734,8 @@ for spread in ${SPREADS[@]} ; do
 	fi
 	SKIP_FIRST=1
 
-	printf "Spread ($c/$l): ${spread/-/}                         \r" >&2
-	echo "% spread: ${spread/-/}"
+	printf "Spread ($c/$l): ${spread}                         \r" >&2
+	echo "% spread: ${spread}"
 	handleSpread "$spread"
 
 	d=$(( d + 1 ))
