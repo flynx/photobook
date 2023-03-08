@@ -132,11 +132,12 @@ if [ -z $STRIP_DOC ] ; then
 		> "$OUTPUT"
 	cat "$INPUT" \
 		| egrep '(^%'$PREFIX'|^\\edef\\'$MODULE'@[A-Z][A-Z]+)' \
-		| sed 's/^\(\\edef\\\)'$MODULE'@/%'$PREFIX'\1/' \
-		| sed 's/%'$PREFIX'%%%% \(.*\)/%'$PREFIX'\\subsubsection{\1}\\label{subsubsec:\1}/' \
-		| sed 's/%'$PREFIX'%%% \(.*\)/%'$PREFIX'\\subsection{\1}\\label{subsec:\1}/' \
-		| sed 's/%'$PREFIX'%% \(.*\)/%'$PREFIX'\\section{\1}\\label{sec:\1}/' \
-		| sed 's/%'$PREFIX'\s\+>>\s\+\(.*\)/%'$PREFIX'\\begin{verbatim} \1 \\end{verbatim}/' \
+		| sed \
+			-e 's/^\(\\edef\\\)'$MODULE'@/%'$PREFIX'\1/' \
+			-e 's/%'$PREFIX'%%%% \(.*\)/%'$PREFIX'\\subsubsection{\1}\\label{subsubsec:\1}/' \
+			-e 's/%'$PREFIX'%%% \(.*\)/%'$PREFIX'\\subsection{\1}\\label{subsec:\1}/' \
+			-e 's/%'$PREFIX'%% \(.*\)/%'$PREFIX'\\section{\1}\\label{sec:\1}/' \
+			-e 's/%'$PREFIX'\s\+>>\s\+\(.*\)/%'$PREFIX'\\begin{verbatim} \1 \\end{verbatim}/' \
 		| cut -c 3- - \
 		>> "$OUTPUT"
 
