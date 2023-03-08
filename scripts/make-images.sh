@@ -175,14 +175,6 @@ IMAGE_SPREAD=${IMAGE_SPREAD:=(
 )}
 
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# post-process config...
-
-# prep format regexps...
-TEXT_FORMATS='.*\.('$TEXT_FORMATS')$'
-IMAGE_FORMATS='.*\.('$IMAGE_FORMATS')$'
-
-
 
 #----------------------------------------------------------------------
 
@@ -217,7 +209,12 @@ printhelp(){
 	echo "              - source directory for replacement hi-res images."
 	echo "  \$ANOTATE_IMAGE_PATHS "
 	echo "              - if true add image paths in anotations."
-	echo "  \$CONFIG   - sets the config file name (default: $CONFIG)"
+	echo "  \$CONFIG     - sets the config file name (default: $CONFIG)"
+	echo "  \$TEXT_FORMATS "
+	echo "              - list of file extensions treated as text (default: $TEXT_FORMATS)."
+	echo "  \$IMAGE_FORMATS "
+	echo "              - list of file extensions treated as images"
+	echo "                (default: $IMAGE_FORMATS)."
 	echo
 	echo "Configuration defaults can be stored in a config file: $CONFIG"
 	echo
@@ -300,6 +297,11 @@ fi
 FROM=$2
 COUNT=$( [ -z $3 ] && echo 1 || echo $3 )
 STOP=$(( FROM + COUNT ))
+
+
+# prep format regexps...
+TEXT_FORMATS='.*\.('$TEXT_FORMATS')$'
+IMAGE_FORMATS='.*\.('$IMAGE_FORMATS')$'
 
 
 
