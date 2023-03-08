@@ -168,11 +168,13 @@ IMAGE_PAGE=${IMAGE_PAGE:=imagepage}
 # dynamic spread templates...
 # NOTE: the index here corresponds to the number of images found in a 
 #		spread directory...
-IMAGE_SPREAD=${IMAGE_SPREAD:=(
-	[0]=text-spread
-	[1]=imagebleedleft
-	[2]=image-image
-)}
+if [ ${#IMAGE_SPREAD[@]} = 0 ] ; then
+	IMAGE_SPREAD=(
+		[0]=text-spread
+		[1]=imagebleedleft
+		[2]=image-image
+	)
+fi
 
 
 
