@@ -703,6 +703,7 @@ for spread in ${SPREADS[@]} ; do
 
 	# skip non-spreads...
 	if ! [ -d "$spread" ] ; then
+		l=$(( l - 1 ))
 		continue
 	fi
 	# skip temporarily disabled...
