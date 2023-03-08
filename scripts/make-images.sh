@@ -109,10 +109,24 @@ shopt -s nullglob extglob
 #		...
 #
 #
-#
 # Env variables:
+#	ANOTATE_IMAGE_PATHS=
+#	TEXT_FORMATS=<ext>|..
+#	IMAGE_FORMATS=<ext>|..
+#	IMAGE_DIR=<path>
 #	IMAGE_HIRES_DIR=<path>
 #		sets the path to which the hi-res images are resolved.
+#	CAPTION_DIR=<path>
+#	TEMPLATE_DIR=<path>
+#	EMPTY_PAGE=<name>
+#	TEXT_PAGE=<name>
+#	IMAGE_PAGE=<name>
+#	IMAGE_SPREAD=<array>
+#
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#
+# XXX COUNT semantics are off, update docs/code...
 #
 #
 #
@@ -130,19 +144,24 @@ CONFIG=${CONFIG:=$(basename ${0%.*}).cfg}
 #		set in the script env.
 # NOTE: env takes priority over $CONFIG
 
+# if set add pdf annotations of paths to each image...
+ANOTATE_IMAGE_PATHS=${ANOTATE_IMAGE_PATHS:=}
+
+# supported formats/extensions...
+TEXT_FORMATS=${TEXT_FORMATS:=txt}
+IMAGE_FORMATS=${IMAGE_FORMATS:=jpeg|jpg|png|pdf|svg|eps}
+
 IMAGE_DIR=${IMAGE_DIR:=pages/}
 IMAGE_HIRES_DIR=${IMAGE_HIRES_DIR:=}
 CAPTION_DIR=${CAPTION_DIR:=captions/}
 TEMPLATE_DIR=${TEMPLATE_DIR:=templates/}
-
-TEXT_FORMATS=${TEXT_FORMATS:=txt}
-IMAGE_FORMATS=${IMAGE_FORMATS:=jpeg|jpg|png|pdf|svg|eps}
 
 # Default timplates
 # NOTE: if a template is not found we will try and build a spread from 
 #		page components...
 
 # page templates...
+EMPTY_PAGE=${EMPTY_PAGE:=emptypage}
 TEXT_PAGE=${TEXT_PAGE:=textpage}
 IMAGE_PAGE=${IMAGE_PAGE:=imagepage}
 
@@ -164,7 +183,8 @@ TEXT_FORMATS='.*\.('$TEXT_FORMATS')$'
 IMAGE_FORMATS='.*\.('$IMAGE_FORMATS')$'
 
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#----------------------------------------------------------------------
 
 printhelp(){
 	echo "Usage: `basename $0` [ARGUMENTS] [PATH]"
@@ -174,6 +194,8 @@ printhelp(){
 	echo
 	echo "Arguments:"
 	echo "  -h --help   - print this help and exit."
+	echo "  -a --annotate"
+	echo "              - add annotations with image paths to pages."
 	echo "  --templates=PATH"
 	echo "              - path to search for templates (default: $TEMPLATE_DIR)."
 	echo "  --single-image-tpl=NAME"
@@ -221,6 +243,10 @@ while true ; do
 		-h|--help)
 			printhelp
 			exit
+			;;
+		-a|--annotate)
+			ANOTATE_IMAGE_PATHS=1
+			shift
 			;;
 
 		--templates)
@@ -551,7 +577,7 @@ handleSpread(){
 		# no template explicitly defined -> match auto-template...
 		if [ -z $layout ] && [ -z $template ] ; then
 			# N images...
-			if [ -z $template ] && [ -n ${IMAGE_SPREAD[${#img[@]}]} ] ; then
+			if [ -z $template ] && [ -n "${IMAGE_SPREAD[${#img[@]}]}" ] ; then
 				template=$(getTemplate "$spread" "${IMAGE_SPREAD[${#img[@]}]}")
 			fi
 			# build spread from pages...
@@ -559,6 +585,21 @@ handleSpread(){
 				local C=0
 				local P
 				local elem
+				# only one page in spread...
+				# NOTE since the right page is more important we prioritize 
+				#		it over the left page, placing the blank left...
+				if [ ${#items[@]} = 1 ] ; then
+					C=1
+					echo "%"
+					echo "% empty page..."
+					template=$(getTemplate "$spread" "$EMPTY_PAGE")
+					if [ -z "$teplate" ] ; then
+						echo "\\null"
+						echo "\\newpage"
+					else
+						cat "${template}"
+					fi
+				fi
 				for elem in "${items[@]}" ; do
 					C=$(( C + 1 ))
 					P=$([ $C == 1 ] \
@@ -662,6 +703,13 @@ for spread in ${SPREADS[@]} ; do
 	if ! [ -d "$spread" ] ; then
 		continue
 	fi
+	# skip temporarily disabled...
+	if [[ "${spread}" =~ -.* ]] ; then
+		SKIP_FIRST=1
+		echo "% spread: ${spread/-/}: skipped..." | tee >(cat >&2)
+		echo %
+		continue
+	fi
 
 	c=$(( c + 1 ))
 
@@ -683,17 +731,8 @@ for spread in ${SPREADS[@]} ; do
 	fi
 	SKIP_FIRST=1
 
-	# skip temporarily disabled...
-	if [[ "${spread}" =~ -.* ]] ; then
-		echo "% spread: ${spread/-/}: skipped..." | tee >(cat >&2)
-		echo %
-		continue
-	# print helpful info...
-	else
-		printf "Spread ($c/$l): ${spread/-/}                         \r" >&2
-		echo "% spread: ${spread/-/}"
-	fi
-
+	printf "Spread ($c/$l): ${spread/-/}                         \r" >&2
+	echo "% spread: ${spread/-/}"
 	handleSpread "$spread"
 
 	d=$(( d + 1 ))
