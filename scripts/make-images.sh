@@ -10,7 +10,12 @@ shopt -s nullglob extglob
 #		you see when you hold the book open, and the main workflow 
 #		when building a book is creating spreads and ordering them so 
 #		a single page is almost never treated as an independent unit.
+# TIP: it is not recommended to use too many templates, the layout 
+#		should be and feel structured and this structure should not be 
+#		too complex for the average reader to get comfortable in.
 # 
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # 
 # Template structure:
 #	templates/
@@ -113,41 +118,50 @@ shopt -s nullglob extglob
 #
 #----------------------------------------------------------------------
 
+# load config...
+CONFIG=${CONFIG:=$(basename ${0%.*}).cfg}
+[ -e $CONFIG ] \
+	&& source "$CONFIG"
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # defaults...
+# NOTE: all of these options can be either set in the $CONFIG file or 
+#		set in the script env.
+# NOTE: env takes priority over $CONFIG
 
 IMAGE_DIR=${IMAGE_DIR:=pages/}
 IMAGE_HIRES_DIR=${IMAGE_HIRES_DIR:=}
 CAPTION_DIR=${CAPTION_DIR:=captions/}
 TEMPLATE_DIR=${TEMPLATE_DIR:=templates/}
 
-TEXT_FORMATS='.*\.txt$'
-IMAGE_FORMATS='.*\.(jpeg|jpg|png|pdf|svg|eps)$'
-
+TEXT_FORMATS=${TEXT_FORMATS:=txt}
+IMAGE_FORMATS=${IMAGE_FORMATS:=jpeg|jpg|png|pdf|svg|eps}
 
 # Default timplates
 # NOTE: if a template is not found we will try and build a spread from 
 #		page components...
 
 # page templates...
-TEXT_PAGE=textpage
-IMAGE_PAGE=imagepage
+TEXT_PAGE=${TEXT_PAGE:=textpage}
+IMAGE_PAGE=${IMAGE_PAGE:=imagepage}
 
 # dynamic spread templates...
-# NOTE: the index here is the number of images found in a spread directory...
-IMAGE_SPREAD=(
+# NOTE: the index here corresponds to the number of images found in a 
+#		spread directory...
+IMAGE_SPREAD=${IMAGE_SPREAD:=(
 	[0]=text-spread
 	[1]=imagebleedleft
 	[2]=image-image
-)
+)}
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# load config...
+# post-process config...
 
-CFG_FILE=$(basename ${0%.*}).cfg
-
-[ -e $CFG_FILE ] \
-	&& source "$CFG_FILE"
+# prep format regexps...
+TEXT_FORMATS='.*\.('$TEXT_FORMATS')$'
+IMAGE_FORMATS='.*\.('$IMAGE_FORMATS')$'
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -181,8 +195,9 @@ printhelp(){
 	echo "              - source directory for replacement hi-res images."
 	echo "  \$ANOTATE_IMAGE_PATHS "
 	echo "              - if true add image paths in anotations."
+	echo "  \$CONFIG   - sets the config file name (default: $CONFIG)"
 	echo
-	echo "Configuration defaults can be stored in a config file: $CFG_FILE"
+	echo "Configuration defaults can be stored in a config file: $CONFIG"
 	echo
 	echo "NOTE: COUNT is relevant iff FROM is given, otherwise all available "
 	echo "        spreads are generated."
