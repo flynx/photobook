@@ -156,7 +156,7 @@ IMAGE_HIRES_DIR=${IMAGE_HIRES_DIR:=}
 CAPTION_DIR=${CAPTION_DIR:=captions/}
 TEMPLATE_DIR=${TEMPLATE_DIR:=templates/}
 
-# Default timplates
+# Default templates
 # NOTE: if a template is not found we will try and build a spread from 
 #		page components...
 
