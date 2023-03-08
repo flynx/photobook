@@ -126,7 +126,7 @@ shopt -s nullglob extglob
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #
-# XXX COUNT semantics are off, update docs/code...
+# XXX 
 #
 #
 #
@@ -180,7 +180,8 @@ IMAGE_SPREAD=${IMAGE_SPREAD:=(
 
 printhelp(){
 	echo "Usage: `basename $0` [ARGUMENTS] [PATH]"
-	echo "       `basename $0` [ARGUMENTS] PATH FROM [COUNT]"
+	echo "       `basename $0` [ARGUMENTS] PATH INDEX"
+	echo "       `basename $0` [ARGUMENTS] PATH FROM COUNT"
 	echo
 	echo "Generate LaTeX layout from directory structure."
 	echo
@@ -201,8 +202,9 @@ printhelp(){
 	echo
 	echo "Parameters:"
 	echo "  PATH        - path to root pages directory (default: $IMAGE_DIR)"
-	echo "  FROM        - spread to start from (default: 0)"
-	echo "  COUNT       - number of spreads to generate (default: 1)"
+	echo "  INDEX       - index of spread to generate"
+	echo "  FROM        - spread to start from"
+	echo "  COUNT       - number of spreads to generate"
 	echo
 	echo "Environment:"
 	echo "  \$IMAGE_HIRES_DIR "
