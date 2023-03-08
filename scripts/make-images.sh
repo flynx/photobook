@@ -705,9 +705,8 @@ for spread in ${SPREADS[@]} ; do
 	if ! [ -d "$spread" ] ; then
 		l=$(( l - 1 ))
 		continue
-	fi
 	# skip temporarily disabled...
-	if [[ "${spread}" =~ -.* ]] ; then
+	elif [[ "${spread}" =~ -.* ]] ; then
 		SKIP_FIRST=1
 		echo "% spread: ${spread/-/}: skipped..." | tee >(cat >&2)
 		echo %
@@ -752,4 +751,4 @@ echo "Spread created: $d of $l                                         " >&2
 
 
 #----------------------------------------------------------------------
-# vim:set ts=4 sw=4 :
+#                                            vim:set ts=4 sw=4 nowrap :
