@@ -127,8 +127,6 @@ shopt -s nullglob extglob
 
 # defaults...
 
-CFG_FILE=`basename $0`.cfg
-
 TEMPLATE_PATH=templates/
 
 IMAGE_DIR=pages/
@@ -140,15 +138,31 @@ CAPTIONS=captions/
 TEXT_FORMATS='.*\.txt$'
 IMAGE_FORMATS='.*\.(jpeg|jpg|png|pdf|svg|eps)$'
 
+
 # Default timplates
-TEXT_SPREAD=text-spread
-SINGLE_IMAGE_SPREAD=imagebleedleft
-DOUBLE_IMAGE_SPREAD=image-image
+# NOTE: if a template is not found we will try and build a spread from 
+#		page components...
+
+# page templates...
+TEXT_PAGE=textpage
+IMAGE_PAGE=imagepage
+
+# dynamic spread templates...
+# NOTE: the index here is the number of images found in a spread directory...
+IMAGE_SPREAD=(
+	[0]=text-spread
+	[1]=imagebleedleft
+	[2]=image-image
+)
 
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # load config...
-[ -e $CFG_FILE ] && source $CFG_FILE
 
+CFG_FILE=$(basename ${0%.*}).cfg
+
+[ -e $CFG_FILE ] \
+	&& source "$CFG_FILE"
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -164,11 +178,11 @@ printhelp(){
 	echo "  --templates=PATH"
 	echo "              - path to search for templates (default: $TEMPLATE_PATH)."
 	echo "  --single-image-tpl=NAME"
-	echo "              - single image default template (default: $SINGLE_IMAGE_SPREAD)."
+	echo "              - single image default template (default: ${IMAGE_SPREAD[1]})."
 	echo "  --double-image-tpl=NAME"
-	echo "              - double image default template (default: $DOUBLE_IMAGE_SPREAD)."
+	echo "              - double image default template (default: ${IMAGE_SPREAD[2]})."
 	echo "  --text-spread-tpl=NAME"
-	echo "              - text spread default template (default: $TEXT_SPREAD)."
+	echo "              - text spread default template (default: ${IMAGE_SPREAD[0]})."
 	echo
 	echo "Parameters:"
 	echo "  PATH        - path to root pages directory (default: $IMAGE_DIR)"
@@ -213,17 +227,17 @@ while true ; do
 			shift
 			;;
 		--single-image-tpl)
-			SINGLE_IMAGE_SPREAD=$2
+			IMAGE_SPREAD[1]=$2
 			shift
 			shift
 			;;
 		--double-image-tpl)
-			DOUBLE_IMAGE_SPREAD=$2
+			IMAGE_SPREAD[2]=$2
 			shift
 			shift
 			;;
 		--text-spread-tpl)
-			TEXT_SPREAD=$2
+			IMAGE_SPREAD[0]=$2
 			shift
 			shift
 			;;
@@ -425,7 +439,7 @@ populateTemplate(){
 # usage:
 #	handleSpread SPREAD
 #
-# closure: $IMAGE_HIRES_DIR, $SINGLE_IMAGE_SPREAD, $TEXT_SPREAD
+# closure: $IMAGE_HIRES_DIR, $IMAGE_SPREAD
 handleSpread(){
 	local spread="$1"
 	# skip non-spreads...
@@ -494,18 +508,13 @@ handleSpread(){
 		# XXX this will also eat 0-imagepage.tpl / 20-textpage.tpl -- do a better pattern...
 		if ! [ -z $template ] ; then
 			template=(`ls "$spread/"*.tpl \
-				| egrep -v '.*-(imagepage|textpage)\.tpl'`)
+				| egrep -v '.*-('${IMAGE_PAGE}'|'${TEXT_PAGE}')\.tpl'`)
 		fi
 		# no template explicitly defined -> match auto-template...
 		if [ -z $layout ] && [ -z $template ] ; then
-			# no images...
-			# XXX check if template exists...
-			if [ ${#img[@]} == 0 ] ; then
-				template=$(getTemplate "$spread" "$TEXT_SPREAD")
-			fi
-			# single image...
-			if [ -z $template ] && [ ${#img[@]} == 1 ] ; then
-				template=$(getTemplate "$spread" "$SINGLE_IMAGE_SPREAD")
+			# N images...
+			if [ -z $template ] && [ -n ${IMAGE_SPREAD[${#img[@]}]} ] ; then
+				template=$(getTemplate "$spread" "${IMAGE_SPREAD[${#img[@]}]}")
 			fi
 			# build spread from pages...
 			if [ -z $template ] ; then
@@ -526,7 +535,7 @@ handleSpread(){
 					if [[ "$elem" =~ $IMAGE_FORMATS ]] ; then
 						echo %
 						echo "% $P page (image)..."
-						template=`getTemplate "$spread" "imagepage"`
+						template=`getTemplate "$spread" "$IMAGE_PAGE"`
 						echo % template: $template
 						anotatePath "${elem}"
 						local caption=$(getCaption "$spread" "${elem}")
@@ -538,7 +547,7 @@ handleSpread(){
 					else
 						echo %
 						echo "% $P page (text)..."
-						template=$(getTemplate "$spread" "textpage")
+						template=$(getTemplate "$spread" "$TEXT_PAGE")
 						echo % template: $template
 						cat "${template}" \
 							| sed "s%\${TEXT}%${elem}%"
@@ -560,7 +569,10 @@ handleSpread(){
 		template=${template/$spread\//}
 		template=${template/[0-9]-/}
 		# get...
-		template="$TEMPLATE_PATH/${template[0]%.*}.tex"
+		template="${template[0]%.*}.tex"
+		if ! [ -e "$template" ] ; then
+			template="$TEMPLATE_PATH/${template[0]%.*}.tex"
+		fi
 	fi
 
 	populateTemplate "$spread" "$template" "${img[@]}" "${txt[@]}"
