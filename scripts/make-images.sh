@@ -111,18 +111,6 @@ shopt -s nullglob extglob
 #
 #
 #
-#
-# XXX TODO:
-#		- revise printed comments...
-#		- add real arg handling...
-#		- add abbility to apply template to a specific page in spread...
-#			...something like:
-#				<template-name>-left.tpl
-#				<template-name>-right.tpl
-#		- add multiple images/captions...
-#
-#
-#
 #----------------------------------------------------------------------
 
 # defaults...
@@ -276,9 +264,9 @@ STOP=$(( FROM + COUNT ))
 
 #----------------------------------------------------------------------
 
+# Get image caption...
 # usage:
 #	getCaption SPREAD IMAGE
-# XXX should we report images w/o captions???
 getCaption(){
 	local spread=$1
 	local name=`basename "${2%.*}"`
@@ -297,6 +285,8 @@ getCaption(){
 	done
 }
 
+
+# Read/print caption text...
 # usage:
 #	readCaption PATH
 readCaption(){
@@ -306,7 +296,34 @@ readCaption(){
 		| sed -e 's/\\/\\\\\\/g'
 }
 
-# get template slots (cached)...
+
+# Get template...
+# usage:
+#	getTemplate SPREAD TYPE
+#
+getTemplate(){
+	local SPREAD=$1
+	local TYPE=$2
+	local TEMPLATE=($SPREAD/*-$TYPE.tex)
+	if [ -z $TEMPLATE ] ; then
+		TEMPLATE=($SPREAD/*-$TYPE.tpl)
+		if ! [ -z $TEMPLATE ] ; then
+			TEMPLATE=${TEMPLATE/$SPREAD\//}
+			TEMPLATE=${TEMPLATE/[0-9]-/}
+			TEMPLATE="$TEMPLATE_DIR/${TEMPLATE[0]%-${TYPE}.*}.tex"
+		fi
+	fi
+	if [ -z $TEMPLATE ] ; then
+		 TEMPLATE="$TEMPLATE_DIR/${TYPE}.tex"
+	fi
+	if ! [ -e $TEMPLATE ] ; then
+		return
+	fi
+	echo $TEMPLATE
+}
+
+
+# Get template slots (cached)...
 # usage:
 #	templateSlots TEMPLATE
 declare -A TEMPLATE_INDEX
@@ -321,6 +338,7 @@ templateSlots(){
 	fi
 	echo ${TEMPLATE_INDEX[$1]}
 }
+
 
 # Populate template image/text slots
 # usage:
@@ -439,7 +457,8 @@ populateTemplate(){
 	return 0
 }
 
-#
+
+# Handle/print spread...
 # usage:
 #	handleSpread SPREAD
 #
@@ -584,30 +603,6 @@ handleSpread(){
 	return 0
 }
 
-#
-# usage:
-#	getTemplate SPREAD TYPE
-#
-getTemplate(){
-	local SPREAD=$1
-	local TYPE=$2
-	local TEMPLATE=($SPREAD/*-$TYPE.tex)
-	if [ -z $TEMPLATE ] ; then
-		TEMPLATE=($SPREAD/*-$TYPE.tpl)
-		if ! [ -z $TEMPLATE ] ; then
-			TEMPLATE=${TEMPLATE/$SPREAD\//}
-			TEMPLATE=${TEMPLATE/[0-9]-/}
-			TEMPLATE="$TEMPLATE_DIR/${TEMPLATE[0]%-${TYPE}.*}.tex"
-		fi
-	fi
-	if [ -z $TEMPLATE ] ; then
-		 TEMPLATE="$TEMPLATE_DIR/${TYPE}.tex"
-	fi
-	if ! [ -e $TEMPLATE ] ; then
-		return
-	fi
-	echo $TEMPLATE
-}
 
 # Add pdf notes with image path used in template
 # usage:
