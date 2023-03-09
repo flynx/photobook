@@ -12,8 +12,8 @@ A typical project tree:
 ```
 book/
 ├── templates/  . . . . . . . . . . . . Global templates.
-│   ├── imagepage.tex . . . . . . . . . Single page image template.
-│   ├── textpage.tex  . . . . . . . . . Single page text template.
+│   ├── imagepage.tex . . . . . . . . . Single page image template,
+│   ├── textpage.tex  . . . . . . . . . Single page text template,
 │   │                                   These are used to build spreads 
 │   │                                   when no explicit template matches.
 │   ├── blank-image.tex
@@ -24,7 +24,7 @@ book/
 ├── pages/  . . . . . . . . . . . . . . Main block layout.
 │   ├── 00/ . . . . . . . . . . . . . . A basic spread.
 │   │   ├── tweaks.tex                  The spread template is built
-│   │   └── 0-DSC02432.jpg              automaticall ywith tweaks.tex
+│   │   └── 0-DSC02432.jpg              automatically with tweaks.tex
 │   │                                   prepended.
 │   ├── 01/
 │   │   ├── 0-DSC02439.jpg
