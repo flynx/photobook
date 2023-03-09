@@ -65,6 +65,12 @@ directory, all paths are configurable. The way the root files are structured is
 just one way to organize a book's srouce code with minimal code duplication.
 
 
+For runtime help see:
+```shell
+$ make-images.sh --help
+```
+
+
 The process
 -----------
 
