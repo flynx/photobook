@@ -4,9 +4,15 @@
 
 Generate LaTeX block of pages from a directory tree.
 
-This is initially intended as a means to convert the exported directory 
+This was initially intended as a means to convert the exported directory 
 tree from an image viewer where image/text sequencing was done, but it 
 can also be used standalone.
+
+Goals:
+- Decouple layout, images, processing and different texts to enable 
+  different people to work on them independently and in parallel,
+- Automate the build process.
+
 
 A typical project tree:
 ```
@@ -62,7 +68,7 @@ $ make-images.sh ./pages > block-pages.tex
 
 Note that `make-images.sh` does not force a specific layout outside of the `pages`
 directory, all paths are configurable. The way the root files are structured is 
-just one way to organize a book's srouce code with minimal code duplication.
+just one way to organize a book's source code with minimal code duplication.
 
 
 For runtime help see:
