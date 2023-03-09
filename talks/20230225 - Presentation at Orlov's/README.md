@@ -15,11 +15,11 @@ $ make all sweep
 ```
 
 Generated pdf's:
-- `photobook-slides.pdf`  
+- `photobook-slides-en.pdf` / `photobook-slides-ru.pdf`  
   The actual slides used for the talk. These require a pdf viewer that
   supports "book mode" and the "two-page view", and preferably good enough 
   maners not to ignore the settings set in the file.
-- `photobook-slides-web.pdf`  
+- `photobook-web-en.pdf` / `photobook-web-ru.pdf`  
   Compatibility version that sets one spread per page. This should work
   on any pdf viewer.
 
