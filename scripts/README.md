@@ -8,7 +8,7 @@ Scripts:
 
 
 `make-images.sh`
-================
+----------------
 
 Generate LaTeX block of pages from a directory tree.
 
@@ -87,11 +87,10 @@ $ make-images.sh --help
 ```
 
 
-The process
------------
+### The process
 
 
-Layout
+### Layout
 ------
 
 ```
@@ -107,8 +106,7 @@ pages/
 ```
 
 
-Image captions
---------------
+### Image captions
 
 In general image captions are decoupled from the main layout to enable
 writers and editors to work on them externally.
@@ -136,8 +134,7 @@ An inline caption must have the same filename as the corresponding image
 but with a .txt extension.
 
 
-Templates
----------
+### Templates
 
 ```
 templates/
@@ -146,14 +143,12 @@ templates/
 ```
 
 
-Environment variables
----------------------
+### Environment variables
 
 
 
 
 `cls2tex.sh`
-============
 
 Extract the documentation from photobook.cls which is used to build the 
 photobook.pdf reference manual.
