@@ -89,6 +89,69 @@ $ make-images.sh --help
 
 ### The process
 
+XXX spreads vs. pages
+
+The system is designed to minimize the effort in laying out pages, so
+when designing a book the focus should be on global templates and on
+helping `make-images.sh` build them rather than trying to layout each
+spread individually.
+
+Here there are several ways to arrive at a book layout starting from the
+concept, through the edit, sequencing, structuring and the graphic
+design, we here will focus on the stage of the process where a body of
+work is starting to look like a book.
+
+When starting work on a book layout it is good to at least have a basic
+understanding of it's:
+- book structure and how it may change,
+- core templates,
+- exceptions from the above.
+
+In most cases all of the above will change, and the main goal of this
+stage is to make this change as simple as possible, the less effort is
+needed to prove the need for change the simpler and more effortless this
+change will be -- it's all about providing the freedom to make changes
+instead of locking oneself into the work/time already invested.
+
+The first question is what is the _structure_ of the book we are making?
+Will it have chapters? How many? Text, how much, how should it be 
+structured? How are we going to deal with the title? How are we going 
+to present the images, full bleed, no bleeds, small, big, one per page 
+or multiple images, ...etc.? At this stage this is about the presentation 
+the flow of the work and not about the actual design. How many typical 
+spreads (i.e. spread templates) should it have? A good number should be 
+small-ish, for example 3-4 spread templates is a good number, if you 
+count 10+ then you might be overcomplicating tings, but note, there are 
+no rules, a book where each spread is individually and manually layed out 
+may work as well as a book with just a single template spread, but in 
+general for a photo book the focus is on the project and the layout 
+should work with it without overwhelming it.
+
+Have answers, good, now it's time to build those mock layouts and make
+them into basic templates.
+
+There are two ways to approach this:
+- Page templates  
+  These are typical pages that makeup a spread template, usually an
+  image page (`imagepage.tex`) and a text page (`textpage.tex`),
+  `make-images.sh` can combine them to build spreads automatically.
+- Spread templates
+  These typeset a spread and can be either automatically inferred from
+  the structure or manually selected.
+
+Note that `photobook` provides a set of ready high level templates
+specifically designed for this approach.
+
+
+#### Automatic template inference
+
+#### Manual template selection
+
+#### Template tweaking
+
+#### Individual spread layouts 
+
+
 
 ### Templates
 
