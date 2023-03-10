@@ -171,7 +171,6 @@ IMAGE_PAGE=${IMAGE_PAGE:=imagepage}
 if [ ${#IMAGE_SPREAD[@]} = 0 ] ; then
 	IMAGE_SPREAD=(
 		[0]=text-spread
-		[1]=imagebleedleft
 		[2]=image-image
 	)
 fi

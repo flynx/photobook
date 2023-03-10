@@ -352,7 +352,6 @@ IMAGE_SPREAD=(
         #  /     +-- template name
         # /     /
         [0]=text-spread
-        [1]=imagebleedleft
         [2]=image-image
 )
 ```
