@@ -1,4 +1,12 @@
 
+Support scripts
+===============
+
+Scripts:
+- [`make-images.sh`](#make-imagessh)
+- [`cls2tex.sh`](#cls2texsh)
+
+
 `make-images.sh`
 ================
 
@@ -9,8 +17,9 @@ tree from an image viewer where image/text sequencing was done, but it
 can also be used standalone.
 
 Goals:
-- Decouple layout, images, processing and different texts to enable 
-  different people to work on them independently and in parallel,
+- Decouple layout, sequencing, images, processing and different texts 
+  to enable different people to work on them independently and in 
+  parallel,
 - Automate the build process.
 
 
@@ -66,9 +75,10 @@ Generate the block:
 $ make-images.sh ./pages > block-pages.tex
 ```
 
-Note that `make-images.sh` does not force a specific layout outside of the `pages`
-directory, all paths are configurable. The way the root files are structured is 
-just one way to organize a book's source code with minimal code duplication.
+Note that `make-images.sh` does not force a specific layout outside of 
+the `pages` directory, all paths are configurable. The way the root 
+files are structured is just one way to organize a book's source code 
+with minimal code duplication.
 
 
 For runtime help see:
