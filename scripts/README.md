@@ -77,8 +77,8 @@ $ make-images.sh ./pages > block-pages.tex
 
 Note that `make-images.sh` does not force a specific layout outside of 
 the `pages` directory, all paths are configurable. The way the root 
-files are structured is just one way to organize a book's source code 
-with minimal code duplication.
+files are structured in this example is just one way to organize a 
+book's source code with minimal code duplication.
 
 
 For runtime help see:
@@ -91,7 +91,6 @@ $ make-images.sh --help
 
 
 ### Layout
-------
 
 ```
 pages/
@@ -149,6 +148,7 @@ templates/
 
 
 `cls2tex.sh`
+------------
 
 Extract the documentation from photobook.cls which is used to build the 
 photobook.pdf reference manual.
