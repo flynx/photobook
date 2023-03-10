@@ -4,7 +4,7 @@ Support scripts
 
 <!-- TOC depthfrom:2 -->
 
-- [make-images.sh](#make-imagessh)
+- [make-spreads.sh](#make-imagessh)
 	- [The process](#the-process)
 		- [Automatic template inferenceing](#automatic-template-inferenceing)
 		- [Manual template selection](#manual-template-selection)
@@ -20,7 +20,7 @@ Support scripts
 
 ---
 
-`make-images.sh`
+`make-spreads.sh`
 ----------------
 
 Generate LaTeX block of pages from a directory tree.
@@ -86,10 +86,10 @@ book/
 
 Generate the block:
 ```shell
-$ make-images.sh ./pages > block-pages.tex
+$ make-spreads.sh ./pages > block-pages.tex
 ```
 
-Note that `make-images.sh` does not force a specific layout outside of 
+Note that `make-spreads.sh` does not force a specific layout outside of 
 the `pages` directory, all paths are configurable. The way the root 
 files are structured in this example is just one way to organize a 
 book's source code with minimal code duplication.
@@ -97,7 +97,7 @@ book's source code with minimal code duplication.
 
 For runtime help see:
 ```shell
-$ make-images.sh --help
+$ make-spreads.sh --help
 ```
 
 
@@ -107,7 +107,7 @@ $ make-images.sh --help
 
 The system is designed to minimize the effort in laying out pages, so
 when designing a book the focus should be on global templates and on
-helping `make-images.sh` build them rather than trying to layout each
+helping `make-spreads.sh` build them rather than trying to layout each
 spread individually.
 
 There are several ways to arrive at a book layout starting from the
@@ -152,7 +152,7 @@ The templates are split into two levels:
 - Page templates  
   These are typical pages that makeup a spread, usually an
   image page (`imagepage.tex`), a text page (`textpage.tex`), and an
-  optional empty page (`emptypage.tex`), `make-images.sh` can combine 
+  optional empty page (`emptypage.tex`), `make-spreads.sh` can combine 
   them to build spreads automatically.
 - Spread templates  
   These typeset a spread and can be either automatically inferred from
@@ -161,7 +161,7 @@ The templates are split into two levels:
 
 #### Automatic template inferencing
 
-If no explicit template is defined (see next section) `make-images.sh` 
+If no explicit template is defined (see next section) `make-spreads.sh` 
 will try and infer a template based on the number of images in the 
 spread directory, if that is not possible the it will build a spread
 from page templates based on the sequence of first two image/text files.
@@ -185,11 +185,11 @@ while the following:
 
 Will use `image-image.tex`.
 
-Note that if a spread template is not found `make-images.sh` fallback to 
+Note that if a spread template is not found `make-spreads.sh` fallback to 
 page templates, e.g. if we delete `image-image.tex` then `imagepage.tex` 
 will be used for both pages of the spread instead.
 
-If only one image/text file is provided then `make-images.sh` will set it
+If only one image/text file is provided then `make-spreads.sh` will set it
 on the right page of the spread using the appropriate page template and
 leave the left page blank.
 
@@ -317,7 +317,7 @@ Environment variables take precedence over the configuration file. -->
 
 The default `make-images.cfg` would look something like:
 ```shell
-# if non-empty make-images.sh will add image paths to pdf notes...
+# if non-empty make-spreads.sh will add image paths to pdf notes...
 ANOTATE_IMAGE_PATHS=
 
 # file extensions to treat as text (separated with "|")
@@ -416,7 +416,5 @@ NOTE: the idea of keeping latex docs in a latex file is far simpler
           - keep the docs readable
       in both the repo and in installed form, so .dtx is not used.
 ```
-
-
 
 

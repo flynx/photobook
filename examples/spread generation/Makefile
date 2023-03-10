@@ -8,11 +8,11 @@
 # 	$ SPREAD=1 make
 #
 # For more info use:
-# 	make-images.sh --help
+# 	make-spreads.sh --help
 #
 #
 
-MAKESPREADS := ../../scripts/make-images.sh
+MAKESPREADS := ../../scripts/make-spreads.sh
 
 
 spreads.tex: spreads
