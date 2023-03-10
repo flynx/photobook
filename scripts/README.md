@@ -33,6 +33,7 @@ Goals:
 - Decouple layout, sequencing, images, processing and different texts 
   to enable different people to work on them independently and in 
   parallel,
+- Simplify editing the page/spread sequence,
 - Automate the build process.
 
 
