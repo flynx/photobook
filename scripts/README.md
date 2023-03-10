@@ -367,5 +367,56 @@ IMAGE_SPREAD=(
 Extract the documentation from photobook.cls which is used to build the 
 photobook.pdf reference manual.
 
+```shell
+$ cls2tex.sh --help
+```
+
+The `--help` says it all:
+```
+Generate docs from latex package/class
+
+Usage:
+  cls2tex.sh [OPTIONS] [[INPUT] OUTPUT]
+
+Options:
+  -h | --help         Show this message and exit
+  -p | --prefix PREFIX
+                      Set the doc comment PREFIX (default: "%")
+  -s | --strip        Strip docs out
+  -n | --no-msg       Don't add the "generated with" message to output
+
+This will:
+  - read the INPUT
+  - keep lines starting with \def\<module-name>@[A-Z]\+
+  - keep lines starting with '%%'
+  - %%%%% Text -> \subsection(Text)
+  - %%%% Text -> \section(Text)
+  - %% >> code -> \begin{verbatim}code\end{verbatim}
+  - write the result to OUTPUT
+
+If no OUTPUT is given cls2tex.sh will read stdout. If no INPUT
+is given cls2tex.sh will read stdin.
+
+PREFIX can replace the second "%" in the above patterns to make it
+possible to integrate multiple layers of documentation in one file
+and to integrate them in various ways, for example, in the photobook
+document class documentation "M" prefix is used to indicate
+meta-command docs, this enables us to document them in the relevant
+location (i.e. at the implementation) in source but move the docs to
+a unified location in docs, effectively decoupling the source and doc
+structure when needed.
+
+Strip mode is the reverse of of the default, it will strip out docs
+and empty lines, keeping only the actual code and code comments.
+
+NOTE: stripping will not remove non-doc comments.
+NOTE: the idea of keeping latex docs in a latex file is far simpler
+      than all the stuff crammed into .dtx, at least for my needs:
+          - keep the code readable
+          - keep the docs readable
+      in both the repo and in installed form, so .dtx is not used.
+```
+
+
 
 
