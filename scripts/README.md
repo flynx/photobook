@@ -90,9 +90,18 @@ $ make-images.sh --help
 ### The process
 
 
+### Templates
+
+```bnf
+templates/
+├── <template-name>.tex
+└── ...
+```
+
+
 ### Layout
 
-```
+```bnf
 pages/
 ├── <spread>/
 │   ├── tweaks.tex
@@ -109,7 +118,8 @@ pages/
 
 In general image captions are decoupled from the main layout to enable
 writers and editors to work on them externally.
-```
+
+```bnf
 captions/
 ├── <image-name>.txt
 └── ...
@@ -120,7 +130,7 @@ environment variable.
 
 
 Inline captions are also supported:
-```
+```bnf
 pages/
 ├── <spread>/
 │   ├── ...
@@ -131,15 +141,6 @@ pages/
 ```
 An inline caption must have the same filename as the corresponding image
 but with a .txt extension.
-
-
-### Templates
-
-```
-templates/
-├── <template-name>.tex
-└── ...
-```
 
 
 ### Environment variables
