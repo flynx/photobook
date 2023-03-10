@@ -31,7 +31,7 @@ printhelp(){
 	echo "  - %% >> code -> \\begin{verbatim}code\\end{verbatim}"
 	echo "  - write the result to OUTPUT"
 	echo
-	echo "If no OUTPUT is given $SCRIPT_NAME will read stdout. If no INPUT"
+	echo "If no OUTPUT is given $SCRIPT_NAME will write to stdout. If no INPUT"
 	echo "is given $SCRIPT_NAME will read stdin."
 	echo
 	echo "PREFIX can replace the second \"%\" in the above patterns to make it"

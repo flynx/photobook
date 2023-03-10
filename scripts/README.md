@@ -394,7 +394,7 @@ This will:
   - %% >> code -> \begin{verbatim}code\end{verbatim}
   - write the result to OUTPUT
 
-If no OUTPUT is given cls2tex.sh will read stdout. If no INPUT
+If no OUTPUT is given cls2tex.sh will write to stdout. If no INPUT
 is given cls2tex.sh will read stdin.
 
 PREFIX can replace the second "%" in the above patterns to make it
