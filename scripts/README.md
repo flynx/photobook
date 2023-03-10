@@ -6,7 +6,7 @@ Support scripts
 
 - [make-images.sh](#make-imagessh)
 	- [The process](#the-process)
-		- [Automatic template inference](#automatic-template-inference)
+		- [Automatic template inferenceing](#automatic-template-inferenceing)
 		- [Manual template selection](#manual-template-selection)
 		- [Template tweaking](#template-tweaking)
 		- [Manual spread layouts](#manual-spread-layouts)
@@ -159,7 +159,7 @@ The templates are split into two levels:
   the structure or manually selected.
 
 
-#### Automatic template inference
+#### Automatic template inferencing
 
 If no explicit template is defined (see next section) `make-images.sh` 
 will try and infer a template based on the number of images in the 
