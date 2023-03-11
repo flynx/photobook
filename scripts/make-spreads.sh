@@ -134,26 +134,42 @@ shopt -s nullglob extglob
 
 # load config...
 CONFIG=${CONFIG:=$(basename ${0%.*}).cfg}
+# prepend CFG_ to settings in config...
+# NOTE: this is done to prevent them overriding the environment...
 [ -e $CONFIG ] \
-	&& source "$CONFIG"
+	&& eval $(cat "$CONFIG" \
+		sed -e 's/^\(\s*\)\([A-Z_]\+=\)/\1CFG_\2/')
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # defaults...
+#
 # NOTE: all of these options can be either set in the $CONFIG file or 
 #		set in the script env.
 # NOTE: env takes priority over $CONFIG
 
 # if set add pdf annotations of paths to each image...
+ANOTATE_IMAGE_PATHS=${ANOTATE_IMAGE_PATHS:=$CFG_ANOTATE_IMAGE_PATHS}
 ANOTATE_IMAGE_PATHS=${ANOTATE_IMAGE_PATHS:=}
 
 # supported formats/extensions...
+TEXT_FORMATS=${TEXT_FORMATS:=$CFG_TEXT_FORMATS}
 TEXT_FORMATS=${TEXT_FORMATS:=txt}
+
+IMAGE_FORMATS=${IMAGE_FORMATS:=$CFG_IMAGE_FORMATS}
 IMAGE_FORMATS=${IMAGE_FORMATS:=jpeg|jpg|png|pdf|svg|eps}
 
+
+SPREADS_DIR=${SPREADS_DIR:=$CFG_SPREADS_DIR}
 SPREADS_DIR=${SPREADS_DIR:=spreads/}
+
+IMAGE_HIRES_DIR=${IMAGE_HIRES_DIR:=$CFG_IMAGE_HIRES_DIR}
 IMAGE_HIRES_DIR=${IMAGE_HIRES_DIR:=}
+
+CAPTION_DIR=${CAPTION_DIR:=$CFG_CAPTION_DIR}
 CAPTION_DIR=${CAPTION_DIR:=captions/}
+
+TEMPLATE_DIR=${TEMPLATE_DIR:=$CFG_TEMPLATE_DIR}
 TEMPLATE_DIR=${TEMPLATE_DIR:=templates/}
 
 # Default templates
@@ -161,18 +177,30 @@ TEMPLATE_DIR=${TEMPLATE_DIR:=templates/}
 #		page components...
 
 # page templates...
+EMPTY_PAGE=${EMPTY_PAGE:=$CFG_EMPTY_PAGE}
 EMPTY_PAGE=${EMPTY_PAGE:=emptypage}
+
+TEXT_PAGE=${TEXT_PAGE:=$CFG_TEXT_PAGE}
 TEXT_PAGE=${TEXT_PAGE:=textpage}
+
+IMAGE_PAGE=${IMAGE_PAGE:=$CFG_IMAGE_PAGE}
 IMAGE_PAGE=${IMAGE_PAGE:=imagepage}
 
 # dynamic spread templates...
 # NOTE: the index here corresponds to the number of images found in a 
 #		spread directory...
 if [ ${#IMAGE_SPREAD[@]} = 0 ] ; then
-	IMAGE_SPREAD=(
-		[0]=text-spread
-		[2]=image-image
-	)
+	if ! [ ${#CFG_IMAGE_SPREAD[@]} = 0 ] ; then
+		IMAGE_SPREAD=()
+		for i in ${!CFG_IMAGE_SPREAD[@]} ; do
+			IMAGE_SPREAD[$i]=${CFG_IMAGE_SPREAD[$i]}
+		done
+	else
+		IMAGE_SPREAD=(
+			[0]=text-spread
+			[2]=image-image
+		)
+	fi
 fi
 
 
@@ -289,7 +317,7 @@ done
 
 
 if [ -z $1 ] ; then
-	SPREADS_DIR=pages/
+	SPREADS_DIR=spreads/
 else
 	SPREADS_DIR=$1/
 fi
