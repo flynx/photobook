@@ -360,6 +360,11 @@ IMAGE_SPREAD=(
 )
 ```
 
+An explicit configuration file can be manually specified:
+```shell
+$ make-spreads.sh -c <path> ..
+```
+
 
 ---
 

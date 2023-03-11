@@ -1,0 +1,39 @@
+# if non-empty make-spreads.sh will add image paths to pdf notes...
+ANOTATE_IMAGE_PATHS=
+
+# file extensions to treat as text (separated with "|")
+TEXT_FORMATS=txt
+
+# file extensions to treat as images (separated with "|")
+IMAGE_FORMATS=jpeg|jpg|png|pdf|svg|eps
+
+# default directory spread definitions are located in...
+SPREADS_DIR=spreads/
+
+# if non-empty link link images to matching ones from this directory...
+IMAGE_HIRES_DIR=
+
+# directory where external captions are stored...
+CAPTION_DIR=captions/
+
+# root template directory...
+TEMPLATE_DIR=templates/
+
+# empty page template...
+EMPTY_PAGE=emptypage
+
+# text page template...
+TEXT_PAGE=textpage
+
+# image page template...
+IMAGE_PAGE=imagepage
+
+# spread templates...
+IMAGE_SPREAD=(
+        #
+        #   +------- number of found images
+        #  /     +-- template name
+        # /     /
+        [0]=text-spread
+        [2]=image-image
+)
