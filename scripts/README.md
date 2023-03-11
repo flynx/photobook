@@ -23,7 +23,7 @@ Support scripts
 `make-spreads.sh`
 ----------------
 
-Generate LaTeX block of pages from a directory tree.
+Generate LaTeX block of pages/spreads from a directory tree.
 
 This was initially intended as a means to convert the exported directory 
 tree from an image viewer where image/text sequencing was done, but it 
