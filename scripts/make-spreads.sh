@@ -18,12 +18,12 @@ shopt -s nullglob extglob
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # 
 # Template structure:
-#	templates/
+#	$TEMPLATE_DIR/
 #		spread.tex
 #		imagepage.tex
 #		textpage.tex
 #		...
-#	captions/
+#	$CAPTION_DIR/
 #		<image>.txt
 #			image caption.
 #			this is separated to decouple caption writing from the 
@@ -131,14 +131,14 @@ shopt -s nullglob extglob
 #
 #
 #----------------------------------------------------------------------
-
 # load config...
+
 CONFIG=${CONFIG:=$(basename ${0%.*}).cfg}
 # prepend CFG_ to settings in config...
 # NOTE: this is done to prevent them overriding the environment...
 [ -e $CONFIG ] \
 	&& eval $(cat "$CONFIG" \
-		sed -e 's/^\(\s*\)\([A-Z_]\+=\)/\1CFG_\2/')
+		| sed -e 's/^\(\s*\)\([A-Z_]\+=\)/\1CFG_\2/')
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
