@@ -216,17 +216,18 @@ printhelp(){
 	echo
 	echo "Arguments:"
 	echo "  -h --help   - print this help and exit."
+	echo "  -c PATH     - load configuration from PATH."
 	echo "  -a --annotate"
 	echo "              - add annotations with image paths to pages."
-	echo "  --templates=PATH"
+	echo "  --templates PATH"
 	echo "              - path to search for templates (default: $TEMPLATE_DIR)."
-	echo "  --single-image-tpl=NAME"
+	echo "  --single-image-tpl NAME"
 	echo "              - single image default template (default: ${IMAGE_SPREAD[1]})."
-	echo "  --double-image-tpl=NAME"
+	echo "  --double-image-tpl NAME"
 	echo "              - double image default template (default: ${IMAGE_SPREAD[2]})."
-	echo "  --text-spread-tpl=NAME"
+	echo "  --text-spread-tpl NAME"
 	echo "              - text spread default template (default: ${IMAGE_SPREAD[0]})."
-	echo "  --captions=PATH"
+	echo "  --captions PATH"
 	echo "              - path to search for captions (default: $CAPTION_DIR)."
 	echo
 	echo "Parameters:"
@@ -276,31 +277,32 @@ while true ; do
 			ANOTATE_IMAGE_PATHS=1
 			shift
 			;;
+		-c)
+			$CONFIG="$2"
+			[ -e "$CONFIG" ] \
+				&& source "$CONFIG"
+			shift 2
+			;;
 
 		--templates)
 			TEMPLATE_DIR=$2
-			shift
-			shift
+			shift 2
 			;;
 		--single-image-tpl)
 			IMAGE_SPREAD[1]=$2
-			shift
-			shift
+			shift 2
 			;;
 		--double-image-tpl)
 			IMAGE_SPREAD[2]=$2
-			shift
-			shift
+			shift 2
 			;;
 		--text-spread-tpl)
 			IMAGE_SPREAD[0]=$2
-			shift
-			shift
+			shift 2
 			;;
 		--captions)
 			CAPTION_DIR=$2
-			shift
-			shift
+			shift 2
 			;;
 
 		# handle unknown options...

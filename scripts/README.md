@@ -315,8 +315,7 @@ but with a .txt extension.
 All the configuration options can be given in a configuration file as
 well as environment variables.
 
-<!-- XXX this is not true at the moment, not sure if this is a bug or a feature...
-Environment variables take precedence over the configuration file. -->
+Environment variables take precedence over the configuration file.
 
 The default `make-images.cfg` would look something like:
 ```shell
