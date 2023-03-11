@@ -84,6 +84,9 @@ book/
 └── ...
 ```
 
+<!-- XXX
+For a live example see: ../examples/book -->
+
 Generate the block:
 ```shell
 $ make-spreads.sh ./pages > block-pages.tex

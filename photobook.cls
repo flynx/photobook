@@ -76,8 +76,8 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.9}
-\edef\photobook@FILEDATE{2023-03-01}
+\edef\photobook@FILEVERSION{v0.1.10}
+\edef\photobook@FILEDATE{2023-03-11}
 
 
 %% \documentclass{ltxdoc}
@@ -710,6 +710,8 @@
 \newlength\coverflap
 \setlength\coverflap{\photobook@coverflap}
 
+\newlength\photobook@coverflap@active
+
 %% \DescribeMacro{\jacketwrap=<len>}
 %% \DescribeMacro{\jacketflap=<len>}
 %% \DescribeMacro{\jacketflapfront=<len>}
@@ -725,6 +727,11 @@
 \setlength\jacketflapfront{\photobook@jacketflapfront}
 \newlength\jacketflapback
 \setlength\jacketflapback{\photobook@jacketflapback}
+
+\newlength\photobook@jacketwrap@active
+\newlength\photobook@jacketflap@active
+\newlength\photobook@jacketflapfront@active
+\newlength\photobook@jacketflapback@active
 
 %% \DescribeMacro{\blockwidth=<len>}
 %% \DescribeMacro{\blockheight=<len>}
@@ -992,17 +999,28 @@
 			\def\pdfpagelayout{SinglePage}\fi
 	\else
 		\def\pdfpagelayout{\photobook@pdfpagelayout}\fi
-	% items to ignore in different layouts...
-	\ifcoverlayout\else
-		\setlength\coverflap{0pt}\fi
-	\ifjacketlayout\else
-		\setlength\jacketwrap{0pt}
-		\setlength\jacketflap{0pt}\fi
-	% flaps...
-	\ifdim\jacketflapfront=0pt
-		\setlength\jacketflapfront{\jacketflap}\fi
-	\ifdim\jacketflapback=0pt
-		\setlength\jacketflapback{\jacketflap}\fi
+	% keep user settings but respect the current layout...
+	\ifcoverlayout
+		\setlength\photobook@coverflap@active{\coverflap}
+	\else
+		\setlength\photobook@coverflap@active{0pt}\fi
+	\ifjacketlayout
+		\setlength\photobook@jacketwrap@active{\jacketwrap}
+		\setlength\photobook@jacketflap@active{\jacketflap}
+		% flaps...
+		\ifdim\jacketflapfront=0pt
+			\setlength\photobook@jacketflapfront@active{\photobook@jacketflap@active}
+		\else
+			\setlength\photobook@jacketflapfront@active{\jacketflapfront}\fi
+		\ifdim\jacketflapback=0pt
+			\setlength\photobook@jacketflapback@active{\photobook@jacketflap@active}
+		\else
+			\setlength\photobook@jacketflapback@active{\jacketflapback}\fi
+	\else
+		\setlength\photobook@jacketwrap@active{0pt}
+		\setlength\photobook@jacketflap@active{0pt}
+		\setlength\photobook@jacketflapfront@active{0pt}
+		\setlength\photobook@jacketflapback@active{0pt}\fi
 	% block size...
 	\ifdim\blockwidth=0pt
 		% layout: block...
@@ -1046,7 +1064,7 @@
 			\pagestyle{empty}%
 			\setsepchar{,}%
 			\readlist*\pagefoldpanels{%
-				\the\jacketflapback,
+				\the\photobook@jacketflapback@active,
 				\the\jacketwrap,
 				\the\dimexpr
 					\coverboardgrow
@@ -1058,7 +1076,7 @@
 					\coverboardgrow
 					+ \pageblockwidth \relax,
 				\the\jacketwrap,
-				\the\jacketflapfront}%
+				\the\photobook@jacketflapfront@active}%
 			\photobook@setpagefold{out}
 			\setlength\blockwidth{
 				\dimexpr 
@@ -1067,8 +1085,8 @@
 					+ \spinewidth
 					+ 2\spinefold
 					+ 2\jacketwrap
-					+ \jacketflapfront
-					+ \jacketflapback \relax}\fi
+					+ \photobook@jacketflapfront@active
+					+ \photobook@jacketflapback@active \relax}\fi
 		% layout: endpaper...
 		\ifendpaperlayout
 			\pagestyle{empty}%
@@ -3812,15 +3830,15 @@
 \newenvironment{frontcover}{%
 	\begin{cell*}{
 				\bleed 
-					+ \jacketflapback 
-					+ \coverflap 
-					+ \jacketwrap 
+					+ \photobook@jacketflapback@active
+					+ \photobook@coverflap@active
+					+ \photobook@jacketwrap@active
 					+ \coverboardgrow 
 					+ \pageblockwidth 
 					+ 2\spinefold 
 					+ \spinewidth,
 				\bleed 
-					+ \coverflap }%
+					+ \photobook@coverflap@active }%
 			{ \pageblockwidth + \coverboardgrow }%
 			{ \pageblockheight + 2\coverboardgrow }%
 }{%
@@ -3829,11 +3847,11 @@
 \newenvironment{backcover}{%
 	\begin{cell*}{
 				\bleed 
-					+ \jacketflapback 
-					+ \coverflap 
-					+ \jacketwrap,
+					+ \photobook@jacketflapback@active
+					+ \photobook@coverflap@active
+					+ \photobook@jacketwrap@active,
 				\bleed 
-					+ \coverflap }%
+					+ \photobook@coverflap@active }%
 			{ \pageblockwidth + \coverboardgrow }%
 			{ \pageblockheight + 2\coverboardgrow }%
 }{%
@@ -3845,14 +3863,14 @@
 \newenvironment{spine}{%
 	\begin{cell*}{
 				\bleed 
-					+ \jacketflapback 
-					+ \coverflap 
-					+ \jacketwrap 
+					+ \photobook@jacketflapback@active
+					+ \photobook@coverflap@active
+					+ \photobook@jacketwrap@active
 					+ \coverboardgrow 
 					+ \pageblockwidth 
 					+ \spinefold,
 				\bleed 
-					+ \coverflap }%
+					+ \photobook@coverflap@active }%
 			{ \spinewidth }%
 			{ \pageblockheight + 2\coverboardgrow }%
 }{%
@@ -3873,15 +3891,15 @@
 \newenvironment{frontflap}{%
 	\begin{cell*}{
 				\bleed 
-					+ \jacketflapback 
-					+ 2\jacketwrap 
+					+ \photobook@jacketflapback@active
+					+ 2\photobook@jacketwrap@active
 					+ 2\coverboardgrow 
 					+ 2\pageblockwidth 
 					+ 2\spinefold 
 					+ \spinewidth,
 				\bleed 
-					+ \coverflap }% 
-			{ \jacketflapfront }%
+					+ \photobook@coverflap@active }%
+			{ \photobook@jacketflapfront@active }%
 			{ \pageblockheight + 2\coverboardgrow }%
 }{%
 	\end{cell*}}
@@ -3890,8 +3908,8 @@
 	\begin{cell*}{
 				\bleed,
 				\bleed 
-					+ \coverflap }%
-			{ \jacketflapback }%
+					+ \photobook@coverflap@active }%
+			{ \photobook@jacketflapback@active }%
 			{ \pageblockheight + 2\coverboardgrow }%
 }{%
 	\end{cell*}}
