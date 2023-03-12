@@ -76,7 +76,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.10}
+\edef\photobook@FILEVERSION{v0.1.11}
 \edef\photobook@FILEDATE{2023-03-11}
 
 
@@ -1156,6 +1156,19 @@
 	\InitPages%
 	\ResetFoldMarks}
 
+%% \DescribeMacro{\ChangeLayout}
+%
+%% Change document layout.
+%
+%%	>> \ChangeLayout{<layoutmode>}
+%
+%% This is a shorthand for |\def\layoutmode{<layoutmode>}| and then 
+%% |\ReInitPages|, and as this is changing any other parameters that may 
+%% affect the layout, this should be done last.
+%%
+\newcommand\ChangeLayout[1]{%
+	\def\layoutmode{#1}%
+	\ReInitPages}
 
 
 %----------------------------------------------------------------------
