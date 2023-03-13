@@ -298,6 +298,8 @@ tag:
 		| tail -n 5 \
 		| sed 's/^/    /' \
 		| tac
+	@[ $$(git status --porcelain=v1 2> /dev/null | grep -v '??' | wc -l) = 0 ] \
+		|| echo -e "\nWARNING: There are uncommited changes!\n"
 	@echo "Note that this must be done after a commit and a push."
 	@read -p "(press any key to continue or ctrl-c to cancel)"
 	git tag "v$(VERSION)"
