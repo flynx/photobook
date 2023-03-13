@@ -288,6 +288,7 @@ ctan-dist: dist
 
 
 
+# XXX add checks for commit and push...
 .PHONY: tag
 tag:
 	@echo "Will create and publish git tag:"
@@ -297,7 +298,7 @@ tag:
 		| tail -n 5 \
 		| sed 's/^/    /' \
 		| tac
-	@echo "Note that this must be done after a commit."
+	@echo "Note that this must be done after a commit and a push."
 	@read -p "(press any key to continue or ctrl-c to cancel)"
 	git tag "v$(VERSION)"
 	git push origin "v$(VERSION)"
