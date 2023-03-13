@@ -295,6 +295,7 @@ tag:
 	@echo "    v$(VERSION)"
 	@echo "Last 5 tags:"
 	@git tag -l 'v[0-9]*'\
+		| sort -V \
 		| tail -n 5 \
 		| sed 's/^/    /' \
 		| tac
