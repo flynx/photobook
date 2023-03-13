@@ -69,6 +69,7 @@ jobs:
               defining a set of parameters, meta-macros, macros and
               environments with reasonable defaults to help typeset,
               build and print books mainly based on visual/image content.
+            # XXX multi-line comments will break things...
             announcement: >
               ${{ env.COMMENT }}
                
