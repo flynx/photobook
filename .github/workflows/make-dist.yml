@@ -23,9 +23,12 @@ jobs:
           echo "VERSION=$(make version)" >> $GITHUB_ENV
           COMMENT="$(git log -1 --pretty=%B | grep -v "Signed-off-by:")"
           COMMENT="${COMMENT//'%'/'%25'}"
-          COMMENT="${COMMENT//'\n'/'%0A'}"
-          COMMENT="${COMMENT//'\n'/'%0D'}"
-          echo "COMMENT=${COMMENT}" >> $GITHUB_ENV
+          COMMENT="${COMMENT//$'\n'/'%0A'}"
+          COMMENT="${COMMENT//$'\n'/'%0D'}"
+          echo 'COMMENT<<EOF' >> $GITHUB_ENV
+          echo "${COMMENT}" >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+          # XXX if comment is multi-line it breaks the CTAN announcement...
           #echo 'COMMENT<<EOF' >> $GITHUB_ENV
           #git log -1 --pretty=%B | grep -v "Signed-off-by:" >> $GITHUB_ENV
           #echo 'EOF' >> $GITHUB_ENV
