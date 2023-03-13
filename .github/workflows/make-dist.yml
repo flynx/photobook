@@ -21,10 +21,21 @@ jobs:
           apk add make git zip
           git config --global --add safe.directory '*'
           echo "VERSION=$(make version)" >> $GITHUB_ENV
-          echo 'COMMENT<<EOF' >> $GITHUB_ENV
-          git log -1 --pretty=%B | grep -v "Signed-off-by:" >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
+          COMMENT="$(git log -1 --pretty=%B | grep -v "Signed-off-by:")"
+          COMMENT="${COMMENT//'%'/'%25'}"
+          COMMENT="${COMMENT//'\n'/'%0A'}"
+          COMMENT="${COMMENT//'\n'/'%0D'}"
+          echo "COMMENT=${COMMENT}" >> $GITHUB_ENV
+          #echo 'COMMENT<<EOF' >> $GITHUB_ENV
+          #git log -1 --pretty=%B | grep -v "Signed-off-by:" >> $GITHUB_ENV
+          #echo 'EOF' >> $GITHUB_ENV
           make dist ctan-dist
+
+    - name: TEST
+      with:
+        run: |
+          echo ${{ env.VERSION }}
+          echo ${{ env.COMMENT }}
 
     - name: Release
       uses: softprops/action-gh-release@v1
