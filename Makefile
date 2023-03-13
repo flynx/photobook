@@ -45,7 +45,6 @@
 
 .EXPORT_ALL_VARIABLES:
 
-#.ONESHELL:
 
 # NOTE: this makes things run consistently on different systems including 
 # 		things like Android...
@@ -60,8 +59,9 @@ MODULE := photobook
 VERSION = $(strip $(shell \
 	cat $(MODULE).cls \
 		| grep 'VERSION{' \
-	 	| sed 's/.*{\(.*\)}.*/\1/' \
-		| sed 's/v//'))
+	 	| sed \
+			-e 's/.*{\(.*\)}.*/\1/' \
+			-e 's/v//'))
 DATE = $(strip $(shell date "+%Y%m%d%H%M"))
 COMMIT = $(strip $(shell git rev-parse HEAD))
 
