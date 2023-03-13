@@ -45,6 +45,8 @@
 
 .EXPORT_ALL_VARIABLES:
 
+#.ONESHELL:
+
 # NOTE: this makes things run consistently on different systems including 
 # 		things like Android...
 SHELL := bash
@@ -287,8 +289,6 @@ ctan-dist: dist
 	cp -f $(DIST_DIR)/$(DIST_NAME).zip $(DIST_DIR)/$(MODULE).zip
 
 
-
-# XXX add checks for commit and push...
 .PHONY: tag
 tag:
 	@echo "Will create and publish git tag:"
@@ -298,10 +298,25 @@ tag:
 		| tail -n 5 \
 		| sed 's/^/    /' \
 		| tac
-	@[ $$(git status --porcelain=v1 2> /dev/null | grep -v '??' | wc -l) = 0 ] \
-		|| echo -e "\nWARNING: There are uncommited changes!\n"
-	@echo "Note that this must be done after a commit and a push."
-	@read -p "(press any key to continue or ctrl-c to cancel)"
+#	# check if we need to bug the user about committing and/or pushing stuff...
+	@\
+		UNCOMITTED=$$(git status --porcelain=v1 2> /dev/null | grep -v '??' | wc -l) ;\
+		UNPUSHED=$$(git log origin..HEAD | wc -l) ;\
+		if ! [ $$UNCOMITTED = 0 ] ; then \
+			echo ;\
+			echo "WARNING: Uncommited changes found!" ;\
+		fi ;\
+		if ! [ $$UNPUSHED = 0 ] ; then \
+			[ $$UNCOMITTED = 0 ] \
+				&& echo ;\
+			echo "WARNING: Unpushed commits found!" ;\
+		fi ;\
+		if ! [ $$UNCOMITTED = 0 ] || ! [ $$UNPUSHED = 0 ] ; then \
+			echo ;\
+			echo "Note that this must be done after a commit and a push." ;\
+			echo "(press any key to continue or ctrl-c to cancel)" ;\
+			read ;\
+		fi ;\
 	git tag "v$(VERSION)"
 	git push origin "v$(VERSION)"
 
