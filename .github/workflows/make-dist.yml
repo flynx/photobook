@@ -32,10 +32,9 @@ jobs:
           make dist ctan-dist
 
     - name: TEST
-      with:
-        run: |
-          echo ${{ env.VERSION }}
-          echo ${{ env.COMMENT }}
+      run: |
+        echo ${{ env.VERSION }}
+        echo ${{ env.COMMENT }}
 
     - name: Release
       uses: softprops/action-gh-release@v1
