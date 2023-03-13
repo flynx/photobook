@@ -250,6 +250,8 @@ If `layout.tex` is present it will be included as the page layout/template.
 Any paths in the `layout.tex` should be relative to the location the
 built block .tex file will be located, usually to the project root.
 
+Template field substitution is done as for all other templates.
+
 
 ### Templates
 

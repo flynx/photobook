@@ -15,7 +15,7 @@
 MAKESPREADS := ../../scripts/make-spreads.sh
 
 
-spreads.tex: spreads
+spreads.tex: spreads $(wildcard spreads/*/*)
 	$(MAKESPREADS) $< $(SPREAD) > $@
 
 dist:

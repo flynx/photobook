@@ -479,7 +479,7 @@ populateTemplate(){
 		i=$(( i + 1 ))
 
 		val=${val//\//\\/}
-		text=$(echo -e "${text}" | \
+		text=$(echo "${text}" | \
 			sed "s/\${${var}}/${val%.*}/g")
 	done
 
@@ -502,7 +502,7 @@ populateTemplate(){
 			val=$(readCaption "${val}")
 		fi
 
-		text=$(echo -e "${text}" | \
+		text=$(echo "${text}" | \
 			sed "s/\${${var}}/${val}/g")
 	done
 
@@ -523,13 +523,13 @@ populateTemplate(){
 		done
 
 		val=${val//\//\\/}
-		text=$(echo -e "${text}" | \
+		text=$(echo "${text}" | \
 			sed "s/\${${var}}/${val}/g")
 	done
 
 	# print out the filled template...
 	echo % template: $tpl
-	echo -e "${text}"
+	echo "${text}"
 	return 0
 }
 
