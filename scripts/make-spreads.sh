@@ -2,75 +2,15 @@
 shopt -s nullglob extglob
 
 #----------------------------------------------------------------------
-# 
-# TIP: It is better to think of a visual book as a set of spreads 
-#		rather than a set of pages, hence the focus on spreads in the 
-#		code below.
-#		The main unit of a "visual" book is a spread, it's the thing 
-#		you see when you hold the book open, and the main workflow 
-#		when building a book is creating spreads and ordering them so 
-#		a single page is almost never treated as an independent unit.
-# TIP: it is not recommended to use too many templates, the layout 
-#		should be and feel structured and this structure should not be 
-#		too complex for the average reader to get comfortable in.
-# 
+#
+# For docs see README.md
+#
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# 
-# Template structure:
-#	$TEMPLATE_DIR/
-#		spread.tex
-#		imagepage.tex
-#		textpage.tex
-#		...
-#	$CAPTION_DIR/
-#		<image>.txt
-#			image caption.
-#			this is separated to decouple caption writing from the 
-#			changes to the layout/sequencing and this drastically 
-#			simplify the work with writers.
-#			For this reason this takes priority over local captions (XXX revise).
-#		...
-#	$SPREADS_DIR/
+#
+# XXX DOC:
 #		$spread/
-#			tweaks.tex
-#				template tweaks.
-#				loaded before the templates are handled.
-#			layout.tex
-#				manual layout of spread.
-#				if given rest of directory contents are 
-#				ignored.
-#				fields:
-#					${IMAGE0}
-#						replaced with image path
-#					${CAPTION0}
-#						replaced with content of caption file if found
-#						and empty otherwise.
-#					${TEXT0}
-#						replaced with the content of a text file if 
-#						found and empty otherwise.
-#					...
-#				NOTE: if images are included, hi-res source
-#					substitution is not done here.
-#				NOTE: fields are ordered and matched according to their
-#					position and not their number, e.g. in the following 
-#					sequence:
-#						IMAGE, IMAGE10, IMAGE20, ..,
-#						CAPTION2, CAPTION7, CAPTION12, ..
-#					IMAGE10 will be filled with the second found image 
-#					and CAPTION7 will be filled with the second found 
-#					caption.
-#			<spread-template-name>.tpl
-#				indicates the spread template to use.
-#				if given the rest of the .tex files in 
-#				directory are ignored.
-#				resolves to:
-#					templates/<spread-template-name>.tex
-#				fields:
-#					${IMAGE0}
-#					${CAPTION0}
-#					${TEXT0}
-#					...
+#			...
 #			imagepage.tex
 #				image page template.
 #				fields:
@@ -87,46 +27,7 @@ shopt -s nullglob extglob
 #			<spread-template-name>-textpage.tpl
 #				indicates the image/text page template to use.
 #				ignored if explicit templates are given.
-#				fields:
-#					${IMAGE}
-#					${CAPTION}
-#					${TEXT}
-#					...
-#			00-<image>.png
-#				image.
-#				if $IMAGE_HIRES_DIR is set then this will 
-#				resolve to:
-#					$IMAGE_HIRES_DIR/<image>
-#				supported formats:
-#					.jpeg, .png, .pdf, .svg, .eps 
-#					(see $IMAGE_FORMATS)
-#			00-<image>.txt
-#				local image caption text.
-#				NOTE: this must be named the same as the image.
-#			01-<text>.txt
-#				text.
 #			...
-#		...
-#
-#
-# Env variables:
-#	ANOTATE_IMAGE_PATHS=
-#	TEXT_FORMATS=<ext>|..
-#	IMAGE_FORMATS=<ext>|..
-#	SPREADS_DIR=<path>
-#	IMAGE_HIRES_DIR=<path>
-#		sets the path to which the hi-res images are resolved.
-#	CAPTION_DIR=<path>
-#	TEMPLATE_DIR=<path>
-#	EMPTY_PAGE=<name>
-#	TEXT_PAGE=<name>
-#	IMAGE_PAGE=<name>
-#	IMAGE_SPREAD=<array>
-#
-#
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#
-# XXX 
 #
 #
 #
