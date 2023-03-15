@@ -26,8 +26,8 @@ printhelp(){
 	echo "  - read the INPUT"
 	echo "  - keep lines starting with \\def\\<module-name>@[A-Z]\\+"
 	echo "  - keep lines starting with '%%'"
-	echo "  - %%%%% Text -> \\subsection(Text)"
-	echo "  - %%%% Text -> \\section(Text)"
+	echo "  - %%%%% Text -> \\subsection{Text}"
+	echo "  - %%%% Text -> \\section{Text}"
 	echo "  - %% >> code -> \\begin{verbatim}code\\end{verbatim}"
 	echo "  - write the result to OUTPUT"
 	echo

@@ -4,9 +4,9 @@ Support scripts
 
 <!-- TOC depthfrom:2 -->
 
-- [make-spreads.sh](#make-imagessh)
-	- [The process](#the-process)
-		- [Automatic template inferenceing](#automatic-template-inferenceing)
+- [make-spreads.sh](#make-spreadssh)
+	- [Theory of operation](#theory-of-operation)
+		- [Automatic template inferencing](#automatic-template-inferencing)
 		- [Manual template selection](#manual-template-selection)
 		- [Template tweaking](#template-tweaking)
 		- [Manual spread layouts](#manual-spread-layouts)
@@ -106,7 +106,7 @@ $ make-spreads.sh --help
 ```
 
 
-### The process
+### Theory of operation
 
 <!-- XXX spreads vs. pages -->
 
@@ -394,6 +394,7 @@ $ cls2tex.sh --help
 ```
 
 The `--help` says it all:
+<!-- :r !cl2tex.sh --help -->
 ```
 Generate docs from latex package/class
 
@@ -411,8 +412,8 @@ This will:
   - read the INPUT
   - keep lines starting with \def\<module-name>@[A-Z]\+
   - keep lines starting with '%%'
-  - %%%%% Text -> \subsection(Text)
-  - %%%% Text -> \section(Text)
+  - %%%%% Text -> \subsection{Text}
+  - %%%% Text -> \section{Text}
   - %% >> code -> \begin{verbatim}code\end{verbatim}
   - write the result to OUTPUT
 
