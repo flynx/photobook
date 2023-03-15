@@ -198,7 +198,18 @@ If only one image/text file is provided then `make-spreads.sh` will set it
 on the right page of the spread using the appropriate page template and
 leave the left page blank.
 
-<!-- XXX do we need a `blankpage.tex` template??? -->
+A black page uses `blankpage.tex` template if available, otherwise a
+trivial blank page is used:
+```latex
+\null
+\newpage
+```
+
+<!-- XXX
+Template search order:
+- spread directory
+- template directory
+-->
 
 
 #### Manual template selection

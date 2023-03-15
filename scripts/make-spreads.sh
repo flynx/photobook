@@ -278,6 +278,7 @@ readCaption(){
 # usage:
 #	getTemplate SPREAD TYPE
 #
+# XXX REVISE...
 getTemplate(){
 	local SPREAD=$1
 	local TYPE=$2
@@ -285,6 +286,10 @@ getTemplate(){
 	if [ -z $TEMPLATE ] ; then
 		TEMPLATE=($SPREAD/*-$TYPE.tpl)
 		if ! [ -z $TEMPLATE ] ; then
+			#TEMPLATE=${TEMPLATE_DIR}/$(echo "${TEMPLATE[0]}" \
+			#	| sed -e "s/$SPREAD\///" \
+			#		-e 's/^[0-9]\+-//' \
+			#		-e "s/-${TYPE}.*$//")
 			TEMPLATE=${TEMPLATE/$SPREAD\//}
 			TEMPLATE=${TEMPLATE/[0-9]-/}
 			TEMPLATE="$TEMPLATE_DIR/${TEMPLATE[0]%-${TYPE}.*}.tex"
