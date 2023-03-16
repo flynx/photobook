@@ -287,9 +287,9 @@ getTemplate(){
 		TEMPLATE=($SPREAD/*-$TYPE.tpl)
 		if ! [ -z $TEMPLATE ] ; then
 			#TEMPLATE=${TEMPLATE_DIR}/$(echo "${TEMPLATE[0]}" \
-			#	| sed -e "s/$SPREAD\///" \
+			#	| sed -e "s/$S{PREAD}\///" \
 			#		-e 's/^[0-9]\+-//' \
-			#		-e "s/-${TYPE}.*$//")
+			#		-e "s/-${TYPE}\.*$//").tex
 			TEMPLATE=${TEMPLATE/$SPREAD\//}
 			TEMPLATE=${TEMPLATE/[0-9]-/}
 			TEMPLATE="$TEMPLATE_DIR/${TEMPLATE[0]%-${TYPE}.*}.tex"
