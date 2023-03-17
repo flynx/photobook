@@ -91,7 +91,7 @@ IMAGE_PAGE=${IMAGE_PAGE:=imagepage}
 # NOTE: the index here corresponds to the number of images found in a 
 #		spread directory...
 if [ ${#IMAGE_SPREAD[@]} = 0 ] ; then
-	if ! [ ${#CFG_IMAGE_SPREAD[@]} = 0 ] ; then
+	if [ ${#CFG_IMAGE_SPREAD[@]} != 0 ] ; then
 		IMAGE_SPREAD=()
 		for i in ${!CFG_IMAGE_SPREAD[@]} ; do
 			IMAGE_SPREAD[$i]=${CFG_IMAGE_SPREAD[$i]}
@@ -278,21 +278,23 @@ readCaption(){
 # usage:
 #	getTemplate SPREAD TYPE
 #
-# XXX REVISE...
 getTemplate(){
 	local spread=$1
-	local type=$2
+	local name=$2
 	local template
 
-	# already an existing template...
-	if [[ $type =~ .*\.tex ]] && [ -e "$type" ] ; then
-		echo $type
-		return
+	if [[ $name =~ .*\.tex ]] ; then 
+		# already an existing template...
+		if [ -e "$name" ] ; then
+			echo $name
+			return
+		fi
+		# normalize...
+		name=${name%.tex}
 	fi
-
 	# normalize template name...
-	if [[ $type =~ .*\.tpl ]] ; then
-		type=$( echo $type \
+	if [[ $name =~ .*\.tpl ]] ; then
+		name=$( echo $name \
 			| sed \
 				-e 's/.tpl$//' \
 				-e "s%$spread/%%" \
@@ -300,15 +302,16 @@ getTemplate(){
 	fi
 
 	# local template...
-	template=($spread/*-$type.tex)
+	template=($spread/*-$name.tex)
 	if [ ${#template[@]} != 0 ] ; then
 		template=${template[0]}
 	else
-		template=($spread/$type.tex)
+		template=($spread/$name.tex)
 	fi
 	# global template...
-	if [ -z $template ] || ! [ -e "$template" ] ; then
-		 template="$TEMPLATE_DIR/${type}.tex"
+	if [ -z $template ] \
+			|| ! [ -e "$template" ] ; then
+		 template="$TEMPLATE_DIR/${name}.tex"
 	fi
 	# check if the thing exists...
 	if ! [ -e $template ] ; then
@@ -378,7 +381,7 @@ populateTemplate(){
 	local i=0
 	for var in ${slots[@]} ; do
 		name=${var//[0-9]/}
-		if ! [ ${name} = "IMAGE" ] ; then
+		if [ ${name} != "IMAGE" ] ; then
 			continue
 		fi
 
@@ -405,7 +408,7 @@ populateTemplate(){
 	# pass 2: captions...
 	for var in ${slots[@]} ; do
 		name=${var//[0-9]/}
-		if ! [ ${name} = "CAPTION" ] ; then
+		if [ ${name} != "CAPTION" ] ; then
 			continue
 		fi
 
@@ -449,7 +452,7 @@ populateTemplate(){
 	# print out the filled template...
 	echo % template: $tpl
 	echo "${text}"
-	return 0
+	return
 }
 
 
@@ -590,21 +593,29 @@ handleSpread(){
 					# ignore the rest of the items when we are done 
 					# creating two pages...
 					[ $C == 2 ] \
-						&& return 0
+						&& return
 				done
 			fi
 		fi
 		# formatting done...
 		[ -z $template ] \
-			&& return 0
+			&& return
 
-		# XXX check for errors...
+		# resolve the template path...
+		local p=$template
 		template=$(getTemplate "$spread" "$template")
+
+		# not found...
+		if [ -z $template ] ; then
+			echo "%"
+			echo "% ERROR: could not resolve template: $p" | tee >(cat >&2)
+			echo "%"
+		fi
 	fi
 
 	populateTemplate "$spread" "$template" "${img[@]}" "${txt[@]}"
 
-	return 0
+	return $?
 }
 
 
