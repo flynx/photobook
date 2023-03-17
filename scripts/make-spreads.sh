@@ -280,28 +280,41 @@ readCaption(){
 #
 # XXX REVISE...
 getTemplate(){
-	local SPREAD=$1
-	local TYPE=$2
-	local TEMPLATE=($SPREAD/*-$TYPE.tex)
-	if [ -z $TEMPLATE ] ; then
-		TEMPLATE=($SPREAD/*-$TYPE.tpl)
-		if ! [ -z $TEMPLATE ] ; then
-			#TEMPLATE=${TEMPLATE_DIR}/$(echo "${TEMPLATE[0]}" \
-			#	| sed -e "s/$S{PREAD}\///" \
-			#		-e 's/^[0-9]\+-//' \
-			#		-e "s/-${TYPE}\.*$//").tex
-			TEMPLATE=${TEMPLATE/$SPREAD\//}
-			TEMPLATE=${TEMPLATE/[0-9]-/}
-			TEMPLATE="$TEMPLATE_DIR/${TEMPLATE[0]%-${TYPE}.*}.tex"
-		fi
-	fi
-	if [ -z $TEMPLATE ] ; then
-		 TEMPLATE="$TEMPLATE_DIR/${TYPE}.tex"
-	fi
-	if ! [ -e $TEMPLATE ] ; then
+	local spread=$1
+	local type=$2
+	local template
+
+	# already an existing template...
+	if [[ $type =~ .*\.tex ]] && [ -e "$type" ] ; then
+		echo $type
 		return
 	fi
-	echo $TEMPLATE
+
+	# normalize template name...
+	if [[ $type =~ .*\.tpl ]] ; then
+		type=$( echo $type \
+			| sed \
+				-e 's/.tpl$//' \
+				-e "s%$spread/%%" \
+				-e 's/^[0-9]\+-//' )
+	fi
+
+	# local template...
+	template=($spread/*-$type.tex)
+	if [ ${#template[@]} != 0 ] ; then
+		template=${template[0]}
+	else
+		template=($spread/$type.tex)
+	fi
+	# global template...
+	if [ -z $template ] || ! [ -e "$template" ] ; then
+		 template="$TEMPLATE_DIR/${type}.tex"
+	fi
+	# check if the thing exists...
+	if ! [ -e $template ] ; then
+		return 1
+	fi
+	echo $template
 }
 
 
@@ -585,14 +598,8 @@ handleSpread(){
 		[ -z $template ] \
 			&& return 0
 
-		# format template path...
-		template=${template/$spread\//}
-		template=${template/[0-9]-/}
-		# get...
-		template="${template[0]%.*}.tex"
-		if ! [ -e "$template" ] ; then
-			template="$TEMPLATE_DIR/${template[0]%.*}.tex"
-		fi
+		# XXX check for errors...
+		template=$(getTemplate "$spread" "$template")
 	fi
 
 	populateTemplate "$spread" "$template" "${img[@]}" "${txt[@]}"
