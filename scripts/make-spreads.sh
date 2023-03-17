@@ -291,9 +291,8 @@ getTemplate(){
 		fi
 		# normalize...
 		name=${name%.tex}
-	fi
 	# normalize template name...
-	if [[ $name =~ .*\.tpl ]] ; then
+	elif [[ $name =~ .*\.tpl ]] ; then
 		name=$( echo $name \
 			| sed \
 				-e 's/.tpl$//' \
