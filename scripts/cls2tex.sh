@@ -131,7 +131,7 @@ if [ -z $STRIP_DOC ] ; then
 	printmsg "Documentation" \
 		> "$OUTPUT"
 	cat "$INPUT" \
-		| egrep '(^%'$PREFIX'|^\\edef\\'$MODULE'@[A-Z][A-Z]+)' \
+		| grep -E '(^%'$PREFIX'|^\\edef\\'$MODULE'@[A-Z][A-Z]+)' \
 		| sed \
 			-e 's/^\(\\edef\\\)'$MODULE'@/%'$PREFIX'\1/' \
 			-e 's/%'$PREFIX'%%%% \(.*\)/%'$PREFIX'\\subsubsection{\1}\\label{subsubsec:\1}/' \
@@ -146,8 +146,8 @@ else
 	printmsg "Stripped code" \
 		> "$OUTPUT"
 	cat "$INPUT" \
-		| egrep -v '%'$PREFIX'' \
-		| egrep -v '^(\s*%)?\s*$' \
+		| grep -Ev '%'$PREFIX'' \
+		| grep -Ev '^(\s*%)?\s*$' \
 		>> "$OUTPUT"
 fi
 
