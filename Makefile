@@ -125,6 +125,7 @@ DIST_NORMAL_FILES = \
 	README.md \
 	LICENSE \
 	Makefile \
+	DEPENDS.txt \
 	$(MODULE).cls \
 	$(MODULE).pdf
 DIST_FILES = \
@@ -238,6 +239,16 @@ LN := cp -l
 %-stripped.cls: %.cls
 	$(DOC) --strip $< \
 		| $(DOC) --prefix M --strip \
+		> $@
+
+
+# list of dependencies...
+#
+DEPENDS.txt: $(MODULE).cls
+	cat $< \
+		| grep -Pzo '\n\s*\\RequirePackage(\[[^]]*\])?\{[^}]*\}' \
+		| sed 's/.*{\(.*\)}/hard \1\n/' \
+		| grep -a hard \
 		> $@
 
 
@@ -409,7 +420,7 @@ sweep:
 
 .PHONY: clean
 clean: sweep
-	rm -rf $(DIST_DIR) $(BUILD_DIR) $(MODULE).md *.pdf
+	rm -rf $(DIST_DIR) $(BUILD_DIR) $(MODULE).md DEPENDS.txt *.pdf
 
 
 
