@@ -18,7 +18,7 @@ jobs:
       uses: xu-cheng/texlive-action/full@v1
       with:
         run: |
-          apk add make git zip
+          apk add make git zip grep
           git config --global --add safe.directory '*'
           echo "VERSION=$(make version)" >> $GITHUB_ENV
           # XXX not sure about this...

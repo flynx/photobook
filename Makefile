@@ -246,7 +246,7 @@ LN := cp -l
 #
 DEPENDS.txt: $(MODULE).cls
 	cat $< \
-		| grep -Pzo '\n\s*\\RequirePackage(\[[^]]*\])?\{[^}]*\}' \
+		| egrep -zo '\s*\\RequirePackage(\[[^]]*\])?\{[^}]*\}' \
 		| sed 's/.*{\(.*\)}/hard \1\n/' \
 		| grep -a hard \
 		> $@
