@@ -226,6 +226,7 @@ LN := cp -l
 # strip docs out...
 #
 # XXX can we unify these???
+# 		....not sure how...
 %-stripped.tex: %.tex
 	$(DOC) --strip $< \
 		$(DOC) --prefix M --strip \
