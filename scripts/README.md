@@ -95,7 +95,7 @@ $ make-spreads.sh ./pages > block-pages.tex
 ```
 
 Note that `make-spreads.sh` does not force a specific layout outside of 
-the `pages` directory, all paths are configurable. The way the root 
+the `spreads` directory, all paths are configurable. The way the root 
 files are structured in this example is just one way to organize a 
 book's source code with minimal code duplication.
 
@@ -313,7 +313,7 @@ environment variable.
 
 Inline captions are also supported:
 ```bnf
-pages/
+spreads/
 ├── <spread>/
 │   ├── ...
 │   ├── 00-<image-name>.<ext>
@@ -440,4 +440,4 @@ NOTE: the idea of keeping latex docs in a latex file is far simpler
       in both the repo and in installed form, so .dtx is not used.
 ```
 
-
+<!-- vim:set ts=4 sw=4 : -->
