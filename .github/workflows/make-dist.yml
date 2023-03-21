@@ -79,6 +79,8 @@ jobs:
               environments with reasonable defaults to help typeset,
               build and print books mainly based on visual/image content.
             # XXX multi-line comments will break things...
+            #     ...another potential cause is an empty line in a commit, 
+            #     need more testing...
             announcement: >
               ${{ env.COMMENT }}
                
