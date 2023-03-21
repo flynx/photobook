@@ -249,7 +249,7 @@ DEPENDS.txt: $(MODULE).cls
 	cat $< \
 		| grep -Ezo '\s*\\RequirePackage(\[[^]]*\])?\{[^}]*\}' \
 		| sed \
-			-e 's/.*{\(.*\)}/hard \1/' \
+			-e 's/.*{\(.*\)}/hard \1\n/' \
 			-e 's/\x0//' \
 		| grep -a hard \
 		> $@
