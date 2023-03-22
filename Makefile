@@ -342,7 +342,7 @@ tag:
 
 
 .PHONY: all
-all: pdf
+all: pdf DEPENDS.txt
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
