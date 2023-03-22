@@ -245,6 +245,8 @@ LN := cp -l
 
 # list of dependencies...
 #
+# NOTE: grep's -z flag generates a bunch if nulls that we need to clean 
+# 		out via tr.
 DEPENDS.txt: $(MODULE).cls
 	cat $< \
 		| grep -Ezo '\s*\\RequirePackage(\[[^]]*\])?\{[^}]*\}' \
