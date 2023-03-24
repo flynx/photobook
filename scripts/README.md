@@ -23,7 +23,7 @@ Support scripts
 `make-spreads.sh`
 ----------------
 
-<!-- XXX add a TL;DR, "quick start" or "cheat sheet" section... abstract? -->
+<!-- XXX add examples? -->
 
 Generate LaTeX block of pages/spreads from a directory tree.
 
