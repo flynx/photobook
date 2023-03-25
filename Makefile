@@ -269,6 +269,9 @@ version:
 #----------------------------------------------------------------------
 # Main targets...
 
+.PHONY: dep
+dep: DEPENDS.txt
+
 .PHONY: pdf
 pdf: $(MODULE).pdf
 
@@ -342,7 +345,7 @@ tag:
 
 
 .PHONY: all
-all: pdf DEPENDS.txt
+all: pdf dep 
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
