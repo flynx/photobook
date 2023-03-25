@@ -389,10 +389,11 @@ $ make-spreads.sh -c <path> ..
 Extract the documentation from photobook.cls which is used to build the 
 photobook.pdf reference manual.
 
-This makes it possible to maintain the documentation and code in a
-single file retaining human readability.
+This makes it possible to keep the documentation and code it describes
+in the same place/file.
 
-The format is inspired by LaTeX's .dxt format but is far simpler.
+The format is in part inspired by LaTeX's .dxt format but is far simpler 
+and retains human readability with less effort.
 
 
 ```shell
