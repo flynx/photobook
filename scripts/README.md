@@ -447,4 +447,4 @@ NOTE: the idea of keeping latex docs in a latex file is far simpler
       in both the repo and in installed form, so .dtx is not used.
 ```
 
-<!-- vim:set ts=4 sw=4 : -->
+<!-- vim:set ts=4 sw=4 nowrap : -->
