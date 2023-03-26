@@ -392,8 +392,8 @@ photobook.pdf reference manual.
 This makes it possible to keep the documentation and code it describes
 in the same place/file.
 
-The format is in part inspired by LaTeX's .dtx format but is far simpler 
-and retains human readability with less effort.
+The format is in part inspired by LaTeX's [.dtx](http://tug.ctan.org/info/dtxtut/dtxtut.pdf) 
+format but is far simpler and retains human readability with less effort.
 
 
 ```shell
