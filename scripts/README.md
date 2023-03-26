@@ -392,7 +392,7 @@ photobook.pdf reference manual.
 This makes it possible to keep the documentation and code it describes
 in the same place/file.
 
-The format is in part inspired by LaTeX's .dxt format but is far simpler 
+The format is in part inspired by LaTeX's .dtx format but is far simpler 
 and retains human readability with less effort.
 
 
