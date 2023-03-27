@@ -79,8 +79,8 @@ book/
 ├── block.tex . . . . . . . . . . . . . Block skeletal layout.
 │                                       This usually includes the titles, 
 │                                       technical pages and sources the
-│                                       ./block-pages.tex.
-├── block-pages.tex . . . . . . . . . . The generated block content.
+│                                       ./block-spreads.tex.
+├── block-spreads.tex . . . . . . . . . The generated block content.
 ├── cover.tex . . . . . . . . . . . . . Cover layout.
 ├── jacket.tex  . . . . . . . . . . . . Dust jacket layout.
 └── ...
@@ -91,7 +91,7 @@ For a live example see: ../examples/book -->
 
 Generate the block:
 ```shell
-$ make-spreads.sh ./pages > block-pages.tex
+$ make-spreads.sh ./spreads > block-spreads.tex
 ```
 
 Note that `make-spreads.sh` does not force a specific layout outside of 
@@ -123,20 +123,20 @@ work is starting to look like a book.
 When starting work on a layout it is good to at least have a basic
 understanding of the book's:
 - structure and how it may change,
-- core templates,
+- general look (i.e. core templates),
 - exceptions from the above.
 
 In most cases all of the above will change in one way or another during
 the project's lifespan, and the main goal of this stage is to make this 
-change as simple as possible -- it's all about providing the freedom to 
-make changes instead of growing work invested and thus making change 
-more and more expensive.
+change as efgortless as possible -- it's all about providing the freedom 
+to make changes instead of growing the work invested and thus making 
+change more and more expensive.
 
 The first question is what is the _structure_ of the book we are making?
 Will it have chapters? How many? Text? how much, how should it be 
-structured? How are we going to deal with the title? How are we going 
+placed? How are we going to deal with the title? How are we going 
 to present the images, full bleed, no bleeds, small, big, one per page 
-or multiple images, ...etc.? At this stage this is about the presentation 
+or multiples, ...etc.? At this stage this is about the presentation, 
 the flow of the work and not about the actual design. How many typical 
 spreads (i.e. spread templates) should it have? A good number should be 
 small-ish, for example 3-4 spread templates is a good number, if you 
