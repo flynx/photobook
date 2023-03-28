@@ -23,8 +23,6 @@ Support scripts
 `make-spreads.sh`
 ----------------
 
-<!-- XXX add examples? -->
-
 Generate LaTeX block of pages/spreads from a directory tree.
 
 This was initially intended as a means to convert the exported directory 
