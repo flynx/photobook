@@ -84,8 +84,7 @@ book/
 └── ...
 ```
 
-<!-- XXX
-For a live example see: ../examples/book -->
+For a full example see: ../examples/book
 
 Generate the block:
 ```shell
