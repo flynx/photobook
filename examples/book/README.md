@@ -28,6 +28,12 @@ book/
 └── ... 
 ```
 
+Note that this is by no means the only or most optomal project 
+structure, but it is a good enough starting point that evolved through 
+several, big and small project to start the next one from (at least 
+for me, subjectively).
+
+
 
 Building
 --------
