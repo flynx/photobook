@@ -38,9 +38,19 @@ for me, subjectively).
 Building
 --------
 
+To build all components:
 ```shell
 $ make all
 ```
+
+To build a specific component:
+```shell
+$ make block.pdf
+``` 
+
+`block.pdf` in this case.
+
+<!-- XXX add basic introspection to Makefike??? -->
 
 
 Structure
