@@ -62,6 +62,8 @@ Structure
 
 ### `cover.tex` / `jacket.tex` / `endpaper.tex` / ..
 
+### `web.tex`
+
 
 
 Workflow
