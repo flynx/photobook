@@ -64,6 +64,8 @@ Structure
 
 ### `web.tex`
 
+<!-- XXX this is quite generic, can we generate it? -->
+
 
 
 Workflow
