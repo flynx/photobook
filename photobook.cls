@@ -5329,6 +5329,41 @@
 			+ ((#2 mm) * 2)
 		\relax}}
 
+
+%% \DescribeMacro{\pdfspreadstopages\{..\}}
+%
+%%	include pdf block spreads as pages
+%%
+%%	>>	\pdfspreadstopages[<delta>]{<block-pdf>}
+%%
+% XXX do we skip the first/last single pages? ...an option?
+\newcommand\pdfspreadstopages[2][0.3mm]{%
+	\includepdf[pages={{},1-}, nup=2x1, delta=#1 #1]{#2}}
+
+
+% XXX 
+\newcommand\pdfcoverfront[1]{%
+	% XXX crop to frontcover cell..
+	\includepdf{#1}}
+\newcommand\pdfcoverback[1]{%
+	% XXX crop to backcover cell..
+	\includepdf{#1}}
+% XXX do we need this???
+%\newcommand\pdfendpaper[1]{%
+%	\includepdf{#1}}
+
+
+% XXX 
+\newcommand\pdfweb[2]{%
+	\pdfcoverfront{#1}%
+	% XXX endpaper...
+	\pdfspreadstopages{#2}%
+	% XXX endpaper...
+	\pdfcoverback{#1}}
+
+
+
+
 % XXX DOC...
 \def\TEX{%
 	{\fontfamily{lmr}\selectfont \TeX}}
