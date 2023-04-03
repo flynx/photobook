@@ -5354,11 +5354,10 @@
 
 
 % XXX 
+% XXX do we include endpapers??:
 \newcommand\pdfweb[2]{%
 	\pdfcoverfront{#1}%
-	% XXX endpaper...
 	\pdfspreadstopages{#2}%
-	% XXX endpaper...
 	\pdfcoverback{#1}}
 
 
