@@ -82,6 +82,7 @@ block.pdf: $(SPREADS)
 
 
 # XXX need to also include covers and endpapers (optionally?)
+# XXX this is broken...
 web.tex: setup.tex
 	{ \
 		echo "% This file is generated via make web.tex" \

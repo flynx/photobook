@@ -5338,6 +5338,7 @@
 %%
 % XXX this needs the pdf view mode to be set to single page...
 % XXX do we skip the first/last single pages? ...an option?
+% XXX TEST...
 \newcommand\pdfspreadstopages[2][0.3mm]{%
 	\includepdf[pages={{},1-}, nup=2x1, delta=#1 #1]{#2}}
 
