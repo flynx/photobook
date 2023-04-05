@@ -35,6 +35,29 @@
 %
 % XXC FEATURE image spread: add ability to push image sides outward to
 %		account for gutter.,,
+%
+% XXX ASAP \bindingoffset should also affect fill/bleed images...
+%		...shift the macros that optionally account for \bindingoffset to
+%		account for \gutteroffset -- everything should respect \bindingoffset
+% XXX ASAP add \gutteroffset and \gutterimageoffset to offset content 
+%		from the gutter
+%		\gutterimageoffset is an additional offset added to bleed images...
+%		...currently \bindingoffset is used for both...
+%		Q: should the gutter offsets be counted from the \bindingoffset???
+%
+%			+-------------------------------=--
+%			|						.  .  .	=
+%			|						.  .  .	=
+%			|						.  .  <-> \bindingoffset
+%			|						.  .  .	=
+%			|						.  <-->	= \gutteroffset
+%			|						.  .  .	=
+%			|						<-->  .	= \gutterimageoffset
+%			|						.  .  .	=
+%			+-------------------------------=--
+%
+%
+%
 % XXX revise \clearcaption / \captionclearpage...
 % XXX unify API -- see CellContent env...
 % XXX make this loadable both as a class and as a package...
@@ -224,6 +247,9 @@
 %% \DescribeMacro{blockwidth=<len>}
 %% \DescribeMacro{blockheight=<len>}
 %% \DescribeMacro{bindingoffset=<len>}
+% XXX
+%%% \DescribeMacro{gutteroffset=<len>}
+%%% \DescribeMacro{gutterimageoffset=<len>}
 %% \DescribeMacro{bleed=<len>}
 %
 %% This is similar to what |geometry| does, but adds bleed support.
@@ -263,7 +289,10 @@
 %		and \begin{document}...
 \DeclareStringOption{blockwidth}
 \DeclareStringOption{blockheight}
+% XXX should these be renamed to \gutter*offset???
 \DeclareStringOption[0pt]{bindingoffset}[10mm]
+\DeclareStringOption[0pt]{gutteroffset}[0mm]
+\DeclareStringOption[0pt]{gutterimageoffset}[0mm]
 \DeclareStringOption[5mm]{bleed}[5mm]
 
 %% \DescribeMacro{flatfold=<len>}
@@ -296,6 +325,7 @@
 %
 %% \DescribeMacro{layoutmode=<layout>}
 %% \DescribeMacro{block}
+%% \DescribeMacro{spread}
 %% \DescribeMacro{endpaper}
 %% \DescribeMacro{cover}
 %% \DescribeMacro{jacket}
@@ -326,9 +356,9 @@
 %% \end{minipage}
 %%
 %%
-%% |endpaper|:
+%% |spread|/|endpaper|:
 %%
-%%	Endpaper layout.
+%%	Spread/endpaper layout.
 %%
 % XXX should this use \flatfold???
 %% \begin{minipage}{\textwidth}
@@ -340,13 +370,16 @@
 %%   +---------------+---------------+
 %%   |               .               |
 %%   |               .               |
-%%   |           endpaper            |
+%%   |            spread             |
 %%   |               .               |
 %%   |               .               |
 %%   +---------------+---------------+
 %%
 %% \end{verbatim}
 %% \end{minipage}
+%%	
+%% Note that |endpaper| is simply an alias to |spread|, this helps make
+%% the book source to be more semantic and readable.
 %%	
 %%
 %% |cover|
@@ -422,7 +455,7 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%% Note that for |cover|, |endpaper|, and |jacket|, 
+%% Note that for |cover|, |spread|/|endpaper|, and |jacket|, 
 %% \href{https://ctan.org/pkg/fancyhdr}{fancyhdr}'s |\pagestyle{..}| is 
 %% set to |empty| by default.
 %%
@@ -436,6 +469,7 @@
 \@DeclareLiteralOptionTo{layoutmode}{block}
 %\@DeclareLiteralOptionTo{layoutmode}{web}
 \@DeclareLiteralOptionTo{layoutmode}{endpaper}
+\@DeclareLiteralOptionTo{layoutmode}{spread}
 % XXX add overhang...
 % XXX minght be a good idea to add cover types as separate values and 
 %		preset defeaults per type, e.g:
@@ -671,6 +705,7 @@
 \newif\ifhardcoverlayout
 \newif\ifsoftcoverlayout
 \newif\ifendpaperlayout
+\newif\ifspreadlayout
 \newif\ifjacketlayout
 % aggregates...
 \newif\ifcoverlikelayout
@@ -778,6 +813,16 @@
 %%
 \newlength\bindingoffset
 \setlength\bindingoffset{\photobook@bindingoffset}
+
+%%% \DescribeMacro{\gutteroffset=<len>}
+%%% \DescribeMacro{\gutterimageoffset=<len>}
+%
+%%% Gutter offsets
+%%%
+\newlength\gutteroffset
+\setlength\gutteroffset{\photobook@gutteroffset}
+\newlength\gutterimageoffset
+\setlength\gutterimageoffset{\photobook@gutterimageoffset}
 
 %% \DescribeMacro{\defaultfoldout=<fold-spec>}
 %
@@ -972,6 +1017,7 @@
 	\hardcoverlayoutfalse
 	\softcoverlayoutfalse
 	\endpaperlayoutfalse
+	\spreadlayoutfalse
 	\jacketlayoutfalse
 	\coverlikelayoutfalse
 	\blocklayoutfalse
@@ -989,7 +1035,11 @@
 	\ifdefstring{\layoutmode}{jacket}{%
 		\jacketlayouttrue
 		\coverlikelayouttrue }{}
+	\ifdefstring{\layoutmode}{spread}{ 
+		\spreadlayouttrue
+		\endpaperlayouttrue }{}
 	\ifdefstring{\layoutmode}{endpaper}{ 
+		\spreadlayouttrue
 		\endpaperlayouttrue }{}
 	% pdf layout...
 	\ifx\photobook@pdfpagelayout\empty
@@ -1087,8 +1137,8 @@
 					+ 2\jacketwrap
 					+ \photobook@jacketflapfront@active
 					+ \photobook@jacketflapback@active \relax}\fi
-		% layout: endpaper...
-		\ifendpaperlayout
+		% layout: spread/endpaper...
+		\ifspreadlayout
 			\pagestyle{empty}%
 			\readlist*\pagefoldpanels{%
 				\the\pageblockwidth,
@@ -1096,7 +1146,7 @@
 			\photobook@setpagefold{in}
 			\setlength\blockwidth{2\blockwidth}\fi\fi
 	\ifdim\blockheight=0pt
-		% layout: block / endpaper...
+		% layout: block / spread...
 		\setlength\blockheight{
 			\ifx\photobook@blockheight\empty
 				\dimexpr \paperheight - 2\bleed \relax
@@ -5175,7 +5225,7 @@
 	\begin{page}
 		\setlength{\parindent}{0em}
 		% NOTE: only the relevant blocks will be visible...
-		\ifendpaperlayout%
+		\ifspreadlayout%
 			\begin{leftside}
 				\photobook@TemplateCell[#1]{ENDPAPER LEFT}
 			\end{leftside}
@@ -5207,7 +5257,7 @@
 \newcommand\ShowMarks[1][1pt]{%
 	% general...
 	% XXX corners / cut marks...
-	\ifendpaperlayout%
+	\ifspreadlayout%
 		% XXX fold...
 	\fi%
 	\ifcoverlikelayout%
@@ -5332,18 +5382,32 @@
 
 %% \DescribeMacro{\pdfspreadstopages\{..\}}
 %
-%%	include pdf block spreads as pages
+%% \EXPERIMENTAL
+%%
+%%	Include spreads from a pdf block as pages
 %%
 %%	>>	\pdfspreadstopages[<delta>]{<block-pdf>}
 %%
-% XXX this needs the pdf view mode to be set to single page...
-% XXX do we skip the first/last single pages? ...an option?
+%% |\pdfspreadstopages{..}| inserts an empty page before the first page 
+%% in the block to push it to the right of the spread.
+%%
+%% To display other pages consistently it is recommended to set the 
+%% block width to |2\blockwidth| and set the |pdfpagelayout| to be 
+%% set to |SinglePage|, a simple way to do both is to:
+%%
+%% >> \ChangeLayout{spread}
+%%
+% XXX do we need to set the page format to double block width here???
 % XXX TEST...
-\newcommand\pdfspreadstopages[2][0.3mm]{%
+\newcommand\pdfspreadstopages[2][0mm]{%
 	\includepdf[pages={{},1-}, nup=2x1, delta=#1 #1]{#2}}
 
 
-% XXX 
+% XXX include the cover with the foldouts removed... 
+\newcommand\pdfcover[1]{%
+	% XXX crop to frontcover cell..
+	\includepdf{#1}}
+% XXX include cover cells....
 \newcommand\pdfcoverfront[1]{%
 	% XXX crop to frontcover cell..
 	\includepdf{#1}}
@@ -5365,7 +5429,11 @@
 
 
 
-% XXX DOC...
+%% \DescribeMacro{\TEX}
+%% \DescribeMacro{\LATEX}
+%
+%% Convenience macros to display \TeX and \LaTeX in the correct font.
+%%
 \def\TEX{%
 	{\fontfamily{lmr}\selectfont \TeX}}
 \def\LATEX{%
