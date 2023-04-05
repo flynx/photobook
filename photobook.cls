@@ -33,9 +33,6 @@
 %		to edit it directly, edit the source instead.
 %
 %
-% XXC FEATURE image spread: add ability to push image sides outward to
-%		account for gutter.,,
-%
 % XXX ASAP \bindingoffset should also affect fill/bleed images...
 %		...shift the macros that optionally account for \bindingoffset to
 %		account for \gutteroffset -- everything should respect \bindingoffset
@@ -289,8 +286,7 @@
 %		and \begin{document}...
 \DeclareStringOption{blockwidth}
 \DeclareStringOption{blockheight}
-% XXX should these be renamed to \gutter*offset???
-\DeclareStringOption[0pt]{bindingoffset}[10mm]
+\DeclareStringOption[0pt]{bindingoffset}[0mm]
 \DeclareStringOption[0pt]{gutteroffset}[0mm]
 \DeclareStringOption[0pt]{gutterimageoffset}[0mm]
 \DeclareStringOption[5mm]{bleed}[5mm]
