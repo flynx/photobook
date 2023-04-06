@@ -33,6 +33,7 @@
 %		to edit it directly, edit the source instead.
 %
 %
+%
 % XXX ASAP \bindingoffset should also affect fill/bleed images...
 %		...shift the macros that optionally account for \bindingoffset to
 %		account for \gutteroffset -- everything should respect \bindingoffset
