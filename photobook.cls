@@ -36,7 +36,8 @@
 %
 % XXX ASAP \bindingoffset should also affect fill/bleed images...
 %		...shift the macros that optionally account for \bindingoffset to
-%		account for \gutteroffset -- everything should respect \bindingoffset
+%		account for \gutteroffset
+%		...everything should respect \bindingoffset
 % XXX ASAP add \gutteroffset and \gutterimageoffset to offset content 
 %		from the gutter
 %		\gutterimageoffset is an additional offset added to bleed images...
