@@ -55,6 +55,8 @@
 %			|						.  .  .	=
 %			+-------------------------------=--
 %
+% XXX DOC...
+%
 %
 %
 % XXX revise \clearcaption / \captionclearpage...
