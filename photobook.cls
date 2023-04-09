@@ -43,11 +43,10 @@
 %			|						.  .  .	=
 %			|						.  .  .	=
 %			|						.  .  .	=
-%			|						.  .  <-> \bindingoffset
 %			|						.  .  .	=
-%			|						.  <-->	= \gutteroffset
-%			|						.  .  .	=
-%			|						<-->  .	= \gutterimageoffset
+%			|						.  .  <-> \bindingoffset . . . . DONE
+%			|						.  <-->	= \gutteroffset	 . . . . DONE
+%			|						<-->  .	= \gutterimageoffset . . ???
 %			|						.  .  .	=
 %			+-------------------------------=--
 %
@@ -264,7 +263,7 @@
 %%   .   |                      blockheight  .  .  =   .               |
 %%   .   |   .                       |   .   .  <--> bindingoffset     |
 %%   .   |                           |       .  .  =   .               |
-%%   .   |   .   .   .   .   .   .   |   .   <-->  gutteroffset        v
+%%   .   |   .   .   .   .   .   .   |   .   <--> gutteroffset         v
 %%   .   |                           v       .  .  =   .
 %%   .   +-----------------------------------------+-----  ^   .   .  ---
 %%   .   .                                         .   .   | bleed
