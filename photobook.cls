@@ -34,10 +34,10 @@
 %
 %
 %
-% XXX ASAP \bindingoffset should also affect fill/bleed images...
+% XXX ASAP \bindingoffset should also affect fill/bleed images... (DONE)
 %		...shift the macros that optionally account for \bindingoffset to
-%		account for \gutteroffset
-%		...everything should respect \bindingoffset
+%		account for \gutteroffset (DONE)
+%		...everything should respect \bindingoffset (DONE)
 % XXX ASAP add \gutteroffset and \gutterimageoffset to offset content 
 %		from the gutter
 %		\gutterimageoffset is an additional offset added to bleed images...
@@ -100,8 +100,8 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.15}
-\edef\photobook@FILEDATE{2023-03-18}
+\edef\photobook@FILEVERSION{v0.1.17}
+\edef\photobook@FILEDATE{2023-04-09}
 
 
 %% \documentclass{ltxdoc}
@@ -248,8 +248,7 @@
 %% \DescribeMacro{blockwidth=<len>}
 %% \DescribeMacro{blockheight=<len>}
 %% \DescribeMacro{bindingoffset=<len>}
-% XXX
-%%% \DescribeMacro{gutteroffset=<len>}
+%% \DescribeMacro{gutteroffset=<len>}
 %%% \DescribeMacro{gutterimageoffset=<len>}
 %% \DescribeMacro{bleed=<len>}
 %
@@ -258,31 +257,35 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
-%%   <---> bleed                                 <---> bleed
-%%
-%%   + - - - - - - - - - - - - - - - - - - - - - + - +   ^
-%%   .                                           .   .   | bleed
-%%   .   +---------------------------------------+-----  v   .   .  ---
-%%   .   |                           ^       .   =   .
-%%   .   |   .   .   .   .   .   .   |   .   .   =   .               ^
-%%   .   |<-- blockwidth ----------------------->=   .               |
-%%   .   |   .                       |   .   .   =   .               |
-%%   .   |                           |       .   =   .       textheight
-%%   .   |   .             Page      |   .   .   =   .               |
-%%   .   |                      blockheight  .   =   .               |
-%%   .   |   .                       |   .   .   =   .               |
-%%   .   |                           |       <---> bindingoffset     |
-%%   .   |   .   .   .   .   .   .   |   .   .   =   .               v
-%%   .   |                           v       .   =   .
-%%   .   +---------------------------------------+-----  ^   .   .  ---
-%%   .   .                                       .   .   | bleed
-%%   + - - - - - - - - - - - - - - - - - - - - - + - +   v
-%%       .                                       .
-%%       |   <-- textwidth -------------->   .   |
-%%                                               ^ gutter
+%%   <---> bleed                                   <---> bleed
+%%                                                 
+%%   + - - - - - - - - - - - - - - - - - - - - - - + - +   ^
+%%   .                                             .   .   | bleed
+%%   .   +-----------------------------------------+-----  v   .   .  ---
+%%   .   |                           ^       .  .  =   .
+%%   .   |   .   .   .   .   .   .   |   .   .  .  =   .               ^
+%%   .   |<-- blockwidth ------------------------->=   .               |
+%%   .   |   .                       |   .   .  .  =   .               |
+%%   .   |                           |       .  .  =   .       textheight
+%%   .   |   .             Page      |   .   .  .  =   .               |
+%%   .   |                      blockheight  .  .  =   .               |
+%%   .   |   .                       |   .   .  <--> bindingoffset     |
+%%   .   |                           |       .  .  =   .               |
+%%   .   |   .   .   .   .   .   .   |   .   <-->  gutteroffset        v
+%%   .   |                           v       .  .  =   .
+%%   .   +-----------------------------------------+-----  ^   .   .  ---
+%%   .   .                                         .   .   | bleed
+%%   + - - - - - - - - - - - - - - - - - - - - - - + - +   v
+%%       .                                         .
+%%       |   <-- textwidth -------------->    .    |
+%%                                                 ^ gutter
 %%
 %% \end{verbatim}
 %% \end{minipage}
+%%
+%% Note that all macros respect |\bindingoffset| but only some macros 
+%% account for |\gutteroffset|, namely macros that do not display content 
+%% with bleeds.
 %%
 % NOTE: if blockwidth/blockheight are set they will force recalculations 
 %		and overriding of the paperwidth/paperheight if they were changed
@@ -811,14 +814,20 @@
 %
 %% Binding offset
 %%
+%% Used to offset content to account glue-up/roughing of pages for certain 
+%% types of binds like perfect binds.
+%%
 \newlength\bindingoffset
 \setlength\bindingoffset{\photobook@bindingoffset}
 
-%%% \DescribeMacro{\gutteroffset=<len>}
+%% \DescribeMacro{\gutteroffset=<len>}
 %%% \DescribeMacro{\gutterimageoffset=<len>}
 %
-%%% Gutter offsets
-%%%
+%% Gutter offsets
+%%
+%% Mainly used to offset content without bleeds away from or into the 
+%% gutter.
+%%
 \newlength\gutteroffset
 \setlength\gutteroffset{\photobook@gutteroffset}
 \newlength\gutterimageoffset
@@ -2959,22 +2968,30 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%% The star version accounts for |\bindingoffset|. 
+%% The star version accounts for |\gutteroffset|. 
 %%
 %% Note that |layoutmode|'s other than block will change the paper size 
 %% but will not affect this either in size (block size) or in position 
 %% (top-left).
 %%
+%\newenvironment{pagecell}{%
+%	\begin{cell*}{\bleed,\bleed}{\pageblockwidth}{\pageblockheight}%
+%}{%
+%	\end{cell*}}
 \newenvironment{pagecell}{%
-	\begin{cell*}{\bleed,\bleed}{\pageblockwidth}{\pageblockheight}%
+	\begin{cell*}{%
+			\bleed + \ifnumodd{\thepage}{\bindingoffset}{0pt},%
+			\bleed}%
+		{\pageblockwidth - \bindingoffset}%
+		{\pageblockheight}%
 }{%
 	\end{cell*}}
 
 \newenvironment{pagecell*}{%
 	\begin{cell*}{%
-			\bleed + \ifnumodd{\thepage}{\bindingoffset}{0pt},%
+			\bleed + \ifnumodd{\thepage}{\bindingoffset + \gutteroffset}{0pt},%
 			\bleed}%
-		{\pageblockwidth - \bindingoffset}%
+		{\pageblockwidth - \bindingoffset - \gutteroffset}%
 		{\pageblockheight}%
 }{%
 	\end{cell*}}
@@ -3804,7 +3821,7 @@
 		% create the actual cell...
 		\setlength\cellparentwidth{\cellwidth}%
 		\setlength\cellparentheight{\cellheight}%
-		\setlength\cellwidth{#1\pageblockwidth}%
+		\setlength\cellwidth{#1\pageblockwidth - #1\bindingoffset}%
 		\setlength\cellheight{\pageblockheight}%
 		%
 		\savecell{photobook@spreadtopages}{\cellwidth}{\cellheight}{\BODY}%
