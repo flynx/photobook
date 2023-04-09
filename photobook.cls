@@ -34,17 +34,13 @@
 %
 %
 %
-% XXX ASAP \bindingoffset should also affect fill/bleed images... (DONE)
-%		...shift the macros that optionally account for \bindingoffset to
-%		account for \gutteroffset (DONE)
-%		...everything should respect \bindingoffset (DONE)
-% XXX ASAP add \gutteroffset and \gutterimageoffset to offset content 
-%		from the gutter
-%		\gutterimageoffset is an additional offset added to bleed images...
-%		...currently \bindingoffset is used for both...
-%		Q: should the gutter offsets be counted from the \bindingoffset???
+% XXX ASAP \gutterimageoffset to offset full-bleed from the gutter
+%		\gutterimageoffset is an additional offset added to bleed images... ???
+%		...not sure if we need this or if we can even implement this in 
+%		the current architecture...
 %
 %			+-------------------------------=--
+%			|						.  .  .	=
 %			|						.  .  .	=
 %			|						.  .  .	=
 %			|						.  .  <-> \bindingoffset
@@ -54,8 +50,6 @@
 %			|						<-->  .	= \gutterimageoffset
 %			|						.  .  .	=
 %			+-------------------------------=--
-%
-% XXX DOC...
 %
 %
 %
@@ -249,7 +243,6 @@
 %% \DescribeMacro{blockheight=<len>}
 %% \DescribeMacro{bindingoffset=<len>}
 %% \DescribeMacro{gutteroffset=<len>}
-%%% \DescribeMacro{gutterimageoffset=<len>}
 %% \DescribeMacro{bleed=<len>}
 %
 %% This is similar to what |geometry| does, but adds bleed support.
@@ -295,7 +288,6 @@
 \DeclareStringOption{blockheight}
 \DeclareStringOption[0pt]{bindingoffset}[0mm]
 \DeclareStringOption[0pt]{gutteroffset}[0mm]
-\DeclareStringOption[0pt]{gutterimageoffset}[0mm]
 \DeclareStringOption[5mm]{bleed}[5mm]
 
 %% \DescribeMacro{flatfold=<len>}
@@ -821,7 +813,6 @@
 \setlength\bindingoffset{\photobook@bindingoffset}
 
 %% \DescribeMacro{\gutteroffset=<len>}
-%%% \DescribeMacro{\gutterimageoffset=<len>}
 %
 %% Gutter offsets
 %%
@@ -830,8 +821,6 @@
 %%
 \newlength\gutteroffset
 \setlength\gutteroffset{\photobook@gutteroffset}
-\newlength\gutterimageoffset
-\setlength\gutterimageoffset{\photobook@gutterimageoffset}
 
 %% \DescribeMacro{\defaultfoldout=<fold-spec>}
 %
