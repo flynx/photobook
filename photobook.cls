@@ -38,6 +38,7 @@
 %		\gutterimageoffset is an additional offset added to bleed images... ???
 %		...not sure if we need this or if we can even implement this in 
 %		the current architecture...
+% XXX should \blockwidth include \bindingoffset (current) or not???
 %
 %			+-------------------------------=--
 %			|						.  .  .	=
