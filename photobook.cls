@@ -79,8 +79,8 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.17}
-\edef\photobook@FILEDATE{2023-04-09}
+\edef\photobook@FILEVERSION{v0.1.18}
+\edef\photobook@FILEDATE{2023-04-11}
 
 
 %% \documentclass{ltxdoc}
@@ -967,7 +967,7 @@
 \setlength\clearance{0pt}
 
 
-%% \DescribeMacro{\clearfoldoutbinding=<len>}
+%% \DescribeMacro{\clearfoldoutgutter=<len>}
 %% \DescribeMacro{\clearfoldoutfold=<len>}
 %% \DescribeMacro{\clearfoldoutedge=<len>}
 %
@@ -975,8 +975,8 @@
 %%
 %% For more info see \nameref{subsec:Foldout page cells} section.
 %%
-\newlength\clearfoldoutbinding
-\setlength\clearfoldoutbinding{8mm}
+\newlength\clearfoldoutgutter
+\setlength\clearfoldoutgutter{8mm}
 \newlength\clearfoldoutfold
 \setlength\clearfoldoutfold{5mm}
 \newlength\clearfoldoutedge
@@ -3199,7 +3199,7 @@
 %% \end{minipage}
 %%
 %
-%% \DescribeMacro{\clearfoldoutbinding=<len>}
+%% \DescribeMacro{\clearfoldoutgutter=<len>}
 %% \DescribeMacro{\clearfoldoutedge=<len>}
 %% \DescribeMacro{\clearfoldoutfold=<len>}
 %
@@ -3210,7 +3210,7 @@
 %%
 %%                       \clearfoldoutedge <->
 %%                    \clearfoldoutfold <->  
-%%   <--> \clearfoldoutbinding
+%%   <--> \clearfoldoutgutter
 %%                                                    (3)  /\  (2)  
 %%      +---------------------------------+               /  \     
 %%      +-------------------------------  |                  /     
@@ -3231,7 +3231,7 @@
 %% \begin{verbatim}                                
 %%                                                 
 %%                      \clearfoldoutedge <->                /      
-%%   <--> \clearfoldoutbinding                         (3)  /       
+%%   <--> \clearfoldoutgutter                          (3)  /       
 %%                                                          \       
 %%      +----------------------------------                  \  (2) 
 %%      +---------------------------------+                  /      
@@ -3395,7 +3395,7 @@
 	\ifnum \thephotobook@foldoutpanel = 2%
 		\setlength\photobook@foldout@maxpanelwidth{%
 			\photobook@foldout@maxpanelwidth
-			- \clearfoldoutbinding}\fi%
+			- \clearfoldoutgutter}\fi%
 	% calculate widths...
 	\ifdim #1 = 0pt%
 		% first two panels do not need fold compensation...
