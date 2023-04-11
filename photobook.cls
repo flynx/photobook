@@ -34,25 +34,11 @@
 %
 %
 %
-% XXX ASAP \gutterimageoffset to offset full-bleed from the gutter
-%		\gutterimageoffset is an additional offset added to bleed images... ???
-%		...not sure if we need this or if we can even implement this in 
-%		the current architecture...
-% XXX should \blockwidth include \bindingoffset (current) or not???
-%
-%			+-------------------------------=--
-%			|						.  .  .	=
-%			|						.  .  .	=
-%			|						.  .  .	=
-%			|						.  .  .	=
-%			|						.  .  <-> \bindingoffset . . . . DONE
-%			|						.  <-->	= \gutteroffset	 . . . . DONE
-%			|						<-->  .	= \gutterimageoffset . . ???
-%			|						.  .  .	=
-%			+-------------------------------=--
-%
-%
-%
+% XXX captions behave in an odd way...
+%		the internal (macro) minipage for some reason does not affect text 
+%		justification while adding a minipage in the macro argument works
+%		as expected -- some odd input mode???
+% XXX Q: should \blockwidth include \bindingoffset (current) or not???
 % XXX revise \clearcaption / \captionclearpage...
 % XXX unify API -- see CellContent env...
 % XXX make this loadable both as a class and as a package...
@@ -62,7 +48,8 @@
 %		- general macros -- \usecell{..}
 %		- templates --  \ImagePage{..}
 % XXX see where we need to \ignorespaces...
-% XXX might be a good idea to add a spine calculator...
+% XXX might be a good idea to add a spine calculator (auto)...
+%		...i.e. input paper and cover board thickness and auto-calc spine...
 % XXX might be fun to add a 'box' layout to build book boxes...
 % XXX add a grid cell / image cell (???)
 %		make it trivial to define AxB cell layouts and fill them (fully/partially)
@@ -74,17 +61,6 @@
 %			- pre-print
 %		- customizing
 %		- extending
-% XXX add basic page templates:
-%		- acknowledgements
-%			Fields
-%			- \Title
-%			- \Authors
-%			- \Thanks
-%			- \ISBN
-%			- \Edition / \Issue
-%			- \CopyrightNotice
-%			- ...
-%		- info
 % XXX DOC add notes about external libs section:
 %		- textpos
 %			cell/cell* depend on absolute mode being set globally
