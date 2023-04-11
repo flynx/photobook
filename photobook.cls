@@ -3107,7 +3107,7 @@
 %% automatically calculated and missing folds are the same as the previous
 %% fold or the default if no folds are specified.
 %%
-%% If not |<fold-spec>| is given, then the value of |\defaultfoldout| is
+%% If no |<fold-spec>| is given, then the value of |\defaultfoldout| is
 %% used (default: |2|).
 %%
 %% \begin{minipage}{\textwidth}
