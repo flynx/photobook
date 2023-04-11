@@ -1,10 +1,13 @@
 %----------------------------------------------------------------------
 %
+% photobook.cls
+% -------------
 %
 % This does the following:
 %	- sets up the document/pdf for viewing as a book
-%	- adds support for page bleeds
-%	- adds basic templates for image pages
+%	- sets up page bleeds
+%	- defines cells as basic template building blocks
+%	- adds basic templates for image pages and spreads
 %
 %
 % This file contains both the code and the reference, but in a slightly 
@@ -22,7 +25,7 @@
 % Docs are built by the Makefile, so reference it for more info.
 %
 % To make the reference use:
-
+%
 %	$ make pdf
 %
 %
@@ -33,6 +36,12 @@
 %		to edit it directly, edit the source instead.
 %
 %
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%
+% XXX ASAP should cover/jacket/endpaper/spread templates/cells account
+%		for \bindingoffset (likely no) and/or \gutteroffset ???
+%		...especially relevant to endpaper/spread...
+% XXX ASAP revise how bleeds are handled by cells...
 %
 % XXX captions behave in an odd way...
 %		the internal (macro) minipage for some reason does not affect text 
@@ -300,6 +309,7 @@
 %% \DescribeMacro{endpaper}
 %% \DescribeMacro{cover}
 %% \DescribeMacro{jacket}
+%%% \DescribeMacro{web}
 %
 %% Sat page layout mode.
 %
