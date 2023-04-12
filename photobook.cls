@@ -1537,8 +1537,8 @@
 	\end{adjustbox}}
 
 
-%M \DescribeEnv{CellContent}
-%M \DescribeEnv{CellContent*}
+%M \DescribeEnv{MinipageCellContent}
+%M \DescribeEnv{MinipageCellContent*}
 %
 %M \EXPERIMENTAL
 %M
