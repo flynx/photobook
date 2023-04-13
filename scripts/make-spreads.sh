@@ -177,38 +177,45 @@ while true ; do
 		-a|--annotate)
 			ANOTATE_IMAGE_PATHS=1
 			shift
+			continue
 			;;
 		-c)
 			$CONFIG="$2"
 			[ -e "$CONFIG" ] \
 				&& source "$CONFIG"
 			shift 2
+			continue
 			;;
 
 		--templates)
 			TEMPLATE_DIR=$2
 			shift 2
+			continue
 			;;
 		--single-image-tpl)
 			IMAGE_SPREAD[1]=$2
 			shift 2
+			continue
 			;;
 		--double-image-tpl)
 			IMAGE_SPREAD[2]=$2
 			shift 2
+			continue
 			;;
 		--text-spread-tpl)
 			IMAGE_SPREAD[0]=$2
 			shift 2
+			continue
 			;;
 		--captions)
 			CAPTION_DIR=$2
 			shift 2
+			continue
 			;;
 
 		# handle unknown options...
 		-*|--*)
-			echo "Error: unknown option \"$1\""
+			echo "Error: unknown option \"$1\"" >&2
 			exit
 			;;
 

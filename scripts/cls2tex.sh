@@ -54,13 +54,6 @@ printhelp(){
 	echo "      in both the repo and in installed form, so .dtx is not used."
 }
 
-# Usage: printerror MESSAGE...
-printerror(){
-	echo Error: $@
-	echo
-	printusage
-}
-
 # Usage: printmsg TEXT
 printmsg(){
 	# print message...
@@ -88,21 +81,23 @@ while true ; do
 			;;
 		-p|--prefix)
 			PREFIX=$2
-			shift
-			shift
+			shift 2
+			continue
 			;;
 		-s|--strip)
 			STRIP_DOC=1
 			shift
+			continue
 			;;
 		-n|--no-msg)
 			NO_MSG=1
 			shift
+			continue
 			;;
 
 		# handle unknown options...
 		-*|--*)
-			printerror "unknown option \"$1\""
+			echo "Error: unknown option: \"$1\"" >&2
 			exit
 			;;
 
