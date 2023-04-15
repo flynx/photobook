@@ -38,21 +38,15 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %
-% XXX ASAP might be a good idea to add a generic \bleedcell{..}
-%		with options to control which bleeds to include and their size...
-%			\bleedcell[top left bottom right]{..}
-%			\bleedcell[0mm 10mm 0mm 10mm]{..}
-%			\bleedcell[5mm]{..}
-%			\bleedcell[5mm 10mm]{..}
+% XXX ASAP add options to cliptocell (or a separate env) to clip to 
+%		bleeds/borders...
+%			\cliptocell[top left bottom right]{..}
+%			\cliptocell[0mm 10mm 0mm 10mm]{..}
+%			\cliptocell[5mm]{..}
+%			\cliptocell[5mm 10mm]{..}
 %			...
 %		...semantics similar to CSS margins...
-%		not sure how to architect this yet:
-%			- should this trim the content?
-%			- should this take-up space? 
-%		an alternative way to think about this is to create a clip cell 
-%		that clips content to the given edges/margins, with an option 
-%		to align content to the parent cell or to the clip box...
-%		...this might even be an extension to the current cliptocell...
+%		...content should be aligned to the parent cell...
 % XXX ASAP should cover/jacket/endpaper/spread templates/cells account
 %		for \bindingoffset (likely no) and/or \gutteroffset ???
 %		...especially relevant to endpaper/spread...
