@@ -1976,6 +1976,7 @@
 %
 %% Clip content to parent cell.
 %%
+% clipbox args: l t w h
 \newenvironment{cliptocell}{%
 	\begin{clipbox*}{0cm {\height - \cellheight} {\cellwidth} {\height}}%
 	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
@@ -1983,6 +1984,20 @@
 }{%
 	\end{minipage}%
 	\end{clipbox*}}
+
+
+% XXX add args to offset the clip box...
+% XXX merge with cliptocell...
+\newenvironment{cliptocell*}[1][]{%
+	% XXX handle args...
+	% XXX keep content on the same sopt -- offset the content by offsets...
+	\begin{clipbox*}{0cm {\height - \cellheight} {\cellwidth} {\height}}%
+	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+		\ignorespaces%
+}{%
+	\end{minipage}%
+	\end{clipbox*}}
+
 
 
 
