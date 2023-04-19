@@ -1986,17 +1986,67 @@
 	\end{clipbox*}}
 
 
-% XXX add args to offset the clip box...
+% XXX TEST...
 % XXX merge with cliptocell...
-\newenvironment{cliptocell*}[1][]{%
-	% XXX handle args...
-	% XXX keep content on the same sopt -- offset the content by offsets...
-	\begin{clipbox*}{0cm {\height - \cellheight} {\cellwidth} {\height}}%
-	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-		\ignorespaces%
-}{%
-	\end{minipage}%
-	\end{clipbox*}}
+\newlength\photobook@cliptocell@left
+\newlength\photobook@cliptocell@top
+\newlength\photobook@cliptocell@right
+\newlength\photobook@cliptocell@bottom
+
+\newenvironment{cliptocell*}[1][0pt]{%
+	\begingroup%
+		\setsepchar{ }%
+		\readlist*\photobook@cliptocell@bleeds{#1}%
+		%
+		\ifnum \photobook@cliptocell@bleedslen = 0%
+			\setlength\photobook@cliptocell@left{0pt}%
+			\setlength\photobook@cliptocell@top{0pt}%
+			\setlength\photobook@cliptocell@right{0pt}%
+			\setlength\photobook@cliptocell@bottom{0pt}\fi%
+		% bleed
+		\ifnum \photobook@cliptocell@bleedslen = 1%
+			\setlength\photobook@cliptocell@left{%
+				\photobook@cliptocell@bleeds[1]}%
+			\setlength\photobook@cliptocell@top{%
+				\photobook@cliptocell@bleeds[1]}%
+			\setlength\photobook@cliptocell@right{%
+				\photobook@cliptocell@bleeds[1]}%
+			\setlength\photobook@cliptocell@bottom{%
+				\photobook@cliptocell@bleeds[1]}\fi%
+		% horizontal vertical
+		\ifnum \photobook@cliptocell@bleedslen = 2%
+			\setlength\photobook@cliptocell@left{%
+				\photobook@cliptocell@bleeds[1]}%
+			\setlength\photobook@cliptocell@top{%
+				\photobook@cliptocell@bleeds[2]}%
+			\setlength\photobook@cliptocell@right{%
+				\photobook@cliptocell@bleeds[1]}%
+			\setlength\photobook@cliptocell@bottom{%
+				\photobook@cliptocell@bleeds[2]}\fi%
+		% left top right bottom
+		\ifnum \photobook@cliptocell@bleedslen = 4%
+			\setlength\photobook@cliptocell@left{%
+				\photobook@cliptocell@bleeds[1]}%
+			\setlength\photobook@cliptocell@top{%
+				\photobook@cliptocell@bleeds[2]}%
+			\setlength\photobook@cliptocell@bottom{%
+				\photobook@cliptocell@bleeds[3]}%
+			\setlength\photobook@cliptocell@right{%
+				\photobook@cliptocell@bleeds[4]}\fi%
+		%
+		\begin{clipbox*}{%
+				{0cm - \photobook@cliptocell@left}%
+				{\height - \cellheight - \photobook@cliptocell@top}%
+				{\cellwidth + \photobook@cliptocell@left + \photobook@cliptocell@right}%
+				{\height + \photobook@cliptocell@top + \photobook@cliptocell@bottom}}%
+		\begin{marginbox}{#1}%
+		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+			\ignorespaces%
+	}{%
+		\end{minipage}%
+		\end{marginbox}%
+		\end{clipbox*}%
+	\endgroup}
 
 
 
