@@ -1962,6 +1962,7 @@
 	\end{inlinecell*}%
 	\end{turn}}
 
+
 %% \DescribeEnv{cliptocell}
 %
 %% Clip content to parent cell.
@@ -1990,7 +1991,7 @@
 		\setsepchar{ }%
 		\readlist*\photobook@cliptocell@bleeds{#1}%
 		%
-		% bleed
+		% args: size
 		\ifnum \photobook@cliptocell@bleedslen = 1%
 			\setlength\photobook@cliptocell@left{%
 				\photobook@cliptocell@bleeds[1]}%
@@ -2000,7 +2001,7 @@
 				\photobook@cliptocell@bleeds[1]}%
 			\setlength\photobook@cliptocell@top{%
 				\photobook@cliptocell@bleeds[1]}\fi%
-		% horizontal vertical
+		% args: horizontal vertical
 		\ifnum \photobook@cliptocell@bleedslen = 2%
 			\setlength\photobook@cliptocell@left{%
 				\photobook@cliptocell@bleeds[1]}%
@@ -2010,7 +2011,7 @@
 				\photobook@cliptocell@bleeds[1]}%
 			\setlength\photobook@cliptocell@top{%
 				\photobook@cliptocell@bleeds[2]}\fi%
-		% left top right bottom
+		% args: left bottom right top
 		\ifnum \photobook@cliptocell@bleedslen = 4%
 			\setlength\photobook@cliptocell@left{%
 				\photobook@cliptocell@bleeds[1]}%
@@ -2037,8 +2038,6 @@
 		\end{clipbox*}%
 		\end{trimbox}%
 	\endgroup}
-
-
 
 
 %% \DescribeMacro{\imagecell\{..\}}
