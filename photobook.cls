@@ -38,16 +38,6 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %
-% XXX ASAP add options to cliptocell (or a separate env) to clip to 
-%		bleeds/borders...
-%			\cliptocell[top left bottom right]{..}
-%			\cliptocell[0mm 10mm 0mm 10mm]{..}
-%			\cliptocell[5mm]{..}
-%			\cliptocell[5mm 10mm]{..}
-%			...
-%		...semantics similar to CSS margins...
-%		...content should be aligned to the parent cell's position and 
-%		not the clipping box...
 % XXX ASAP should cover/jacket/endpaper/spread templates/cells account
 %		for \bindingoffset (likely no) and/or \gutteroffset ???
 %		...especially relevant to endpaper/spread...
@@ -89,7 +79,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.18}
+\edef\photobook@FILEVERSION{v0.1.19}
 \edef\photobook@FILEDATE{2023-04-11}
 
 
@@ -1976,76 +1966,83 @@
 %
 %% Clip content to parent cell.
 %%
-% clipbox args: l t w h
-\newenvironment{cliptocell}{%
-	\begin{clipbox*}{0cm {\height - \cellheight} {\cellwidth} {\height}}%
-	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-		\ignorespaces%
-}{%
-	\end{minipage}%
-	\end{clipbox*}}
+%%	>> \begin{cliptocell} ... \end{cliptocell}
+%%
+%% Clip content to cell adding bleeds
+%%
+%%	>> \begin{cliptocell}[<size>] ... \end{cliptocell}
+%%	>> \begin{cliptocell}[<horizontal> <vertical>] ... \end{cliptocell}
+%%	>> \begin{cliptocell}[<left> <bottom> <right> <top>] ... \end{cliptocell}
+%%
+%\newenvironment{cliptocell}{%
+%	\begin{clipbox*}{0cm {\height - \cellheight} {\cellwidth} {\height}}%
+%	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
+%		\ignorespaces%
+%}{%
+%	\end{minipage}%
+%	\end{clipbox*}}
 
-
-% XXX TEST...
-% XXX merge with cliptocell...
 \newlength\photobook@cliptocell@left
+\setlength\photobook@cliptocell@left{0mm}%
 \newlength\photobook@cliptocell@top
+\setlength\photobook@cliptocell@top{0mm}%
 \newlength\photobook@cliptocell@right
+\setlength\photobook@cliptocell@right{0mm}%
 \newlength\photobook@cliptocell@bottom
+\setlength\photobook@cliptocell@bottom{0mm}%
 
-\newenvironment{cliptocell*}[1][0pt]{%
+\newenvironment{cliptocell}[1][0mm]{%
 	\begingroup%
 		\setsepchar{ }%
 		\readlist*\photobook@cliptocell@bleeds{#1}%
 		%
-		\ifnum \photobook@cliptocell@bleedslen = 0%
-			\setlength\photobook@cliptocell@left{0pt}%
-			\setlength\photobook@cliptocell@top{0pt}%
-			\setlength\photobook@cliptocell@right{0pt}%
-			\setlength\photobook@cliptocell@bottom{0pt}\fi%
 		% bleed
 		\ifnum \photobook@cliptocell@bleedslen = 1%
 			\setlength\photobook@cliptocell@left{%
 				\photobook@cliptocell@bleeds[1]}%
-			\setlength\photobook@cliptocell@top{%
+			\setlength\photobook@cliptocell@bottom{%
 				\photobook@cliptocell@bleeds[1]}%
 			\setlength\photobook@cliptocell@right{%
 				\photobook@cliptocell@bleeds[1]}%
-			\setlength\photobook@cliptocell@bottom{%
+			\setlength\photobook@cliptocell@top{%
 				\photobook@cliptocell@bleeds[1]}\fi%
 		% horizontal vertical
 		\ifnum \photobook@cliptocell@bleedslen = 2%
 			\setlength\photobook@cliptocell@left{%
 				\photobook@cliptocell@bleeds[1]}%
-			\setlength\photobook@cliptocell@top{%
+			\setlength\photobook@cliptocell@bottom{%
 				\photobook@cliptocell@bleeds[2]}%
 			\setlength\photobook@cliptocell@right{%
 				\photobook@cliptocell@bleeds[1]}%
-			\setlength\photobook@cliptocell@bottom{%
+			\setlength\photobook@cliptocell@top{%
 				\photobook@cliptocell@bleeds[2]}\fi%
 		% left top right bottom
 		\ifnum \photobook@cliptocell@bleedslen = 4%
 			\setlength\photobook@cliptocell@left{%
 				\photobook@cliptocell@bleeds[1]}%
-			\setlength\photobook@cliptocell@top{%
-				\photobook@cliptocell@bleeds[2]}%
 			\setlength\photobook@cliptocell@bottom{%
-				\photobook@cliptocell@bleeds[3]}%
+				\photobook@cliptocell@bleeds[2]}%
 			\setlength\photobook@cliptocell@right{%
+				\photobook@cliptocell@bleeds[3]}%
+			\setlength\photobook@cliptocell@top{%
 				\photobook@cliptocell@bleeds[4]}\fi%
 		%
-		\begin{clipbox*}{%
-				{0cm - \photobook@cliptocell@left}%
-				{\height - \cellheight - \photobook@cliptocell@top}%
-				{\cellwidth + \photobook@cliptocell@left + \photobook@cliptocell@right}%
-				{\height + \photobook@cliptocell@top + \photobook@cliptocell@bottom}}%
-		\begin{marginbox}{#1}%
+		% XXX the spaces at the end of each line here are significant...
+		\begin{trimbox}{{\photobook@cliptocell@left} %
+				{\photobook@cliptocell@bottom} %
+				{\photobook@cliptocell@right} %
+				{\photobook@cliptocell@top}}%
+		\begin{clipbox*}{{-\photobook@cliptocell@left} %
+				{\height - \cellheight - \photobook@cliptocell@bottom} %
+				{\cellwidth + \photobook@cliptocell@right} %
+				{\height + \photobook@cliptocell@top} %
+		}%
 		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
 			\ignorespaces%
 	}{%
 		\end{minipage}%
-		\end{marginbox}%
 		\end{clipbox*}%
+		\end{trimbox}%
 	\endgroup}
 
 
