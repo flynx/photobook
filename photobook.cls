@@ -1974,14 +1974,8 @@
 %%	>> \begin{cliptocell}[<horizontal> <vertical>] ... \end{cliptocell}
 %%	>> \begin{cliptocell}[<left> <bottom> <right> <top>] ... \end{cliptocell}
 %%
-%\newenvironment{cliptocell}{%
-%	\begin{clipbox*}{0cm {\height - \cellheight} {\cellwidth} {\height}}%
-%	\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
-%		\ignorespaces%
-%}{%
-%	\end{minipage}%
-%	\end{clipbox*}}
-
+%% Clipping to bleeds will not affect the cell content positioning.
+%%
 \newlength\photobook@cliptocell@left
 \setlength\photobook@cliptocell@left{0mm}%
 \newlength\photobook@cliptocell@top
@@ -2035,8 +2029,7 @@
 		\begin{clipbox*}{{-\photobook@cliptocell@left} %
 				{\height - \cellheight - \photobook@cliptocell@bottom} %
 				{\cellwidth + \photobook@cliptocell@right} %
-				{\height + \photobook@cliptocell@top} %
-		}%
+				{\height + \photobook@cliptocell@top}}%
 		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
 			\ignorespaces%
 	}{%
