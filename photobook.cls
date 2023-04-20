@@ -2022,7 +2022,7 @@
 			\setlength\photobook@cliptocell@top{%
 				\photobook@cliptocell@bleeds[4]}\fi%
 		%
-		% XXX the spaces at the end of each line here are significant...
+		% NOTE: the spaces at the end of each line here are significant!!
 		\begin{trimbox}{{\photobook@cliptocell@left} %
 				{\photobook@cliptocell@bottom} %
 				{\photobook@cliptocell@right} %
