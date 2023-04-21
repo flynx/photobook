@@ -42,6 +42,8 @@
 %		for \bindingoffset (likely no) and/or \gutteroffset ???
 %		...especially relevant to endpaper/spread...
 % XXX ASAP revise how bleeds are handled by cells...
+%		...all cells should ignore bleeds unless explicitly stated 
+%		otherwise -- needs testing...
 %
 % XXX captions behave in an odd way...
 %		the internal (macro) minipage for some reason does not affect text 
@@ -1969,13 +1971,24 @@
 %%
 %%	>> \begin{cliptocell} ... \end{cliptocell}
 %%
-%% Clip content to cell adding bleeds
+%% Clip content to cell plus offsets (bleeds) from each side
 %%
 %%	>> \begin{cliptocell}[<size>] ... \end{cliptocell}
 %%	>> \begin{cliptocell}[<horizontal> <vertical>] ... \end{cliptocell}
 %%	>> \begin{cliptocell}[<left> <bottom> <right> <top>] ... \end{cliptocell}
 %%
-%% Clipping to bleeds will not affect the cell content positioning.
+%% Offset order, i.e. left-bottom-right-top is made consistent with 
+%% \href{https://ctan.org/pkg/graphicx}{graphicx} and 
+%% \href{https://ctan.org/pkg/trimclip}{trimclip} modules and represents 
+%% the bottom-left and top-right viewport point offsets from the parent 
+%% cell.
+%%
+%% |cliptocell| does not affect the cell content positioning in any way.
+%%
+%% This is designed to simplify filling template cells and adding bleeds 
+%% to certain sides and clipping flush to others, for example for cells 
+%% of a dust jacket or a foldout, but |cliptocell| is not limited to 
+%% this one use-case.
 %%
 \newlength\photobook@cliptocell@left
 \setlength\photobook@cliptocell@left{0mm}%
