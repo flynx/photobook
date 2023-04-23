@@ -85,8 +85,8 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.19}
-\edef\photobook@FILEDATE{2023-04-11}
+\edef\photobook@FILEVERSION{v0.1.20}
+\edef\photobook@FILEDATE{2023-04-22}
 
 
 %% \documentclass{ltxdoc}
@@ -2048,6 +2048,11 @@
 				{\height - \cellheight - \photobook@cliptocell@bottom} %
 				{\cellwidth + \photobook@cliptocell@right} %
 				{\height + \photobook@cliptocell@top}}%
+		% set defaults for nested cells...
+		\setlength\photobook@cliptocell@left{0mm}%
+		\setlength\photobook@cliptocell@top{0mm}%
+		\setlength\photobook@cliptocell@right{0mm}%
+		\setlength\photobook@cliptocell@bottom{0mm}%
 		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
 			\ignorespaces%
 	}{%
