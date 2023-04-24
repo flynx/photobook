@@ -2003,42 +2003,45 @@
 \newlength\photobook@cliptocell@bottom
 \setlength\photobook@cliptocell@bottom{0mm}%
 
+% XXX EXPERIMENTAL
+% XXX should this set the setsepchar back to default???
+\newcommand\cliptocellbleeds[1]{
+	\setsepchar{ }%
+	\readlist*\photobook@cliptocell@bleeds{#1}%
+	% args: size
+	\ifnum \photobook@cliptocell@bleedslen = 1%
+		\setlength\photobook@cliptocell@left{%
+			\photobook@cliptocell@bleeds[1]}%
+		\setlength\photobook@cliptocell@bottom{%
+			\photobook@cliptocell@bleeds[1]}%
+		\setlength\photobook@cliptocell@right{%
+			\photobook@cliptocell@bleeds[1]}%
+		\setlength\photobook@cliptocell@top{%
+			\photobook@cliptocell@bleeds[1]}\fi%
+	% args: horizontal vertical
+	\ifnum \photobook@cliptocell@bleedslen = 2%
+		\setlength\photobook@cliptocell@left{%
+			\photobook@cliptocell@bleeds[1]}%
+		\setlength\photobook@cliptocell@bottom{%
+			\photobook@cliptocell@bleeds[2]}%
+		\setlength\photobook@cliptocell@right{%
+			\photobook@cliptocell@bleeds[1]}%
+		\setlength\photobook@cliptocell@top{%
+			\photobook@cliptocell@bleeds[2]}\fi%
+	% args: left bottom right top
+	\ifnum \photobook@cliptocell@bleedslen = 4%
+		\setlength\photobook@cliptocell@left{%
+			\photobook@cliptocell@bleeds[1]}%
+		\setlength\photobook@cliptocell@bottom{%
+			\photobook@cliptocell@bleeds[2]}%
+		\setlength\photobook@cliptocell@right{%
+			\photobook@cliptocell@bleeds[3]}%
+		\setlength\photobook@cliptocell@top{%
+			\photobook@cliptocell@bleeds[4]}\fi}
+
 \newenvironment{cliptocell}[1][0mm]{%
 	\begingroup%
-		\setsepchar{ }%
-		\readlist*\photobook@cliptocell@bleeds{#1}%
-		%
-		% args: size
-		\ifnum \photobook@cliptocell@bleedslen = 1%
-			\setlength\photobook@cliptocell@left{%
-				\photobook@cliptocell@bleeds[1]}%
-			\setlength\photobook@cliptocell@bottom{%
-				\photobook@cliptocell@bleeds[1]}%
-			\setlength\photobook@cliptocell@right{%
-				\photobook@cliptocell@bleeds[1]}%
-			\setlength\photobook@cliptocell@top{%
-				\photobook@cliptocell@bleeds[1]}\fi%
-		% args: horizontal vertical
-		\ifnum \photobook@cliptocell@bleedslen = 2%
-			\setlength\photobook@cliptocell@left{%
-				\photobook@cliptocell@bleeds[1]}%
-			\setlength\photobook@cliptocell@bottom{%
-				\photobook@cliptocell@bleeds[2]}%
-			\setlength\photobook@cliptocell@right{%
-				\photobook@cliptocell@bleeds[1]}%
-			\setlength\photobook@cliptocell@top{%
-				\photobook@cliptocell@bleeds[2]}\fi%
-		% args: left bottom right top
-		\ifnum \photobook@cliptocell@bleedslen = 4%
-			\setlength\photobook@cliptocell@left{%
-				\photobook@cliptocell@bleeds[1]}%
-			\setlength\photobook@cliptocell@bottom{%
-				\photobook@cliptocell@bleeds[2]}%
-			\setlength\photobook@cliptocell@right{%
-				\photobook@cliptocell@bleeds[3]}%
-			\setlength\photobook@cliptocell@top{%
-				\photobook@cliptocell@bleeds[4]}\fi%
-		%
+		\cliptocellbleeds{#1}
 		% NOTE: the spaces at the end of each line here are significant!!
 		\begin{trimbox}{{\photobook@cliptocell@left} %
 				{\photobook@cliptocell@bottom} %
