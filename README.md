@@ -44,6 +44,12 @@ For more info on `make` targets see the: [./Makefile](./Makefile)
 
 ## Notes
 
+- The main refetence is inline with the source [photobook.cls](./photobook.cls) 
+  thus it is both human-readable next to the code it documents and is 
+  used to build the `photobook.pdf`.
+  Extracting the documentation source (`photobook*.tex`) is done 
+  by [make](./Makefile) via [cls2tex.sh](scripts/README.md#cls2texsh) when 
+  building the docs, see them for more info.
 - There is a bug in default captions not being typeset correctly if too 
   long, a workaround is to place them in a `minipage` like this:
   ```latex
@@ -72,3 +78,4 @@ Copyright (c) 2021-2023, Alex A. Naanou,
 All rights reserved.
 
 
+<!-- vim:set ts=4 sw=4 nowrap : -->
