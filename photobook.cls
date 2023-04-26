@@ -85,7 +85,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.20}
+\edef\photobook@FILEVERSION{v0.1.21}
 \edef\photobook@FILEDATE{2023-04-22}
 
 
@@ -383,9 +383,10 @@
 %%
 %%          blockwidth            blockwidth
 %%       <--------------->     <--------------->
-%%     <-> coverboardgrow                      <-> coverboardgrow
-%%   <-> coverflap                             . <-> coverflap
-%%   . . .                                     . . .
+%%     <-> coverboardgrow.     .               <-> coverboardgrow
+%%   <-> coverflap       .     .               . <-> coverflap
+%%   . . .               .     .               . . .
+%%   .xx .               xx   xx               . xx.    ] fold marks
 %%   +-------------------++---++-------------------+    ---
 %%   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --^ coverflap                
 %%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --^ coverboardgrow  
@@ -397,6 +398,7 @@
 %%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --v coverboardgrow  
 %%   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --v coverflap                 
 %%   +-------------------++---++-------------------+    ---
+%%    xx                 xx   xx                 xx     ] fold marks
 %%                        .   .
 %%                       ^.   .^ spinefold
 %%                        .   .
@@ -422,8 +424,9 @@
 %%   .   .                                           .   .
 %%   .   .     blockwidth            blockwidth      .   .
 %%   .   .  <--------------->     <--------------->  .   .
-%%   .   .<-> coverboardgrow                      <-> coverboardgrow
-%%   .   .  .                                     .  .   .
+%%   .   .<-> coverboardgrow.     .               <-> coverboardgrow
+%%   .   .  .               .     .               .  .   .
+%%   .   xx .               .x   x.               . xx   .    ] fold marks
 %%   +---++-----------------++---++-----------------++---+    ---
 %%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --^ coverboardgrow
 %%   |   .. .               ..   ..               . ..   |     ^
@@ -433,6 +436,7 @@
 %%   |   .. .               ..   ..               . ..   |     v
 %%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --v coverboardgrow
 %%   +---++-----------------++---++-----------------++---+    --- 
+%%       xx                  x   x                  xx        ] fold marks
 %%       ..                  .   .                  ..
 %%       ^ jacketwrap        .   .                  ^ jacketwrap
 %%                          ^.   .^ spinefold
@@ -1075,6 +1079,7 @@
 		% layout: cover...
 		\ifcoverlayout
 			\pagestyle{empty}%
+			% XXX should spinefolds be panels???
 			\setsepchar{,}%
 			\readlist*\pagefoldpanels{%
 				\the\coverflap,
@@ -1108,12 +1113,12 @@
 				\the\jacketwrap,
 				\the\dimexpr
 					\coverboardgrow
+					+ \spinefold
 					+ \pageblockwidth \relax,
-				\the\spinefold,
 				\the\spinewidth,
-				\the\spinefold,
 				\the\dimexpr
 					\coverboardgrow
+					+ \spinefold
 					+ \pageblockwidth \relax,
 				\the\jacketwrap,
 				\the\photobook@jacketflapfront@active}%
@@ -1130,6 +1135,7 @@
 		% layout: spread/endpaper...
 		\ifspreadlayout
 			\pagestyle{empty}%
+			\setsepchar{,}%
 			\readlist*\pagefoldpanels{%
 				\the\pageblockwidth,
 				\the\pageblockwidth}%
@@ -1970,6 +1976,7 @@
 
 
 %% \DescribeEnv{cliptocell}
+%% \DescribeEnv{cliptocellbleeds}
 %
 %% Clip content to parent cell.
 %%
@@ -2003,12 +2010,19 @@
 \newlength\photobook@cliptocell@bottom
 \setlength\photobook@cliptocell@bottom{0mm}%
 
-% XXX EXPERIMENTAL
-% XXX should this set the setsepchar back to default???
-% XXX should this be public???
+%% Set the default bleeds for |cliptocell| environments
+%%
+%%	>> \cliptocellbleeds{<size>}
+%%	>> \cliptocellbleeds{<horizontal> <vertical>}
+%%	>> \cliptocellbleeds{<left> <bottom> <right> <top>}
+%%
+%% This will only affect |cliptocell| environments on the same level, 
+%% without affecting the nested |cliptocell|s.
+%%
 \newcommand\cliptocellbleeds[1]{
 	\setsepchar{ }%
 	\readlist*\photobook@cliptocell@bleeds{#1}%
+	\setsepchar{,}%
 	% args: size
 	\ifnum \photobook@cliptocell@bleedslen = 1%
 		\setlength\photobook@cliptocell@left{%
@@ -2053,10 +2067,7 @@
 				{\cellwidth + \photobook@cliptocell@right} %
 				{\height + \photobook@cliptocell@top}}%
 		% set defaults for nested cells...
-		\setlength\photobook@cliptocell@left{0mm}%
-		\setlength\photobook@cliptocell@top{0mm}%
-		\setlength\photobook@cliptocell@right{0mm}%
-		\setlength\photobook@cliptocell@bottom{0mm}%
+		\cliptocellbleeds{0mm}%
 		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
 			\ignorespaces%
 	}{%
@@ -3562,6 +3573,7 @@
 	\begingroup%
 		\setsepchar{ }%
 		\readlist*\photobook@foldout@args{#1}%
+		\setsepchar{,}%
 		%
 		% defaults...
 		\setcounter{photobook@foldoutpanel}{1}
@@ -3700,6 +3712,7 @@
 	% parse args...
 	\setsepchar{-}%
 	\readlist*\photobook@foldoutcell@panels{#1}%
+	\setsepchar{,}%
 	%
 	% auto advance panel...
 	\ifnum \photobook@foldoutcell@panels[1] = 0%

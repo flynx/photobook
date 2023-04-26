@@ -23,7 +23,11 @@
 
 \begin{page}
 	\begin{frontcover}
-		\begin{cliptocell}[0mm \coverflap]
+        % NOTE: in the real world there is no need to extend the bleeds
+        %       all the way to the end of the flaps, they need to go
+        %       only 2-4 millimeters under the endpaper to account for
+        %       cut and alignment errors...
+        \begin{cliptocell}[0mm {\coverflap} {\coverflap} {\coverflap}]
 			\imagecell[fill, clearance=-\coverflap]{}{DSC00403-2}
 			% title...
 			\begin{zinlinecell}
@@ -42,7 +46,7 @@
 		\end{cliptocell}
 	\end{spine}
 	\begin{backcover}
-		\begin{cliptocell}[0mm \coverflap]
+        \begin{cliptocell}[{\coverflap} {\coverflap} 0mm {\coverflap}]
 			\imagecell[fill, clearance=-\coverflap]{}{DSC00403-2}
 		\end{cliptocell}
 	\end{backcover}
