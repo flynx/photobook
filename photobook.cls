@@ -2005,6 +2005,7 @@
 
 % XXX EXPERIMENTAL
 % XXX should this set the setsepchar back to default???
+% XXX should this be public???
 \newcommand\cliptocellbleeds[1]{
 	\setsepchar{ }%
 	\readlist*\photobook@cliptocell@bleeds{#1}%
