@@ -85,7 +85,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.20}
+\edef\photobook@FILEVERSION{v0.1.21}
 \edef\photobook@FILEDATE{2023-04-22}
 
 
@@ -383,9 +383,10 @@
 %%
 %%          blockwidth            blockwidth
 %%       <--------------->     <--------------->
-%%     <-> coverboardgrow                      <-> coverboardgrow
-%%   <-> coverflap                             . <-> coverflap
-%%   . . .                                     . . .
+%%     <-> coverboardgrow.     .               <-> coverboardgrow
+%%   <-> coverflap       .     .               . <-> coverflap
+%%   . . .               .     .               . . .
+%%   .xx .               xx   xx               . xx.    ] fold marks
 %%   +-------------------++---++-------------------+    ---
 %%   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --^ coverflap                
 %%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --^ coverboardgrow  
@@ -397,6 +398,7 @@
 %%   | . + - - - - - - - ++ - ++ - - - - - - - + . |    --v coverboardgrow  
 %%   | + - - - - - - - - ++ - ++ - - - - - - - - + |    --v coverflap                 
 %%   +-------------------++---++-------------------+    ---
+%%    xx                 xx   xx                 xx     ] fold marks
 %%                        .   .
 %%                       ^.   .^ spinefold
 %%                        .   .
@@ -422,8 +424,9 @@
 %%   .   .                                           .   .
 %%   .   .     blockwidth            blockwidth      .   .
 %%   .   .  <--------------->     <--------------->  .   .
-%%   .   .<-> coverboardgrow                      <-> coverboardgrow
-%%   .   .  .                                     .  .   .
+%%   .   .<-> coverboardgrow.     .               <-> coverboardgrow
+%%   .   .  .               .     .               .  .   .
+%%   .   xx .               .x   x.               . xx   .    ] fold marks
 %%   +---++-----------------++---++-----------------++---+    ---
 %%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --^ coverboardgrow
 %%   |   .. .               ..   ..               . ..   |     ^
@@ -433,6 +436,7 @@
 %%   |   .. .               ..   ..               . ..   |     v
 %%   |   .. + - - - - - - - ++ - ++ - - - - - - - + ..   |    --v coverboardgrow
 %%   +---++-----------------++---++-----------------++---+    --- 
+%%       xx                  x   x                  xx        ] fold marks
 %%       ..                  .   .                  ..
 %%       ^ jacketwrap        .   .                  ^ jacketwrap
 %%                          ^.   .^ spinefold
@@ -1075,6 +1079,7 @@
 		% layout: cover...
 		\ifcoverlayout
 			\pagestyle{empty}%
+			% XXX should spinefolds be panels???
 			\setsepchar{,}%
 			\readlist*\pagefoldpanels{%
 				\the\coverflap,
@@ -1108,12 +1113,12 @@
 				\the\jacketwrap,
 				\the\dimexpr
 					\coverboardgrow
+					+ \spinefold
 					+ \pageblockwidth \relax,
-				\the\spinefold,
 				\the\spinewidth,
-				\the\spinefold,
 				\the\dimexpr
 					\coverboardgrow
+					+ \spinefold
 					+ \pageblockwidth \relax,
 				\the\jacketwrap,
 				\the\photobook@jacketflapfront@active}%
@@ -1130,6 +1135,7 @@
 		% layout: spread/endpaper...
 		\ifspreadlayout
 			\pagestyle{empty}%
+			\setsepchar{,}%
 			\readlist*\pagefoldpanels{%
 				\the\pageblockwidth,
 				\the\pageblockwidth}%
@@ -1970,7 +1976,7 @@
 
 
 %% \DescribeEnv{cliptocell}
-%%% \DescribeEnv{cliptocellbleeds}
+%% \DescribeEnv{cliptocellbleeds}
 %
 %% Clip content to parent cell.
 %%
