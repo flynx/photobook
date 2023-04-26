@@ -34,6 +34,14 @@ $ cd ./photobook
 $ make install
 ```
 
+The `photobook` document class requres a set of modules to be installed
+for it to function properly, the full list is included in the docs and
+can be generated (`DEPENDS.txt` file) by calling:
+```shell
+$ make DEPENDS.txt
+```
+
+
 If only building the docs is required without installing:
 ```shell
 $ make pdf 
