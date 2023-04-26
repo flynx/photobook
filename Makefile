@@ -248,11 +248,8 @@ LN := cp -l
 # NOTE: grep's -z flag generates a bunch if nulls that we need to clean 
 # 		out via tr.
 DEPENDS.txt: $(MODULE).cls
-	cat $< \
-		| grep -Ezo '\s*\\RequirePackage(\[[^]]*\])?\{[^}]*\}' \
-		| sed -e 's/.*{\(.*\)}/hard \1\n/' \
+	make depends \
 		| grep -a hard \
-		| tr -d '\000' \
 		> $@
 
 
@@ -263,6 +260,15 @@ DEPENDS.txt: $(MODULE).cls
 .PHONY: version
 version:
 	@echo $(VERSION)
+
+
+.PHONY: depends
+depends: $(MODULE).cls
+	@cat $< \
+		| grep -Ezo '\s*\\RequirePackage(\[[^]]*\])?\{[^}]*\}' \
+		| sed -e 's/.*{\(.*\)}/hard \1\n/' \
+		| grep -a hard \
+		| tr -d '\000'
 
 
 
