@@ -1970,6 +1970,7 @@
 
 
 %% \DescribeEnv{cliptocell}
+%%% \DescribeEnv{cliptocellbleeds}
 %
 %% Clip content to parent cell.
 %%
@@ -2003,13 +2004,22 @@
 \newlength\photobook@cliptocell@bottom
 \setlength\photobook@cliptocell@bottom{0mm}%
 
-% XXX EXPERIMENTAL
+%% Set the default bleeds for |cliptocell| environments
+%%
+%%	>> \cliptocellbleeds{<size>}
+%%	>> \cliptocellbleeds{<horizontal> <vertical>}
+%%	>> \cliptocellbleeds{<left> <bottom> <right> <top>}
+%%
+%% This will only affect |cliptocell| environments on the same level, 
+%% without affecting the nested |cliptocell|s.
+%%
 % XXX should this set the setsepchar back to default???
 % XXX should this be public???
 %		...mainly due to setsepchar...
 \newcommand\cliptocellbleeds[1]{
 	\setsepchar{ }%
 	\readlist*\photobook@cliptocell@bleeds{#1}%
+	\setsepchar{,}%
 	% args: size
 	\ifnum \photobook@cliptocell@bleedslen = 1%
 		\setlength\photobook@cliptocell@left{%
@@ -2054,10 +2064,7 @@
 				{\cellwidth + \photobook@cliptocell@right} %
 				{\height + \photobook@cliptocell@top}}%
 		% set defaults for nested cells...
-		\setlength\photobook@cliptocell@left{0mm}%
-		\setlength\photobook@cliptocell@top{0mm}%
-		\setlength\photobook@cliptocell@right{0mm}%
-		\setlength\photobook@cliptocell@bottom{0mm}%
+		\cliptocellbleeds{0mm}%
 		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
 			\ignorespaces%
 	}{%
@@ -3563,6 +3570,7 @@
 	\begingroup%
 		\setsepchar{ }%
 		\readlist*\photobook@foldout@args{#1}%
+		\setsepchar{,}%
 		%
 		% defaults...
 		\setcounter{photobook@foldoutpanel}{1}
@@ -3701,6 +3709,7 @@
 	% parse args...
 	\setsepchar{-}%
 	\readlist*\photobook@foldoutcell@panels{#1}%
+	\setsepchar{,}%
 	%
 	% auto advance panel...
 	\ifnum \photobook@foldoutcell@panels[1] = 0%
