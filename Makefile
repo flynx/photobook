@@ -245,11 +245,10 @@ LN := cp -l
 
 # list of dependencies...
 #
-# NOTE: grep's -z flag generates a bunch if nulls that we need to clean 
-# 		out via tr.
 DEPENDS.txt: $(MODULE).cls
 	make depends \
-		| grep -a hard \
+		| grep -v make \
+		| sed -e 's/^/hard /' \
 		> $@
 
 
@@ -262,13 +261,18 @@ version:
 	@echo $(VERSION)
 
 
+# NOTE: grep's -z flag generates a bunch if nulls that we need to clean 
+# 		out via tr.
+# XXX this is a bit ugly -- adding/removing "hard" and then adding it 
+# 		again for DEPENDS.txt...
 .PHONY: depends
 depends: $(MODULE).cls
 	@cat $< \
 		| grep -Ezo '\s*\\RequirePackage(\[[^]]*\])?\{[^}]*\}' \
 		| sed -e 's/.*{\(.*\)}/hard \1\n/' \
 		| grep -a hard \
-		| tr -d '\000'
+		| tr -d '\000' \
+		| cut -d " " -f 2
 
 
 
