@@ -4,24 +4,16 @@ photobook
 [LaTeX](https://www.latex-project.org/) document class for making photo books.
 
 
-## Build requirements for docs
 
-- LaTeX tool chain (including: `lualatex`, `latexmk`, ..)  
-  The simplest way to get started is [TeX Live](https://www.tug.org/texlive/), 
-  either a full install or for specific modules see the _Packages_ section 
-  in [photobook.cls](./photobook.cls),
-- Un\*x-like environment (`bash`, GNU Make, coreutils, ...),  
-  on Windows systems, either [Cygwin](https://www.cygwin.com/) or 
-  [WSL/WSL2](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux) 
-  should work fine.
+## Install / Build
 
+The simplest way to install is to use either 
+[TeX Live](https://www.tug.org/texlive/)'s or [MiLTeX](https://miktex.org/)'s 
+standard way to install modules.
 
+The package is distributed via CTAN: https://ctan.org/pkg/photobook
 
-## Build / Install
-
-The package is available on: 
-- CTAN: https://ctan.org/pkg/photobook
-- GitHub: https://github.com/flynx/photobook
+The source is maintained at GitHub: https://github.com/flynx/photobook
 
 
 To install from source:
@@ -41,12 +33,30 @@ printed by calling:
 $ make depends
 ```
 
-If only building the docs is required without installing, do:
+
+# Documentation
+
+Pre-built documentation can be found on 
+[CTAN](http://mirrors.ctan.org/macros/latex/contrib/photobook/photobook.pdf)
+or it can be built from source by:
 ```shell
 $ make pdf 
 ```
 
 For more info on `make` targets see the: [./Makefile](./Makefile)
+
+
+### Build requirements for docs
+
+- LaTeX tool chain (including: `lualatex`, `latexmk`, ..)  
+  The simplest way to get started is [TeX Live](https://www.tug.org/texlive/), 
+  either a full install or for specific modules see the _Packages_ section 
+  in [photobook.cls](./photobook.cls),
+- Un\*x-like environment (`bash`, GNU Make, coreutils, ...),  
+  on Windows systems, either [Cygwin](https://www.cygwin.com/) or 
+  [WSL/WSL2](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux) 
+  should work fine.
+
 
 
 ## Notes
