@@ -11,10 +11,9 @@ The simplest way to install is to use either
 [TeX Live](https://www.tug.org/texlive/)'s or [MiLTeX](https://miktex.org/)'s 
 standard way to install modules.
 
-The package is distributed via CTAN: https://ctan.org/pkg/photobook
-
-The source is maintained at GitHub: https://github.com/flynx/photobook
-
+`photobook` is available on:
+- CTAN: https://ctan.org/pkg/photobook
+- GitHub: https://github.com/flynx/photobook
 
 To install from source:
 ```shell
@@ -33,6 +32,9 @@ printed by calling:
 $ make depends
 ```
 
+For more info on `make` targets see the: [./Makefile](./Makefile)
+
+
 
 # Documentation
 
@@ -42,8 +44,6 @@ or it can be built from source by:
 ```shell
 $ make pdf 
 ```
-
-For more info on `make` targets see the: [./Makefile](./Makefile)
 
 
 ### Build requirements for docs
