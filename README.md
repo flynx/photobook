@@ -16,8 +16,7 @@ The simplest way to install is to use either
 standard way to install modules.
 
 
-### Install from source
-
+Installing from source:
 ```shell
 # get the source...
 $ git clone https://github.com/flynx/photobook.git
@@ -47,9 +46,7 @@ or it can be built from source by:
 $ make pdf 
 ```
 
-
-### Build requirements for docs
-
+Build requirements for docs:
 - LaTeX tool chain (including: `lualatex`, `latexmk`, ..)  
   The simplest way to get started is [TeX Live](https://www.tug.org/texlive/), 
   either a full install or for specific modules see the _Packages_ section 
