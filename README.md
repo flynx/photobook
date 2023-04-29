@@ -4,6 +4,10 @@ photobook
 [LaTeX](https://www.latex-project.org/) document class for making photo books.
 
 
+Available on:
+- CTAN: https://ctan.org/pkg/photobook
+- GitHub: https://github.com/flynx/photobook
+
 
 ## Install / Build
 
@@ -11,11 +15,9 @@ The simplest way to install is to use either
 [TeX Live](https://www.tug.org/texlive/)'s or [MiLTeX](https://miktex.org/)'s 
 standard way to install modules.
 
-`photobook` is available on:
-- CTAN: https://ctan.org/pkg/photobook
-- GitHub: https://github.com/flynx/photobook
 
-To install from source:
+### Install from source
+
 ```shell
 # get the source...
 $ git clone https://github.com/flynx/photobook.git
