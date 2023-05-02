@@ -43,11 +43,6 @@
 #----------------------------------------------------------------------
 # Config...
 
-# XXX this for some reason makes make hang on termux/android...
-# 		...do we actually need this???
-#.EXPORT_ALL_VARIABLES:
-
-
 # NOTE: this makes things run consistently on different systems including 
 # 		things like Android...
 SHELL := bash
