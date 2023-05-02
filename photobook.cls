@@ -38,16 +38,15 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %
-% XXX should cliptocell offsets be tweakable???
-% XXX ASAP should cover/jacket/endpaper/spread template cells account 
-%		for bleeds as an option???
-%		...i.e. include cliptocell defaults???
+% XXX ASAP should cover/jacket/endpaper/spread cells set default cliptocell 
+%		bleeds???
 % XXX ASAP should cover/jacket/endpaper/spread templates/cells account
 %		for \bindingoffset (likely no) and/or \gutteroffset ???
 %		...especially relevant to endpaper/spread...
 % XXX ASAP revise how bleeds are handled by cells...
 %		...all cells should ignore bleeds unless explicitly stated 
 %		otherwise -- needs testing...
+%
 %
 % XXX captions behave in an odd way...
 %		the internal (macro) minipage for some reason does not affect text 
