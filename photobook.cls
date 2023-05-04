@@ -40,6 +40,7 @@
 %
 % XXX ASAP should cover/jacket/endpaper/spread cells set default cliptocell 
 %		bleeds???
+%		...needs testing and experimenting...
 % XXX ASAP should cover/jacket/endpaper/spread templates/cells account
 %		for \bindingoffset (likely no) and/or \gutteroffset ???
 %		...especially relevant to endpaper/spread...
@@ -3913,7 +3914,9 @@
 %%%%% Endpaper cells
 %
 %% \DescribeEnv{leftside}
+%%% \DescribeEnv{leftside*}
 %% \DescribeEnv{rightside}
+%%% \DescribeEnv{rightside*}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -3929,6 +3932,8 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
+%%% The star versions set the appropriate bleeds for cliptocell.
+%%%
 
 % XXX for some reason naming these anything starting with endpaper will
 %		make LaTeX complain that that is already defined...
@@ -3937,6 +3942,12 @@
 	\begin{pagecell}%
 }{%
 	\end{pagecell}}
+% XXX EXPERIMENTAL
+\newenvironment{leftside*}{%
+	\begin{leftside}%
+		\cliptocellbleeds{{\bleed} {\bleed} 0mm {\bleed}}%
+}{%
+	\end{leftside}}
 
 \newenvironment{rightside}{%
 	\begin{cell*}%
@@ -3944,6 +3955,13 @@
 			{\pageblockwidth}{\pageblockheight}%
 }{%
 	\end{cell*}}
+% XXX EXPERIMENTAL
+\newenvironment{rightside*}{%
+	\begin{rightside}%
+		\cliptocellbleeds{0mm {\bleed} {\bleed} {\bleed}}%
+}{%
+	\end{rightside}}
+
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

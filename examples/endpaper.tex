@@ -14,14 +14,23 @@
 ]{photobook}
 
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-\begin{document}
-
-\GenerateTemplate
-
-\end{document}
+\begin{document} % - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-%----------------------------------------------------------------------
+% XXX BUG: there is an offset (\bleed sized???) on the left...
+\begin{leftside}
+    \begin{cliptocell}
+        \imagecell[fill]{}{DSC00403-2}
+    \end{cliptocell}
+\end{leftside}
+
+\begin{rightside}
+    \begin{cliptocell}
+        \imagecell[fill]{}{DSC00403-2}
+    \end{cliptocell}
+\end{rightside}
+
+
+
+\end{document} %-------------------------------------------------------
 %                                                  vim:set ts=4 sw=4 :
