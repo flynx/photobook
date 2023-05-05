@@ -5,7 +5,7 @@
 	% page size...
 	blockwidth=240mm, blockheight=220mm,
 	bleed=4mm,
-	bindingoffset=5mm,
+	%bindingoffset=5mm,
 	% image block configuration...
 	imageblockwidth=0.98, imageblockheight=0.98,
 	imageblockoffsettop=-0.1,
@@ -85,6 +85,10 @@
 
 
 
+% XXX the left side's width seems to be off by one \bleed + it is offset
+%       by a bleed depending on page being even/odd...
+%       ...is this a binding offset issue???
+\GenerateTemplate
 \GenerateTemplate
 
 
