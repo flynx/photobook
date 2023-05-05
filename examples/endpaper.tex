@@ -19,12 +19,16 @@
 % XXX ignores layoutmode=endpaper....
 \ImagePageFill{}{DSC00403-2}
 
+
+
 % XXX ignores layoutmode=endpaper....
 \begin{page}
 \begin{pagecell}
     \imagecell[fill]{}{DSC00403-2}
 \end{pagecell}
 \end{page}
+
+
 
 % XXX for some reason this is not centered correctly but scaling seems
 %       correct...
@@ -33,21 +37,41 @@
 \end{page}
 
 
-%% XXX BUG: there is an offset (\bleed sized???) on the left...
-%\begin{leftside}
-%    %\begin{cliptocell}
-%        %\imagecell[fill]{}{DSC00403-2}
-%        \imagecell[fit]{}{DSC00403-2}
-%    %\end{cliptocell}
-%\end{leftside}
-%
-%\begin{rightside}
-%    \begin{cliptocell}
-%        %\imagecell[fill]{}{DSC00403-2}
-%        \imagecell[fit]{}{DSC00403-2}
-%    \end{cliptocell}
-%\end{rightside}
 
+% XXX there is an offset (\bleed sized???) on the left...
+\begin{page}
+% XXX leftside: width seems to be off by one bleed....
+\begin{leftside}
+    \imagecell[fit]{}{DSC00403-2}
+\end{leftside}
+\begin{rightside}
+    \imagecell[fit]{}{DSC00403-2}
+\end{rightside}
+\end{page}
+
+
+
+\begin{page}
+% XXX leftside: width seems to be off by one bleed....
+\begin{leftside}
+    \begin{cliptocell}
+        \imagecell[fit]{}{DSC00403-2}
+    \end{cliptocell}
+\end{leftside}
+\begin{rightside}
+    \begin{cliptocell}
+        \imagecell[fit]{}{DSC00403-2}
+    \end{cliptocell}
+\end{rightside}
+\end{page}
+
+
+
+
+
+
+
+\GenerateTemplate
 
 
 \end{document} %-------------------------------------------------------
