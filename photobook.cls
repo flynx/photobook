@@ -38,6 +38,8 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %
+% XXX ASAP: imagecell: photobook@imagecell@left and photobook@imagecell@left
+%		should explicitly account for clearence@left and clearence@top resp.
 % XXX ASAP: imagecell: clearance should have the same semantics as cliptocell 
 %		offsts... 
 %		(CLEARANCE)
@@ -964,7 +966,7 @@
 %%% \DescribeMacro{\clearanceright=<len>}
 %%% \DescribeMacro{\clearancebottom=<len>}
 % XXX LEGACY CLEARANCE
-%% \DescribeMacro{\clearance=<len>}
+%%% \DescribeMacro{\clearance=<len>}
 %
 %% Cell geometry. 
 %%
@@ -996,8 +998,8 @@
 \setlength\clearancebottom{0pt}
 \def\clearances{0pt}
 % XXX LEGACY CLEARANCE
-\newlength\clearance
-\setlength\clearance{0pt}
+%\newlength\clearance
+%\setlength\clearance{0pt}
 
 
 %% \DescribeMacro{\clearfoldoutgutter=<len>}
@@ -1616,7 +1618,7 @@
 %%% \DescribeMacro{\clearanceright=<len>}
 %%% \DescribeMacro{\clearancebottom=<len>}
 % XXX LEGACY CLEARANCE
-%% \DescribeMacro{\clearance=<len>}
+%%% \DescribeMacro{\clearance=<len>}
 %%
 %% A cell defines a set of contextual lengths:
 %%
@@ -1754,7 +1756,7 @@
 		\setlength\clearanceright{0pt}%
 		\setlength\clearancebottom{0pt}%
 		% XXX LEGACY CLEARANCE
-		\setlength\clearance{0pt}%
+		%\setlength\clearance{0pt}%
 		%
 		\begin{MinipageCellContent}[\photobook@minipagecell@parentvalign]{minipagecell}%
 }{%
@@ -2044,6 +2046,7 @@
 \setlength\photobook@cliptocell@right{0mm}%
 \newlength\photobook@cliptocell@bottom
 \setlength\photobook@cliptocell@bottom{0mm}%
+\def\cliptocellclearances{0mm 0mm 0mm 0mm}%
 
 %% Set the default bleeds for |cliptocell| environments
 %%
@@ -2054,6 +2057,10 @@
 %% This will only affect |cliptocell| environments on the same level, 
 %% without affecting the nested |cliptocell|s.
 %%
+%%% \DescribeEnv{cliptocellclearances=<left> <bottom> <right> <top>}
+%%%
+%%% Set by |\cliptocellbleeds{..}| and contains clearances (negative 
+%%% clipping bleeds) usable by imagecell.
 \newcommand\cliptocellbleeds[1]{
 	\setsepchar{ }%
 	\readlist*\photobook@cliptocell@bleeds{#1}%
@@ -2087,7 +2094,13 @@
 		\setlength\photobook@cliptocell@right{%
 			\photobook@cliptocell@bleeds[3]}%
 		\setlength\photobook@cliptocell@top{%
-			\photobook@cliptocell@bleeds[4]}\fi}
+			\photobook@cliptocell@bleeds[4]}\fi%
+	% NOTE: trailing spaces here are significant...
+	\def\cliptocellclearances{%
+		{-\photobook@cliptocell@left} %
+		{-\photobook@cliptocell@bottom} %
+		{-\photobook@cliptocell@right} %
+		{-\photobook@cliptocell@top}}}
 
 \newenvironment{cliptocell}[1][0mm]{%
 	\begingroup%
@@ -2333,6 +2346,9 @@
 		-0.5\ht\photobook@imagebox \relax}%
 	\def\photobook@imagecell@left{\dimexpr 
 		+0.5\cellwidth 
+		% XXX EXPERIMENTAL CLEARANCE -- test...
+		+0.5\photobook@imagecell@clearance@left
+		-0.5\photobook@imagecell@clearance@right
 		-0.5\wd\photobook@imagebox \relax}}%
 % left/right...
 % shortdands...
@@ -2485,13 +2501,13 @@
 					keepaspectratio, 
 					width=\photobook@imagecell@scale\dimexpr 
 						\cellwidth 
-						-\photobook@imagecell@clearance@left 
-						-\photobook@imagecell@clearance@right \relax,
+						- \photobook@imagecell@clearance@left 
+						- \photobook@imagecell@clearance@right \relax,
 						%- ((\photobook@imagecell@clearance) * 2) \relax,
 					height=\photobook@imagecell@scale\dimexpr 
 						\cellheight 
-						-\photobook@imagecell@clearance@top 
-						-\photobook@imagecell@clearance@bottom \relax]{#3}}%
+						- \photobook@imagecell@clearance@top 
+						- \photobook@imagecell@clearance@bottom \relax]{#3}}%
 						%- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 		% fill...
 		\else\ifKV@imagecell@args@fill%
@@ -2511,8 +2527,8 @@
 						keepaspectratio, 
 						width=\photobook@imagecell@scale\dimexpr 
 							+ \cellwidth
-							-\photobook@imagecell@clearance@left
-							-\photobook@imagecell@clearance@right \relax]{#3}}%
+							- \photobook@imagecell@clearance@left
+							- \photobook@imagecell@clearance@right \relax]{#3}}%
 							%- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 			\else%
 				\sbox{\photobook@imagebox}{%
@@ -2520,8 +2536,8 @@
 						keepaspectratio, 
 						height=\photobook@imagecell@scale\dimexpr 
 							+ \cellheight 
-							-\photobook@imagecell@clearance@top
-							-\photobook@imagecell@clearance@bottom \relax]{#3}}%
+							- \photobook@imagecell@clearance@top
+							- \photobook@imagecell@clearance@bottom \relax]{#3}}%
 							%- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 		\fi\fi\fi%
 		%
@@ -2572,7 +2588,7 @@
 		\setlength\clearancebottom{\photobook@imagecell@clearance@bottom}
 		\def\clearances{\photobook@imagecell@clearences}
 		% XXX LEGACY CLEARANCE
-		\setlength\clearance{\photobook@imagecell@clearance}%
+		%\setlength\clearance{\photobook@imagecell@clearance}%
 		% clear parent...
 		% XXX might be a good idea to put this into a special reusable cell...
 		\ifphotobook@imagecell@captionclearparent%
@@ -3034,7 +3050,8 @@
 						% XXX this is only present in images...
 						% XXX change this to use \clearanceleft / \clearanceright / ...
 						% XXX LEGACY CLEARANCE
-						- \clearance \relax%
+						- \clearance 
+					\relax%
 				\else%
 					\photobook@captionblockcell@width\fi}%
 			\setlength\cellparentwidth{%

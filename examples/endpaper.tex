@@ -16,6 +16,11 @@
 
 \begin{document} % - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+\begin{page}
+	cliptocellclearances=\cliptocellclearances
+\end{page}
+
+
 % XXX ignores layoutmode=endpaper....
 \ImagePageFill{}{DSC00403-2}
 
@@ -24,16 +29,16 @@
 % XXX ignores layoutmode=endpaper....
 \begin{page}
 \begin{pagecell}
-    \imagecell[fill]{}{DSC00403-2}
+	\imagecell[fill]{}{DSC00403-2}
 \end{pagecell}
 \end{page}
 
 
 
 % XXX for some reason this is not centered correctly but scaling seems
-%       correct...
+%		correct...
 \begin{page}
-    \imagecell[fill]{}{DSC00403-2}
+	\imagecell[fill]{}{DSC00403-2}
 \end{page}
 
 
@@ -43,10 +48,10 @@
 
 \begin{page}
 \begin{leftside}
-    \imagecell[fit]{}{DSC00403-2}
+	\imagecell[fit]{}{DSC00403-2}
 \end{leftside}
 \begin{rightside*}
-    \imagecell[fit, clearance=-\bleed]{}{DSC00403-2}
+	\imagecell[fit, clearance=-\bleed]{}{DSC00403-2}
 \end{rightside*}
 \end{page}
 
@@ -54,14 +59,37 @@
 
 \begin{page}
 \begin{leftside}
-    \begin{cliptocell}
-        \imagecell[fit]{}{DSC00403-2}
-    \end{cliptocell}
+	\begin{cliptocell}
+		\imagecell[fit]{}{DSC00403-2}
+	\end{cliptocell}
 \end{leftside}
+\begin{rightside}
+	\begin{cliptocell}
+		\imagecell[fit]{}{DSC00403-2}
+	\end{cliptocell}
+\end{rightside}
+\end{page}
+
+
+
+\begin{page}
+\begin{leftside*}
+	\begin{cliptocell}
+		% XXX this breaks things....
+		%\imagecell[fit, clearance={-\bleed} {-\bleed} 0mm {-\bleed}]{}{DSC00403-2}
+		\imagecell[fit, clearance=-\bleed]{}{DSC00403-2}
+	\end{cliptocell}
+\end{leftside*}
 \begin{rightside*}
-    \begin{cliptocell}
-        \imagecell[fit, clearance=-\bleed]{}{DSC00403-2}
-    \end{cliptocell}
+	\begin{cliptocell}
+		% XXX for some reason this is undefined here...
+		%\cliptocellclearances
+		% XXX \cliptocellclearances does not work yet... 
+		%\imagecell[fit, clearance=\cliptocellclearances]{}{DSC00403-2}
+		% XXX this does not seem to be forking correctly...
+		%		...looks like we are not accounting for clearance in offset...
+		\imagecell[fit, clearance={0pt} {-\bleed} {-\bleed} {-\bleed}]{}{DSC00403-2}
+	\end{cliptocell}
 \end{rightside*}
 \end{page}
 
@@ -69,14 +97,18 @@
 
 \begin{page}
 \begin{leftside}
-    \begin{cliptocell}
-        \imagecell[fill]{}{DSC00403-2}
-    \end{cliptocell}
+	\begin{cliptocell}
+		\imagecell[fill]{}{DSC00403-2}
+	\end{cliptocell}
 \end{leftside}
 \begin{rightside*}
-    \begin{cliptocell}
-        \imagecell[fill, clearance=-\bleed]{}{DSC00403-2}
-    \end{cliptocell}
+	\begin{cliptocell}
+		% XXX \cliptocellclearances does not work yet... 
+		%\imagecell[fill, clearance=\cliptocellclearances]{}{DSC00403-2}
+		% XXX this does not seem to be forking correctly...
+		%		...looks like we are not accounting for clearance in offset...
+		\imagecell[fill, clearance={0pt} {-\bleed} {-\bleed} {-\bleed}]{}{DSC00403-2}
+	\end{cliptocell}
 \end{rightside*}
 \end{page}
 
@@ -89,4 +121,4 @@
 
 
 \end{document} %-------------------------------------------------------
-%                                                  vim:set ts=4 sw=4 :
+%												   vim:set ts=4 sw=4 :
