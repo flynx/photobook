@@ -16,19 +16,37 @@
 
 \begin{document} % - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+% XXX ignores layoutmode=endpaper....
+\ImagePageFill{}{DSC00403-2}
 
-% XXX BUG: there is an offset (\bleed sized???) on the left...
-\begin{leftside}
-    \begin{cliptocell}
-        \imagecell[fill]{}{DSC00403-2}
-    \end{cliptocell}
-\end{leftside}
+% XXX ignores layoutmode=endpaper....
+\begin{page}
+\begin{pagecell}
+    \imagecell[fill]{}{DSC00403-2}
+\end{pagecell}
+\end{page}
 
-\begin{rightside}
-    \begin{cliptocell}
-        \imagecell[fill]{}{DSC00403-2}
-    \end{cliptocell}
-\end{rightside}
+% XXX for some reason this is not centered correctly but scaling seems
+%       correct...
+\begin{page}
+    \imagecell[fill]{}{DSC00403-2}
+\end{page}
+
+
+%% XXX BUG: there is an offset (\bleed sized???) on the left...
+%\begin{leftside}
+%    %\begin{cliptocell}
+%        %\imagecell[fill]{}{DSC00403-2}
+%        \imagecell[fit]{}{DSC00403-2}
+%    %\end{cliptocell}
+%\end{leftside}
+%
+%\begin{rightside}
+%    \begin{cliptocell}
+%        %\imagecell[fill]{}{DSC00403-2}
+%        \imagecell[fit]{}{DSC00403-2}
+%    \end{cliptocell}
+%\end{rightside}
 
 
 
