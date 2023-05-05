@@ -5,7 +5,7 @@
 	% page size...
 	blockwidth=240mm, blockheight=220mm,
 	bleed=4mm,
-	%bindingoffset=5mm,
+	bindingoffset=5mm,
 	% image block configuration...
 	imageblockwidth=0.98, imageblockheight=0.98,
 	imageblockoffsettop=-0.1,
@@ -38,56 +38,52 @@
 
 
 
-% XXX there is an offset (\bleed sized???) on the left...
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
 \begin{page}
-% XXX leftside: width seems to be off by one bleed....
 \begin{leftside}
     \imagecell[fit]{}{DSC00403-2}
 \end{leftside}
-\begin{rightside}
-    \imagecell[fit]{}{DSC00403-2}
-\end{rightside}
+\begin{rightside*}
+    \imagecell[fit, clearance=-\bleed]{}{DSC00403-2}
+\end{rightside*}
 \end{page}
 
 
 
 \begin{page}
-% XXX leftside: width seems to be off by one bleed....
 \begin{leftside}
     \begin{cliptocell}
         \imagecell[fit]{}{DSC00403-2}
     \end{cliptocell}
 \end{leftside}
-\begin{rightside}
+\begin{rightside*}
     \begin{cliptocell}
-        \imagecell[fit]{}{DSC00403-2}
+        \imagecell[fit, clearance=-\bleed]{}{DSC00403-2}
     \end{cliptocell}
-\end{rightside}
+\end{rightside*}
 \end{page}
 
 
 
 \begin{page}
-% XXX leftside: width seems to be off by one bleed....
 \begin{leftside}
     \begin{cliptocell}
         \imagecell[fill]{}{DSC00403-2}
     \end{cliptocell}
 \end{leftside}
-\begin{rightside}
+\begin{rightside*}
     \begin{cliptocell}
-        \imagecell[fill]{}{DSC00403-2}
+        \imagecell[fill, clearance=-\bleed]{}{DSC00403-2}
     \end{cliptocell}
-\end{rightside}
+\end{rightside*}
 \end{page}
 
 
 
 
 
-% XXX the left side's width seems to be off by one \bleed + it is offset
-%       by a bleed depending on page being even/odd...
-%       ...is this a binding offset issue???
 \GenerateTemplate
 \GenerateTemplate
 

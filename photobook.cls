@@ -38,10 +38,16 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %
+% XXX ASAP: imagecell: clearance should have the same semantics as cliptocell 
+%		offsts... 
+%		(CLEARANCE)
 % XXX ASAP should cover/jacket/endpaper/spread cells set default cliptocell 
 %		bleeds???
 %		...needs testing and experimenting...
 % XXX ASAP: should \blockwidth include \bindingoffset (current) or not???
+%		...currently I think that no, as \blockwidth indicates the outer 
+%		width of the block, and this poses the question:
+%			should \pagewidth include \bindingoffset???
 % XXX ASAP should cover/jacket/endpaper/spread templates/cells account
 %		for \bindingoffset (likely no) and/or \gutteroffset ???
 %		...especially relevant to endpaper/spread...
@@ -85,8 +91,8 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.21}
-\edef\photobook@FILEDATE{2023-04-22}
+\edef\photobook@FILEVERSION{v0.1.22}
+\edef\photobook@FILEDATE{2023-05-05}
 
 
 %% \documentclass{ltxdoc}
@@ -952,6 +958,12 @@
 %% \DescribeMacro{\cellheight=<len>}
 %% \DescribeMacro{\celloffsetleft=<len>}
 %% \DescribeMacro{\celloffsettop=<len>}
+% XXX EXPERIMENTAL CLEARANCE
+%%% \DescribeMacro{\clearanceleft=<len>}
+%%% \DescribeMacro{\clearancetop=<len>}
+%%% \DescribeMacro{\clearanceright=<len>}
+%%% \DescribeMacro{\clearancebottom=<len>}
+% XXX LEGACY CLEARANCE
 %% \DescribeMacro{\clearance=<len>}
 %
 %% Cell geometry. 
@@ -973,6 +985,17 @@
 \setlength\celloffsetleft{0pt}
 \newlength\celloffsettop
 \setlength\celloffsettop{0pt}
+% XXX EXPERIMENTAL CLEARANCE
+\newlength\clearanceleft
+\setlength\clearanceleft{0pt}
+\newlength\clearancetop
+\setlength\clearancetop{0pt}
+\newlength\clearanceright
+\setlength\clearanceright{0pt}
+\newlength\clearancebottom
+\setlength\clearancebottom{0pt}
+\def\clearances{0pt}
+% XXX LEGACY CLEARANCE
 \newlength\clearance
 \setlength\clearance{0pt}
 
@@ -1587,6 +1610,12 @@
 %% \DescribeMacro{\cellparentheight=<len>}
 %% \DescribeMacro{\celloffsettop=<len>}
 %% \DescribeMacro{\celloffsetleft=<len>}
+% XXX EXPERIMENTAL CLEARANCE
+%%% \DescribeMacro{\clearanceleft=<len>}
+%%% \DescribeMacro{\clearancetop=<len>}
+%%% \DescribeMacro{\clearanceright=<len>}
+%%% \DescribeMacro{\clearancebottom=<len>}
+% XXX LEGACY CLEARANCE
 %% \DescribeMacro{\clearance=<len>}
 %%
 %% A cell defines a set of contextual lengths:
@@ -1719,6 +1748,12 @@
 		\setlength\cellheight{\photobook@protect@h}%
 		\setlength\celloffsettop{0pt}%
 		\setlength\celloffsetleft{0pt}%
+		% XXX EXPERIMENTAL CLEARANCE
+		\setlength\clearanceleft{0pt}%
+		\setlength\clearancetop{0pt}%
+		\setlength\clearanceright{0pt}%
+		\setlength\clearancebottom{0pt}%
+		% XXX LEGACY CLEARANCE
 		\setlength\clearance{0pt}%
 		%
 		\begin{MinipageCellContent}[\photobook@minipagecell@parentvalign]{minipagecell}%
@@ -2269,6 +2304,16 @@
 \def\photobook@imagecell@captiontop{0pt}
 \def\photobook@imagecell@captionleft{0pt}
 
+% XXX EXPERIMENTAL
+\newlength\photobook@imagecell@clearance@left
+\setlength\photobook@imagecell@clearance@left{0pt}
+\newlength\photobook@imagecell@clearance@top
+\setlength\photobook@imagecell@clearance@top{0pt}
+\newlength\photobook@imagecell@clearance@right
+\setlength\photobook@imagecell@clearance@right{0pt}
+\newlength\photobook@imagecell@clearance@bottom
+\setlength\photobook@imagecell@clearance@bottom{0pt}
+% XXX LEGACY
 \newlength\photobook@imagecell@clearance
 \setlength\photobook@imagecell@clearance{0pt}
 
@@ -2293,7 +2338,8 @@
 % shortdands...
 \newcommand\photobook@imagecell@LEFT{%
 	\def\photobook@imagecell@left{\dimexpr%
-		+\photobook@imagecell@clearance \relax}%
+		+\photobook@imagecell@clearance@left \relax}%
+		%+\photobook@imagecell@clearance \relax}%
 	\def\photobook@imagecell@captionleft{
 		% XXX not sure why this branch is needed...
 		\ifKV@imagecell@args@fit
@@ -2301,12 +2347,14 @@
 		\else%
 			\dimexpr%
 				+\cellwidth 
-				-\photobook@imagecell@clearance
+				-\photobook@imagecell@clearance@left
+				%-\photobook@imagecell@clearance
 				-\wd\photobook@imagebox \relax\fi}}%
 \newcommand\photobook@imagecell@RIGHT{%
 	\def\photobook@imagecell@left{\dimexpr 
 		+\cellwidth 
-		-\photobook@imagecell@clearance
+		-\photobook@imagecell@clearance@right
+		%-\photobook@imagecell@clearance
 		-\wd\photobook@imagebox \relax}
 	% XXX not sure why 0.5 but it seems to work...
 	\def\photobook@imagecell@captionleft{%
@@ -2330,7 +2378,8 @@
 % top/bottom...
 \define@boolkey{imagecell@args}{top}[true]{%
 	\def\photobook@imagecell@top{%
-		\photobook@imagecell@clearance}%
+		\photobook@imagecell@clearance@top}%
+		%\photobook@imagecell@clearance}%
 	\def\photobook@imagecell@captiontop{%
 		-\dimexpr 
 			+\cellheight 
@@ -2339,14 +2388,55 @@
 	\def\photobook@imagecell@top{%
 		\dimexpr 
 			+\cellheight 
-			-\photobook@imagecell@clearance
+			-\photobook@imagecell@clearance@bottom
+			%-\photobook@imagecell@clearance
 			-\ht\photobook@imagebox \relax}%
 	\def\photobook@imagecell@captiontop{%
 		\dimexpr
 			\photobook@imagecell@top 
-			+\photobook@imagecell@clearance \relax}}%
+			+\photobook@imagecell@clearance@bottom \relax}}%
+			%+\photobook@imagecell@clearance \relax}}%
 % clearance=<len>...
+% clearance=<horizontal> <vertical>...
+% clearance=<left> <bottom> <right> <top>...
 \define@key{imagecell@args}{clearance}{%
+	% XXX EXPERIMENTAL
+	% XXX this is essentially the same as \photobook@cliptocell@bleeds -- unite...
+	\def\photobook@imagecell@clearances{#1}%
+	\setsepchar{ }
+	\readlist*\photobook@imagecell@clearencelist{#1}%
+	\setsepchar{,}%
+	%% args: size
+	\ifnum \photobook@imagecell@clearencelistlen = 1%
+		\setlength\photobook@imagecell@clearance@left{%
+			\photobook@imagecell@clearencelist[1]}%
+		\setlength\photobook@imagecell@clearance@bottom{%
+			\photobook@imagecell@clearencelist[1]}%
+		\setlength\photobook@imagecell@clearance@right{%
+			\photobook@imagecell@clearencelist[1]}%
+		\setlength\photobook@imagecell@clearance@top{%
+			\photobook@imagecell@clearencelist[1]}\fi%
+	% args: horizontal vertical
+	\ifnum \photobook@imagecell@clearencelistlen = 2%
+		\setlength\photobook@imagecell@clearance@left{%
+			\photobook@imagecell@clearencelist[1]}%
+		\setlength\photobook@imagecell@clearance@bottom{%
+			\photobook@imagecell@clearencelist[2]}%
+		\setlength\photobook@imagecell@clearance@right{%
+			\photobook@imagecell@clearencelist[1]}%
+		\setlength\photobook@imagecell@clearance@top{%
+			\photobook@imagecell@clearencelist[2]}\fi%
+	% args: left bottom right top
+	\ifnum \photobook@imagecell@clearencelistlen = 4%
+		\setlength\photobook@imagecell@clearance@left{%
+			\photobook@imagecell@clearencelist[1]}%
+		\setlength\photobook@imagecell@clearance@bottom{%
+			\photobook@imagecell@clearencelist[2]}%
+		\setlength\photobook@imagecell@clearance@right{%
+			\photobook@imagecell@clearencelist[3]}%
+		\setlength\photobook@imagecell@clearance@top{%
+			\photobook@imagecell@clearencelist[4]}\fi%
+	% XXX LEGACY...
 	\setlength\photobook@imagecell@clearance{#1}}%
 
 % offsettop=<len> / offsetleft=<len>...
@@ -2395,10 +2485,14 @@
 					keepaspectratio, 
 					width=\photobook@imagecell@scale\dimexpr 
 						\cellwidth 
-						- ((\photobook@imagecell@clearance) * 2) \relax,
+						-\photobook@imagecell@clearance@left 
+						-\photobook@imagecell@clearance@right \relax,
+						%- ((\photobook@imagecell@clearance) * 2) \relax,
 					height=\photobook@imagecell@scale\dimexpr 
 						\cellheight 
-						- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
+						-\photobook@imagecell@clearance@top 
+						-\photobook@imagecell@clearance@bottom \relax]{#3}}%
+						%- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 		% fill...
 		\else\ifKV@imagecell@args@fill%
 			% preload image to get its proportions...
@@ -2417,14 +2511,18 @@
 						keepaspectratio, 
 						width=\photobook@imagecell@scale\dimexpr 
 							+ \cellwidth
-							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
+							-\photobook@imagecell@clearance@left
+							-\photobook@imagecell@clearance@right \relax]{#3}}%
+							%- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 			\else%
 				\sbox{\photobook@imagebox}{%
 					\includegraphics[%
 						keepaspectratio, 
 						height=\photobook@imagecell@scale\dimexpr 
 							+ \cellheight 
-							- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
+							-\photobook@imagecell@clearance@top
+							-\photobook@imagecell@clearance@bottom \relax]{#3}}%
+							%- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 		\fi\fi\fi%
 		%
 		\setlength\celloffsetleft{%
@@ -2467,6 +2565,13 @@
 			\maxdim{\celloffsetleft}{0pt}}%
 		\setlength\celloffsettop{%
 			\maxdim{\celloffsettop}{0pt}}%
+		% XXX EXPERIMENTAL CLEARANCE
+		\setlength\clearanceleft{\photobook@imagecell@clearance@left}
+		\setlength\clearancetop{\photobook@imagecell@clearance@top}
+		\setlength\clearanceright{\photobook@imagecell@clearance@right}
+		\setlength\clearancebottom{\photobook@imagecell@clearance@bottom}
+		\def\clearances{\photobook@imagecell@clearences}
+		% XXX LEGACY CLEARANCE
 		\setlength\clearance{\photobook@imagecell@clearance}%
 		% clear parent...
 		% XXX might be a good idea to put this into a special reusable cell...
@@ -2927,6 +3032,8 @@
 						- \cellwidth 
 						- \clearcaption 
 						% XXX this is only present in images...
+						% XXX change this to use \clearanceleft / \clearanceright / ...
+						% XXX LEGACY CLEARANCE
 						- \clearance \relax%
 				\else%
 					\photobook@captionblockcell@width\fi}%
@@ -3939,9 +4046,11 @@
 %		make LaTeX complain that that is already defined...
 %		...collision with bools???
 \newenvironment{leftside}{%
-	\begin{pagecell}%
+	\begin{cell*}%
+			{\bleed, \bleed}%
+			{\pageblockwidth}{\pageblockheight}%
 }{%
-	\end{pagecell}}
+	\end{cell*}}
 % XXX EXPERIMENTAL
 \newenvironment{leftside*}{%
 	\begin{leftside}%
