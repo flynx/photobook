@@ -2343,6 +2343,9 @@
 \define@boolkey{imagecell@args}{center}[true]{%
 	\def\photobook@imagecell@top{\dimexpr 
 		+0.5\cellheight 
+		% XXX EXPERIMENTAL CLEARANCE -- test...
+		+0.5\photobook@imagecell@clearance@top
+		-0.5\photobook@imagecell@clearance@bottom
 		-0.5\ht\photobook@imagebox \relax}%
 	\def\photobook@imagecell@left{\dimexpr 
 		+0.5\cellwidth 
