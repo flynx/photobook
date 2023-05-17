@@ -2061,6 +2061,9 @@
 %%%
 %%% Set by |\cliptocellbleeds{..}| and contains clearances (negative 
 %%% clipping bleeds) usable by imagecell.
+%
+% XXX BUG: bleeds is set correctly for one value but 2 and 4 seem to be 
+%		misbehaving...
 \newcommand\cliptocellbleeds[1]{
 	\setsepchar{ }%
 	\readlist*\photobook@cliptocell@bleeds{#1}%
