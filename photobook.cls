@@ -2063,7 +2063,7 @@
 %%% clipping bleeds) usable by imagecell.
 %
 % XXX BUG: bleeds is set correctly for one value but 2 and 4 seem to be 
-%		misbehaving...
+%		misbehaving (see: ./examples/endpaper.tex)
 \newcommand\cliptocellbleeds[1]{
 	\setsepchar{ }%
 	\readlist*\photobook@cliptocell@bleeds{#1}%
