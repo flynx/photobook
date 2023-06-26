@@ -56,9 +56,11 @@ ANOTATE_IMAGE_PATHS=${ANOTATE_IMAGE_PATHS:=}
 # supported formats/extensions...
 TEXT_FORMATS=${TEXT_FORMATS:=$CFG_TEXT_FORMATS}
 TEXT_FORMATS=${TEXT_FORMATS:=txt}
+TEXT_FORMATS=${TEXT_FORMATS,,}
 
 IMAGE_FORMATS=${IMAGE_FORMATS:=$CFG_IMAGE_FORMATS}
 IMAGE_FORMATS=${IMAGE_FORMATS:=jpeg|jpg|png|pdf|svg|eps}
+IMAGE_FORMATS=${IMAGE_FORMATS,,}
 
 
 SPREADS_DIR=${SPREADS_DIR:=$CFG_SPREADS_DIR}
@@ -366,9 +368,9 @@ populateTemplate(){
 	local txt=()
 	local elem
 	for elem in "${items[@]}" ; do
-		if [[ "$elem" =~ $IMAGE_FORMATS ]] ; then
+		if [[ "${elem,,}" =~ $IMAGE_FORMATS ]] ; then
 			img+=("$elem")
-		elif [[ "$elem" =~ $TEXT_FORMATS ]] ; then
+		elif [[ "${elem,,}" =~ $TEXT_FORMATS ]] ; then
 			txt+=("$elem")
 		fi
 	done
@@ -491,10 +493,10 @@ handleSpread(){
 	local txt=()
 	local items=()
 	for elem in "$spread"/* ; do
-		if [[ "$elem" =~ $IMAGE_FORMATS ]] ; then
+		if [[ "${elem,,}" =~ $IMAGE_FORMATS ]] ; then
 			img+=("$elem")
 			items+=("$elem")
-		elif [[ "$elem" =~ $TEXT_FORMATS ]] ; then
+		elif [[ "${elem,,}" =~ $TEXT_FORMATS ]] ; then
 			txt+=("$elem")
 			items+=("$elem")
 		fi
@@ -574,7 +576,7 @@ handleSpread(){
 					#		slots/files from list...
 
 					# image...
-					if [[ "$elem" =~ $IMAGE_FORMATS ]] ; then
+					if [[ "${elem,,}" =~ $IMAGE_FORMATS ]] ; then
 						echo %
 						echo "% $P page (image)..."
 						template=`getTemplate "$spread" "$IMAGE_PAGE"`
