@@ -93,7 +93,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.22}
+\edef\photobook@FILEVERSION{v0.1.23}
 \edef\photobook@FILEDATE{2023-05-05}
 
 
