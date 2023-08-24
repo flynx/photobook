@@ -93,7 +93,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.24}
+\edef\photobook@FILEVERSION{v0.1.25}
 \edef\photobook@FILEDATE{2023-08-24}
 
 
@@ -4298,7 +4298,7 @@
 	Copyright \textcopyright \ \BookYear \ \BookAuthors; All Rights Reserved.
 
 	\ifx \License \empty%
-		No part of this \BookType may be reproduced in any form without written permission
+		No part of this \BookType\ may be reproduced in any form without written permission
 		of the author except for use for brief quotation in a review.
 	\else%
 		\License\fi}
@@ -4309,7 +4309,7 @@
 \def\BookFonts{}
 %% \DescribeMacro{SoftwareNotice=<text>}
 \def\SoftwareNotice{%
-	This \BookType was designed and laid out using open source 
+	This \BookType\ was designed and laid out using open source 
 	\ifx \BookFonts \empty\else
 		fonts and\fi 
 	software including: 
