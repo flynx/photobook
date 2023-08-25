@@ -4270,10 +4270,16 @@
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%%%% Basic book information
 
-%% \DescribeMacro{BookType=<text>}
-\def\BookType{book}
 % XXX Document metadata -- move to globals...
 % XXX Use LaTeX generic metadata...
+%% \DescribeMacro{BookType=<text>}
+%
+%% Used in page macro text to indicate the type of document built, by default
+%% this is set to |book| for the most common case but can be set to anything
+%% (e.g. |brochure|, |magazine|, |presentation|, ...etc.)
+%%
+\def\BookType{book}
+
 %% \DescribeMacro{BookTitle=<text>}
 \def\BookTitle{}
 %% \DescribeMacro{BookVersion=<text>}
