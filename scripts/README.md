@@ -137,7 +137,7 @@ or multiples, ...etc.? At this stage this is about the presentation,
 the flow of the work and not about the actual design. How many typical 
 spreads (i.e. spread templates) should it have? A good number should be 
 small-ish, for example 3-4 spread templates is a good number, if you 
-count 10+ then you might be overcomplicating tings, but note, there are 
+count 10+ then you might be overcomplicating things, but note, there are 
 no rules, a book where each spread is individually and manually layed out 
 may work as well as a book with just a single template spread, but in 
 general for a photo book the focus is on the project and the layout 
