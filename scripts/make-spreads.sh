@@ -133,7 +133,8 @@ printhelp(){
 	echo "  --captions PATH"
 	echo "              - path to search for captions (default: $CAPTION_DIR)."
 	echo "  --graphicx-path"
-	echo "              - use image basenames and let graphicx manage searching."
+	echo "              - reference images by their basenames and let graphicx manage"
+	echo "                searching."
 	echo
 	echo "Parameters:"
 	echo "  PATH        - path to root pages directory (default: $SPREADS_DIR)"
