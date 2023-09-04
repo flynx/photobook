@@ -344,6 +344,8 @@ IMAGE_FORMATS=jpeg|jpg|png|pdf|svg|eps
 SPREADS_DIR=spreads/
 
 # if non-empty link link images to matching ones from this directory...
+# NOTE: this is ignored if --graphicx-path is passed or GRAPHICX_PATH 
+#		is set.
 IMAGE_HIRES_DIR=
 
 # directory where external captions are stored...
@@ -370,6 +372,10 @@ IMAGE_SPREAD=(
         [0]=text-spread
         [2]=image-image
 )
+
+# if set (or --graphicx-path is passed) the images are identified by their
+# basename so as to let graphicx package resolve the paths internally.
+GRAPHICX_PATH=1
 ```
 
 An explicit configuration file can be manually specified:
