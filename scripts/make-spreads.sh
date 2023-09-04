@@ -132,6 +132,8 @@ printhelp(){
 	echo "              - text spread default template (default: ${IMAGE_SPREAD[0]})."
 	echo "  --captions PATH"
 	echo "              - path to search for captions (default: $CAPTION_DIR)."
+	echo "  --graphicx-path"
+	echo "              - use image basenames and let graphicx manage searching."
 	echo
 	echo "Parameters:"
 	echo "  PATH        - path to root pages directory (default: $SPREADS_DIR)"
@@ -212,6 +214,11 @@ while true ; do
 		--captions)
 			CAPTION_DIR=$2
 			shift 2
+			continue
+			;;
+		--graphicx-path)
+			GRAPHICX_PATH=1
+			shift
 			continue
 			;;
 
@@ -350,6 +357,12 @@ templateSlots(){
 # usage:
 #	populateTemplate SPREAD TEMPLATE ITEMS...
 #
+# closure: $populateTemplate_img, $populateTemplate_txt
+#
+# NOTE: this is the least hacky/ugly but could not figure out a better 
+#		way to update a list from within a function...
+populateTemplate_img=
+populateTemplate_txt=
 populateTemplate(){
 	local spread="$1"
 	local tpl="$2"
@@ -374,6 +387,16 @@ populateTemplate(){
 			txt+=("$elem")
 		fi
 	done
+	local global_img=
+	if ! [ -z $populateTemplate_img ] ; then 
+		global_img=1
+		img=(${populateTemplate_img[@]})
+	fi
+	local global_txt=
+	if ! [ -z $populateTemplate_txt ] ; then
+		global_txt=1
+		txt=(${populateTemplate_txt[@]})
+	fi
 
 	local var
 	local val
@@ -412,6 +435,9 @@ populateTemplate(){
 		text=$(echo "${text}" | \
 			sed "s/\${${var}}/${val%.*}/g")
 	done
+	if ! [ -z $global_img ] ; then
+		populateTemplate_img=("${populateTemplate_img[@]:$i}")
+	fi
 
 	# pass 2: captions...
 	for var in ${slots[@]} ; do
@@ -456,6 +482,9 @@ populateTemplate(){
 		text=$(echo "${text}" | \
 			sed "s/\${${var}}/${val}/g")
 	done
+	if ! [ -z $global_txt ] ; then
+		populateTemplate_txt=("${txt[@]}")
+	fi
 
 	# print out the filled template...
 	echo % template: $tpl
@@ -468,7 +497,7 @@ populateTemplate(){
 # usage:
 #	handleSpread SPREAD
 #
-# closure: $IMAGE_HIRES_DIR, $IMAGE_SPREAD
+# closure: $GRAPHICX_PATH, $IMAGE_HIRES_DIR, $IMAGE_SPREAD
 handleSpread(){
 	local spread="$1"
 	# skip non-spreads...
@@ -502,21 +531,32 @@ handleSpread(){
 		fi
 	done
 
+	# graphicx paths...
+	if ! [ -z $GRAPHICX_PATH ] ; then
+		local C=0
+		for image in "${img[@]}" ; do
+			local new=`basename ${image}`
+			new="${new#+([0-9])-}"
+			img[$C]=$new
+			C=$(( C + 1 ))
+		done
 	# get hi-res image paths...
-	if ! [ -z $IMAGE_HIRES_DIR ] ; then
+	elif ! [ -z $IMAGE_HIRES_DIR ] ; then
 		local C=0
 		for image in "${img[@]}" ; do
 			# skip non-images...
-			local new="$IMAGE_HIRES_DIR/`basename ${image/[0-9]-/}`"
+			local new=`basename ${image}`
+			new="$IMAGE_HIRES_DIR/${new#+([0-9])-}"
 			# ignore file ext for availability test...
 			# NOTE: the first match may be an unsupported format...
 			new="${new%.*}"
+			local target=$new
 			new=($new.*)
 			if [ -e "${new[0]}" ] ; then
 				img[$C]=${new[0]}
 			else
 				echo %
-				echo "% WARNING: hi-res image not found for: \"${image}\" -> \"${new}\"" \
+				echo "% WARNING: hi-res image not found for: \"${image}\" -> \"${target}\"" \
 					| tee >(cat >&2)
 				echo %
 			fi
@@ -565,43 +605,37 @@ handleSpread(){
 						cat "${template}"
 					fi
 				fi
+				populateTemplate_img=("${img[@]}")
+				populateTemplate_txt=("${txt[@]}")
+
 				for elem in "${items[@]}" ; do
 					C=$(( C + 1 ))
 					P=$([ $C == 1 ] \
 						&& echo "left" \
 						|| echo "right")
 
-					# XXX need to use populateTemplate here...
-					#		...to do this need to somehow remove the used
-					#		slots/files from list...
-
 					# image...
 					if [[ "${elem,,}" =~ $IMAGE_FORMATS ]] ; then
 						echo %
 						echo "% $P page (image)..."
 						template=`getTemplate "$spread" "$IMAGE_PAGE"`
-						echo % template: $template
-						anotatePath "${elem}"
-						local caption=$(getCaption "$spread" "${elem}")
-						caption=$(readCaption "$caption")
-						cat "${template}" \
-							| sed -e "s%\${IMAGE0\?}%${elem%.*}%" \
-								-e "s%\${CAPTION0\?}%${caption}%"
+						populateTemplate "$spread" "$template" 
 					# text...
 					else
 						echo %
 						echo "% $P page (text)..."
 						template=$(getTemplate "$spread" "$TEXT_PAGE")
-						echo % template: $template
-						cat "${template}" \
-							| sed "s%\${TEXT}%${elem}%"
+						populateTemplate "$spread" "$template" 
 					fi
 					# reset for next page...
 					template=
 					# ignore the rest of the items when we are done 
 					# creating two pages...
-					[ $C == 2 ] \
-						&& return
+					if [ $C == 2 ] ; then
+						populateTemplate_img=
+						populateTemplate_txt=
+						return
+					fi
 				done
 			fi
 		fi
@@ -621,6 +655,8 @@ handleSpread(){
 		fi
 	fi
 
+	populateTemplate_img=
+	populateTemplate_txt=
 	populateTemplate "$spread" "$template" "${img[@]}" "${txt[@]}"
 
 	return $?
