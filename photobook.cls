@@ -93,7 +93,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.25}
+\edef\photobook@FILEVERSION{v0.1.26}
 \edef\photobook@FILEDATE{2023-08-24}
 
 
@@ -2046,7 +2046,7 @@
 \setlength\photobook@cliptocell@right{0mm}%
 \newlength\photobook@cliptocell@bottom
 \setlength\photobook@cliptocell@bottom{0mm}%
-\def\cliptocellclearances{0mm 0mm 0mm 0mm}%
+\def\cliptocellclearances{{0mm} {0mm} {0mm} {0mm}}%
 
 %% Set the default bleeds for |cliptocell| environments
 %%
@@ -2061,9 +2061,8 @@
 %%%
 %%% Set by |\cliptocellbleeds{..}| and contains clearances (negative 
 %%% clipping bleeds) usable by imagecell.
-%
-% XXX BUG: bleeds is set correctly for one value but 2 and 4 seem to be 
-%		misbehaving (see: ./examples/endpaper.tex)
+%%%
+%%% XXX still testing....
 \newcommand\cliptocellbleeds[1]{
 	\setsepchar{ }%
 	\readlist*\photobook@cliptocell@bleeds{#1}%
@@ -2099,12 +2098,15 @@
 		\setlength\photobook@cliptocell@top{%
 			\photobook@cliptocell@bleeds[4]}\fi%
 	% NOTE: trailing spaces here are significant...
+	% XXX should we use \the here?
+	%		...it makes things printable...
 	\def\cliptocellclearances{%
-		{-\photobook@cliptocell@left} %
-		{-\photobook@cliptocell@bottom} %
-		{-\photobook@cliptocell@right} %
-		{-\photobook@cliptocell@top}}}
+		{-\the\photobook@cliptocell@left} %
+		{-\the\photobook@cliptocell@bottom} %
+		{-\the\photobook@cliptocell@right} %
+		{-\the\photobook@cliptocell@top}}}
 
+% XXX use \cliptocellclearances as default...
 \newenvironment{cliptocell}[1][0mm]{%
 	\begingroup%
 		\cliptocellbleeds{#1}
