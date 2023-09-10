@@ -1,0 +1,82 @@
+%----------------------------------------------------------------------
+
+\documentclass[
+	layoutmode=block,
+	% page size...
+	blockwidth=240mm, blockheight=220mm,
+	bleed=4mm,
+	gutteroffset=5mm,
+	bindingoffset=0mm,
+	% image block configuration...
+	imageblockwidth=0.98, imageblockheight=0.98,
+	imageblockoffsettop=0,
+	% misc...
+	9pt,final,openany
+]{photobook}
+
+\usepackage{lipsum}
+\usepackage{ragged2e}
+
+
+
+% XXX for some reason this is not in the top/left corner...
+% XXX bug in photobook???
+\newcommand\CaptionBox[1][Caption]{%
+	\setlength\fboxsep{0pt}%
+	\fbox{%
+		\setlength\fboxsep{1pt}%
+		\colorbox{white}{\tiny #1}}}
+
+
+\begin{document} %-----------------------------------------------------
+
+\setlength\parindent{0em}
+\newlength\cellsize
+\setlength\cellsize{25mm}
+\renewcommand\fbox{\fcolorbox{red}{white}}
+
+\begin{page}%
+	|cliptocell| bleeds
+	\par%
+	\vspace{6mm}%
+	\setlength\fboxsep{0pt}%
+	\fbox{%
+		\begin{inlinecell*}{\cellsize}{\cellsize}%
+			\imagecell[fill, clearance=-6mm]{\CaptionBox[no clip]}{DSC00403-2}%
+		\end{inlinecell*}}%
+	\hspace{1cm}%
+	\fbox{%
+		\begin{inlinecell*}{\cellsize}{\cellsize}%
+			\begin{cliptocell}%
+				\imagecell[fill, clearance=-6mm]{\CaptionBox[default=0pt]}{DSC00403-2}%
+			\end{cliptocell}%
+		\end{inlinecell*}}%
+	\hspace{1cm}%
+	\fbox{%
+		\begin{inlinecell*}{\cellsize}{\cellsize}%
+			\begin{cliptocell}[5mm]%
+				\imagecell[fill, clearance=-6mm]{\CaptionBox[5mm]}{DSC00403-2}%
+			\end{cliptocell}%
+		\end{inlinecell*}}%
+	\hspace{1cm}%
+	\fbox{%
+		\begin{inlinecell*}{\cellsize}{\cellsize}%
+			\begin{cliptocell}[1mm 5mm]%
+				\imagecell[fill, clearance=-6mm]{\CaptionBox[1mm 5mm]}{DSC00403-2}%
+			\end{cliptocell}%
+		\end{inlinecell*}}%
+	\hspace{1cm}%
+	\fbox{%
+		\begin{inlinecell*}{\cellsize}{\cellsize}%
+			\begin{cliptocell}[1mm 2mm 3mm 4mm]%
+				\imagecell[fill, clearance=-6mm]{\CaptionBox[1mm 2mm 3mm 4mm]}{DSC00403-2}%
+			\end{cliptocell}%
+		\end{inlinecell*}}%
+\end{page}%
+
+\begin{page}%
+\end{page}%
+
+
+\end{document} %-------------------------------------------------------
+%                                                   vim:set ts=4 sw=4 :
