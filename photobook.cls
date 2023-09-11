@@ -93,7 +93,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.26}
+\edef\photobook@FILEVERSION{v0.1.27}
 \edef\photobook@FILEDATE{2023-08-24}
 
 
@@ -2013,7 +2013,7 @@
 
 
 %% \DescribeEnv{cliptocell}
-%% \DescribeEnv{cliptocellbleeds}
+%% \DescribeEnv{setcliptocellbleeds}
 %
 %% Clip content to parent cell.
 %%
@@ -2046,24 +2046,27 @@
 \setlength\photobook@cliptocell@right{0mm}%
 \newlength\photobook@cliptocell@bottom
 \setlength\photobook@cliptocell@bottom{0mm}%
+
+\def\cliptocellbleeds{{0mm} {0mm} {0mm} {0mm}}%
 \def\cliptocellclearances{{0mm} {0mm} {0mm} {0mm}}%
 
 %% Set the default bleeds for |cliptocell| environments
 %%
-%%	>> \cliptocellbleeds{<size>}
-%%	>> \cliptocellbleeds{<horizontal> <vertical>}
-%%	>> \cliptocellbleeds{<left> <bottom> <right> <top>}
+%%	>> \setcliptocellbleeds{<size>}
+%%	>> \setcliptocellbleeds{<horizontal> <vertical>}
+%%	>> \setcliptocellbleeds{<left> <bottom> <right> <top>}
 %%
 %% This will only affect |cliptocell| environments on the same level, 
 %% without affecting the nested |cliptocell|s.
 %%
+%%% \DescribeEnv{cliptocellbleeds=<left> <bottom> <right> <top>}
 %%% \DescribeEnv{cliptocellclearances=<left> <bottom> <right> <top>}
 %%%
-%%% Set by |\cliptocellbleeds{..}| and contains clearances (negative 
-%%% clipping bleeds) usable by imagecell.
+%%% Set by |\setcliptocellbleeds{..}| and contain bleeds and clearances (negative 
+%%% clipping bleeds) respectively, usable by imagecell and others.
 %%%
 %%% XXX still testing....
-\newcommand\cliptocellbleeds[1]{
+\newcommand\setcliptocellbleeds[1]{
 	\setsepchar{ }%
 	\readlist*\photobook@cliptocell@bleeds{#1}%
 	\setsepchar{,}%
@@ -2100,6 +2103,11 @@
 	% NOTE: trailing spaces here are significant...
 	% XXX should we use \the here?
 	%		...it makes things printable...
+	\def\cliptocellbleeds{%
+		{\the\photobook@cliptocell@left} %
+		{\the\photobook@cliptocell@bottom} %
+		{\the\photobook@cliptocell@right} %
+		{\the\photobook@cliptocell@top}}
 	\def\cliptocellclearances{%
 		{-\the\photobook@cliptocell@left} %
 		{-\the\photobook@cliptocell@bottom} %
@@ -2109,7 +2117,7 @@
 % XXX use \cliptocellclearances as default...
 \newenvironment{cliptocell}[1][0mm]{%
 	\begingroup%
-		\cliptocellbleeds{#1}
+		\setcliptocellbleeds{#1}
 		% NOTE: the spaces at the end of each line here are significant!!
 		\begin{trimbox}{{\photobook@cliptocell@left} %
 				{\photobook@cliptocell@bottom} %
@@ -2120,7 +2128,7 @@
 				{\cellwidth + \photobook@cliptocell@right} %
 				{\height + \photobook@cliptocell@top}}%
 		% set defaults for nested cells...
-		\cliptocellbleeds{0mm}%
+		\setcliptocellbleeds{0mm}%
 		\begin{minipage}[t][\cellheight][t]{\cellwidth}% 
 			\ignorespaces%
 	}{%
@@ -4079,7 +4087,7 @@
 % XXX EXPERIMENTAL
 \newenvironment{leftside*}{%
 	\begin{leftside}%
-		\cliptocellbleeds{{\bleed} {\bleed} 0mm {\bleed}}%
+		\setcliptocellbleeds{{\bleed} {\bleed} 0mm {\bleed}}%
 }{%
 	\end{leftside}}
 
@@ -4092,7 +4100,7 @@
 % XXX EXPERIMENTAL
 \newenvironment{rightside*}{%
 	\begin{rightside}%
-		\cliptocellbleeds{0mm {\bleed} {\bleed} {\bleed}}%
+		\setcliptocellbleeds{0mm {\bleed} {\bleed} {\bleed}}%
 }{%
 	\end{rightside}}
 
@@ -4872,7 +4880,8 @@
 			%\clearpage%
 			\begin{page}%
 			% NOTE: this does not account for \bindingoffset...
-			\begin{pagecell}%
+			% XXX should this be a page or a paper cell???
+			\begin{papercell}%
 				\imagecell[%
 					center, 
 					clearance=-\bleed, 
@@ -4881,7 +4890,7 @@
 					offsetleft=\imageoffsetleft,
 					captionclearparent=\captionclearpage,
 					#1]{#2}{#3}%
-			\end{pagecell}%
+			\end{papercell}%
 			\end{page}%
 		% special case: centered vertical image -> account for \bindingoffset...
 		\else%
