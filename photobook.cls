@@ -965,8 +965,8 @@
 %%% \DescribeMacro{\clearancetop=<len>}
 %%% \DescribeMacro{\clearanceright=<len>}
 %%% \DescribeMacro{\clearancebottom=<len>}
-% XXX LEGACY CLEARANCE
-%%% \DescribeMacro{\clearance=<len>}
+% XXX revise...
+%%% \DescribeMacro{\clearances=<len's>}
 %
 %% Cell geometry. 
 %%
@@ -987,7 +987,6 @@
 \setlength\celloffsetleft{0pt}
 \newlength\celloffsettop
 \setlength\celloffsettop{0pt}
-% XXX EXPERIMENTAL CLEARANCE
 \newlength\clearanceleft
 \setlength\clearanceleft{0pt}
 \newlength\clearancetop
@@ -997,9 +996,6 @@
 \newlength\clearancebottom
 \setlength\clearancebottom{0pt}
 \def\clearances{0pt}
-% XXX LEGACY CLEARANCE
-%\newlength\clearance
-%\setlength\clearance{0pt}
 
 
 %% \DescribeMacro{\clearfoldoutgutter=<len>}
@@ -1620,8 +1616,6 @@
 %%% \DescribeMacro{\clearancetop=<len>}
 %%% \DescribeMacro{\clearanceright=<len>}
 %%% \DescribeMacro{\clearancebottom=<len>}
-% XXX LEGACY CLEARANCE
-%%% \DescribeMacro{\clearance=<len>}
 %%
 %% A cell defines a set of contextual lengths:
 %%
@@ -1753,13 +1747,10 @@
 		\setlength\cellheight{\photobook@protect@h}%
 		\setlength\celloffsettop{0pt}%
 		\setlength\celloffsetleft{0pt}%
-		% XXX EXPERIMENTAL CLEARANCE
 		\setlength\clearanceleft{0pt}%
 		\setlength\clearancetop{0pt}%
 		\setlength\clearanceright{0pt}%
 		\setlength\clearancebottom{0pt}%
-		% XXX LEGACY CLEARANCE
-		%\setlength\clearance{0pt}%
 		%
 		\begin{MinipageCellContent}[\photobook@minipagecell@parentvalign]{minipagecell}%
 }{%
@@ -2110,7 +2101,7 @@
 		{\the\photobook@cliptocell@left} %
 		{\the\photobook@cliptocell@bottom} %
 		{\the\photobook@cliptocell@right} %
-		{\the\photobook@cliptocell@top}}
+		{\the\photobook@cliptocell@top}}%
 	\def\cliptocellclearances{%
 		{-\the\photobook@cliptocell@left} %
 		{-\the\photobook@cliptocell@bottom} %
@@ -2356,13 +2347,11 @@
 \define@boolkey{imagecell@args}{center}[true]{%
 	\def\photobook@imagecell@top{\dimexpr 
 		+0.5\cellheight 
-		% XXX EXPERIMENTAL CLEARANCE -- test...
 		+0.5\photobook@imagecell@clearance@top
 		-0.5\photobook@imagecell@clearance@bottom
 		-0.5\ht\photobook@imagebox \relax}%
 	\def\photobook@imagecell@left{\dimexpr 
 		+0.5\cellwidth 
-		% XXX EXPERIMENTAL CLEARANCE -- test...
 		+0.5\photobook@imagecell@clearance@left
 		-0.5\photobook@imagecell@clearance@right
 		-0.5\wd\photobook@imagebox \relax}}%
@@ -2588,7 +2577,6 @@
 			\maxdim{\celloffsetleft}{0pt}}%
 		\setlength\celloffsettop{%
 			\maxdim{\celloffsettop}{0pt}}%
-		% XXX EXPERIMENTAL CLEARANCE
 		\setlength\clearanceleft{\photobook@imagecell@clearance@left}
 		\setlength\clearancetop{\photobook@imagecell@clearance@top}
 		\setlength\clearanceright{\photobook@imagecell@clearance@right}
@@ -3052,10 +3040,12 @@
 						- \photobook@captionblockcell@spacing
 						- \cellwidth 
 						- \clearcaption 
+						% XXX EXPERIMENTAL CLEARANCE
 						% XXX this is only present in images...
-						% XXX change this to use \clearanceleft / \clearanceright / ...
+						- \clearanceleft
+						%- \clearanceright
 						% XXX LEGACY CLEARANCE
-						- \clearance 
+						%- \clearance 
 					\relax%
 				\else%
 					\photobook@captionblockcell@width\fi}%

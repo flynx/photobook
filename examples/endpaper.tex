@@ -35,28 +35,23 @@
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+% control #1 -- works fine...
 \begin{page}
 \begin{leftside}
 	\imagecell[fit]{}{DSC00403-2}
 \end{leftside}
-% XXX seems to be a gap between the image and page border -- need to investigate...
-%		...setting clearance to 0pt adds a small gap -- is this a stray
-%		space???
-\begin{rightside*}
-	%\imagecell[fit, clearance=0pt]{}{DSC00403-2}
-	\imagecell[fit, clearance=\cliptocellclearances]{}{DSC00403-2}
-\end{rightside*}
+\begin{rightside}
+	\imagecell[fit]{}{DSC00403-2}
+\end{rightside}
 \end{page}
 
 
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 \begin{page}
 \begin{leftside*}
-	\imagecell[fill, clearance=\cliptocellclearances]{}{DSC00403-2}
+	\imagecell[fill, right, clearance=\cliptocellclearances]{}{DSC00403-2}
 \end{leftside*}
 \begin{rightside*}
-	\imagecell[fill, clearance=\cliptocellclearances]{}{DSC00403-2}
+	\imagecell[fill, left, clearance=\cliptocellclearances]{}{DSC00403-2}
 \end{rightside*}
 \end{page}
 
