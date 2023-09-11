@@ -16,116 +16,53 @@
 
 \begin{document} % - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\begin{page}
-	cliptocellclearances=\cliptocellclearances
-
-	\cliptocellbleeds{5pt}
-
-	cliptocellclearances=\cliptocellclearances
-
-	\cliptocellbleeds{1pt 2pt}
-
-	cliptocellclearances=\cliptocellclearances
-
-	\cliptocellbleeds{1pt 2pt 3pt 4pt}
-
-	cliptocellclearances=\cliptocellclearances
-\end{page}
-
-
+% the simplest way to fill...
 \ImagePageFill{}{DSC00403-2}
 
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+% manual...
+% NOTE: to fill the page the image cell needs to be placed relative to
+% 		the page (papercell / pagecell) and not the text (page env)
 \begin{page}
 \begin{papercell}
-	\imagecell[fill]{}{DSC00403-2}
+	\imagecell[fill, clearance=-\bleed]{}{DSC00403-2}
 \end{papercell}
-\end{page}
-
-
-
-% XXX for some reason this is not centered correctly but scaling seems
-%		correct -- a page env is not a cell...
-\begin{page}
-	\imagecell[fill]{}{DSC00403-2}
 \end{page}
 
 
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-
 \begin{page}
 \begin{leftside}
 	\imagecell[fit]{}{DSC00403-2}
 \end{leftside}
+% XXX seems to be a gap between the image and page border -- need to investigate...
+%		...setting clearance to 0pt adds a small gap -- is this a stray
+%		space???
 \begin{rightside*}
-	\imagecell[fit, clearance=-\bleed]{}{DSC00403-2}
+	%\imagecell[fit, clearance=0pt]{}{DSC00403-2}
+	\imagecell[fit, clearance=\cliptocellclearances]{}{DSC00403-2}
 \end{rightside*}
 \end{page}
 
 
-
-\begin{page}
-\begin{leftside}
-	\begin{cliptocell}
-		\imagecell[fit]{}{DSC00403-2}
-	\end{cliptocell}
-\end{leftside}
-\begin{rightside}
-	\begin{cliptocell}
-		\imagecell[fit]{}{DSC00403-2}
-	\end{cliptocell}
-\end{rightside}
-\end{page}
-
-
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \begin{page}
 \begin{leftside*}
-	\begin{cliptocell}
-		% XXX this breaks things....
-		%\imagecell[fit, clearance={-\bleed} {-\bleed} 0mm {-\bleed}]{}{DSC00403-2}
-		\imagecell[fit, clearance=-\bleed]{}{DSC00403-2}
-	\end{cliptocell}
+	\imagecell[fill, clearance=\cliptocellclearances]{}{DSC00403-2}
 \end{leftside*}
 \begin{rightside*}
-	\begin{cliptocell}
-		% XXX for some reason this is undefined here...
-		%\cliptocellclearances
-		% XXX \cliptocellclearances does not work yet... 
-		%\imagecell[fit, clearance=\cliptocellclearances]{}{DSC00403-2}
-		% XXX this does not seem to be forking correctly...
-		%		...looks like we are not accounting for clearance in offset...
-		\imagecell[fit, clearance={0pt} {-\bleed} {-\bleed} {-\bleed}]{}{DSC00403-2}
-	\end{cliptocell}
+	\imagecell[fill, clearance=\cliptocellclearances]{}{DSC00403-2}
 \end{rightside*}
 \end{page}
 
 
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-\begin{page}
-\begin{leftside}
-	\begin{cliptocell}
-		\imagecell[fill]{}{DSC00403-2}
-	\end{cliptocell}
-\end{leftside}
-\begin{rightside*}
-	\begin{cliptocell}
-		% XXX \cliptocellclearances does not work yet... 
-		%\imagecell[fill, clearance=\cliptocellclearances]{}{DSC00403-2}
-		% XXX this does not seem to be forking correctly...
-		%		...looks like we are not accounting for clearance in offset...
-		\imagecell[fill, clearance={0pt} {-\bleed} {-\bleed} {-\bleed}]{}{DSC00403-2}
-	\end{cliptocell}
-\end{rightside*}
-\end{page}
-
-
-
-
-
-\GenerateTemplate
 \GenerateTemplate
 
 

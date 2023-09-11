@@ -93,7 +93,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.27}
+\edef\photobook@FILEVERSION{v0.1.28}
 \edef\photobook@FILEDATE{2023-08-24}
 
 
@@ -2342,9 +2342,6 @@
 \setlength\photobook@imagecell@clearance@right{0pt}
 \newlength\photobook@imagecell@clearance@bottom
 \setlength\photobook@imagecell@clearance@bottom{0pt}
-% XXX LEGACY
-\newlength\photobook@imagecell@clearance
-\setlength\photobook@imagecell@clearance{0pt}
 
 % NOTE: these feel like a hack...
 \newlength\photobook@imagecell@imgratio
@@ -2374,7 +2371,6 @@
 \newcommand\photobook@imagecell@LEFT{%
 	\def\photobook@imagecell@left{\dimexpr%
 		+\photobook@imagecell@clearance@left \relax}%
-		%+\photobook@imagecell@clearance \relax}%
 	\def\photobook@imagecell@captionleft{
 		% XXX not sure why this branch is needed...
 		\ifKV@imagecell@args@fit
@@ -2414,7 +2410,6 @@
 \define@boolkey{imagecell@args}{top}[true]{%
 	\def\photobook@imagecell@top{%
 		\photobook@imagecell@clearance@top}%
-		%\photobook@imagecell@clearance}%
 	\def\photobook@imagecell@captiontop{%
 		-\dimexpr 
 			+\cellheight 
@@ -2430,7 +2425,6 @@
 		\dimexpr
 			\photobook@imagecell@top 
 			+\photobook@imagecell@clearance@bottom \relax}}%
-			%+\photobook@imagecell@clearance \relax}}%
 % clearance=<len>...
 % clearance=<horizontal> <vertical>...
 % clearance=<left> <bottom> <right> <top>...
@@ -2438,7 +2432,7 @@
 	% XXX EXPERIMENTAL
 	% XXX this is essentially the same as \photobook@cliptocell@bleeds -- unite...
 	\def\photobook@imagecell@clearances{#1}%
-	\setsepchar{ }
+	\setsepchar{ }%
 	\readlist*\photobook@imagecell@clearencelist{#1}%
 	\setsepchar{,}%
 	%% args: size
@@ -2470,9 +2464,7 @@
 		\setlength\photobook@imagecell@clearance@right{%
 			\photobook@imagecell@clearencelist[3]}%
 		\setlength\photobook@imagecell@clearance@top{%
-			\photobook@imagecell@clearencelist[4]}\fi%
-	% XXX LEGACY...
-	\setlength\photobook@imagecell@clearance{#1}}%
+			\photobook@imagecell@clearencelist[4]}\fi}%
 
 % offsettop=<len> / offsetleft=<len>...
 % XXX DOC!!!
@@ -2522,12 +2514,10 @@
 						\cellwidth 
 						- \photobook@imagecell@clearance@left 
 						- \photobook@imagecell@clearance@right \relax,
-						%- ((\photobook@imagecell@clearance) * 2) \relax,
 					height=\photobook@imagecell@scale\dimexpr 
 						\cellheight 
 						- \photobook@imagecell@clearance@top 
 						- \photobook@imagecell@clearance@bottom \relax]{#3}}%
-						%- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 		% fill...
 		\else\ifKV@imagecell@args@fill%
 			% preload image to get its proportions...
@@ -2548,7 +2538,6 @@
 							+ \cellwidth
 							- \photobook@imagecell@clearance@left
 							- \photobook@imagecell@clearance@right \relax]{#3}}%
-							%- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 			\else%
 				\sbox{\photobook@imagebox}{%
 					\includegraphics[%
@@ -2557,7 +2546,6 @@
 							+ \cellheight 
 							- \photobook@imagecell@clearance@top
 							- \photobook@imagecell@clearance@bottom \relax]{#3}}%
-							%- ((\photobook@imagecell@clearance) * 2) \relax]{#3}}%
 		\fi\fi\fi%
 		%
 		\setlength\celloffsetleft{%
@@ -2606,8 +2594,6 @@
 		\setlength\clearanceright{\photobook@imagecell@clearance@right}
 		\setlength\clearancebottom{\photobook@imagecell@clearance@bottom}
 		\def\clearances{\photobook@imagecell@clearences}
-		% XXX LEGACY CLEARANCE
-		%\setlength\clearance{\photobook@imagecell@clearance}%
 		% clear parent...
 		% XXX might be a good idea to put this into a special reusable cell...
 		\ifphotobook@imagecell@captionclearparent%
@@ -4090,8 +4076,10 @@
 % XXX EXPERIMENTAL
 \newenvironment{leftside*}{%
 	\begin{leftside}%
-		\setcliptocellbleeds{{\bleed} {\bleed} 0mm {\bleed}}%
+	\begin{cliptocell}[{\bleed} {\bleed} 0mm {\bleed}]%
+	\setcliptocellbleeds{{\bleed} {\bleed} 0mm {\bleed}}%
 }{%
+	\end{cliptocell}
 	\end{leftside}}
 
 \newenvironment{rightside}{%
@@ -4103,8 +4091,10 @@
 % XXX EXPERIMENTAL
 \newenvironment{rightside*}{%
 	\begin{rightside}%
-		\setcliptocellbleeds{0mm {\bleed} {\bleed} {\bleed}}%
+	\begin{cliptocell}[0mm {\bleed} {\bleed} {\bleed}]%
+	\setcliptocellbleeds{0mm {\bleed} {\bleed} {\bleed}}%
 }{%
+	\end{cliptocell}
 	\end{rightside}}
 
 
