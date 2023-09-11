@@ -2108,7 +2108,6 @@
 		{-\the\photobook@cliptocell@right} %
 		{-\the\photobook@cliptocell@top}}}
 
-% XXX use \cliptocellclearances as default...
 \newenvironment{cliptocell}[1][0mm]{%
 	\begingroup%
 		\setcliptocellbleeds{#1}
@@ -2220,7 +2219,9 @@
 %% Image |clearance|. This sets the amount of clearance around an image 
 %% (default: |0pt|).
 %%
-%%	>> \imagecell[clearance=-4mm]{}{<image>}
+%%	>> \imagecell[clearance=<size>]{}{<image>}
+%%	>> \imagecell[clearance=<horizontal> <vertical>]{}{<image>}
+%%	>> \imagecell[clearance=<left> <bottom> <top> <right>]{}{<image>}
 %%
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
