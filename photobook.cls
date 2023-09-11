@@ -5462,6 +5462,10 @@
 %%
 %% This is a no-op for |layoutmode=block|.
 %%
+%% To change text color set |\textcolor{<color>}| the usual way and for
+%% line and fill colors use |\textblockrulecolour{<color>}| and 
+%% |\textblockcolour{<colour>}| respecitvely.
+%%
 % XXX should digits/rounding be configurable???
 \newcommand\photobook@TemplateCell[2][mm]{
 	\begin{center}
