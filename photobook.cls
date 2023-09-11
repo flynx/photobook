@@ -1491,6 +1491,9 @@
 %%
 %% Note that this may span more than one page if there is enough stuff 
 %% packed in.
+%% Also note that items within the page environment are placed in the 
+%% same way as in any normal page, for absolute placement use either
+%% specific cells/environments like |papercell| or more generic |call|.
 %%
 \newenvironment{page}{%
 	% XXX do we need \null here???
