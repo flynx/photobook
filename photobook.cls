@@ -38,14 +38,13 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %
-% XXX ASAP: imagecell: photobook@imagecell@left and photobook@imagecell@left
+% XXX ASAP: imagecell: photobook@imagecell@left and photobook@imagecell@top
 %		should explicitly account for clearence@left and clearence@top resp.
 % XXX ASAP: imagecell: clearance should have the same semantics as cliptocell 
 %		offsts... 
 %		(CLEARANCE)
 % XXX ASAP should cover/jacket/endpaper/spread cells set default cliptocell 
 %		bleeds???
-%		...needs testing and experimenting...
 % XXX ASAP: should \blockwidth include \bindingoffset (current) or not???
 %		...currently I think that no, as \blockwidth indicates the outer 
 %		width of the block, and this poses the question:
