@@ -12,7 +12,7 @@ Available on:
 ## Install / Build
 
 The simplest way to install is to use either 
-[TeX Live](https://www.tug.org/texlive/)'s or [MiLTeX](https://miktex.org/)'s 
+[TeX Live](https://www.tug.org/texlive/)'s or [MiKTeX](https://miktex.org/)'s 
 standard way to install modules.
 
 
