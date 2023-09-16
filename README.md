@@ -57,6 +57,10 @@ Build requirements for docs:
   should work fine.
 
 
+A full book (dummy) example is included in ./examples/book/ and can be 
+used as a reference / starting point.
+
+
 
 ## Notes
 
