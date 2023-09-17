@@ -40,8 +40,17 @@ For more info on `make` targets see the: [./Makefile](./Makefile)
 # Documentation
 
 Pre-built documentation can be found on 
-[CTAN](http://mirrors.ctan.org/macros/latex/contrib/photobook/photobook.pdf)
-or it can be built from source by:
+[CTAN](http://mirrors.ctan.org/macros/latex/contrib/photobook/photobook.pdf).
+
+
+A full book (dummy) example is included in [./examples/book/](./examples/book/) 
+and can be used as a reference / starting point.
+
+
+
+## Building documentation
+
+Building the reference from source is done by:
 ```shell
 $ make pdf 
 ```
