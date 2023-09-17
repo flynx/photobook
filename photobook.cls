@@ -92,7 +92,7 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.28}
+\edef\photobook@FILEVERSION{v0.1.29}
 \edef\photobook@FILEDATE{2023-08-24}
 
 
@@ -4033,9 +4033,9 @@
 %%%%% Endpaper cells
 %
 %% \DescribeEnv{leftside}
-%%% \DescribeEnv{leftside*}
+%% \DescribeEnv{leftside*}
 %% \DescribeEnv{rightside}
-%%% \DescribeEnv{rightside*}
+%% \DescribeEnv{rightside*}
 %
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
@@ -4051,41 +4051,42 @@
 %% \end{verbatim}
 %% \end{minipage}
 %%
-%%% The star versions set the appropriate bleeds for cliptocell.
-%%%
+%% The non-star versions will clip to bleeds except for the gutter side 
+%% that has no bleeds.
+%%
+%% The star versions will not clip.
+%%
 
 % XXX for some reason naming these anything starting with endpaper will
 %		make LaTeX complain that that is already defined...
 %		...collision with bools???
-\newenvironment{leftside}{%
+\newenvironment{leftside*}{%
 	\begin{cell*}%
 			{\bleed, \bleed}%
 			{\pageblockwidth}{\pageblockheight}%
 }{%
 	\end{cell*}}
-% XXX EXPERIMENTAL
-\newenvironment{leftside*}{%
-	\begin{leftside}%
+\newenvironment{leftside}{%
+	\begin{leftside*}%
 	\begin{cliptocell}[{\bleed} {\bleed} 0mm {\bleed}]%
-	\setcliptocellbleeds{{\bleed} {\bleed} 0mm {\bleed}}%
+		\setcliptocellbleeds{{\bleed} {\bleed} 0mm {\bleed}}%
 }{%
 	\end{cliptocell}
-	\end{leftside}}
+	\end{leftside*}}
 
-\newenvironment{rightside}{%
+\newenvironment{rightside*}{%
 	\begin{cell*}%
 			{\bleed + \pageblockwidth, \bleed}%
 			{\pageblockwidth}{\pageblockheight}%
 }{%
 	\end{cell*}}
-% XXX EXPERIMENTAL
-\newenvironment{rightside*}{%
-	\begin{rightside}%
+\newenvironment{rightside}{%
+	\begin{rightside*}%
 	\begin{cliptocell}[0mm {\bleed} {\bleed} {\bleed}]%
-	\setcliptocellbleeds{0mm {\bleed} {\bleed} {\bleed}}%
+		\setcliptocellbleeds{0mm {\bleed} {\bleed} {\bleed}}%
 }{%
 	\end{cliptocell}
-	\end{rightside}}
+	\end{rightside*}}
 
 
 
