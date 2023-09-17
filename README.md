@@ -39,7 +39,8 @@ For more info on `make` targets see the: [./Makefile](./Makefile)
 
 # Documentation
 
-Pre-built documentation can be found on 
+Pre-built documentation can be found in the 
+[releases](https://github.com/flynx/photobook/releases/latest) or on
 [CTAN](http://mirrors.ctan.org/macros/latex/contrib/photobook/photobook.pdf).
 
 
