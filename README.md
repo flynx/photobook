@@ -28,7 +28,7 @@ $ make install
 
 The `photobook` document class requires a set of modules to be installed
 for it to function, the full list is included in the docs and can be 
-printed by calling:
+generated and printed by calling:
 ```shell
 $ make depends
 ```
