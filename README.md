@@ -70,7 +70,7 @@ Build requirements for docs:
 
 ## Notes
 
-- The main refetence is inline with the source [photobook.cls](./photobook.cls) 
+- The main reference is maintained inline with the source [photobook.cls](./photobook.cls) 
   thus it is both human-readable next to the code it documents and is 
   used to build the `photobook.pdf`.
   Extracting the documentation source (`photobook*.tex`) is done 
