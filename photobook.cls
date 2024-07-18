@@ -92,8 +92,8 @@
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.29}
-\edef\photobook@FILEDATE{2023-08-24}
+\edef\photobook@FILEVERSION{v0.1.30}
+\edef\photobook@FILEDATE{2024-07-18}
 
 
 %% \documentclass{ltxdoc}
@@ -248,26 +248,27 @@
 %% \begin{minipage}{\textwidth}
 %% \begin{verbatim}
 %%
+%%   <-------------------------------------------------> paperwidth
 %%   <---> bleed                                   <---> bleed
-%%                                                 
-%%   + - - - - - - - - - - - - - - - - - - - - - - + - +   ^
-%%   .                                             .   .   | bleed
-%%   .   +-----------------------------------------+-----  v   .   .  ---
-%%   .   |                           ^       .  .  =   .
-%%   .   |   .   .   .   .   .   .   |   .   .  .  =   .               ^
-%%   .   |<-- blockwidth ------------------------->=   .               |
-%%   .   |   .                       |   .   .  .  =   .               |
-%%   .   |                           |       .  .  =   .       textheight
-%%   .   |   .             Page      |   .   .  .  =   .               |
-%%   .   |                      blockheight  .  .  =   .               |
-%%   .   |   .                       |   .   .  <--> bindingoffset     |
-%%   .   |                           |       .  .  =   .               |
-%%   .   |   .   .   .   .   .   .   |   .   <--> gutteroffset         v
-%%   .   |                           v       .  .  =   .
-%%   .   +-----------------------------------------+-----  ^   .   .  ---
-%%   .   .                                         .   .   | bleed
-%%   + - - - - - - - - - - - - - - - - - - - - - - + - +   v
-%%       .                                         .
+%%                                                              paperheight v
+%%   + - - - - - - - - - - - - - - - - - - - - - - + - +   ^   .   .   .   ---
+%%   .                                             .   .   | bleed          .
+%%   .   +-----------------------------------------+-----  v   .   .  ---    
+%%   .   |                           ^       .  .  =   .                    .
+%%   .   |   .   .   .   .   .   .   |   .   .  .  =   .               ^     
+%%   .   |<-- blockwidth ------------------------->=   .               |    .
+%%   .   |   .                       |   .   .  .  =   .               |     
+%%   .   |                           |       .  .  =   .       textheight   .
+%%   .   |   .             Page      |   .   .  .  =   .               |     
+%%   .   |                      blockheight  .  .  =   .               |    .
+%%   .   |   .                       |   .   .  <--> bindingoffset     |     
+%%   .   |                           |       .  .  =   .               |    .
+%%   .   |   .   .   .   .   .   .   |   .   <--> gutteroffset         v     
+%%   .   |                           v       .  .  =   .                    .
+%%   .   +-----------------------------------------+-----  ^   .   .  ---    
+%%   .   .                                         .   .   | bleed          .
+%%   + - - - - - - - - - - - - - - - - - - - - - - + - +   v   .   .   .   ---
+%%       .                                         .                        ^
 %%       |   <-- textwidth -------------->    .    |
 %%                                                 ^ gutter
 %%
@@ -277,6 +278,9 @@
 %% Note that all macros respect |\bindingoffset| but only some macros 
 %% account for |\gutteroffset|, namely macros that do not display content 
 %% with bleeds.
+%%
+%% Also note that bleeds are included in \href{https://ctan.org/pkg/geometry}{geometry}'s 
+%% |\paperwidth| and |\paperheight|.
 %%
 % NOTE: if blockwidth/blockheight are set they will force recalculations 
 %		and overriding of the paperwidth/paperheight if they were changed
