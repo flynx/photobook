@@ -38,6 +38,7 @@
 %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %
+%
 % XXX ASAP: imagecell: photobook@imagecell@left and photobook@imagecell@top
 %		should explicitly account for clearence@left and clearence@top resp.
 % XXX ASAP: imagecell: clearance should have the same semantics as cliptocell 
@@ -88,12 +89,25 @@
 %			cell/cell* depend on absolute mode being set globally
 %
 %
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+%
+% Work around an issue with calc's \ratio{..}{..} breaking into an 
+% "Arythmetic overflow" when working with large images.
+% (see Issues section for more info)
+%
+% NOTE: if the error persists just make this smaller but note that the 
+%		smaller this gets the greater the error can be for very small 
+%		images
+%
+\def\CalcOverflowFactor{0.1}%
+
+
 %----------------------------------------------------------------------
 
 %%% NOTE: \def\<module-name>@[A-Z]+ macros will be visible to both the 
 %%%		code and the generated docs...
-\edef\photobook@FILEVERSION{v0.1.30}
-\edef\photobook@FILEDATE{2024-07-18}
+\edef\photobook@FILEVERSION{v0.1.31}
+\edef\photobook@FILEDATE{2024-07-19}
 
 
 %% \documentclass{ltxdoc}
@@ -921,7 +935,7 @@
 
 %% \DescribeMacro{\imageblockoffsettop=<ratio>}
 %
-%% The ration by which the image is raised in |\ImagePage{..}| and 
+%% The ratio by which the image is raised in |\ImagePage{..}| and 
 %% derived templates.
 %%
 \edef\imageblockoffsettop{\photobook@imageblockoffsettop}
@@ -2519,8 +2533,9 @@
 			% NOTE: here we calculate image/cell eccentricity to decide 
 			%		to fit to width or heigh of cell...
 			% NOTE: did I say that I "love" how LaTeX does basic math??
+			% NOTE: \ratio{..}{..} here can break, see Issues for more info...
 			\setlength\photobook@imagecell@imgratio{%
-				1pt * \ratio{\wd\photobook@imagebox}{\ht\photobook@imagebox}}%
+				1pt * \ratio{\CalcOverflowFactor\wd\photobook@imagebox}{\CalcOverflowFactor\ht\photobook@imagebox}}%
 			\setlength\photobook@imagecell@cellratio{%
 				1pt * \ratio{\cellwidth}{\cellheight}}%
 			\ifdim \photobook@imagecell@imgratio < \photobook@imagecell@cellratio%
@@ -2528,7 +2543,7 @@
 					\includegraphics[%
 						keepaspectratio, 
 						width=\photobook@imagecell@scale\dimexpr 
-							+ \cellwidth
+							\cellwidth
 							- \photobook@imagecell@clearance@left
 							- \photobook@imagecell@clearance@right \relax]{#3}}%
 			\else%
@@ -2536,7 +2551,7 @@
 					\includegraphics[%
 						keepaspectratio, 
 						height=\photobook@imagecell@scale\dimexpr 
-							+ \cellheight 
+							\cellheight 
 							- \photobook@imagecell@clearance@top
 							- \photobook@imagecell@clearance@bottom \relax]{#3}}%
 		\fi\fi\fi%
@@ -4852,8 +4867,9 @@
 		% align center -> check if image fits vertically...
 		\ifphotobook@ImagePageFit@centered\else%
 			\sbox{\photobook@imagebox}{\includegraphics{#3}}%
+			% NOTE: \ratio{..}{..} here can break, see Issues for more info...
 			\setlength\photobook@ImagePageFit@imgratio{%
-				1pt * \ratio{\wd\photobook@imagebox}{\ht\photobook@imagebox}}%
+				1pt * \ratio{\CalcOverflowFactor\wd\photobook@imagebox}{\CalcOverflowFactor\ht\photobook@imagebox}}%
 			% NOTE: subtracting \bindingoffset from \cellwidth here makes sure that
 			%		we avoid offsetting images close enough in ratio to the page and
 			%		messing up bleeds...
@@ -5695,6 +5711,26 @@
 
 
 
+%----------------------------------------------------------------------
+%%%% Issues
+%
+%% \subsection*{Large images can cause "Arythmetic overflow"}
+%
+%% \DescribeMacro{\CalcOverflowFactor=0.1}
+%
+%% If the issue occurs set |\CalcOverflowFactor| to a smaller value. 
+%% But note, a value too small can lead to errors in the affected macros, 
+%% a good value is between 0.1 and 0.01.
+%%
+%% Also note that it is recommended to pre-size images the print outside 
+%% of \LaTeX.
+%%
+%% Affected macros: |\imagecell[fill]{..}{..}|, |\ImagePageFit|.
+%%
+% The issue occurs in the calc's |\ratio{..}{..}| macro when calculating 
+% image proportions.
+%
+%
 %----------------------------------------------------------------------
 % Index...
 %
