@@ -145,8 +145,8 @@
 %%% \newcommand\DescribeGlobal[1]{%
 %%%	\DescribeMacro{#1}}
 %%
-%% \newcommand\LEGACY[1][]{\fbox{LEGACY #1}}
-%% \newcommand\EXPERIMENTAL[1][]{\fbox{EXPERIMENTAL #1}}
+%% \newcommand\LEGACY[1][]{\fbox{LEGACY\ifstrempty{#1}{}{ #1}}}
+%% \newcommand\EXPERIMENTAL[1][]{\fbox{EXPERIMENTAL\ifstrempty{#1}{}{ #1}}}
 %%
 %%% sections to new pages...
 %% \newcommand\sectionbreak{\Needspace{5\baselineskip}}
@@ -5702,7 +5702,7 @@
 %% \DescribeMacro{\TEX}
 %% \DescribeMacro{\LATEX}
 %
-%% Convenience macros to display \TeX and \LaTeX in the correct font.
+%% Convenience macros to display \TeX\ and \LaTeX\ in the correct font.
 %%
 \def\TEX{%
 	{\fontfamily{lmr}\selectfont \TeX}}
@@ -5714,7 +5714,7 @@
 %----------------------------------------------------------------------
 %%%% Issues
 %
-%% \subsection*{Large images can cause "Arythmetic overflow"}
+%% \subsection*{Large images can cause ``Arythmetic overflow"}
 %
 %% \DescribeMacro{\CalcOverflowFactor=0.1}
 %
