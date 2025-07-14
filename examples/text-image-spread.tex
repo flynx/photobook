@@ -1,0 +1,65 @@
+%----------------------------------------------------------------------
+
+\documentclass[
+	layoutmode=block,
+	% page size...
+	blockwidth=240mm, blockheight=220mm,
+	bleed=4mm,
+	gutteroffset=5mm,
+	bindingoffset=0mm,
+	% image block configuration...
+	imageblockwidth=0.98, imageblockheight=0.98,
+	imageblockoffsettop=0,
+	% misc...
+	9pt,final,openany
+]{photobook}
+
+\usepackage{lipsum}
+\usepackage{ragged2e}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+% remove section numbering...
+\setcounter{secnumdepth}{0}
+
+\setlength\parindent{0pt}
+
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\edef\TestImage{DSC00403-2}
+\edef\TestImageV{DSC00403-2vert}
+
+
+\newcommand\Chapter[1]{
+	\cleartoleftpage%
+	\emptypage%
+	\chapter{#1}}
+
+\newcommand\Section[1]{
+	\cleartoleftpage%
+	\section{#1}%
+	% XXX PRECLEAR...
+	\clearpage}
+
+
+
+%----------------------------------------------------------------------
+\begin{document}
+
+% force what's next to left page of spread...
+\cleartoleftpage
+
+% text...
+\begin{page}
+	\lipsum[1-3]
+\end{page}
+
+% image...
+\ImagePage{}{\TestImage}
+
+
+
+%----------------------------------------------------------------------
+\end{document} %                                    vim:set ts=4 sw=4 :
