@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="3840"
+   height="5495"
+   viewBox="0 0 3840 5495"
+   sodipodi:docname="Johannes Vermeer - The Girl With The Pearl Earring (1665).svg"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   inkscape:export-filename="Johannes Vermeer - The Girl With The Pearl Earring (1665).png"
+   inkscape:export-xdpi="50"
+   inkscape:export-ydpi="50"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath2">
+      <path
+         style="fill:none;stroke:#ffffff;stroke-width:15.1181;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         d="M 1920,0 0,2747.5 1920,5495 3840,2747.5 Z"
+         id="path3" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath6">
+      <rect
+         style="fill:none;stroke:#ffffff;stroke-width:60.4724;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         id="rect7"
+         width="500"
+         height="500"
+         x="318.06506"
+         y="257.89059" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showguides="true"
+     inkscape:zoom="0.11632839"
+     inkscape:cx="1916.9868"
+     inkscape:cy="2750.8331"
+     inkscape:window-width="2048"
+     inkscape:window-height="1115"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Image"
+     id="g1">
+    <image
+       width="3840"
+       height="5495"
+       preserveAspectRatio="none"
+       xlink:href="Johannes%20Vermeer%20-%20The%20Girl%20With%20The%20Pearl%20Earring%20(1665).jpg"
+       id="image1"
+       sodipodi:insensitive="true"
+       style="display:inline" />
+    <g
+       id="g5"
+       inkscape:label="large diamond">
+      <path
+         style="fill:none;stroke:#000000;stroke-width:60.47244094;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke;stroke-linejoin:miter;stroke-miterlimit:10;stroke-linecap:square"
+         d="M 1920,0 0,2747.5 1920,5495 3840,2747.5 Z"
+         id="path1"
+         clip-path="none"
+         inkscape:label="black diamond" />
+      <path
+         style="fill:none;stroke:#ffffff;stroke-width:30.23622047;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke;stroke-linejoin:miter;stroke-miterlimit:10;stroke-linecap:square"
+         d="M 1920,0 0,2747.5 1920,5495 3840,2747.5 Z"
+         id="path4"
+         clip-path="url(#clipPath2)"
+         inkscape:label="white diamond" />
+    </g>
+    <g
+       id="g9"
+       inkscape:label="small diamond">
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:60.4724;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         id="rect8"
+         width="500"
+         height="500"
+         x="250"
+         y="-250"
+         clip-path="none"
+         transform="rotate(45)" />
+      <rect
+         style="fill:none;stroke:#ffffff;stroke-width:60.4724;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         id="rect5"
+         width="500"
+         height="500"
+         x="318.06506"
+         y="257.89059"
+         clip-path="url(#clipPath6)"
+         transform="rotate(45,647.11071,171.7835)" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#g9"
+       id="use9"
+       transform="translate(3132.8932)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#g9"
+       id="use10"
+       transform="translate(3132.8932,4787.8932)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#g9"
+       id="use11"
+       transform="translate(2.0565886e-5,4789.4527)" />
+  </g>
+</svg>
