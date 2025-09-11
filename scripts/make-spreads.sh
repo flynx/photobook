@@ -578,7 +578,7 @@ handleSpread(){
 		# XXX this will also eat 0-imagepage.tpl / 20-textpage.tpl -- do a better pattern...
 		if ! [ -z $template ] ; then
 			template=(`ls "$spread/"*.tpl \
-				| egrep -v '.*-('${IMAGE_PAGE}'|'${TEXT_PAGE}')\.tpl'`)
+				| grep -E -v '.*-('${IMAGE_PAGE}'|'${TEXT_PAGE}')\.tpl'`)
 		fi
 		# no template explicitly defined -> match auto-template...
 		if [ -z $layout ] && [ -z $template ] ; then
